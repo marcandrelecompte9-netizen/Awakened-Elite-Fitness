@@ -51,7 +51,15 @@
     },
     ensemble: {
       label: 'séances à deux', emoji: '🤝', unit: '',
-      metric: function (e) { return (e && (e.duo || e.coop)) ? 1 : 0; },
+      // v1539 : avant, cherchait e.duo / e.coop que rien n'enregistre → toujours 0.
+      // Compte : jeux à deux des enfants, jeux d'entraînement à deux, « Bouger ensemble »,
+      // séances de groupe reçues d'un autre membre. Lecture seule de l'historique.
+      metric: function (e) {
+        if (!e) return 0;
+        var w = e.workoutData || {};
+        var DUO = ['yougo', 'duel', 'egalisateur', 'relais', 'miroir', 'partage', 'roi', 'planche'];
+        return (e.duo || e.coop || e.fromGroup || w._duo || w._famille || (w._jeu && DUO.indexOf(w._jeu) >= 0) || (e._jeu && DUO.indexOf(e._jeu) >= 0)) ? 1 : 0;
+      },
       presets: [5, 10, 20]
     },
     varietes: {
@@ -83,7 +91,8 @@
     },
     exercises: {
       label: 'exercices', emoji: '🎯', unit: '',
-      metric: function (e) { return (e && Array.isArray(e.exercises)) ? e.exercises.length : 0; },
+      // v1539 : l'historique enregistre un NOMBRE d'exercices (avant : seule une liste comptait → 0)
+      metric: function (e) { if (!e) return 0; if (typeof e.exercises === 'number') return Math.max(0, e.exercises); return Array.isArray(e.exercises) ? e.exercises.length : 0; },
       presets: [100, 250, 500]
     }
   };
@@ -283,7 +292,10 @@
 
     var perMember = [];
     var total = 0;
-    _allProfiles().forEach(function (p) {
+    // v1540 : membres de la famille (profils liés), pas tous les profils de l'appareil
+    var _mb = (typeof window.awkFamilleMembres === 'function') ? window.awkFamilleMembres() : _allProfiles();
+    if (!_mb.length) _mb = _allProfiles().filter(function (p) { return p.id === _currentId(); });
+    _mb.forEach(function (p) {
       var c = _contribution(p.id, g.type, g.startsAt, g.endsAt);
       if (c > 0) {
         perMember.push({ id: p.id, name: p.name || 'Membre', avatar: p.avatar || '🙂', value: c });
@@ -291,6 +303,17 @@
       }
     });
     perMember.sort(function (a, b) { return b.value - a.value; });
+    // v1540 : « exercices découverts » = une fois pour TOUTE la famille (avant : par membre, additionné)
+    if (def.varietes) {
+      var _vus = {};
+      _mb.forEach(function (p) {
+        _history(p.id).forEach(function (e) {
+          var ts = _entryTs(e); if (ts < g.startsAt || ts > g.endsAt) return;
+          ((e && e.workoutData && e.workoutData.exercises) || []).forEach(function (x) { if (x && x.name && !x.isRest && !x.isInfo) _vus[x.name] = 1; });
+        });
+      });
+      total = Object.keys(_vus).length;
+    }
 
     // Garde : un objectif à 0 donnerait Infinity (affiché « NaN% »).
     var pct = (g.target > 0) ? Math.min(100, Math.round((total / g.target) * 100)) : 0;

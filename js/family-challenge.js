@@ -326,7 +326,9 @@
     var expire = Date.now() > c.endsAt;
 
     var perMember = [], total = 0, participants = 0;
-    (window.getAllProfiles ? window.getAllProfiles() : []).forEach(function (p) {
+    // v1540 : membres de la famille (profils liés), pas tous les profils de l'appareil
+    var _fam = (typeof window.awkFamilleMembres === 'function') ? window.awkFamilleMembres() : (window.getAllProfiles ? window.getAllProfiles() : []);
+    _fam.forEach(function (p) {
       var v = 0, seances = 0;
       var hist = [];
       try {
@@ -353,7 +355,7 @@
     // « Tout le monde participe » se juge au nombre de membres à ≥2 séances
     var atteint, pct;
     if (c.type === 'coop_chacun') {
-      var nb = (window.getAllProfiles ? window.getAllProfiles() : []).length;
+      var nb = _fam.length;   // v1540 : chaque membre de la famille (avant : chaque profil de l'appareil)
       atteint = nb > 0 && participants >= nb;
       pct = nb > 0 ? Math.min(100, Math.round(participants / nb * 100)) : 0;
       total = participants;

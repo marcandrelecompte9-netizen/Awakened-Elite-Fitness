@@ -55,8 +55,10 @@
   // État de la semaine : séances de la famille depuis lundi
   function etatSemaine() {
     var d0 = debutSemaine(), me = moi();
-    var membres = [{ id: me, nom: 'Toi', moi: true }].concat(liens().map(function (r) {
-      return { id: r.member.id, nom: r.member.name || 'Membre' };
+    // v1540 : la même famille pour tout le monde (avant : les liens de celui qui regarde)
+    var _fam = (typeof window.awkFamilleMembres === 'function') ? window.awkFamilleMembres() : [];
+    var membres = [{ id: me, nom: 'Toi', moi: true }].concat(_fam.filter(function (p) { return p.id !== me; }).map(function (p) {
+      return { id: p.id, nom: p.name || 'Membre' };
     }));
     var total = 0;
     membres.forEach(function (m) {

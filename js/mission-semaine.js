@@ -90,6 +90,7 @@
     if (typeof window.awakGrantLifetimeXP !== 'function') return 0;
     try { localStorage.setItem(clePaye(), cleSemaine()); } catch (x) { return 0; }
     window.awakGrantLifetimeXP(e.xp);
+    try { if (window.AwakHomePro && AwakHomePro.render) setTimeout(AwakHomePro.render, 0); } catch (x) {}   // v1542 : tuile Progression à jour
     try { if (typeof showToast === 'function') showToast('Mission accomplie : ' + e.titre + ' (+' + e.xp + ' XP)', 'success', 3500); } catch (x) {}
     return e.xp;
   }

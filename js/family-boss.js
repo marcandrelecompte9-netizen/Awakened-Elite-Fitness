@@ -166,12 +166,15 @@
     if (!me) return 0;
     var all = [];
     try { if (typeof window.getAllProfiles === 'function') all = window.getAllProfiles() || []; } catch (e) {}
-    // Le profil actif compte s'il a lui-même le mode jeu activé.
+    // v1540 : membres de la famille (même liste partout) avec le mode jeu
+    var fam = {};
+    try { ((typeof window.awkFamilleMembres === 'function') ? window.awkFamilleMembres() : []).forEach(function (p) { fam[p.id] = true; }); } catch (e) {}
+    if (!fam[me]) return 0;
     var n = _gameModeOn(me) ? 1 : 0;
     if (!n) return 0;   // si moi-même je ne joue pas, pas de boss pour moi
     all.forEach(function (p) {
       if (p.id === me) return;
-      if (_linkedToMe(p.id) && _gameModeOn(p.id)) n++;
+      if (fam[p.id] && _gameModeOn(p.id)) n++;
     });
     return n;
   }
@@ -609,11 +612,53 @@ window.AwakFamilyBoss = {
     var r = claimReward();
     if (!r) { if (typeof window.showToast === 'function') window.showToast('Récompense déjà réclamée', 'info', 2500); return; }
     var itemsTxt = (r.items && r.items.length)
-      ? ' · ' + r.items.map(function (i) { return i.icon + ' ' + i.name; }).join(' + ')
+      ? ' · ' + r.items.map(function (i) {
+          // v1539 : prévenir si l'objet n'est pas encore équipable
+          var bl = null; try { bl = (typeof window.getEquipBlockReason === 'function') ? window.getEquipBlockReason(i) : null; } catch (e) {}
+          return i.icon + ' ' + i.name + (bl ? ' (pas encore équipable : ' + bl.label + ')' : '');
+        }).join(' + ')
       : '';
     var msg = '🎁 +' + r.xp + ' XP' + itemsTxt + (r.isTop ? ' — Meilleur combattant ! 👑' : '');
     if (typeof window.showToast === 'function') window.showToast(msg, 'success', 5500);
     if (typeof window.refreshCoopViews === 'function') window.refreshCoopViews(); else if (typeof window.renderAdventureTab === 'function') window.renderAdventureTab();
+  };
+
+  // v1539 : profil supprimé → retiré du réseau, des défis en cours et du classement du boss
+  // (avant : il restait meilleur contributeur et bloquait le bonus des autres).
+  window.awakFamilleOublierProfil = function (pid) {
+    if (!pid) return;
+    try {
+      var L = JSON.parse(localStorage.getItem('awakFamilyLinks') || '[]');
+      if (Array.isArray(L)) localStorage.setItem('awakFamilyLinks', JSON.stringify(L.filter(function (l) { return l && l.from !== pid && l.to !== pid; })));
+    } catch (e) {}
+    try {
+      var C = JSON.parse(localStorage.getItem('awakFamilyChallenges') || '[]');
+      if (Array.isArray(C)) localStorage.setItem('awakFamilyChallenges', JSON.stringify(C.filter(function (c) { return c && c.a !== pid && c.b !== pid; })));
+    } catch (e) {}
+    try {
+      var Nd = JSON.parse(localStorage.getItem('awakFamilyNudges') || '[]');
+      if (Array.isArray(Nd)) localStorage.setItem('awakFamilyNudges', JSON.stringify(Nd.filter(function (x) { return x && x.to !== pid && x.from !== pid; })));
+    } catch (e) {}
+    try {
+      var R = JSON.parse(localStorage.getItem('awakFamilyReactions') || '{}');
+      if (R && typeof R === 'object') {
+        Object.keys(R).forEach(function (eid) {
+          var e = R[eid]; if (!e || typeof e !== 'object') return;
+          Object.keys(e).forEach(function (k) { if (Array.isArray(e[k])) e[k] = e[k].filter(function (x) { return x !== pid; }); });
+        });
+        localStorage.setItem('awakFamilyReactions', JSON.stringify(R));
+      }
+    } catch (e) {}
+    try { localStorage.removeItem('awakFamVu_' + pid); } catch (e) {}
+    try {
+      var s = loadState();
+      if (s) {
+        if (s.contributions) delete s.contributions[pid];
+        if (s.claimed) delete s.claimed[pid];
+        if (Array.isArray(s.log)) s.log = s.log.filter(function (x) { return x && x.pid !== pid; });
+        saveState(s);
+      }
+    } catch (e) {}
   };
 
   window.AwakFamilyBossSpawn = function (bossId) {

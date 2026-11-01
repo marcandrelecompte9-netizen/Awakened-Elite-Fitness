@@ -236,7 +236,7 @@
             const list = (typeof window.CONSUMABLES_PUBLIC !== 'undefined') ? window.CONSUMABLES_PUBLIC
                        : (typeof CONSUMABLES !== 'undefined' ? CONSUMABLES : []);
             (list || []).forEach(c => {
-                const price = CONSUMABLE_PRICES[c.id] ? Math.round(CONSUMABLE_PRICES[c.id] * _palit()) : 0;
+                const price = CONSUMABLE_PRICES[c.id] ? Math.round(CONSUMABLE_PRICES[c.id] * _priceCoef() * _palit()) : 0;   // v1537 : selon le rang, comme l'équipement
                 if (price) out.push({ id:c.id, name:c.name, icon:(c.icon || c.emoji || '🧪'), description:c.description, price });
             });
         } catch(e) {}
@@ -244,7 +244,7 @@
     }
 
     function buyConsumable(itemId) {
-        const price = CONSUMABLE_PRICES[itemId] ? Math.round(CONSUMABLE_PRICES[itemId] * _palit()) : 0;
+        const price = CONSUMABLE_PRICES[itemId] ? Math.round(CONSUMABLE_PRICES[itemId] * _priceCoef() * _palit()) : 0;
         if (!price) return { ok:false, reason:'Objet indisponible' };
         if (getGold() < price) return { ok:false, reason:'Or insuffisant' };
         if (typeof window.awakConsumablesAdd !== 'function') return { ok:false, reason:'Erreur système' };
@@ -386,14 +386,14 @@
     function getMasteryNextPrice(id) {
         const lvl = getMasteryLevel(id);
         if (lvl >= MASTERY_MAX_LEVEL) return null;
-        return Math.round(MASTERY_PRICES[lvl] * _priceCoef());
+        return MASTERY_PRICES[lvl];   // v1537 : prix fixe (avant : multiplié par le rang)
     }
 
     function buyMasteryLevel(id) {
         if (!MASTERY_DEFS[id]) return { ok:false, reason:'Maîtrise inconnue' };
         const lvl = getMasteryLevel(id);
         if (lvl >= MASTERY_MAX_LEVEL) return { ok:false, reason:'Niveau maximum atteint' };
-        const price = Math.round(MASTERY_PRICES[lvl] * _priceCoef());
+        const price = MASTERY_PRICES[lvl];   // v1537 : prix fixe
         if (getGold() < price) return { ok:false, reason:'Or insuffisant' };
         spendGold(price);
         const m = getMasteries();

@@ -432,6 +432,8 @@
     var hof = document.getElementById('awakTuileHofTitre'), hofSub = document.getElementById('awakTuileHofSous');
     if (hof) hof.textContent = kid ? 'Mes records' : 'Hall of Fame';
     if (hofSub) hofSub.textContent = kid ? 'Ce que tu fais de mieux' : 'Tes records personnels';
+    // v1548 : enfant → « Mes records » est déjà affiché en haut : pas de tuile en double
+    try { var _t = hof && hof.closest('[onclick]'); if (_t) _t.style.display = kid ? 'none' : ''; } catch (e) {}
   }
 
   function rendre() {

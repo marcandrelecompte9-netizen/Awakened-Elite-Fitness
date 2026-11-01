@@ -457,7 +457,14 @@
   window.AwakFamBadges = function () {
     var st = _famStats();
     // Membres liés : compté en direct, pas besoin d'un compteur.
-    try { st.membresLies = myRelations().length; } catch (e) {}
+    // v1540 : membres liés à la famille (hors soi), sans jamais redescendre
+    try {
+      // v1541 : le badge récompense les liens créés (la famille = tous les profils)
+      var _ids = {}, _n = 0;
+      loadLinks().forEach(function (l) { if (l) { _ids[l.from] = true; _ids[l.to] = true; } });
+      _n = Math.max(0, Object.keys(_ids).length - 1);
+      if (_n > (st.membresLies || 0)) { st.membresLies = _n; _famStatsSave(st); }
+    } catch (e) {}
     return FAM_BADGES.map(function (b) {
       var v = st[b.cle] || 0;
       return { id: b.id, emoji: b.emoji, nom: b.nom, desc: b.desc,
@@ -1042,7 +1049,21 @@
   }
 
 
+  // v1540 : DÉFINITION UNIQUE de la famille — tous les profils liés à au moins un
+  // autre membre. Même liste quel que soit le profil qui regarde. Utilisée par
+  // l'objectif commun, le défi d'équipe, la constellation et le boss familial.
+  // v1541 : règle v1295 — tous les profils de l'appareil sont la famille
+  // (le lien n'est qu'une étiquette). Avant : seulement les profils liés,
+  // donc un enfant non « lié » ne comptait ni pour le ciel, ni l'objectif, ni le boss.
+  function familleMembres() {
+    var all = [];
+    try { all = (typeof window.getAllProfiles === 'function') ? (window.getAllProfiles() || []) : []; } catch (e) {}
+    return all.filter(function (p) { return p && p.id; });
+  }
+  window.awkFamilleMembres = familleMembres;
+
   window.AwakFamily = {
+    familleMembres: familleMembres,
     renderConstellation: renderConstellation,
     REL_TYPES: REL_TYPES,
     OFFERABLE: OFFERABLE,
@@ -1355,7 +1376,16 @@
     if (pick) pick.remove();
 
     // 🏅 Badge « Toujours là » : compté ici, à l'envoi effectif.
-    try { if (typeof window.AwakFamBadgeInc === 'function') window.AwakFamBadgeInc('encouragements', 1); } catch (e) {}
+    // v1540 : au plus UN encouragement compté par membre et par jour (avant : sans limite)
+    try {
+      var _jour = new Date().toDateString(), _cle = currentId() + '>' + memberId;
+      var _faits = JSON.parse(localStorage.getItem('awakNudgeBadgeJour') || '{}');
+      if (_faits[_cle] !== _jour) {
+        _faits[_cle] = _jour;
+        localStorage.setItem('awakNudgeBadgeJour', JSON.stringify(_faits));
+        if (typeof window.AwakFamBadgeInc === 'function') window.AwakFamBadgeInc('encouragements', 1);
+      }
+    } catch (e) {}
 
     // 📬 Déposer l'encouragement dans la boîte du destinataire : les profils
     // partagent le même appareil, il le verra en prenant la main.

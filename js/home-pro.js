@@ -237,6 +237,10 @@
   // ═══ v1318 : ACCUEIL « OBJECTIF DU JOUR » ══════════════════════════
   //   Carte héros (en-tête + objectif du jour + UN bouton) · 2 tuiles
   //   (progression, semaine) · 1 carte quête (mode jeu) ou muscles à prévoir.
+  // v1543 : séance en cours / mode récupération / enfant
+  function seanceEnCours() { try { var s = (typeof window.loadActiveWorkoutState === 'function') ? window.loadActiveWorkoutState() : null; return s && s.workout ? s : null; } catch (e) { return null; } }
+  function enRecup() { try { return !!(window.AwakRecovery && AwakRecovery.isActive && AwakRecovery.isActive()); } catch (e) { return false; } }
+  function estEnfant() { try { return !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) { return false; } }
   function jeuActif() { try { return typeof window.rpgEnabled === 'function' && window.rpgEnabled(); } catch (e) { return false; } }
   function niveauJeu() {
     try {
@@ -341,7 +345,20 @@
     // et les jours de muscu disparaissaient de l'accueil).
     var _hyb = false; try { _hyb = Object.keys(pl.plan || {}).some(function (k) { return pl.plan[k] && pl.plan[k].hybride; }); } catch (e) {}
     if (runP && _hyb && !(auj && auj.s && auj.s.discipline === 'course')) runP = null;
-    if (ev) {
+    var _enc = seanceEnCours();
+    if (_enc) {
+      etiq = 'SÉANCE EN COURS';
+      titre = 'Reprendre : ' + (_enc.workout.name || 'Séance');
+      var _nEx = (_enc.workout.exercises || []).length, _pc = _nEx ? Math.round((_enc.exerciseIndex || 0) / _nEx * 100) : 0;
+      meta = '<span class="ahp-m">' + ico('chrono', 15, '#cbd5e1') + '<span>' + _pc + ' % fait</span></span>';
+      bouton = '<button class="ahp-cta" onclick="if(typeof resumeActiveWorkout===\'function\')resumeActiveWorkout()">Reprendre ma séance</button>' +
+        '<button onclick="if(typeof abandonActiveWorkout===\'function\')abandonActiveWorkout()" style="display:block;margin:7px auto 0;min-height:auto;padding:4px 8px;background:none;border:none;cursor:pointer;font-family:inherit;font-size:0.76em;color:#8d9cb1;">Abandonner cette séance</button>';
+    } else if (enRecup()) {
+      etiq = 'MODE RÉCUPÉRATION';
+      titre = 'Prends soin de toi';
+      meta = '<span>Ta progression est gelée. Bouge en douceur si ton corps le permet.</span>';
+      bouton = '<button class="ahp-cta" onclick="if(typeof showMorningRoutineModal===\'function\')showMorningRoutineModal()">Mobilité douce</button>';
+    } else if (ev) {
       if (ev.seance && !ev.faite) {
         titre = ev.titre;
         meta = (ev.duree ? '<span class="ahp-m">' + ico('chrono', 15, '#cbd5e1') + '<span>~' + ev.duree + ' min</span></span>' : '')
@@ -381,7 +398,7 @@
       bouton = auj.faite
         ? '<button class="ahp-cta ahp-cta-s" onclick="switchTab(\'history\')">Voir ma progression</button>'
         : '<button class="ahp-cta" onclick="' + go + '">Commencer ma séance</button>';
-    } else if (aPlan && (typeof window.awakSeanceRecente !== 'function' || window.awakSeanceRecente(2))) {
+    } else if (!faiteAuj && aPlan && (typeof window.awakSeanceRecente !== 'function' || window.awakSeanceRecente(2))) {
       // v1400 : « Jour de repos » seulement après une séance récente (sinon : la séance du Système)
       titre = 'Jour de repos';
       var pr = prochaine(pl, id);
@@ -399,9 +416,14 @@
       bouton = '<button class="ahp-cta ahp-cta-s" onclick="switchTab(\'history\')">Voir ma progression</button>';
     } else {
       titre = 'Séance du Système';
+      if (estEnfant()) {   // v1543 : l'enfant reçoit une séance de jeux, pas un split adulte
+        titre = 'Séance du jour';
+        meta = '<span class="ahp-m">' + ico('eclair', 15, '#cbd5e1') + '<span>Jeux et mouvements pour ton âge</span></span>';
+      } else {
       // v1331 : le type du jour (haut du corps, jambes…) quand il y en a un
       try { var sp = window.awakSplitDuJour ? window.awakSplitDuJour() : null; if (sp) titre = sp.nom; } catch (e) {}
       meta = '<span class="ahp-m">' + ico('eclair', 15, '#cbd5e1') + '<span>Choisie selon ta récupération</span></span>';
+      }
       // v1403 : « Boxe » cochée → une séance de boxe plutôt qu'une séance de muscu
       try {
         var _aimeB = ((typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}).aime || [];
@@ -456,16 +478,19 @@
   function tuilesHTML(info, pl, hist) {
     var id = info.id, today = new Date(), debut = lundiDe(today);
     var niv = niveauJeu();
-    var t1;
+    var t1, _recup = enRecup();
+    var _viseeSem = 0; try { tuileSemaine(); _viseeSem = (_semaine && _semaine.visee) || 0; } catch (e) {}
     if (niv) {
       t1 = tuile('eclair', ACCENT, 'PROGRESSION', niv.dans + ' / ' + niv.pas + ' XP', barreHTML(niv.dans / niv.pas), 'Niveau ' + niv.n, 'switchTab(\'game\')');
     } else {
       var d1 = new Date(today.getFullYear(), today.getMonth(), 1), mois = 0;
       hist.forEach(function (w) { if (dateSeance(w) >= d1) mois++; });
-      var visee = objectifHebdo() * 4, sr = serie(hist);
+      var visee = (_viseeSem || objectifHebdo()) * 4, sr = serie(hist);   // v1543 : même objectif que la semaine
       t1 = tuile('stats', ACCENT, 'CE MOIS-CI', mois + ' séance' + (mois > 1 ? 's' : ''), barreHTML(mois / visee),
         sr > 0 ? sr + ' jour' + (sr > 1 ? 's' : '') + ' de suite' : 'Objectif : ' + visee + ' ce mois', 'switchTab(\'history\')');
     }
+    return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">' + t1 + tuileSemaine() + '</div>';
+   function tuileSemaine() {
     // Semaine : séances faites / objectif (séances prévues, sinon objectif du profil)
     var prevues = 0, prevuesFaites = 0, faites = {}, total = 0, points = '';
     hist.forEach(function (w) { var d = dateSeance(w); if (!isNaN(d) && d >= debut) { total++; faites[ymd(d)] = true; } });
@@ -484,12 +509,17 @@
     // v1400 : plan de course → ses sorties de la semaine sont l'objectif
     // v1409 : semaine hybride → toutes les séances prévues (courses + muscu), pas seulement les sorties
     var _hybS = false; try { var _plS = planning((typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null); _hybS = Object.keys(_plS.plan || {}).some(function (k) { return _plS.plan[k] && _plS.plan[k].hybride; }); } catch (e) {}
-    var visee2 = evS ? evS.parSemaine : ((runS && !_hybS) ? runS.total : (prevues || objectifHebdo())), fait2 = total, reste = visee2 - fait2;
+    var visee2 = evS ? evS.parSemaine : ((runS && !_hybS) ? runS.total : Math.max(prevues, objectifHebdo())), fait2 = total, reste = visee2 - fait2;
     _semaine = { fait: fait2, visee: visee2 };   // v1410 : lu par la mission de la semaine
     var sous = reste <= 0 ? 'Objectif atteint' : (reste === 1 ? 'Plus qu\'une pour l\'objectif' : 'Encore ' + reste + ' pour l\'objectif');
-    var t2 = tuile('calendrier', '#a78bfa', 'CETTE SEMAINE', Math.min(fait2, 99) + ' / ' + visee2 + ' séance' + (visee2 > 1 ? 's' : ''),
-      '<div style="display:flex;justify-content:space-between;margin:9px 0 2px;">' + points + '</div>', sous, 'switchTab(\'calendar\')');
-    return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">' + t1 + t2 + '</div>';
+    var _pts = '<div style="display:flex;justify-content:space-between;margin:9px 0 2px;">' + points + '</div>';
+    if (_recup) {   // v1543 : mode récupération → pas d'objectif (ni mission)
+      _semaine = { fait: fait2, visee: 0 };
+      return tuile('calendrier', '#a78bfa', 'CETTE SEMAINE', 'En pause', _pts, 'Mode récupération', 'switchTab(\'calendar\')');
+    }
+    return tuile('calendrier', '#a78bfa', 'CETTE SEMAINE', Math.min(fait2, 99) + ' / ' + visee2 + ' séance' + (visee2 > 1 ? 's' : ''),
+      _pts, sous, 'switchTab(\'calendar\')');
+   }
   }
   function barreHTML(r) {
     var pct = Math.max(0, Math.min(100, Math.round((r || 0) * 100)));
@@ -594,7 +624,8 @@
   // Conteneurs conditionnels conservés (déplacés dans la nouvelle page).
   var AVANT = ['resumeSessionCard', 'recoveryBannerContainer', 'familyNudgeInbox', 'youthSafetyBanner'];
   var APRES = ['eveilJourneyCard', 'badgesEnfantCard', 'activeCelebBanner', 'activePlanContainer',
-               'groupWorkoutBtnContainer', 'homeRpgCard', 'fatigueAlertCard'];
+               'groupWorkoutBtnContainer', 'homeRpgCard', 'fatigueAlertCard',
+               'sexFocusCard', 'cycleCard', 'strengthCard'];   // v1542 : avant, seules sous les raccourcis
 
   function monter() {
     var tab = document.getElementById('homeTab');
@@ -635,9 +666,13 @@
       var hist = historique(info.id);
       // v1318 : carte héros · tuiles · quête
       document.getElementById('ahpEntete').innerHTML = heroHTML(info, pl, hist);
+      // v1543 : séance en cours → la carte du jour porte « Reprendre », pas de carte en double
+      try { var _rc = document.getElementById('resumeSessionCard'); if (_rc) _rc.style.display = seanceEnCours() ? 'none' : ''; } catch (e) {}
       document.getElementById('ahpAujourdhui').innerHTML = tuilesHTML(info, pl, hist);
       document.getElementById('ahpSemaine').innerHTML = queteHTML(info, hist);
       document.getElementById('ahpRaccourcis').innerHTML = raccourcisHTML();
+      // v1544 : Carte du Système du jour gardée pour l'accueil si une séance l'a retardée
+      try { if (jeuActif() && typeof window.awakShowSystemCard === 'function' && !seanceEnCours()) setTimeout(function () { try { window.awakShowSystemCard(); } catch (e) {} }, 1800); } catch (e) {}
       // v1410 : bilan des 4 semaines (une fois par cycle de 28 jours)
       try { if (window.AwakBilan4) AwakBilan4.monter(document.getElementById('ahpAvant')); } catch (e) {}
     } catch (e) { try { console.warn('AwakHomePro', e); } catch (x) {} }

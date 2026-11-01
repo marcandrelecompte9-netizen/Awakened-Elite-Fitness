@@ -11,6 +11,17 @@ const GENDER_SVG = {
     femme: `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.5" r="2.5"/><path d="M12 8c-2 0-3 1.2-3.5 3l-1.3 5h2.3l.5 5h4l.5-5h2.3l-1.3-5C15 9.2 14 8 12 8z"/></svg>`
 };
 
+// v1536 : libellés d'effets d'anneau alignés sur ce qu'ils font vraiment
+// (XP : récompense de fin de Faille ; récupération : PV récupérés en Faille)
+try {
+    if (typeof EQUIPMENT_DATABASE !== 'undefined') EQUIPMENT_DATABASE.forEach(function (it) {
+        var e = it && it.ringEffect; if (!e || typeof e.value !== 'number') return;
+        var pc = Math.round(e.value * 100);
+        if (e.type === 'xpGain') e.label = '+' + pc + ' % d\'XP en fin de Faille';
+        else if (e.type === 'recovery') e.label = '+' + pc + ' % de PV récupérés en Faille';
+    });
+} catch (e) {}
+
 // RARITIES locaux (étendus) — indépendants de items.js
 const RARITIES = {
     common:    { id:'common',    label:'E', labelFull:'Commun',     color:'#94a3b8', bg:'rgba(148,163,184,0.10)', glow:'rgba(148,163,184,0.18)', dropRate:0.60 },
@@ -90,14 +101,14 @@ function getHunterRankIndex() {
     try { lifetimeXP = parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0') || 0; } catch(e) {}
     const totalXP = muscleXP + lifetimeXP;
     const level   = (typeof rpgLevelFromXP === 'function') ? rpgLevelFromXP(totalXP) : 1;
-    // Seuils alignés : E=1, D=10, C=20, B=35, A=55, S=80, SS=120, SSS=200
+    // Seuils alignés sur le rang affiché (v1536) : E=1, D=10, C=20, B=35, A=55, S=80, SS=100, SSS=120
     return level < 10  ? 0 :
            level < 20  ? 1 :
            level < 35  ? 2 :
            level < 55  ? 3 :
            level < 80  ? 4 :
-           level < 120 ? 5 :
-           level < 200 ? 6 : 7;
+           level < 100 ? 5 :
+           level < 120 ? 6 : 7;
 }
 
 // (v551) Doublon de getItemRankValue() retiré ici — définition identique
@@ -202,6 +213,11 @@ function equipItem(invId) {
         };
     }
 
+    // v1537 : Sceau d'emplacement (pénalité de défi)
+    try {
+        const _lk = (typeof window.awkDefiEffets === 'function') ? window.awkDefiEffets().locks : [];
+        if (_lk.indexOf(item.slot) >= 0) return { success: false, reason: 'slot_locked', label: 'Emplacement scellé', itemName: item.name };
+    } catch (e) {}
     const eq = getEquipped();
     eq[item.slot] = invId;
     saveEquipped(eq);
@@ -214,6 +230,10 @@ function equipItem(invId) {
     return { success: true };
 }
 function unequipSlot(slot) {
+    try {
+        const _lk = (typeof window.awkDefiEffets === 'function') ? window.awkDefiEffets().locks : [];
+        if (_lk.indexOf(slot) >= 0) { if (typeof showToast === 'function') showToast('Emplacement scellé par le Système : impossible de le changer pour l\'instant', 'error', 3200); return; }
+    } catch (e) {}
     const eq = getEquipped(); eq[slot] = null; saveEquipped(eq);
     // v680 : voir equipItem — le retrait modifie aussi les stats affichées, la
     // Carte de Chasseur doit suivre.
@@ -294,6 +314,11 @@ function getPlayerEquipStats() {
         }
 
     }
+    // v1537 : défis du Système (Drain, Gel… / Stats d'équipement +25 à +50 %) — avant : sans effet
+    try {
+        const _dm = (typeof window.awkDefiEffets === 'function') ? window.awkDefiEffets().equip : 1;
+        if (_dm !== 1) for (const s of Object.keys(stats)) stats[s] = Math.round(stats[s] * _dm);
+    } catch (e) {}
     // Ajouter les points de stats alloués par le joueur
     try {
         const sp = JSON.parse(localStorage.getItem('fitproStatPoints') || 'null');
@@ -326,8 +351,9 @@ function getPlayerEquipStats() {
                                   + parseInt(localStorage.getItem('fitproRPGLifetimeXP')||'0');
                     const level = typeof rpgLevelFromXP === 'function' ? rpgLevelFromXP(totalXP) : 1;
                     const evos = CLASS_EVOLUTIONS[classId];
-                    if (level >= 26 && evos[1]) statBonus = evos[1].statBonus;
-                    else if (level >= 16 && evos[0]) statBonus = evos[0].statBonus;
+                    const _N = window.CLASS_EVO_NIVEAUX || [35, 55];   // v1536
+                    if (level >= _N[1] && evos[1]) statBonus = evos[1].statBonus;
+                    else if (level >= _N[0] && evos[0]) statBonus = evos[0].statBonus;
                 }
                 for (const [s,v] of Object.entries(statBonus)) stats[s] = (stats[s]||0)+(v||0);
             }
@@ -455,6 +481,15 @@ function tryEquipmentDrop(muscle, workoutQuality) {
     if (!getAdventureEnabled()) return null;
     const daily = getDailyDrops();
     if (daily.count >= MAX_DROPS_PER_DAY) return null;
+    // v1537 : défis du Système — butin interdit / bonus de chance / butin garanti (avant : sans effet)
+    let _garanti = null, _bonusDrop = 1;
+    try { if (typeof window.awkDefiEffets === 'function' && window.awkDefiEffets().ban) return null; } catch (e) {}
+    try {
+        _garanti = JSON.parse(localStorage.getItem('fitpro_guaranteed_drop') || 'null');
+        const _db = JSON.parse(localStorage.getItem('fitpro_drop_bonus') || 'null');
+        if (_db && (!_db.expiresAt || _db.expiresAt > Date.now())) _bonusDrop = _db.multiplier || 1;
+        localStorage.removeItem('fitpro_drop_bonus');   // « prochaine séance » : utilisé maintenant
+    } catch (e) {}
 
     // ── Drop ultra-rare du Tome de l'Éveil (0.5%) ────────────────────
     // Conditions : avoir déjà une classe ET ne pas déjà avoir un tome
@@ -506,21 +541,11 @@ function tryEquipmentDrop(muscle, workoutQuality) {
         const _c = getActiveCurseEffects();
         if (_c.lootMalus > 0) baseDrop = baseDrop * (1 - _c.lootMalus);
     }
-    if (Math.random() > baseDrop) return null;
+    baseDrop *= _bonusDrop;
+    if (!_garanti && Math.random() > baseDrop) return null;
 
-    // ── Rang du chasseur ──────────────────────────────────────────────
-    const rpgData = (typeof rpgLoad === 'function') ? rpgLoad() : {};
-    const totalXP = Object.values(rpgData.muscles || {}).reduce((s,m) => s + (m.xp||0), 0);
-    const hunterLevel = (typeof rpgLevelFromXP === 'function') ? rpgLevelFromXP(totalXP) : 1;
-
-    // Seuils alignés sur le système de rang affiché : E=1, D=10, C=20, B=35, A=55, S=80, SS=120, SSS=200
-    const hunterRankIndex = hunterLevel < 10  ? 0 :
-                            hunterLevel < 20  ? 1 :
-                            hunterLevel < 35  ? 2 :
-                            hunterLevel < 55  ? 3 :
-                            hunterLevel < 80  ? 4 :
-                            hunterLevel < 120 ? 5 :
-                            hunterLevel < 200 ? 6 : 7;
+    // ── Rang du chasseur ── v1537 : même rang que l'affichage (avant : XP des muscles seule, SS 120 / SSS 200)
+    const hunterRankIndex = getHunterRankIndex();
 
     // ── Table de probabilités par rang ────────────────────────────────
     // [common(E), uncommon(D), rare(C), superior(B), epic(A), legendary(S)]
@@ -606,6 +631,13 @@ function tryEquipmentDrop(muscle, workoutQuality) {
         }
     } catch(e) {}
 
+    // v1537 : butin garanti d'un défi réussi (rareté minimale), puis consommé
+    if (_garanti && _garanti.minRarity) {
+        const _ord = ['common', 'uncommon', 'rare', 'superior', 'epic', 'legendary', 'mythic'];
+        if (_ord.indexOf(rarity) < _ord.indexOf(_garanti.minRarity)) rarity = _garanti.minRarity;
+        try { localStorage.removeItem('fitpro_guaranteed_drop'); } catch (e) {}
+    }
+
     // ── Sélection de l'item ──────────────────────────────────────────
     // Les items 'riftOnly' ne droppent QUE dans les Failles (pas en séance normale).
     const allowRiftOnly = (typeof arguments !== 'undefined' && arguments.length > 0 && arguments[arguments.length-1] === 'rift');
@@ -619,12 +651,23 @@ function tryEquipmentDrop(muscle, workoutQuality) {
     const item = pool[Math.floor(Math.random() * pool.length)];
     const inv = getInventory();
     inv.unshift({ itemId: item.id, obtainedAt: new Date().toISOString(), id: Date.now() });
+    // v1536 : DOUBLE BUTIN (Yuna, compétences, passif du Souverain) — calculé mais jamais appliqué avant
+    let bonusItem = null;
+    try {
+        const _fxD = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {};
+        const _chD = Math.min(0.5, (doubleDropChance || 0) + (_fxD.doubleDropChance || 0));
+        if (_chD > 0 && Math.random() < _chD) {
+            bonusItem = pool[Math.floor(Math.random() * pool.length)];
+            inv.unshift({ itemId: bonusItem.id, obtainedAt: new Date().toISOString(), id: Date.now() + 1 });
+            if (typeof showToast === 'function') setTimeout(() => showToast('Double butin : ' + bonusItem.name + ' rejoint ton inventaire', 'success', 3500), 2500);
+        }
+    } catch (e) {}
     saveInventory(inv);
     daily.count++;
     saveDailyDrops(daily);
 
     // Retourner aussi la qualité pour le modal
-    return { item, rarity: RARITIES[rarity], qualityScore, effectiveRank };
+    return { item, rarity: RARITIES[rarity], qualityScore, effectiveRank, bonusItem };
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1829,6 +1872,8 @@ window.tryEquipWithFeedback = function(invId, onSuccess) {
         if (typeof onSuccess === 'function') onSuccess();
         if (typeof renderAdventureTab === 'function') renderAdventureTab();
         if (typeof window._rpgRefreshEquipView === 'function') window._rpgRefreshEquipView();
+    } else if (result.reason === 'slot_locked') {
+        if (typeof showToast === 'function') showToast('Emplacement scellé par le Système : impossible de le changer pour l\'instant', 'error', 3200);
     } else if (result.reason === 'rank_too_low' || result.reason === 'muscle_too_weak') {
         const isMuscle = result.reason === 'muscle_too_weak';
         document.getElementById('rankBlockModal')?.remove();
@@ -1857,6 +1902,7 @@ window.tryEquipWithFeedback = function(invId, onSuccess) {
     }
 };
 window.unequipSlot           = unequipSlot;
+window.getEquipBlockReason   = getEquipBlockReason;   // v1539 : utilisé par la boutique et le butin du boss familial
 window.getEquippedItems      = getEquippedItems;
 window.getSetBonuses         = getSetBonuses;
 window.getPlayerEquipStats   = getPlayerEquipStats;

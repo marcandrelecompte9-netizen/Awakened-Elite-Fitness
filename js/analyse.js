@@ -57,7 +57,12 @@
   function analyser() {
     var H = hist(), now = Date.now();
     var dates = H.map(tsH).filter(function (d) { return !isNaN(d); });
-    var sem = dates.filter(function (d) { return now - d <= 7 * DAY; }).length;
+    // v1547 : « cette semaine » = depuis lundi, comme Progrès et l'Accueil (avant : 7 derniers jours)
+    var _l = new Date(); _l.setHours(0, 0, 0, 0); _l.setDate(_l.getDate() - ((_l.getDay() + 6) % 7));
+    var sem = dates.filter(function (d) { return d >= _l.getTime(); }).length;
+    // v1547 : moyenne sur les 8 dernières semaines complètes + celle-ci, comme le graphe de Progrès
+    var _d8 = _l.getTime() - 7 * 7 * DAY;
+    var moy8 = Math.round(dates.filter(function (d) { return d >= _d8; }).length / 8 * 10) / 10;
     var mois = dates.filter(function (d) { return now - d <= 30 * DAY; }).length;
     var der = dates.length ? Math.max.apply(null, dates) : 0;
     var M = etatMuscles();
@@ -96,7 +101,7 @@
     } else {
       c = { type: 'bien', texte: 'Belle régularité (' + sem + ' séances cette semaine) et rien en retard. Continue ainsi.', bouton: 'Séance du jour', muscles: null };
     }
-    return { sem: sem, mois: mois, moy: Math.round(mois / 4.3 * 10) / 10, muscles: M, reprendre: reprendre, eq: eq, conseil: c, aHist: H.length > 0 };
+    return { sem: sem, mois: mois, moy: moy8, muscles: M, reprendre: reprendre, eq: eq, conseil: c, aHist: H.length > 0 };
   }
 
   // ── Lancer la séance proposée ───────────────────────────────────────
@@ -149,7 +154,7 @@
       }).join('');
       h += '<div style="margin-bottom:16px;">' + titre('À reprendre', C.ambre, 'chrono')
         + '<div style="display:flex;flex-wrap:wrap;gap:6px;">' + puces + '</div>'
-        + '<div style="font-size:0.64em;color:#64748b;margin-top:6px;line-height:1.4;">Orange : en déclin (5 à 9 jours). Rouge : négligé (10 jours et plus). Grisé : encore en récupération.</div></div>';
+        + '<div style="font-size:0.64em;color:#64748b;margin-top:6px;line-height:1.4;">Orange : à reprendre (5 à 9 jours). Rouge : négligé (10 jours et plus). Grisé : encore en récupération.</div></div>';
     }
 
     // 4. Équilibre de force (résumé — AwakBalance est la seule source)

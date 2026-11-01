@@ -356,7 +356,7 @@ const PENALTIES = [
         name: 'Double Punition',
         icon: '⛓️',
         severity: 2,
-        desc: 'Stats -40%, XP -50% ET drops bloqués pendant 72h. Le Système ne pardonne pas.',
+        desc: 'Stats d\'équipement -40%, XP -50% ET drops bloqués pendant 72h. Le Système ne pardonne pas.',
         duration: 72 * 60 * 60 * 1000,
         apply: () => ({
             type: 'double_penalty',
@@ -426,7 +426,7 @@ const PENALTIES = [
         name: 'Gel Total',
         icon: '🧊',
         severity: 3,
-        desc: 'Zéro XP, zéro drop, stats -50% pendant 72h. Le Système te fige.',
+        desc: 'Zéro XP, zéro drop, stats d\'équipement -50% pendant 72h. Le Système te fige.',
         duration: 72 * 60 * 60 * 1000,
         apply: () => ({
             type: 'total_freeze',
@@ -468,7 +468,7 @@ const PENALTIES = [
         name: 'Emprise du Déclin',
         icon: '👹',
         severity: 4,
-        desc: 'Tous les muscles perdent 10% d\'XP. Stats -60%. Drops bannis 72h. La sentence est totale.',
+        desc: 'Tous les muscles perdent 10% d\'XP. Stats d\'équipement -60%. XP et drops bloqués 72h. La sentence est totale.',
         duration: 72 * 60 * 60 * 1000,
         apply: () => {
             try {
@@ -642,22 +642,70 @@ function getActivePenalties() {
         return active;
     } catch(e) { return []; }
 }
-function addPenalty(penaltyData) {
-    // 🌳 COMPÉTENCES : esquive / réduction des pénalités de défi
+// v1537 : esquive / réduction AVANT les dégâts (avant : vérifiées après apply(), quand
+// l'XP était déjà retirée et les objets détruits). Réduction : une part de l'XP perdue
+// est rendue, les malus à durée sont adoucis et raccourcis. Les objets détruits ne
+// sont pas rendus.
+function awkPenaliteAvecCompetences(applyFn, challenge) {
+    let sk = {};
+    try { sk = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {}; } catch (e) {}
+    if (sk.penaltyDodge && Math.random() < sk.penaltyDodge) {
+        if (typeof showToast === 'function') showToast('Pénalité esquivée grâce à tes compétences', 'success', 3200);
+        return { type: 'esquive', dodged: true, expiresAt: Date.now() + 1000 };
+    }
+    let avant = null;
+    try { avant = JSON.parse(localStorage.getItem('fitproRPG') || '{}'); } catch (e) {}
+    const data = applyFn(challenge);
+    const r = Math.min(0.8, sk.penaltyReduction || 0);
+    if (r > 0) {
+        try {
+            const apres = JSON.parse(localStorage.getItem('fitproRPG') || '{}');
+            if (avant && avant.muscles && apres.muscles) {
+                Object.keys(apres.muscles).forEach(m => {
+                    const perdu = ((avant.muscles[m] || {}).xp || 0) - (apres.muscles[m].xp || 0);
+                    if (perdu > 0) apres.muscles[m].xp += Math.round(perdu * r);
+                });
+                localStorage.setItem('fitproRPG', JSON.stringify(apres));
+            }
+        } catch (e) {}
+        if (data && typeof data === 'object') {
+            ['multiplier', 'xp_multiplier', 'stat_multiplier'].forEach(k => {
+                if (typeof data[k] === 'number') data[k] = 1 - (1 - data[k]) * (1 - r);
+            });
+            if (typeof data.expiresAt === 'number') data.expiresAt = Date.now() + Math.max(0, data.expiresAt - Date.now()) * (1 - r);
+            data.reduite = r;
+        }
+        if (typeof showToast === 'function') setTimeout(() => showToast('Tes compétences adoucissent la pénalité de ' + Math.round(r * 100) + ' %', 'info', 3200), 600);
+    }
+    return data;
+}
+
+// v1537 : effets en cours des défis (lus par l'XP, les stats d'équipement, le butin et les emplacements)
+function awkDefiEffets() {
+    const out = { xp: 1, equip: 1, ban: false, locks: [] };
+    const now = Date.now();
     try {
-        const sk = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {};
-        // penaltyDodge : chance d'éviter complètement la pénalité
-        if (sk.penaltyDodge && Math.random() < sk.penaltyDodge) {
-            if (typeof showToast === 'function') showToast('💨 Pénalité esquivée grâce à ta compétence !', 'success', 2800);
-            return;
-        }
-        // penaltyReduction : réduit l'intensité de la pénalité (XP perdue, durée)
-        if (sk.penaltyReduction && penaltyData) {
-            const r = Math.min(0.8, sk.penaltyReduction);
-            if (typeof penaltyData.xpLoss === 'number') penaltyData.xpLoss = Math.round(penaltyData.xpLoss * (1 - r));
-            if (typeof penaltyData.value === 'number')  penaltyData.value  = penaltyData.value * (1 - r);
-            if (typeof penaltyData.durationDays === 'number') penaltyData.durationDays = Math.max(1, Math.round(penaltyData.durationDays * (1 - r)));
-        }
+        getActivePenalties().forEach(p => {
+            if (p.type === 'xp_curse' && typeof p.multiplier === 'number') out.xp *= p.multiplier;
+            if (p.type === 'stat_drain' && typeof p.multiplier === 'number') out.equip *= p.multiplier;
+            if (p.type === 'drop_ban' || p.drop_banned) out.ban = true;
+            if (p.type === 'slot_lock' && p.lockedSlot) out.locks.push(p.lockedSlot);
+            if (typeof p.xp_multiplier === 'number') out.xp *= p.xp_multiplier;
+            if (typeof p.stat_multiplier === 'number') out.equip *= p.stat_multiplier;
+        });
+    } catch (e) {}
+    try {
+        const r = getChallengeRewards();
+        if (r.xp_boost && r.xp_boost.expiresAt > now) out.xp *= r.xp_boost.multiplier || 1;
+        if (r.stat_boost && r.stat_boost.expiresAt > now) out.equip *= r.stat_boost.multiplier || 1;
+    } catch (e) {}
+    return out;
+}
+window.awkDefiEffets = awkDefiEffets;
+
+function addPenalty(penaltyData) {
+    if (!penaltyData || penaltyData.dodged) return;
+    try {
     } catch(e) {}
     const penalties = getActivePenalties();
     penalties.push(penaltyData);
@@ -1058,17 +1106,18 @@ function failChallenge(challenge) {
 
     let penaltyData;
     if (challenge.isLegendary) {
-        penaltyData = LEGENDARY_PENALTY.apply(challenge);
+        penaltyData = awkPenaliteAvecCompetences(LEGENDARY_PENALTY.apply, challenge);
         addPenalty(penaltyData);
     } else {
         const penaltyDef = PENALTIES.find(p => p.id === challenge.penaltyId);
         if (penaltyDef) {
-            penaltyData = penaltyDef.apply(challenge);
+            penaltyData = awkPenaliteAvecCompetences(penaltyDef.apply, challenge);
             addPenalty(penaltyData);
         }
     }
 
-    const msg = SYSTEM_FAIL_MESSAGES[Math.floor(Math.random() * SYSTEM_FAIL_MESSAGES.length)];
+    let msg = SYSTEM_FAIL_MESSAGES[Math.floor(Math.random() * SYSTEM_FAIL_MESSAGES.length)];
+    if (penaltyData && penaltyData.dodged) msg = 'Défi échoué, mais tu as esquivé la pénalité.';
     showChallengeResultModal(challenge, false, msg, penaltyData);
 }
 

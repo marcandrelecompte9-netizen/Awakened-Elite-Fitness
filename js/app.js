@@ -2410,7 +2410,6 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // — Corps entier —
                 { n: 'Burpees',              cat: 'full',  imp: 'h' },
                 { n: 'Bear crawl',           cat: 'full',  imp: 'l' },
-                { n: 'Inchworm',             cat: 'full',  imp: 'l' },
                 // — Jambes —
                 { n: 'Jump squat',           cat: 'jambes', imp: 'h' },
                 { n: 'Fentes sautées',       cat: 'jambes', imp: 'h' },
@@ -2440,7 +2439,6 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // — Chaîne postérieure —
                 { n: 'Superman',             cat: 'poster', imp: 'l' },
                 { n: 'Pont fessier (Bridge)', cat: 'poster', imp: 'l' },
-                { n: 'Marche sur place active', cat: 'cardio', imp: 'l' },
                 // — Avec matériel (seulement si possédé) —
                 { n: 'Kettlebell swing',     cat: 'poster', imp: 'l', eq: 'Kettlebell' },
                 { n: 'Thruster',             cat: 'full',   imp: 'l', eq: 'Haltères' },
@@ -3647,7 +3645,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sd = document.getElementById('supersetDiffFilter');
             if (sf) sf.value = '';
             if (sm) sm.value = '';
-            if (se) se.value = '';
+            if (se) se.value = '__mine';   // v1545 : ton matériel par défaut
             if (sd) sd.value = '';
             document.getElementById('supersetModal').classList.add('active');
             renderSupersetExercises();
@@ -3701,6 +3699,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             updateSupersetOptions();
         }
 
+        // v1545 : matériel coché (Superset / Circuit / AMRAP)
+        function _awkMonMateriel() { try { return (typeof getSelectedEquipmentNames === 'function' ? getSelectedEquipmentNames() : []) || []; } catch (e) { return []; } }
         function updateSupersetOptions() {
             const searchVal = (document.getElementById('supersetSearchFilter')?.value || '').toLowerCase();
             const muscleVal = document.getElementById('supersetMuscleFilter')?.value || '';
@@ -3711,7 +3711,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (ex.type !== 'exercise') return false;
                 if (searchVal && !(window.awakExCherche ? window.awakExCherche(ex.name) : ex.name.toLowerCase()).includes(searchVal) && !(ex.muscle||'').toLowerCase().includes(searchVal)) return false;
                 if (muscleVal && ex.muscle !== muscleVal) return false;
-                if (equipVal  && !(ex.equipment || ['Poids du corps']).some(e => e === equipVal)) return false;
+                if (equipVal === '__mine') { if (!(ex.equipment || ['Poids du corps']).some(e => e === 'Poids du corps' || _awkMonMateriel().includes(e))) return false; } else if (equipVal  && !(ex.equipment || ['Poids du corps']).some(e => e === equipVal)) return false;
                 if (diffVal   && ex.difficulty !== diffVal) return false;
                 return true;
             });
@@ -3759,8 +3759,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const workoutExercises = [];
             for (let set = 1; set <= sets; set++) {
                 exercises.forEach((ex, idx) => {
-                    workoutExercises.push({ ...ex, duration: 60 });
-                    if (idx < exercises.length - 1 || set < sets) {
+                    // v1546 : 1 série aux reps choisies (avant : chrono de 60 s, reps ignorées)
+                    workoutExercises.push({ ...ex, sets: 1, duration: ex.duration || 60 });
+                    // v1546 : A → B sans pause, repos seulement à la fin du tour
+                    if (idx === exercises.length - 1 && set < sets) {
                         workoutExercises.push({
                             name: "Repos",
                             duration: rest,
@@ -3772,6 +3774,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             const workout = {
                 type: 'superset',
+                mode: 'reps',   // v1546 : reps choisies (une tenue reste chronométrée)
                 name: name,
                 exercises: workoutExercises,
                 badgeHTML: `🔗 Superset : ${name}`,
@@ -3888,7 +3891,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sd = document.getElementById('circuitDiffFilter');
             if (sf) sf.value = '';
             if (sm) sm.value = '';
-            if (se) se.value = '';
+            if (se) se.value = '__mine';   // v1545 : ton matériel par défaut
             if (sd) sd.value = '';
             document.getElementById('circuitModal').classList.add('active');
             renderCircuitExercises();
@@ -3950,7 +3953,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (ex.type !== 'exercise') return false;
                 if (searchVal && !(window.awakExCherche ? window.awakExCherche(ex.name) : ex.name.toLowerCase()).includes(searchVal) && !(ex.muscle||'').toLowerCase().includes(searchVal)) return false;
                 if (muscleVal && ex.muscle !== muscleVal) return false;
-                if (equipVal  && !(ex.equipment || ['Poids du corps']).some(e => e === equipVal)) return false;
+                if (equipVal === '__mine') { if (!(ex.equipment || ['Poids du corps']).some(e => e === 'Poids du corps' || _awkMonMateriel().includes(e))) return false; } else if (equipVal  && !(ex.equipment || ['Poids du corps']).some(e => e === equipVal)) return false;
                 if (diffVal   && ex.difficulty !== diffVal) return false;
                 return true;
             });
@@ -3991,7 +3994,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const workoutExercises = [];
             for (let round = 1; round <= rounds; round++) {
                 exercises.forEach((ex, idx) => {
-                    workoutExercises.push({ ...ex, duration: 60 });
+                    workoutExercises.push({ ...ex, sets: 1, duration: ex.duration || 60 });   // v1546 : reps choisies
                     if (idx === exercises.length - 1 && round < rounds) {
                         // Rest between rounds
                         workoutExercises.push({
@@ -4005,6 +4008,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             const workout = {
                 type: 'circuit',
+                mode: 'reps',   // v1546
                 name: name,
                 exercises: workoutExercises,
                 badgeHTML: `🔄 Circuit : ${name}`,
@@ -4114,7 +4118,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sd = document.getElementById('amrapDiffFilter');
             if (sf) sf.value = '';
             if (sm) sm.value = '';
-            if (se) se.value = '';
+            if (se) se.value = '__mine';   // v1545 : ton matériel par défaut
             if (sd) sd.value = '';
             document.getElementById('amrapModal').classList.add('active');
             renderAMRAPExercises();
@@ -4176,7 +4180,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (ex.type !== 'exercise') return false;
                 if (searchVal && !(window.awakExCherche ? window.awakExCherche(ex.name) : ex.name.toLowerCase()).includes(searchVal) && !(ex.muscle||'').toLowerCase().includes(searchVal)) return false;
                 if (muscleVal && ex.muscle !== muscleVal) return false;
-                if (equipVal  && !(ex.equipment || ['Poids du corps']).some(e => e === equipVal)) return false;
+                if (equipVal === '__mine') { if (!(ex.equipment || ['Poids du corps']).some(e => e === 'Poids du corps' || _awkMonMateriel().includes(e))) return false; } else if (equipVal  && !(ex.equipment || ['Poids du corps']).some(e => e === equipVal)) return false;
                 if (diffVal   && ex.difficulty !== diffVal) return false;
                 return true;
             });
@@ -17482,10 +17486,23 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // Normalize: ensure every entry has exercises as an array
                 // v1225 : le NOMBRE d'exercices enregistré était perdu ici (remplacé
                 // par []), d'où « 25 min · exercices » sans chiffre dans l'historique.
+                // v1547 : chaque enregistrement réécrit l'historique LU ici (exercises = []) :
+                // le nombre recalculé tombait à 0 pour toutes les séances sauf la dernière.
+                // Ordre : nombre enregistré > _nbExos conservé (> 0) > recompte depuis la séance.
+                const _recompte = (entry) => {
+                    try {
+                        const w = entry.workoutData && entry.workoutData.exercises;
+                        if (!Array.isArray(w)) return undefined;
+                        const n = w.filter(ex => ex && !ex.isRest && !ex.isInfo && !awakEstAnnexe(ex)).length;
+                        return n || undefined;
+                    } catch (e) { return undefined; }
+                };
                 return raw.map(entry => ({
                     ...entry,
                     _nbExos: typeof entry.exercises === 'number' ? entry.exercises
-                        : (Array.isArray(entry.exercises) ? entry.exercises.length : undefined),
+                        : (Array.isArray(entry.exercises) && entry.exercises.length) ? entry.exercises.length
+                        : (typeof entry._nbExos === 'number' && entry._nbExos > 0) ? entry._nbExos
+                        : _recompte(entry),
                     exercises: Array.isArray(entry.exercises) ? entry.exercises : []
                 }));
             } catch(e) { return []; }
@@ -17647,7 +17664,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 return;
             }
             
-            showConfirm(`Rejouer "${workout.name}" ? (${workout.duration} min · ${workout.exercises} exercices)`, function() {
+            // v1548 : nombre d'exercices (exercises est un tableau après getWorkoutHistory)
+            const _nbR = typeof workout._nbExos === 'number' ? workout._nbExos : (typeof workout.exercises === 'number' ? workout.exercises : 0);
+            showConfirm(`Rejouer "${workout.name}" ? (${workout.duration} min${_nbR ? ' · ' + _nbR + ' exercice' + (_nbR > 1 ? 's' : '') : ''})`, function() {
                 // 🐛 v1259 : startPreparedWorkout() ne prend PAS d'argument — il lance
                 // la séance en préparation (pendingWorkout). La séance à rejouer
                 // était donc ignorée : rien ne se passait (ou l'ancienne séance en
@@ -19852,7 +19871,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const _parNom = {};   // v1325 : une séance répétée (Arnold : Pec/Dos ×2) = UNE routine
             t.sessions.forEach((s, i) => {
                 if (_parNom[s.name]) { createdIds.push(_parNom[s.name]); return; }
-                const exercises = generateExercisesForMuscles(s.muscles, {
+                const _ap = (window._awkTplApercu && window._awkTplApercu.id === t.id) ? window._awkTplApercu.parNom[s.name] : null;
+                const exercises = (_ap && _ap.length) ? _ap.map(e => Object.assign({}, e)) : generateExercisesForMuscles(s.muscles, {
                     count: 6,
                     level: t.level,
                     sansMateriel: !!t.sansMateriel
@@ -19912,6 +19932,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 session: s,
                 exs: generateExercisesForMuscles(s.muscles, { count: 6, level: t.level, sansMateriel: !!t.sansMateriel })
             }));
+            // v1545 : l'import reprend EXACTEMENT ces exercices (avant : nouveau tirage)
+            window._awkTplApercu = { id: t.id, parNom: {} };
+            sampleSessionExercises.forEach(x => { window._awkTplApercu.parNom[x.session.name] = x.exs; });
 
             modal.innerHTML = `
                 <div style="width:100%;max-width:480px;background:#0F1014;border:1px solid rgba(255,255,255,0.1);border-radius:20px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.6);">
@@ -24193,7 +24216,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1535);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1549);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24246,7 +24269,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1535" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1549" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -24301,7 +24324,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 //   · reflet diagonal en surimpression → surface, pas aplat
                 //   · balayage lent qui traverse → il est VIVANT
                 //   · retour tactile à l'appui (scale)
-                +   '<button onclick="startRandomWorkout()" '
+                +   '<button onclick="if(window.awakLancerSeanceSysteme)awakLancerSeanceSysteme();else startRandomWorkout()" '
                 +     'onmousedown="this.style.transform=\'scale(0.975)\'" '
                 +     'onmouseup="this.style.transform=\'scale(1)\'" '
                 +     'onmouseleave="this.style.transform=\'scale(1)\'" '
@@ -24318,6 +24341,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       'color:rgba(4,18,31,0.7);margin-top:2px;">'
                 +       'Le Système choisit pour toi</span>'
                 +   '</button>'
+                // v1544 : lancement direct (comme l'Accueil) ; le choix des muscles et de la durée reste ici
+                +   '<button onclick="startRandomWorkout()" style="display:block;margin:8px auto 0;min-height:auto;padding:4px 8px;background:none;border:none;cursor:pointer;font-family:inherit;font-size:0.76em;color:#cbd5e1;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(203,213,225,0.35);">Choisir mes muscles ou la durée</button>'
                 // v1319 : « Ou : planifier ma semaine » retiré (doublon) : la semaine se
                 // planifie depuis l'Agenda, ou l'accueil › « Ou choisir une autre activité ».
                 + '</div>';
@@ -30119,7 +30144,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1535");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1549");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -30672,8 +30697,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } else if (_evolved) {
                 const evoStage = _evolved.evolution; // 0, 1, 2
                 const evoLabels = ['Base','Évoluée','Suprême'];
-                const nextEvoText = evoStage === 0 ? 'Évolution au rang B (niveau 16)'
-                                  : evoStage === 1 ? 'Évolution suprême au rang S (niveau 26)'
+                const nextEvoText = evoStage === 0 ? 'Évolution au rang B (niveau ' + CLASS_EVO_NIVEAUX[0] + ')'
+                                  : evoStage === 1 ? 'Évolution suprême au rang A (niveau ' + CLASS_EVO_NIVEAUX[1] + ')'
                                   : 'Forme suprême atteinte';
                 const c = _evolved.color;
                 cardClass.style.cssText = `background:#12161c !important;border:1px solid ${c}55 !important;border-radius:16px;padding:16px !important;${evoStage > 0 ? `box-shadow:0 0 24px ${c}1f;` : ''}`;
@@ -31005,19 +31030,22 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             ];
 
             // Accorder les XP des quêtes complétées (une seule fois par semaine)
-            const weekKey = `rpgQuests_${awakJourLocal(weekStart)}`;
+            const weekKey = _cleProfil(`rpgQuests_${awakJourLocal(weekStart)}`);   // v1538 : par profil (avant : commun à la famille)
             const awardedQuests = JSON.parse(localStorage.getItem(weekKey) || '[]');
             quests.forEach(q => {
                 if (q.done && !awardedQuests.includes(q.id)) {
                     awardedQuests.push(q.id);
                     localStorage.setItem(weekKey, JSON.stringify(awardedQuests));
+                    // v1538 : Médaille du mérite (+XP des quêtes) aussi sur les quêtes de la semaine
+                    let _qx = q.xpReward;
+                    try { const _rq = (typeof getActiveRingEffects === 'function') ? getActiveRingEffects() : {}; if (_rq.questXp) _qx = Math.round(_qx * (1 + _rq.questXp)); } catch (e) {}
                     // Ajouter XP à tous les muscles actifs
                     const rpgData = rpgLoad();
                     Object.keys(rpgData.muscles).forEach(muscle => {
-                        rpgData.muscles[muscle].xp = (rpgData.muscles[muscle].xp || 0) + Math.floor(q.xpReward / Math.max(Object.keys(rpgData.muscles).length, 1));
+                        rpgData.muscles[muscle].xp = (rpgData.muscles[muscle].xp || 0) + Math.floor(_qx / Math.max(Object.keys(rpgData.muscles).length, 1));
                     });
                     rpgSave(rpgData);
-                    showToast(`📜 Quête complétée : ${q.name} (+${q.xpReward} XP) !`, 'success', 3500);
+                    showToast(`📜 Quête complétée : ${q.name} (+${_qx} XP) !`, 'success', 3500);
                 }
             });
 
@@ -31166,7 +31194,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         ];
 
         // ── ÉVOLUTIONS DE CLASSE ─────────────────────────────────────
-        // Chaque classe a 3 paliers : Base (D-A), Évoluée (B-A), Suprême (S+)
+        // Chaque classe a 3 paliers : Base (D), Évoluée (B, niv. 35), Suprême (A, niv. 55) — v1536
         const CLASS_EVOLUTIONS = {
             shadow_assassin: [
                 { rank:'B', name:'Lame Spectrale', emoji:'⚜️', tagline:'Plus rapide que ton regard.',
@@ -31204,7 +31232,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 { rank:'B', name:'Sorcier Cosmique', emoji:'✨', tagline:'Le corps n\'est qu\'illusion.',
                   passive:'Mana absolu : +50% XP exercices techniques · +1 point stat / niveau',
                   statBonus:{ SEN:7, PER:4, AGI:3 }, xpBonus:0.35 },
-                { rank:'S', name:'Tisserand de la Réalité', emoji:'🌌', tagline:'Je façonne le monde par ma volonté.',
+                { rank:'S', name:'Façonneur de la Réalité', emoji:'🌌', tagline:'Je façonne le monde par ma volonté.',
                   passive:'Création pure : +75% XP techniques · +2 points stats / niveau · clear penalty 1×/30j',
                   statBonus:{ SEN:14, PER:8, AGI:6, VIT:3 }, xpBonus:0.50 },
             ],
@@ -31212,7 +31240,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 { rank:'B', name:'Héritier du Souverain', emoji:'👑', tagline:'Je porte le sang du Souverain.',
                   passive:'Sang royal : 10% chance drop double · +2 toutes stats permanent',
                   statBonus:{ STR:3, AGI:3, VIT:3, END:3, PER:3, SEN:3 }, xpBonus:0.22 },
-                { rank:'S', name:'Souverain de l\'Aube', emoji:'🌑', tagline:'Le Système m\'obéit.',
+                { rank:'S', name:'Souverain de l\'Éveil', emoji:'🌑', tagline:'Le Système m\'obéit.',
                   passive:'Autorité absolue : 20% chance drop double · +5 toutes stats · +15% drops Légendaires',
                   statBonus:{ STR:7, AGI:7, VIT:7, END:7, PER:7, SEN:7 }, xpBonus:0.35 },
             ],
@@ -31223,6 +31251,61 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!id) return repli || '';
             return '<img src="images/Objets/voie_' + id + '.webp" alt="" draggable="false" style="width:' + px + 'px;height:' + px + 'px;object-fit:contain;display:block;" onerror="this.outerHTML=\'' + String(repli || '').replace(/'/g, '&#39;').replace(/"/g, '&quot;') + '\'">';
         };
+        // v1536 : PASSIFS DE CLASSE RÉELS. Chaque palier (base, évoluée, suprême)
+        // a un texte ET des effets, fusionnés dans rpgGetActiveEffects (mêmes clés
+        // que les compétences, mêmes plafonds). Le palier remplace le précédent.
+        const CLASS_PASSIFS = {
+            shadow_assassin: [
+                ['Frappe critique : +10 % de chances qu\'un objet rare devienne épique', { epicDropBonus: 0.10 }],
+                ['Lame fantôme : +20 % de butin épique · +5 % de critique', { epicDropBonus: 0.20, critChance: 0.05 }],
+                ['Mort silencieuse : +30 % de butin épique · +10 % de butin légendaire · +8 % de critique', { epicDropBonus: 0.30, legendaryDropBonus: 0.10, critChance: 0.08 }]
+            ],
+            iron_berserker: [
+                ['Rage du Berserker : +15 % d\'XP sur les exercices polyarticulaires', { xpCompound: 0.15 }],
+                ['Furie sanguine : +25 % d\'XP polyarticulaires · 5 % de chances de doubler l\'XP d\'une série', { xpCompound: 0.25, doubleXPChance: 0.05 }],
+                ['Colère absolue : +35 % d\'XP polyarticulaires · 5 % de chances de tripler l\'XP d\'une série · +10 % de dégâts en Faille', { xpCompound: 0.35, rampageChance: 0.05, riftDmg: 0.10 }]
+            ],
+            titan_guardian: [
+                ['Forteresse vivante : -20 % sur les malus de stats de tes équipements', { equipPenaltyReduction: 0.20 }],
+                ['Mur vivant : -35 % sur les malus d\'équipement · -15 % de pénalités de défi', { equipPenaltyReduction: 0.35, penaltyReduction: 0.15 }],
+                ['Atlas : -50 % sur les malus d\'équipement · -25 % de pénalités de défi · perte d\'XP par inactivité réduite de moitié', { equipPenaltyReduction: 0.50, penaltyReduction: 0.25, decayReduction: 0.5 }]
+            ],
+            storm_archer: [
+                ['Œil du chasseur : +8 % de dégâts contre les boss', { bossDmg: 0.08 }],
+                ['Vision parfaite : +12 % de dégâts contre les boss · +10 % de butin épique', { bossDmg: 0.12, epicDropBonus: 0.10 }],
+                ['Omniscience : +18 % de dégâts contre les boss · +25 % de dégâts des critiques · +10 % de butin épique', { bossDmg: 0.18, critDmg: 0.25, epicDropBonus: 0.10 }]
+            ],
+            arcane_mage: [
+                ['Mana profond : +30 % d\'XP sur les exercices d\'isolation (techniques)', { xpIsolation: 0.30 }],
+                ['Mana absolu : +40 % d\'XP d\'isolation · 15 % de chances d\'esquiver une pénalité de défi', { xpIsolation: 0.40, penaltyDodge: 0.15 }],
+                ['Création pure : +50 % d\'XP d\'isolation · 25 % d\'esquive des pénalités · +5 % d\'XP sur tout', { xpIsolation: 0.50, penaltyDodge: 0.25, xpAll: 0.05 }]
+            ],
+            monarch_aspirant: [
+                ['Voie du Souverain : 5 % de chances d\'obtenir deux objets au lieu d\'un', { doubleDropChance: 0.05 }],
+                ['Sang royal : 10 % de chances de double objet · +5 % d\'XP sur tout', { doubleDropChance: 0.10, xpAll: 0.05 }],
+                ['Souveraineté : 15 % de chances de double objet · +8 % d\'XP sur tout · +5 % de butin légendaire', { doubleDropChance: 0.15, xpAll: 0.08, legendaryDropBonus: 0.05 }]
+            ]
+        };
+        const CLASS_EVO_NIVEAUX = [35, 55];   // v1536 : rang B puis rang A (avant : 16 et 26, étiquetés B et S)
+        (function () {
+            Object.keys(CLASS_PASSIFS).forEach(id => {
+                const P = CLASS_PASSIFS[id], base = RPG_CLASSES.find(c => c.id === id), ev = CLASS_EVOLUTIONS[id] || [];
+                if (base) base.passive = P[0][0];
+                if (ev[0]) { ev[0].passive = P[1][0]; ev[0].rank = 'B'; }
+                if (ev[1]) { ev[1].passive = P[2][0]; ev[1].rank = 'A'; }
+            });
+        })();
+        function rpgGetClassPassiveEffects() {
+            try {
+                const e = rpgGetEvolvedClass();
+                if (!e) return {};
+                const P = CLASS_PASSIFS[e.baseId];
+                return (P && P[e.evolution] && P[e.evolution][1]) || {};
+            } catch (err) { return {}; }
+        }
+        window.rpgGetClassPassiveEffects = rpgGetClassPassiveEffects;
+        window.CLASS_EVO_NIVEAUX = CLASS_EVO_NIVEAUX;
+
         function rpgGetEvolvedClass() {
             const base = rpgGetClass();
             if (!base) return null;
@@ -31231,8 +31314,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                           + parseInt(localStorage.getItem('fitproRPGLifetimeXP')||'0');
             const level = rpgLevelFromXP(totalXP);
             const evolutions = CLASS_EVOLUTIONS[base.id] || [];
-            if (level >= 26 && evolutions[1]) return { ...base, ...evolutions[1], baseId: base.id, evolution: 2 };
-            if (level >= 16 && evolutions[0]) return { ...base, ...evolutions[0], baseId: base.id, evolution: 1 };
+            if (level >= CLASS_EVO_NIVEAUX[1] && evolutions[1]) return { ...base, ...evolutions[1], baseId: base.id, evolution: 2 };
+            if (level >= CLASS_EVO_NIVEAUX[0] && evolutions[0]) return { ...base, ...evolutions[0], baseId: base.id, evolution: 1 };
             return { ...base, baseId: base.id, evolution: 0 };
         }
 
@@ -31309,7 +31392,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             // Confirmation + consommation du Tome
             showAlert(
-                `⚠️ Changer de classe ?\n\nTu perdras les bonus de ${current.emoji} ${current.name} et gagneras ceux de ${cls.emoji} ${cls.name}.\n\nLe Tome de l'Éveil sera CONSOMMÉ.\n\nLes points de stats alloués sont conservés.`,
+                `⚠️ Changer de classe ?\n\nTu perdras les bonus de ${current.emoji} ${current.name} et gagneras ceux de ${cls.emoji} ${cls.name}.\n\nLe Tome de l'Éveil sera CONSOMMÉ.\n\nLes points de stats alloués sont conservés. Les points de compétence de ta classe actuelle te sont rendus.`,
                 'warning',
                 'Utiliser le Tome de l\'Éveil',
                 () => {
@@ -31318,6 +31401,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         return;
                     }
                     localStorage.setItem('fitproRPGClass', classId);
+                    // v1537 : les compétences de l'ancienne classe sont retirées (avant : gardées en
+                    // sommeil puis rendues gratuitement si on reprenait la classe)
+                    try {
+                        const _vieux = (SKILL_TREE_BY_CLASS[current.id] || []).map(s => s.id);
+                        const _sk = rpgGetUnlockedSkills().filter(id => _vieux.indexOf(id) < 0);
+                        localStorage.setItem('fitproRPGSkills', JSON.stringify(_sk));
+                        const _rg = JSON.parse(localStorage.getItem('awakSkillRangs') || '{}');
+                        _vieux.forEach(id => { delete _rg[id]; });
+                        localStorage.setItem('awakSkillRangs', JSON.stringify(_rg));
+                    } catch (e) {}
                     showToast(`📜 Tome consommé ! Tu es maintenant ${cls.emoji} ${cls.name}.`, 'success', 4000);
                     if (typeof renderGameTab === 'function') renderGameTab();
                     try { if (typeof rpgRafraichirPanneauDetails === 'function') rpgRafraichirPanneauDetails(); } catch (e) {}
@@ -31421,7 +31514,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // ── COMPÉTENCES SPÉCIFIQUES PAR CLASSE ─────────────────────────
         const SKILL_TREE_BY_CLASS = {
             shadow_assassin: [
-                { id:'sa_shadow_step', name:'Pas de l\'Ombre',         emoji:'👤', desc:'+5 AGI permanent',                                     req:{level:7},  effect:{statBonus:{AGI:5}}, type:'class' },
+                { id:'sa_shadow_step', name:'Pas de l\'Ombre',         emoji:'👤', desc:'+5 AGI permanent',                                     req:{level:10}, effect:{statBonus:{AGI:5}}, type:'class' },
                 { id:'sa_critical',    name:'Frappe Critique',         emoji:'💥', desc:'+10% chance de critique en Faille',  req:{level:11}, effect:{critChance:0.10}, type:'class' },
                 { id:'sa_silent_hunt', name:'Chasse Silencieuse',      emoji:'🌑', desc:'+20% chance de drop épique',                            req:{level:15}, effect:{epicDropBonus:0.20}, type:'class' },
                 { id:'sa_phantom',     name:'Marche Fantôme',          emoji:'💨', desc:'Esquive 15% des pénalités de défi échoué',              req:{level:20}, effect:{penaltyDodge:0.15}, type:'class' },
@@ -31430,7 +31523,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 { id:'sa_eclipse',     name:'Éclipse Totale',          emoji:'🌑', desc:'+15% critique · +8 AGI · +8 PER',                      req:{level:45}, effect:{critChance:0.15, statBonus:{AGI:8,PER:8}}, type:'class' },
             ],
             iron_berserker: [
-                { id:'ib_bloodlust',   name:'Soif de Sang',            emoji:'🩸', desc:'+5 STR permanent',                                      req:{level:7},  effect:{statBonus:{STR:5}}, type:'class' },
+                { id:'ib_bloodlust',   name:'Soif de Sang',            emoji:'🩸', desc:'+5 STR permanent',                                      req:{level:10}, effect:{statBonus:{STR:5}}, type:'class' },
                 { id:'ib_overpower',   name:'Force Brute',             emoji:'💪', desc:'+30% XP sur les exercices de force pure',               req:{level:11}, effect:{xpCompound:0.30}, type:'class' },
                 { id:'ib_iron_skin',   name:'Peau de Fer',             emoji:'🛡️', desc:'-25% pénalités stats sur tes équipements',              req:{level:15}, effect:{equipPenaltyReduction:0.25}, type:'class' },
                 { id:'ib_rampage',     name:'Saccage',                 emoji:'⚒️', desc:'5% chance de tripler l\'XP d\'une série',             req:{level:20}, effect:{rampageChance:0.05}, type:'class' },
@@ -31439,7 +31532,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 { id:'ib_titanfall',   name:'Chute du Titan',          emoji:'☄️', desc:'+5% Saccage (triple XP) · +8 STR · +8 END',            req:{level:45}, effect:{rampageChance:0.05, statBonus:{STR:8,END:8}}, type:'class' },
             ],
             titan_guardian: [
-                { id:'tg_unbreakable', name:'Inébranlable',            emoji:'🏔️', desc:'+5 VIT permanent',                                      req:{level:7},  effect:{statBonus:{VIT:5}}, type:'class' },
+                { id:'tg_unbreakable', name:'Inébranlable',            emoji:'🏔️', desc:'+5 VIT permanent',                                      req:{level:10}, effect:{statBonus:{VIT:5}}, type:'class' },
                 { id:'tg_endurance',   name:'Endurance Légendaire',    emoji:'💚', desc:'+15% XP global (endurance)', req:{level:11}, effect:{xpAll:0.15}, type:'class' },
                 { id:'tg_fortress',    name:'Forteresse Vivante',      emoji:'🏰', desc:'-25% pénalités de défi échoué',                         req:{level:15}, effect:{penaltyReduction:0.25}, type:'class' },
                 { id:'tg_regen',       name:'Régénération',            emoji:'💖', desc:'+6 VIT · +2 jours avant le déclin', req:{level:20}, effect:{statBonus:{VIT:6},graceExtend:2}, type:'class' },
@@ -31448,7 +31541,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 { id:'tg_bulwark',     name:'Rempart Éternel',         emoji:'🧱', desc:'+8 VIT · +8 END · -25% pénalités de défi',             req:{level:45}, effect:{statBonus:{VIT:8,END:8}, penaltyReduction:0.25}, type:'class' },
             ],
             storm_archer: [
-                { id:'as_eagle_eye',   name:'Œil d\'Aigle',            emoji:'👁️', desc:'+5 PER permanent',                                      req:{level:7},  effect:{statBonus:{PER:5}}, type:'class' },
+                { id:'as_eagle_eye',   name:'Œil d\'Aigle',            emoji:'👁️', desc:'+5 PER permanent',                                      req:{level:10}, effect:{statBonus:{PER:5}}, type:'class' },
                 { id:'as_precision',   name:'Précision Mortelle',      emoji:'🎯', desc:'+25% XP sur les exercices d\'isolation',                req:{level:11}, effect:{xpIsolation:0.25}, type:'class' },
                 { id:'as_far_sight',   name:'Tir Perçant',             emoji:'🏹', desc:'+10% dégâts en Faille',                                  req:{level:15}, effect:{riftDmg:0.10}, type:'class' },
                 { id:'as_wind_walker', name:'Marcheur du Vent',        emoji:'💨', desc:'+15% chance de drop épique',                            req:{level:20}, effect:{epicDropBonus:0.15}, type:'class' },
@@ -31457,7 +31550,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 { id:'as_tempest',     name:'Œil de la Tempête',       emoji:'🌪️', desc:'+15% dégâts contre les boss · +8 PER · +8 AGI',        req:{level:45}, effect:{bossDmg:0.15, statBonus:{PER:8,AGI:8}}, type:'class' },
             ],
             arcane_mage: [
-                { id:'am_meditation',  name:'Méditation',              emoji:'🧘', desc:'+5 SEN permanent',                                      req:{level:7},  effect:{statBonus:{SEN:5}}, type:'class' },
+                { id:'am_meditation',  name:'Méditation',              emoji:'🧘', desc:'+5 SEN permanent',                                      req:{level:10}, effect:{statBonus:{SEN:5}}, type:'class' },
                 { id:'am_mana_flow',   name:'Flux de Mana',            emoji:'💠', desc:'+40% XP sur les exercices techniques',                  req:{level:11}, effect:{xpIsolation:0.40}, type:'class' },
                 { id:'am_arcane_pact', name:'Pacte Arcanique',         emoji:'🔮', desc:'+1 point de stat bonus à chaque niveau',                req:{level:15}, effect:{extraStatPoint:1}, type:'class' },
                 { id:'am_dispel',      name:'Dissipation',             emoji:'✨', desc:'20% chance d\'esquiver une pénalité de défi', req:{level:20}, effect:{penaltyDodge:0.20}, type:'class' },
@@ -31466,7 +31559,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 { id:'am_ascension',   name:'Ascension Arcanique',     emoji:'🔯', desc:'+12 SEN · +10 PER',                                     req:{level:45}, effect:{statBonus:{SEN:12,PER:10}}, type:'class' },
             ],
             monarch_aspirant: [
-                { id:'ma_balanced',    name:'Équilibre Parfait',       emoji:'⚖️', desc:'+3 dans toutes les stats',                              req:{level:7},  effect:{statBonus:{STR:3,AGI:3,VIT:3,END:3,PER:3,SEN:3}}, type:'class' },
+                { id:'ma_balanced',    name:'Équilibre Parfait',       emoji:'⚖️', desc:'+3 dans toutes les stats',                              req:{level:10}, effect:{statBonus:{STR:3,AGI:3,VIT:3,END:3,PER:3,SEN:3}}, type:'class' },
                 { id:'ma_versatile',   name:'Adaptabilité',            emoji:'🔀', desc:'+15% XP sur TOUS les exercices',                        req:{level:11}, effect:{xpAll:0.15}, type:'class' },
                 { id:'ma_royal_blood', name:'Sang Royal',              emoji:'👑', desc:'10% chance de drop double item',                        req:{level:15}, effect:{doubleDropChance:0.10}, type:'class' },
                 { id:'ma_command',     name:'Commandement',            emoji:'⚔️', desc:'+20% XP sur compounds + isolations',                    req:{level:20}, effect:{xpCompound:0.20,xpIsolation:0.20}, type:'class' },
@@ -31567,6 +31660,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     }
                 }
             });
+            // v1536 : passif de classe (palier actuel) — mêmes clés, mêmes plafonds
+            try {
+                const _cp = rpgGetClassPassiveEffects();
+                for (const [k, v] of Object.entries(_cp)) {
+                    if (typeof v === 'number') effects[k] = (effects[k] || 0) + v; else effects[k] = v;
+                }
+            } catch (e) {}
             // v1528 : plafonds (les rangs ne doivent pas casser le rythme ni les combats)
             const _CAP = { xpAll:0.60, xpCompound:0.60, xpIsolation:0.60, critChance:0.25, doubleDropChance:0.40,
                            epicDropBonus:0.50, legendaryDropBonus:0.40, epicToLegendary:0.30, doubleXPChance:0.25, rampageChance:0.15,
@@ -31632,11 +31732,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             { id:'streak_30',       name:'Mois de Feu',         emoji:'🌟', desc:'30 jours de streak',                    check:(stats)=>stats.streak>=30 },
             { id:'level5_any',      name:'En Forme',            emoji:'🥉', desc:'Un muscle atteint le niveau 5',          check:(s,data)=>Object.values(data.muscles).some(m=>rpgLevelFromXP(m.xp)>=5) },
             { id:'level10_any',     name:'Athlète',             emoji:'🥈', desc:'Un muscle atteint le niveau 10',         check:(s,data)=>Object.values(data.muscles).some(m=>rpgLevelFromXP(m.xp)>=10) },
-            { id:'level20_any',     name:'Champion',            emoji:'🥇', desc:'Un muscle atteint le niveau 20',         check:(s,data)=>Object.values(data.muscles).some(m=>rpgLevelFromXP(m.xp)>=20) },
+            { id:'level20_any',     name:'Colosse',            emoji:'🥇', desc:'Un muscle atteint le niveau 20',         check:(s,data)=>Object.values(data.muscles).some(m=>rpgLevelFromXP(m.xp)>=20) },
             { id:'all_muscles',     name:'Corps Complet',       emoji:'💎', desc:'Entraîner tous les 13 muscles',          check:(s,data)=>Object.keys(data.muscles).length>=13 },
-            { id:'rank_s',          name:'Chasseur S',          emoji:'🟨', desc:'Atteindre le rang S',                   check:(s,data)=>{const xp=Object.values(data.muscles).reduce((a,m)=>a+m.xp,0);return rpgGetRank(xp).id==='S'||['SS','SSS'].includes(rpgGetRank(xp).id);} },
-            { id:'rank_sss',        name:'Légende Absolue',     emoji:'💠', desc:'Atteindre le rang SSS',                 check:(s,data)=>{const xp=Object.values(data.muscles).reduce((a,m)=>a+m.xp,0);return rpgGetRank(xp).id==='SSS';} },
-            { id:'dungeon_1',       name:'Explorateur',         emoji:'🗺️', desc:'Compléter un donjon',                   check:()=>RPG_DUNGEONS.some(d=>rpgGetDungeonStatus(d.id).lastCompleted) },
+            { id:'rank_s',          name:'Chasseur S',          emoji:'🟨', desc:'Atteindre le rang S',                   check:()=>['S','SS','SSS'].includes(awakGetRank().id) },   // v1536 : rang affiché
+            { id:'rank_sss',        name:'Légende Absolue',     emoji:'💠', desc:'Atteindre le rang SSS',                 check:()=>awakGetRank().id==='SSS' },   // v1536 : rang affiché
+            // v1537 : exploit « Explorateur » (donjon) retiré — les donjons n'existent plus ; déjà obtenu = conservé
             // ⭐ EXPLOIT « Renaissance » RETIRÉ (v835) : le Prestige n'existe plus,
             // cet exploit serait devenu impossible à débloquer — un objectif
             // inatteignable dans une liste est pire que pas d'objectif du tout.
@@ -32022,6 +32122,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // désormais comptées, 35 % ≈ une séance normale (simulation v1218).
         const AWAK_RIFT_XP_FACTOR = 0.35;
         window.AWAK_RIFT_XP_FACTOR = AWAK_RIFT_XP_FACTOR;
+        // v1539 : utilisée par le boss familial (avant : fonction absente → XP ajoutée sans annonce de niveau)
+        window.awakGrantXP = function (n) { try { return awakGrantLifetimeXP(n); } catch (e) { return 0; } };
         function awakGrantLifetimeXP(n) {
             n = Math.max(0, Math.round(n || 0));
             if (!n) return 0;
@@ -33117,6 +33219,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // v1399 : une seule fenêtre à la fois au démarrage — la carte attend que
         // l'écran soit libre (avant : carte + mot de passe + message empilés).
         function awakEcranOccupe() {
+            // v1544 : séance en préparation ou en cours = occupé (la carte s'ouvrait sur « Démarrer la séance »)
+            try {
+                if (document.body.classList.contains('in-session')) return true;
+                const _pv = document.getElementById('preparationView');
+                if (_pv && !_pv.classList.contains('hidden') && _pv.offsetParent !== null) return true;
+            } catch (e) {}
             try {
                 const cand = document.querySelectorAll('[id$="Modal"], [id$="Overlay"], [id*="Onb"], [id*="onb"], [id*="story"], [id*="Story"], [id*="tuto"], [id*="Tuto"], [id*="Welcome"], [id*="Visite"], [id*="Eveil"], #awakSecModal');
                 for (const c of cand) {
@@ -34442,6 +34550,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
 
             let lifetimeDays = RIFT_LIFETIME_DAYS[riftRank];
+            // v1536 : Maître Chen — les nouvelles Failles durent 10 % de plus (vrai effet)
+            try { const _cb = (typeof awakCompanionsGetActiveBonuses === 'function') ? awakCompanionsGetActiveBonuses() : {}; if (_cb.riftDurationCut) lifetimeDays = Math.round(lifetimeDays * (1 + _cb.riftDurationCut) * 10) / 10; } catch (e) {}
             // Frénésie : durée de vie réduite
             if (modifier.lifetimeCut) lifetimeDays = Math.max(2, Math.round(lifetimeDays * modifier.lifetimeCut));
 
@@ -35053,7 +35163,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1535);'
+                +     'url(images/combat_bg_v1.webp?v=1549);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -35215,7 +35325,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 if (typeof awakCompanionsGetActiveBonuses === 'function') {
                     const compBonus = awakCompanionsGetActiveBonuses();
-                    if (compBonus.riftDurationCut) {
+                    if (false && compBonus.riftDurationCut) {   // v1536 : retiré (affichage trompeur) — l'effet est appliqué à la création
                         const lifetime = rift.expiresAt - rift.createdAt;
                         expiresAt = rift.createdAt + lifetime * (1 - compBonus.riftDurationCut);
                     }
@@ -35401,7 +35511,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1535);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1549);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -35588,6 +35698,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (consumEffects.hpCut) {
                         hpMax = Math.round(hpMax * (1 - consumEffects.hpCut));
                     }
+                    // v1538 : Chevalier Brisé (monstre échappé) — monstres plus résistants
+                    try { const _ha = awakGetActiveHandicaps(); if (_ha.armure > 0) hpMax = Math.round(hpMax * (1 + _ha.armure / 100)); } catch (e) {}
                     // v1522 : vague renforcée selon l'aide de l'équipe (une seule fois par vague)
                     if (!w._hpEquipe) { const _fe = awakRiftFacteurPV(rift); w._hpEquipe = _fe; hpMax = Math.round(hpMax * _fe); }
                     w.hpMax = hpMax;
@@ -35753,7 +35865,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1535);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1549);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -36207,7 +36319,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
                 // 💚 END : régénération HP joueur
                 hpRegen: Math.floor((stats.END || 0) / 12), // ⚖️ v1218 : /2 → /12 (≈ 2 % des PV max par série)
-                hpRegenMult: 1 + (ring.hpRegen || 0),
+                // v1536 : « récupération » (anneaux + Élise) augmente aussi les PV récupérés (avant : sans effet)
+                hpRegenMult: (1 - (() => { try { const _c = (typeof getActiveCurseEffects === 'function') ? getActiveCurseEffects() : null; return (_c && _c.healMalus) || 0; } catch (e) { return 0; } })()) * 1 + (ring.hpRegen || 0) + (ring.recovery || 0) + (() => { try { return (typeof awakCompanionsGetActiveBonuses === 'function' ? awakCompanionsGetActiveBonuses().recovery : 0) || 0; } catch (e) { return 0; } })(),
 
                 // 👁️ PER : bonus dégâts vs boss (plafond +150%) + esquive (plafond 40%)
                 bossBonus: isBoss ? Math.min(CAP_BOSS, ePer * 0.01 + (ring.bossDmg || 0)) : 0,
@@ -36402,6 +36515,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             // ⚔️ STR : multiplicateur dégâts global (toujours actif)
             finalDamage *= bonuses.damageMult;
+            // v1537 : Élixir de Force aussi quand la Faille n'est pas une Faille de Force (avant : sans effet)
+            if (consumEffects.STR && theme.primaryStat !== 'STR') finalDamage *= (1 + consumEffects.STR);
 
 
             // 🥋 MAÎTRISE DE COMBAT : bonus de dégâts selon le type d'effort de l'exercice
@@ -36904,6 +37019,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const bonuses = awakComputeStatBonuses();
             const xpBeforeBonus = xpReward;
             xpReward = Math.round(xpReward * bonuses.xpMult);
+            try { if (typeof window.awkDefiEffets === 'function') xpReward = Math.round(xpReward * window.awkDefiEffets().xp); } catch (e) {}   // v1537
             const xpBonusAmount = xpReward - xpBeforeBonus;
 
             // ⚡ MODIFICATEUR DE FAILLE : multiplicateur d'XP
@@ -36981,7 +37097,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1535');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1549');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -37186,7 +37302,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 emoji: '👺',
                 color: '#22c55e',
                 description: 'Petit, vicieux, rapide. Il sabote ton effort.',
-                handicap: { type: 'forced_burpees', label: 'Forces 5 burpees toutes les 3 séries' },
+                handicap: { type: 'sabotage', label: '10 % de tes séries ne donnent aucune XP' },   // v1538 : avant burpees forcés (jamais appliqués)
                 huntDuration: 15, // minutes
                 fromTheme: ['organic_desert', 'dimensional_train']
             },
@@ -37196,7 +37312,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 emoji: '🐺',
                 color: '#64748b',
                 description: 'Il hurle dans ton dos. Ton corps se contracte.',
-                handicap: { type: 'extra_rest', label: '+30s de repos imposé entre séries' },
+                handicap: { type: 'hurlement', label: 'Les monstres de Faille frappent 15 % plus fort' },   // v1538 : avant +30 s de repos (jamais appliqué)
                 huntDuration: 18,
                 fromTheme: ['frozen_city', 'underground_ocean']
             },
@@ -37206,7 +37322,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 emoji: '⚔️',
                 color: '#a855f7',
                 description: 'Une armure ambulante avec une volonté propre.',
-                handicap: { type: 'extra_set', label: '+1 série par exercice' },
+                handicap: { type: 'armure', label: 'Les monstres de Faille ont 15 % de PV en plus' },   // v1538 : avant +1 série (jamais appliquée)
                 huntDuration: 22,
                 fromTheme: ['inverted_reality', 'frozen_city']
             },
@@ -37419,9 +37535,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function awakGetActiveHandicaps() {
             const active = awakGetActiveMonsters();
             const handicaps = {
-                forced_burpees: 0,      // nombre de monstres avec ce handicap
-                extra_rest: 0,           // secondes additionnelles
-                extra_set: 0,            // sets supplémentaires
+                sabotage: 0,             // v1538 : % de séries sans XP
+                hurlement: 0,            // v1538 : % de dégâts des ripostes en Faille
+                armure: 0,               // v1538 : % de PV des monstres en Faille
                 reduce_xp: 0,            // pourcentage de réduction
                 reduce_stats: 0,         // pourcentage de réduction
                 block_drops: false
@@ -37433,9 +37549,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const mult = m.isAlpha ? 2 : 1; // Alpha = handicap doublé
 
                 switch(type.handicap.type) {
-                    case 'forced_burpees': handicaps.forced_burpees += mult; break;
-                    case 'extra_rest':     handicaps.extra_rest += 30 * mult; break;
-                    case 'extra_set':      handicaps.extra_set += mult; break;
+                    case 'sabotage':       handicaps.sabotage += 10 * mult; break;
+                    case 'hurlement':      handicaps.hurlement += 15 * mult; break;
+                    case 'armure':         handicaps.armure += 15 * mult; break;
                     case 'reduce_xp':      handicaps.reduce_xp += 20 * mult; break;
                     case 'reduce_stats':   handicaps.reduce_stats += 15 * mult; break;
                     case 'block_drops':    handicaps.block_drops = true; break;
@@ -37443,6 +37559,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
 
             handicaps.reduce_xp = Math.min(handicaps.reduce_xp, 60); // cap à 60%
+            handicaps.sabotage = Math.min(handicaps.sabotage, 40);
+            handicaps.hurlement = Math.min(handicaps.hurlement, 60);
+            handicaps.armure = Math.min(handicaps.armure, 60);
             handicaps.reduce_stats = Math.min(handicaps.reduce_stats, 50);
             handicaps.totalMonsters = active.length;
             handicaps.alphaCount = active.filter(m => m.isAlpha).length;
@@ -37738,7 +37857,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1535);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1549);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -37852,9 +37971,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:10px 12px;margin-bottom:12px;">
                     <div style="font-size:0.6em;color:#fca5a5;font-weight:800;letter-spacing:1px;margin-bottom:5px;">◈ HANDICAPS ACTIFS</div>
                     <div style="font-size:0.75em;color:#cbd5e1;line-height:1.6;">
-                        ${handicaps.forced_burpees > 0 ? `<div>🦣 Burpees forcés (×${handicaps.forced_burpees})</div>` : ''}
-                        ${handicaps.extra_rest > 0 ? `<div>⏱ +${handicaps.extra_rest}s de repos imposé</div>` : ''}
-                        ${handicaps.extra_set > 0 ? `<div>➕ +${handicaps.extra_set} série(s) par exercice</div>` : ''}
+                        ${handicaps.sabotage > 0 ? `<div>${handicaps.sabotage}% de séries sans XP</div>` : ''}
+                        ${handicaps.hurlement > 0 ? `<div>Ripostes +${handicaps.hurlement}% en Faille</div>` : ''}
+                        ${handicaps.armure > 0 ? `<div>Monstres +${handicaps.armure}% PV en Faille</div>` : ''}
                         ${handicaps.reduce_xp > 0 ? `<div>📉 XP réduit de ${handicaps.reduce_xp}%</div>` : ''}
                         ${handicaps.reduce_stats > 0 ? `<div>⚔️ -${handicaps.reduce_stats}% dégâts en Faille</div>` : ''}
                         ${handicaps.block_drops ? `<div>🚫 Aucun loot pendant les séances</div>` : ''}
@@ -37909,7 +38028,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1535);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1549);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -38029,7 +38148,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 color: '#06b6d4',
                 description: 'Maître d\'arts martiaux ancien. Il voit ce que les autres ne voient pas.',
                 lore: 'Il étudie les Failles depuis le début. Il pense que le Système n\'est pas notre ami.',
-                bonus: { stat: 'PER', mult: 0.15, label: '+15% PER · -10% durée Failles' },
+                bonus: { stat: 'PER', mult: 0.15, label: '+15% PER · +10% de temps pour finir les Failles' },
                 bonusDetails: { riftDurationCut: 0.10 },
                 unlockCondition: { type: 'companionRift', riftId: 'rift_chen', label: 'Complète la Faille de Chen' },
                 dialogues: {
@@ -38049,7 +38168,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 color: '#34d399',
                 description: 'Médecin pendant la première vague de Failles. Loi de régénération partielle.',
                 lore: 'Elle a sauvé plus d\'Ancrages que le Système n\'en a créé. Le Noyau la déteste.',
-                bonus: { stat: 'SEN', mult: 0.20, label: '+20% SEN · récup +30%' },
+                bonus: { stat: 'SEN', mult: 0.20, label: '+20% SEN · +30% de PV récupérés en Faille' },
                 bonusDetails: { recovery: 0.30 },
                 unlockCondition: { type: 'companionRift', riftId: 'rift_elise', label: 'Complète la Faille d\'Élise' },
                 dialogues: {
@@ -39170,6 +39289,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     ${statsHtml}
                     ${passiveHtml}
                     ${setHtml}
+                    ${(() => { try { const _bl = (!bought && typeof getEquipBlockReason === 'function') ? getEquipBlockReason(item) : null; return _bl ? `<div style="font-size:0.68em;color:#fbbf24;margin-top:7px;font-weight:700;">Pas encore équipable : ${_bl.label}</div>` : ''; } catch (e) { return ''; } })()}
                     ${item.description ? `<div style="font-size:0.64em;color:#94a3b8;margin-top:7px;font-style:italic;line-height:1.3;">${item.description}</div>` : ''}
                     <button onclick="_merchantBuyEquipment('${entry.id}')" ${(bought||!afford)?'disabled':''} style="width:100%;margin-top:9px;background:${bought?'rgba(34,197,94,0.1)':afford?`${r.color}22`:'rgba(255,255,255,0.04)'};border:1px solid ${bought?'rgba(34,197,94,0.3)':afford?r.color+'66':'rgba(255,255,255,0.08)'};color:${bought?'#4ade80':afford?r.color:'#475569'};border-radius:8px;padding:9px;font-size:0.78em;font-weight:800;cursor:${(bought||!afford)?'not-allowed':'pointer'};">${bought?'✓ ACHETÉ':`${window.awakOrIcon ? awakOrIcon() : ''} ${entry.price} or`}</button>
                 </div>`;
@@ -39261,6 +39381,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         ];
         function awakGetWeeklyBossWeek() { return Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000)); }
         function awakCheckWeeklyBoss() {
+            // v1538 : boss de la semaine ANNULÉ — on retire ceux déjà générés, et on n'en crée plus
+            try {
+                const _rs = awakRiftsLoad();
+                const _garde = _rs.filter(r => !r.isWeeklyBoss);
+                if (_garde.length !== _rs.length) awakRiftsSave(_garde);
+            } catch (e) {}
+            return null;
             try {
                 if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return null;
                 const rank = awakGetRank();
@@ -39741,7 +39868,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 color: '#06b6d4',
                 description: 'Une tour qui n\'existe pas dans la réalité, mais que tout le monde voit parfois en rêve.',
                 briefing: 'Ne réponds pas aux voix. Continue à monter. Le Système te guidera.',
-                trigger: { type: 'level', value: 29, label: 'Atteindre le niveau 29' },   // v1440 : au rang B (Faille de rang B : à 34, ripostes ×1,35 → 65 % de défaites)
+                trigger: { type: 'level', value: 29, label: 'Atteindre le niveau 29' },   // v1524 : niveau 29 = rang C (Faille de rang C)
                 rewards: { xp: 2500, message: 'Les voix se sont tues. Quelque chose les a fait taire. Pas toi.' },
                 rank: 'C',
                 waves: 3,
@@ -40230,7 +40357,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 name: 'Élixir de Force',
                 emoji: '⚔️',
                 color: '#ef4444',
-                description: 'Amplifie ta force pendant une Faille.',
+                description: '+25 % de Force pendant ta prochaine Faille (plus de dégâts).',
                 effect: { stat: 'STR', mult: 0.25 },
                 duration: 'next_rift'
             },
@@ -40248,7 +40375,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 name: 'Fragment de Temps',
                 emoji: '⏳',
                 color: '#06b6d4',
-                description: 'Double tes critiques pendant 1 Faille.',
+                description: '+10 % de chances de critique pendant ta prochaine Faille.',
                 effect: { critBonus: 0.10 },
                 duration: 'next_rift'
             },
@@ -40257,7 +40384,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 name: 'Larme du Système',
                 emoji: '💧',
                 color: '#22d3ee',   // v1451 : cyan comme son illustration (avant : vert)
-                description: 'Récupère 30% HP de toutes les vagues vaincues si tu rates.',
+                description: 'Te relève une fois à 30 % de PV si tu tombes (Faille ou combat final).',
                 effect: { revive: true },
                 duration: 'next_rift'
             }
@@ -40653,6 +40780,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             if (typeof session.playerHP !== 'number') session.playerHP = awakGetPlayerMaxHP();
 
+            // v1536 : Amulette du Phénix — encaisse le 1er coup de chaque combat (avant : sans effet)
+            try {
+                const _rg = (typeof getActiveRingEffects === 'function') ? getActiveRingEffects() : {};
+                if (_rg.firstShield && !session._phenixUtilise) {
+                    session._phenixUtilise = true;
+                    if (typeof showToast === 'function') showToast('Le bouclier du Phénix encaisse le coup', 'info', 2200);
+                    return { dodged: true, dead: false };
+                }
+            } catch (e) {}
+
             // 🛡️ MODE DÉVELOPPEUR : invincibilité — aucun dégât subi
             if (typeof awakIsInvincible === 'function' && awakIsInvincible()) {
                 if (typeof showToast === 'function') showToast('🛡️ Invincible — dégâts ignorés', 'info', 1500);
@@ -40718,6 +40855,21 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (_hpTxt) _hpTxt.textContent = `1 / ${awakGetPlayerMaxHP()} HP`;
                     return { dodged: false, dead: false };
                 }
+                // v1537 : LARME DU SYSTÈME — te relève à 30 % de PV (avant : sans effet en Faille)
+                try {
+                    const _act = JSON.parse(localStorage.getItem('awakActiveConsumables') || '[]');
+                    const _li = _act.indexOf('larme_systeme');
+                    if (_li >= 0) {
+                        _act.splice(_li, 1);
+                        localStorage.setItem('awakActiveConsumables', JSON.stringify(_act));
+                        session.playerHP = Math.max(1, Math.round(awakGetPlayerMaxHP() * 0.30));
+                        if (typeof showToast === 'function') showToast('La Larme du Système te relève : ' + session.playerHP + ' PV', 'success', 3500);
+                        const _hpEl2 = document.getElementById('playerHpBar'), _hpTx2 = document.getElementById('playerHpText');
+                        if (_hpEl2) _hpEl2.style.width = Math.round(session.playerHP / awakGetPlayerMaxHP() * 100) + '%';
+                        if (_hpTx2) _hpTx2.textContent = `${session.playerHP} / ${awakGetPlayerMaxHP()} HP`;
+                        return { dodged: false, dead: false };
+                    }
+                } catch (e) {}
                 const lostXP = awakApplyDeathPenalty(session);
                 setTimeout(() => {
                     // v1304 : avant, la séance de la Faille restait ouverte (monstre
@@ -40938,6 +41090,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const _maxHP = (typeof awakGetPlayerMaxHP === 'function') ? awakGetPlayerMaxHP() : 100;
             let dmg = Math.max(1, Math.round(_maxHP * (isBoss ? 0.18 : 0.12) * _relMult * (0.85 + Math.random() * 0.3)));
 
+            // v1538 : Loup d'Ombre (monstre échappé) — ripostes plus fortes
+            try { const _hh = awakGetActiveHandicaps(); if (_hh.hurlement > 0) dmg = Math.round(dmg * (1 + _hh.hurlement / 100)); } catch (e) {}
             // ⛈️ TEMPÊTE : les contre-attaques frappent plus fort
             try {
                 const _s = awakActiveRiftSession;
@@ -41279,7 +41433,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 },
                 END: t => [(100 + t * 5) + ' PV max' + (t >= 12 ? ' · +' + Math.floor(t / 12) + ' PV par série' : ''), '+5 PV' + ((t + 1) % 12 === 0 ? ' et +1 PV par série' : '')],
                 PER: t => ['+' + pc(Math.min(150, dim(t))) + ' % contre les boss · ' + pc(Math.min(40, dim(t) * 0.3)) + ' % d\'esquive', '+' + pc(dim(t + 1) - dim(t)) + ' %'],
-                SEN: t => ['+' + pc(dim(t)) + ' % d\'XP · +' + pc(dim(t) * 0.5) + ' % de butin rare', '+' + pc(dim(t + 1) - dim(t)) + ' %']
+                SEN: t => ['+' + pc(dim(t)) + ' % d\'XP en Faille · +' + pc(dim(t) * 0.5) + ' % de butin rare', '+' + pc(dim(t + 1) - dim(t)) + ' %']
             };
             const ico = (n, c) => { try { return (window.AwakIcon && AwakIcon.get(n, 18, c)) || ''; } catch (e) { return ''; } };
             const btn = (stat, d, actif, c) => `<button data-sp="${stat}" data-d="${d}" aria-label="${d > 0 ? 'Ajouter' : 'Retirer'} un point en ${NOM[stat]}" ${actif ? '' : 'disabled'}
@@ -41501,19 +41655,26 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
             } catch(e) {}
 
+            // v1538 : objets maudits « −X % XP gagnée » — aussi sur l'XP des séances (avant : Faille seulement)
+            try { const _cu = (typeof getActiveCurseEffects === 'function') ? getActiveCurseEffects() : null; if (_cu && _cu.xpMalus > 0) mult *= (1 - Math.min(0.8, _cu.xpMalus)); } catch (e) {}
+            // v1538 : Gobelin Rebelle (monstre échappé) — une série sabotée ne donne pas d'XP
+            try { const _hs = (typeof awakGetActiveHandicaps === 'function') ? awakGetActiveHandicaps() : null; if (_hs && _hs.sabotage > 0 && Math.random() < _hs.sabotage / 100) mult = 0; } catch (e) {}
+            // v1537 : défis du Système (Malédiction d'XP, Gel, XP ×1,5 / ×2…) — avant : sans effet
+            try { if (typeof window.awkDefiEffets === 'function') mult *= window.awkDefiEffets().xp; } catch (e) {}
             return Math.round(baseXP * mult);
         }
 
         // ── RANGS E→SSS ──────────────────────────────────────────────
         const RPG_RANKS = [
-            { id:'E',        label:'E',        emoji:'⬛', color:'#6b7280', levelMin:1   },
-            { id:'D',        label:'D',        emoji:'🟫', color:'#92400e', levelMin:10  },
-            { id:'C',        label:'C',        emoji:'🟩', color:'#15803d', levelMin:20  },
-            { id:'B',        label:'B',        emoji:'🟦', color:'#1d4ed8', levelMin:35  },
-            { id:'A',        label:'A',        emoji:'🟪', color:'#7c3aed', levelMin:55  },
-            { id:'S',        label:'S',        emoji:'🟨', color:'#d97706', levelMin:80  },
-            { id:'SS',       label:'SS',       emoji:'🔶', color:'#ea580c', levelMin:120 },
-            { id:'SSS',      label:'SSS',      emoji:'💠', color:'#be185d', levelMin:200 },
+            // v1536 : alignée sur AWAKENED_RANKS (rang affiché) — avant : SS 120, SSS 200, autres couleurs
+            { id:'E',        label:'E',        emoji:'⬛', color:'#94a3b8', levelMin:1   },
+            { id:'D',        label:'D',        emoji:'🟫', color:'#10b981', levelMin:10  },
+            { id:'C',        label:'C',        emoji:'🟩', color:'#3b82f6', levelMin:20  },
+            { id:'B',        label:'B',        emoji:'🟦', color:'#a855f7', levelMin:35  },
+            { id:'A',        label:'A',        emoji:'🟪', color:'#f59e0b', levelMin:55  },
+            { id:'S',        label:'S',        emoji:'🟨', color:'#ef4444', levelMin:80  },
+            { id:'SS',       label:'SS',       emoji:'🔶', color:'#ec4899', levelMin:100 },
+            { id:'SSS',      label:'SSS',      emoji:'💠', color:'#fbbf24', levelMin:120 },
         ];
 
         function rpgGetRank(totalXP) {
@@ -41792,6 +41953,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (awarded.includes(questId)) return;
             awarded.push(questId);
             localStorage.setItem(awardKey, JSON.stringify(awarded));
+            // v1536 : bonus d'XP des quêtes (Médaille du mérite) — avant : sans effet
+            try { const _rq = (typeof getActiveRingEffects === 'function') ? getActiveRingEffects() : {}; if (_rq.questXp) xpReward = Math.round(xpReward * (1 + _rq.questXp)); } catch (e) {}
             // XP sur tous les muscles actifs
             const data = rpgLoad();
             const muscles = Object.keys(data.muscles);
@@ -42562,6 +42725,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function applyFamilyTabVisibility() {
             const navTab = document.getElementById('familyNavTab');
             if (navTab) navTab.style.display = familyTabEnabled() ? '' : 'none';
+            if (typeof updateFamilyNavVisibility === 'function') updateFamilyNavVisibility();   // v1540 : même règle partout
         }
         function toggleFamilyTab(enabled) {
             localStorage.setItem('fitproFamilyTab', enabled ? 'true' : 'false');
@@ -42746,6 +42910,27 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // ou passer / valider après la fin : la séance s'enregistrait 2 fois et plus,
             // avec XP, coffres, Éveil et histoire en double)
             if (currentWorkout && currentWorkout._completed) return;
+            // v1544 : séance VIDE (aucune série validée, moins de 3 min) → pas enregistrée.
+            // Avant : tout passer avec « Suivant » donnait « Bravo », XP, quêtes et exploits.
+            try {
+                const _w = currentWorkout;
+                const _nbS = Object.keys(_currentSessionSets || {}).reduce((n, k) => n + ((_currentSessionSets[k] || []).length), 0);
+                const _min = workoutStartTime ? (Date.now() - workoutStartTime) / 60000 : 99;
+                if (_w && !_w._awakVideOk && !_nbS && _min < 3 && !_w._isRift && !_w._isHunt && !_w._isAssaut && !_w._isFinalBoss && typeof showConfirm === 'function') {
+                    if (_w._awakVideOuvert) return;   // v1545 : une seule fenêtre, même après plusieurs touches
+                    _w._awakVideOuvert = true;
+                    showConfirm('Aucune série n\'a été validée. Cette séance ne sera pas enregistrée.', () => {
+                        try { _doQuitWorkout(); } catch (e) {}
+                        try { clearActiveWorkoutState(); } catch (e) {}
+                        try { if (typeof updateHomeStats === 'function') updateHomeStats(); } catch (e) {}
+                        try { showToast('Séance non enregistrée', 'info', 2000); } catch (e) {}
+                    }, () => {
+                        try { if (currentWorkout) currentWorkout._awakVideOuvert = false; } catch (e) {}
+                        try { if (currentWorkout && currentWorkout.exercises) { currentExerciseIndex = Math.max(0, currentWorkout.exercises.length - 1); startExercise(); } } catch (e) {}
+                    }, { title: 'Séance vide', confirmLabel: 'Quitter sans enregistrer', cancelLabel: 'Reprendre la séance' });
+                    return;
+                }
+            } catch (e) {}
             // ⏳ Mode enfant : proposer une pause après une longue session.
             try { if (typeof awakEnfantChrono === 'function') awakEnfantChrono(); } catch (e) {}
 
@@ -43462,6 +43647,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 setTimeout(() => {
                     const dq = rpgGetDailyQuests();
                     dq.forEach(q => { if (q.done) rpgAwardDailyQuest(q.id, q.xpReward); });
+                    // v1538 : quêtes de la semaine payées après la séance (avant : seulement à l'ouverture de l'onglet Jeu)
+                    try { rpgGetWeeklyQuests(rpgLoad()); } catch (e) {}
                 }, 600);
                 // Système de Boss désactivé — retiré du jeu
                 // Vérifier les exploits
@@ -43475,9 +43662,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }, 2000);
                 // Rang : vérifier si changement
                 setTimeout(() => {
-                    const data = rpgLoad();
-                    const totalXP = Object.values(data.muscles).reduce((s,m)=>s+m.xp,0);
-                    const newRank = rpgGetRank(totalXP);
+                    // v1536 : même base que le rang affiché (muscles + XP à vie) — avant : muscles seuls
+                    const newRank = rpgGetRank(rpgXPForLevel(_awakGetCurrentLevel()));
                     const prevRank = localStorage.getItem('fitproLastRank') || 'E';
                     if (newRank.id !== prevRank) {
                         localStorage.setItem('fitproLastRank', newRank.id);
@@ -43703,7 +43889,6 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     { name:'Hip thrust',             sets:4, reps:15, mode:'reps', rest:60 },
                     { name:'Squat barre haut',             sets:3, reps:15, mode:'reps', rest:60 },
                     { name:'Pompes classiques',                       sets:3, reps:12, mode:'reps', rest:45 },
-                    { name:'Crunch classique',                   sets:3, reps:20, mode:'reps', rest:30 },
                     { name:'Cercles de bras',        sets:1, duration:300, mode:'timer', rest:0 },
                 ]
             },
@@ -43835,7 +44020,6 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     { name:'Burpees',                      sets:5, reps:15, mode:'reps', rest:45 },
                     { name:'Crunch classique',                       sets:5, reps:50, mode:'reps', rest:30 },
                     { name:'Planche',              sets:4, duration:60, mode:'timer', rest:20 },
-                    { name:'Crunch classique',                   sets:5, reps:40, mode:'reps', rest:30 },
                     { name:'Développé couché haltères',    sets:3, reps:15, mode:'reps', rest:60 },
                     { name:'Rowing haltère un bras',               sets:3, reps:15, mode:'reps', rest:60 },
                     { name:'Développé militaire haltères', sets:3, reps:12, mode:'reps', rest:60 },
@@ -43938,7 +44122,6 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     { name:'Squat barre haut',             sets:3, reps:20, mode:'reps', rest:60 },
                     { name:'Hip thrust',             sets:4, reps:20, mode:'reps', rest:45 },
                     { name:'Burpees',                      sets:3, reps:10, mode:'reps', rest:45 },
-                    { name:'Crunch classique',                   sets:3, reps:25, mode:'reps', rest:30 },
                     { name:'Jump Rope Basic',               sets:3, duration:120, mode:'timer', rest:30 },
                 ]
             },
@@ -45837,7 +46020,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                 <div style="font-size:0.82em;font-weight:700;color:white;">${ex.name}</div>
                                 ${ex.note ? `<div style="font-size:0.65em;color:#94a3b8;margin-top:2px;font-style:italic;">${ex.note}</div>` : ''}
                             </div>
-                            <div style="background:${celeb.color}15;color:${celeb.color};border:1px solid ${celeb.color}30;padding:3px 9px;border-radius:6px;font-size:0.72em;font-weight:800;flex-shrink:0;">${ex.sets}×${ex.reps}</div>
+                            <div style="background:${celeb.color}15;color:${celeb.color};border:1px solid ${celeb.color}30;padding:3px 9px;border-radius:6px;font-size:0.72em;font-weight:800;flex-shrink:0;">${ex.sets}×${ex.reps != null ? ex.reps : (ex.duration ? ex.duration + ' s' : '')}</div>
                         </div>
                     `).join('')}
                     ${celeb.exercises.length > 6 ? `<div style="text-align:center;padding:8px;font-size:0.72em;color:#475569;font-style:italic;">+ ${celeb.exercises.length - 6} autres exercices</div>` : ''}
@@ -47526,7 +47709,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // v1473 : défis du Système, pénalités et journal d'événements étaient communs
                 // à toute la famille → un nouveau profil recevait l'échec du défi d'un autre.
                 'fitpro_active_challenge', 'fitpro_challenge_history', 'fitpro_active_penalties',
-                'challengeLastRoll', 'challengeLastRollDay', 'awakEvents');
+                'challengeLastRoll', 'challengeLastRollDay', 'awakEvents',
+                // v1536 : plafond d'XP du jour, cinématique de fin vue, mode récupération
+                'fitproDailyXpTracker', 'awakFinaleVue', 'awakRecoveryMode',
+                // v1540 : afficher ou masquer l'onglet Famille = choix de chaque profil
+                'fitproFamilyTab');
             const GAME_KEY_PREFIXES = ['awakStoryEvt_', 'awakRiftHint_', 'awakNarrativeDone_', 'fitproDungeon_', 'awakPlanSource_', 'fitproStorySeen_'];
 
             // 1) Sauver les données de jeu du profil COURANT avant de le quitter
@@ -47725,6 +47912,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     'fitnessIndex', 'muscleRecoveryTracking', 'manualWeeklyPlan'
                 ];
                 keysToDelete.forEach(key => { localStorage.removeItem(`profile_${profileId}_${key}`); });
+                // v1539 : TOUTES ses données (jeu, inventaire, compétences, or…) et ses traces familiales
+                try {
+                    const _suppr = [];
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const k = localStorage.key(i);
+                        if (!k) continue;
+                        if (k.indexOf('profile_' + profileId + '_') === 0) _suppr.push(k);
+                        else if (/^(awak|fitpro)/.test(k) && k.endsWith('_' + profileId)) _suppr.push(k);
+                    }
+                    _suppr.forEach(k => localStorage.removeItem(k));
+                } catch (e) {}
+                try { if (typeof window.awakFamilleOublierProfil === 'function') window.awakFamilleOublierProfil(profileId); } catch (e) {}
                 if (typeof updateFamilyNavVisibility === 'function') updateFamilyNavVisibility();
                 showToast(`Profil "${profile.name}" supprimé`, 'success', 2000);
             }, null, { title: 'Supprimer le profil ?', icon: '🗑️', confirmLabel: 'Supprimer', danger: true });
@@ -49413,7 +49612,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1535" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1549" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -49495,7 +49694,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1535);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1549);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -49562,7 +49761,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1535);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1549);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -50378,7 +50577,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     count = (getAllProfiles() || []).length;
                 }
             } catch (e) {}
-            navTab.style.display = count >= 2 ? 'flex' : 'none';
+            // v1540 : tient aussi compte du choix du profil (avant : les deux règles s'écrasaient)
+            const _visible = count >= 2 && (typeof familyTabEnabled !== 'function' || familyTabEnabled());
+            navTab.style.display = _visible ? 'flex' : 'none';
             // Si l'onglet Famille est ouvert mais qu'on retombe à 1 profil, revenir à l'accueil
             if (count < 2) {
                 const activeTab = document.querySelector('.tab-content.active');
@@ -52020,7 +52221,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1535");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1549");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -53038,11 +53239,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 if (typeof awakGetActiveHandicaps === 'function') {
                     const h = awakGetActiveHandicaps();
-                    if (h.forced_burpees > 0) malus.handicaps.push({ icon:'🔥', text:`${h.forced_burpees} série(s) de burpees forcée(s) avant chaque séance` });
-                    if (h.extra_rest > 0)     malus.handicaps.push({ icon:'⏱️', text:`+${h.extra_rest}s de repos imposé` });
-                    if (h.extra_set > 0)      malus.handicaps.push({ icon:'➕', text:`+${h.extra_set} série(s) supplémentaire(s)` });
+                    if (h.sabotage > 0)       malus.handicaps.push({ icon:'🔥', text:`${h.sabotage}% de séries sans XP` });
+                    if (h.hurlement > 0)      malus.handicaps.push({ icon:'⏱️', text:`Ripostes +${h.hurlement}% en Faille` });
+                    if (h.armure > 0)         malus.handicaps.push({ icon:'➕', text:`Monstres +${h.armure}% PV en Faille` });
                     if (h.reduce_xp > 0)      malus.handicaps.push({ icon:'📉', text:`−${h.reduce_xp}% XP gagnée` });
-                    if (h.reduce_stats > 0)   malus.handicaps.push({ icon:'💢', text:`−${h.reduce_stats}% stats d'équipement` });
+                    if (h.reduce_stats > 0)   malus.handicaps.push({ icon:'💢', text:`−${h.reduce_stats}% de dégâts en Faille` });
                     if (h.block_drops)        malus.handicaps.push({ icon:'🚫', text:`Drops d'équipement bloqués` });
                 }
             } catch(e) {}

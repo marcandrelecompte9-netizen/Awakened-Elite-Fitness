@@ -1635,6 +1635,8 @@ const STORY_EVENTS = [
         id: 'evt_n84_mardi',
         type: 'ambiance',
         trigger: { kind: 'xp', level: 57, frac: 0.4 },
+        // v1536 : parle de la porte et des épreuves à venir → seulement avant la victoire sur l'Effaceur
+        condition: function () { try { return localStorage.getItem('awakFinalBossDefeated') !== '1'; } catch (e) { return true; } },
         once: true,
         content: {
             speaker: 'systeme',

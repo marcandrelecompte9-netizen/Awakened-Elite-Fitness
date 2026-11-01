@@ -383,7 +383,10 @@
     'Squats': 'FB_Squats', 'Squats maximum': 'FB_Squats', 'Squats sautés': 'FB_Squats_sautes',
     'Fentes sautées alternées': 'FB_Fentes_sautees', 'Pompes diamant': 'FB_Pompes_diamant', 'Pompes claquées': 'FB_Pompes_claquees',
     'Mountain climbers': 'FB_Mountain_climbers', 'Talons-fesses rapides': 'FB_Talons_fesses',
-    'Sauts groupés (tuck jumps)': 'FB_Sauts_groupes', 'Gainage planche': 'FB_Gainage_planche', 'Gainage final': 'FB_Gainage_planche'
+    'Sauts groupés (tuck jumps)': 'FB_Sauts_groupes', 'Gainage planche': 'FB_Gainage_planche', 'Gainage final': 'FB_Gainage_planche',
+    // v1549 : les 4 dernières
+    'Fentes dynamiques': 'FB_Fentes_dynamiques', 'Chaise contre le mur': 'FB_Chaise',
+    'Gainage latéral droit': 'FB_Gainage_lateral', 'Gainage latéral gauche': 'FB_Gainage_lateral', 'Hollow hold': 'FB_Hollow_hold'
   };
   var _imgSauve = null;
   function imagesCombat(actif) {
