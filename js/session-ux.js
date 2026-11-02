@@ -121,6 +121,8 @@
     _calme = !!(workout && /^(yoga|pilates|serenite|mobilite)$/.test(workout._discipline || ''));
     // v1403 : la séance commence déjà par un échauffement (ex. boxe « Échauffement & garde ») → pas de cardio en plus
     try { var _e0 = workout && workout.exercises && workout.exercises[0]; if (_e0 && (/chauffement|mise en route/i.test(_e0.name || '') || _e0.isWarmup || _e0.type === 'warmup')) _calme = true; } catch (e) {}   // v1407 : + échauffements étiquetés (Bouger ensemble)
+    // v1559 : séance du Système = « Phase 1 : Cardio général » déjà incluse → pas de 2e cardio (jumping jacks en double)
+    try { (workout && workout.exercises || []).slice(0, 4).forEach(function (x) { if (x && (/^\W*Phase 1|chauffement/i.test(x.name || '') || x.isWarmup || x.type === 'warmup')) _calme = true; }); } catch (e) {}
     // ⌚ v1232 : nuit courte mesurée par la montre → « Fatigué » présélectionné
     try {
       var nc = window.AwakSante && AwakSante.nuitCourte && AwakSante.nuitCourte();

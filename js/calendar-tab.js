@@ -163,7 +163,8 @@
     var act = activePlanFor(id), i = false;
     (act || []).forEach(function (j) { if (j && j.intensity !== 'rest' && j.muscles && j.muscles.length) i = true; });
     var prog = readJSON('activePlan_' + id, null);
-    return { routine: a, ia: m || i, programme: !!(prog && prog.weeks), nomProgramme: prog ? (prog.name || '') : '' };
+    var men = typeof window.awakMentorPlan === 'function' ? window.awakMentorPlan(id) : null;   // v1556
+    return { routine: a, ia: m || i, programme: !!(prog && prog.weeks) || !!men, nomProgramme: (prog && prog.weeks) ? (prog.name || '') : (men ? men.nom : '') };
   }
 
   // Planning résolu d'un membre : { lun: {muscles,label,heure,source}, … }
@@ -171,8 +172,10 @@
     var out = {};
     var pref = sourcePref(id);
     var manual = manualPlanFor(id);
+    // v1556 : mentor actif (Programme › Mentors)
+    var mentor = (pref === 'auto' || pref === 'programme') && typeof window.awakMentorPlan === 'function' ? window.awakMentorPlan(id) : null;
     if (pref === 'programme') {
-      var pg = programmeFor(id) || {};
+      var pg = programmeFor(id) || (mentor ? JSON.parse(JSON.stringify(mentor.jours)) : {});
       Object.keys(pg).forEach(function (d) { pg[d].heure = (manual[d] && manual[d].heure) || null; });
       return pg;
     }
@@ -217,6 +220,11 @@
         };
         return;
       }
+      // ②bis v1556 : le mentor actif
+      if (mentor && mentor.jours[d]) {
+        out[d] = Object.assign({}, mentor.jours[d], { heure: (manual[d] && manual[d].heure) || null });
+        return;
+      }
       // ③ plan actif (IA / Star / Découverte)
       if (actif && actif[i]) {
         var j = actif[i];
@@ -242,6 +250,7 @@
     manuel:  { txt: 'MANUEL',  col: '#60a8f0' },
     plan:    { txt: 'PLAN',    col: '#c084fc' },
     programme: { txt: 'PROGRAMME', col: '#fbbf24' },
+    mentor: { txt: 'MENTOR', col: '#fbbf24' },
     famille: { txt: 'FAMILLE', col: '#ec4899' }
   };
   function sourceChip(src) {

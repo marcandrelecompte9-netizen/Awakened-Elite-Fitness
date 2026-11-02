@@ -85,7 +85,44 @@
     }
     var s0 = sim(n), sansPar = sim(String(n).replace(/\s*\(.*\)\s*$/, ''));
     var m = String(n).match(/^(.*)\((.*)\)\s*$/), inverse = m ? sim(m[2] + ' ' + m[1]) : null;   // « Squat (Barbell) » = « barbell squat »
-    return _index[s0] || (inverse && _index[inverse]) || _index[sansPar] || null;
+    var exact = _index[s0] || (inverse && _index[inverse]);
+    if (exact) return exact;
+    // v1553 : noms génériques des applis (« Squat (Barbell) » = squat barre arrière)
+    var ALIAS = { 'squat barbell': 'Squat barre haut', 'barbell squat': 'Squat barre haut', 'back squat barbell': 'Squat barre haut', 'barbell back squat': 'Squat barre haut' };
+    if (ALIAS[s0] || (inverse && ALIAS[inverse])) {
+      var _al = ALIAS[s0] || ALIAS[inverse];
+      var _e = db.filter(function (e) { return e && e.name === _al; })[0];
+      if (_e) return _e;
+    }
+    // v1553 : « Squat (Barbell) » donnait « Squat classique » (poids du corps, 100 kg dessus).
+    // Le matériel entre parenthèses choisit la variante : barre, haltères, poulie, machine…
+    var EQ = { barbell: 'Barre', dumbbell: 'Haltères', cable: 'Poulie', machine: 'Machine', kettlebell: 'Kettlebell', smith: 'Machine', band: 'Élastique', 'ez bar': 'Barre' };
+    var eqWord = m ? sim(m[2]) : '', eq = null;
+    Object.keys(EQ).forEach(function (k) { if (!eq && eqWord.indexOf(k) >= 0) eq = EQ[k]; });
+    if (eq && db.length) {
+      var base = sansPar.split(' ').filter(Boolean), best = null;
+      var N2 = window.AWAK_NOMS_EX || {};
+      db.forEach(function (e) {
+        if (!e || !e.name || e.type !== 'exercise' || (window.awakEstDoublon && window.awakEstDoublon(e.name))) return;
+        var q = e.equipment || [];
+        var okEq = q.indexOf(eq) >= 0 || (eq === 'Poulie' && q.indexOf('Câble') >= 0) || (eq === 'Poulie' && /poulie|câble|cable/i.test(e.name));
+        if (!okEq) return;
+        var t = N2[e.name] || {};
+        var noms = [e.name, t.fr, t.en].filter(Boolean).map(sim);
+        // moins de mots en trop = plus proche (« Hack Squat » perd contre un nom plus simple)
+        var EQW = ['barre', 'barbell', 'haltere', 'halteres', 'dumbbell', 'poulie', 'cable', 'machine', 'kettlebell', 'smith', 'elastique', 'band'];
+        var extra = Infinity;
+        noms.forEach(function (x) {
+          var w = x.split(' ');
+          if (!base.every(function (b) { return w.indexOf(b) >= 0; })) return;
+          var ex = w.filter(function (y) { return base.indexOf(y) < 0 && EQW.indexOf(y) < 0; }).length;
+          if (ex < extra) extra = ex;
+        });
+        if (extra < Infinity && (!best || extra < best.x || (extra === best.x && e.name.length < best.e.name.length))) best = { e: e, x: extra };
+      });
+      if (best) return best.e;
+    }
+    return _index[sansPar] || null;
   }
 
   // ── Analyse ──────────────────────────────────────────────────────
@@ -130,6 +167,9 @@
     var hist = []; try { hist = JSON.parse((pid && window.getProfileData ? window.getProfileData(pid, 'workoutHistory') : localStorage.getItem('workoutHistory')) || '[]') || []; } catch (e) {}
     var deja = {}; hist.forEach(function (h) { if (h && h.date) deja[String(h.date).slice(0, 16) + '|' + h.name] = 1; });
     var perfs = {}; try { perfs = window.getExercisePerformances ? window.getExercisePerformances() : {}; } catch (e) {}
+    // v1553 : les records du Hall of Fame (personalRecords_<profil>) suivent l'import
+    var prKey = pid ? 'personalRecords_' + pid : null, prs = {};
+    try { if (prKey) prs = JSON.parse(localStorage.getItem(prKey) || '{}') || {}; } catch (e) { prs = {}; }
     var n = 0, idBase = Date.now();
     res.seances.forEach(function (s, k) {
       var iso = s.date.toISOString();
@@ -142,6 +182,14 @@
         e.completedSets.forEach(function (st) {
           vol += (st.weight || 0) * (st.reps || 0);
           if (st.reps > 0) (perfs[e.name] = perfs[e.name] || []).push({ date: iso, reps: st.reps, weight: st.weight || null });
+          if (prKey && st.reps > 0) {
+            var r = prs[e.name] || (prs[e.name] = {});
+            if (st.weight > 0 && (!r.weight || !r.weight.value || st.weight > r.weight.value)) {
+              r.weight = { value: st.weight, reps: st.reps, date: iso };
+              r.rm = { value: Math.round(st.weight * (1 + st.reps / 30) * 10) / 10, date: iso };
+            }
+            if (!r.reps || !r.reps.value || st.reps > r.reps.value) r.reps = { value: st.reps, date: iso };
+          }
         });
         // Les séries de l'historique sont dans l'unité affichée (comme les séances
         // faites dans l'appli) ; les performances restent en kg.
@@ -161,6 +209,7 @@
       if (pid && window.setProfileData) window.setProfileData(pid, 'workoutHistory', JSON.stringify(hist));
       else localStorage.setItem('workoutHistory', JSON.stringify(hist));
       if (window.saveExercisePerformances) window.saveExercisePerformances(perfs);
+      if (prKey) localStorage.setItem(prKey, JSON.stringify(prs));
     } catch (e) { toast('Stockage plein : import impossible.', 'error', 4000); return 0; }
     try { if (window.renderWorkoutHistory) window.renderWorkoutHistory('all'); } catch (e) {}
     try { if (window.updateHomeStats) window.updateHomeStats(); } catch (e) {}

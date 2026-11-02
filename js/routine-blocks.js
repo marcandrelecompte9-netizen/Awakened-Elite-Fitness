@@ -387,6 +387,10 @@
   // Accès aux variables internes du lecteur de séance (voir AwakSSBridge dans app.js)
   function B() { return window.AwakSSBridge || null; }
 
+  // v1560 : superset déjà TERMINÉ (on y revient avec « Préc. ») → on ne le relance pas
+  function _fini(w, g) { return !!(w && g && w._ssFinis && w._ssFinis[g]); }
+  function _marquerFini(g) { try { var w = B() && B().getWorkout(); if (w && g) { w._ssFinis = w._ssFinis || {}; w._ssFinis[g] = true; } } catch (e) {} }
+
   // Appelé au démarrage d'un exercice : arme le groupe si besoin.
   SS.sync = function () {
     try {
@@ -397,6 +401,7 @@
       var i = b.getExIdx();
       var ex = w.exercises[i];
       if (!ex || !ex.ss) { SS.st = null; return; }
+      if (_fini(w, ex.ss)) { SS.st = null; SS.clearBanner(); return; }   // v1560
 
       var mem = groupMembers(w.exercises, i);
       if (mem.length < 2) { SS.st = null; return; }
@@ -510,7 +515,7 @@
         var w0 = b.getWorkout();
         var i0 = b.getExIdx();
         var ex0 = w0 && w0.exercises && w0.exercises[i0];
-        if (ex0 && ex0.ss) {
+        if (ex0 && ex0.ss && !_fini(w0, ex0.ss)) {
           var mem0 = groupMembers(w0.exercises, i0);
           if (mem0.length > 1) {
             SS.st = {
@@ -540,6 +545,7 @@
     // Dernier du tour : tour suivant, ou sortie du groupe
     var prochain = st.round + 1;
     if (prochain > st.total) {
+      _marquerFini(st.g);   // v1560
       SS.st = null;
       SS.clearBanner();
       if (typeof window.showToast === 'function') window.showToast('✅ Superset terminé !', 'success', 2000);
@@ -572,7 +578,7 @@
         var w0 = b.getWorkout();
         var i0 = b.getExIdx();
         var ex0 = w0 && w0.exercises && w0.exercises[i0];
-        if (ex0 && ex0.ss) {
+        if (ex0 && ex0.ss && !_fini(w0, ex0.ss)) {
           var mem0 = groupMembers(w0.exercises, i0);
           if (mem0.length > 1) {
             // completeCurrentSet vient d'incrémenter : le tour réellement
@@ -596,7 +602,9 @@
         window.showToast('⚡ Enchaîne — pas de repos !', 'info', 1600);
       }
       b.vibrate([40, 30, 40]);
-      setTimeout(function () { goTo(suivant, st.round); }, 350);
+      // v1559 : si « Suivant » a déjà fait avancer, pas de 2e saut
+      var _ici = b.getExIdx();
+      setTimeout(function () { if (b.getExIdx() === _ici) goTo(suivant, st.round); }, 350);
       return true;
     }
 
@@ -604,14 +612,17 @@
     var prochain = st.round + 1;
     if (prochain > st.total) {
       // Superset terminé → on sort par la voie normale (exercice suivant)
+      _marquerFini(st.g);   // v1560
       SS.st = null;
       SS.clearBanner();
       if (typeof window.showToast === 'function') {
         window.showToast('✅ Superset terminé !', 'success', 2000);
       }
       b.setExIdx(st.members[st.members.length - 1]);
+      var _fin = st.members[st.members.length - 1];
       // Drapeau : empêche onNext de rattraper ce skip et de rearmer le groupe.
       setTimeout(function () {
+        if (b.getExIdx() !== _fin) return;   // v1559 : « Suivant » a déjà avancé → pas de 2e saut (le repos sautait)
         window._awakSSBypass = true;
         try { b.skipExercise(); } finally { window._awakSSBypass = false; }
       }, 700);
@@ -627,7 +638,9 @@
       repos = (exA && exA.repos) || w.restBetweenSets || b.globalRest() || (exA && exA.rest) || 60;
     } catch (e) { repos = 60; }
 
+    var _ici2 = b.getExIdx();
     setTimeout(function () {
+      if (b.getExIdx() !== _ici2) return;   // v1559
       goTo(premier, prochain);
       reposAvant(premier, repos);
     }, 350);

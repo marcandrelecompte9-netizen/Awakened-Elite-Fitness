@@ -27,6 +27,44 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
   var CLE_TRACES = '__awakRunTraces';
+  // v1551 : photos de progression (IndexedDB awakPhotosDB) — incluses dans la sauvegarde envoyée
+  var CLE_PHOTOS = '__awakPhotos';
+  function _photosDB(cb) {
+    try {
+      var rq = indexedDB.open('awakPhotosDB', 1);
+      rq.onupgradeneeded = function (e) {
+        var db = e.target.result;
+        if (!db.objectStoreNames.contains('progressPhotos')) {
+          var s = db.createObjectStore('progressPhotos', { keyPath: 'key' });
+          s.createIndex('profileId', 'profileId', { unique: false });
+        }
+      };
+      rq.onsuccess = function (e) { cb(e.target.result); };
+      rq.onerror = function () { cb(null); };
+    } catch (e) { cb(null); }
+  }
+  function lirePhotos(cb) {
+    _photosDB(function (db) {
+      if (!db) return cb([]);
+      try {
+        var r = db.transaction('progressPhotos', 'readonly').objectStore('progressPhotos').getAll();
+        r.onsuccess = function () { cb(r.result || []); };
+        r.onerror = function () { cb([]); };
+      } catch (e) { cb([]); }
+    });
+  }
+  function ecrirePhotos(liste, cb) {
+    if (!liste || !liste.length) return cb(true);
+    _photosDB(function (db) {
+      if (!db) return cb(false);
+      try {
+        var tx = db.transaction('progressPhotos', 'readwrite'), st = tx.objectStore('progressPhotos');
+        liste.forEach(function (p) { if (p && p.key && p.dataUrl) st.put(p); });
+        tx.oncomplete = function () { cb(true); };
+        tx.onerror = function () { cb(false); };
+      } catch (e) { cb(false); }
+    });
+  }
   // ── collecte ──
   function collecter() {
     var data = {};
@@ -141,6 +179,8 @@
       try { if (window.AwakRunStore) AwakRunStore.importer(JSON.parse(data[CLE_TRACES])); } catch (e) {}
       data = Object.assign({}, data); delete data[CLE_TRACES];
     }
+    // v1551 : les photos sont écrites en base par restaurer() ; jamais dans localStorage
+    if (data[CLE_PHOTOS]) { data = Object.assign({}, data); delete data[CLE_PHOTOS]; }
     try {
       localStorage.clear();
       Object.keys(data).forEach(function (k) { localStorage.setItem(k, data[k]); });
@@ -163,9 +203,10 @@
     var go = function () {
       var copie = collecter(); copie.avant = true;
       ajouterCopie(copie, function () {
+        var ph = []; try { ph = data[CLE_PHOTOS] ? JSON.parse(data[CLE_PHOTOS]) : []; } catch (e) { ph = []; }
         if (ecrire(data)) {
           toast('Restauration réussie. Redémarrage…', 'success', 1800);
-          setTimeout(function () { location.reload(); }, 1400);
+          ecrirePhotos(ph, function () { setTimeout(function () { location.reload(); }, 900); });
         } else {
           toast('Espace insuffisant sur le téléphone : rien n\'a été modifié', 'error', 4500);
         }
@@ -190,7 +231,11 @@
 
   // ── envoi ──
   function envoyer() {
+    lirePhotos(function (ph) { _envoyer(ph); });
+  }
+  function _envoyer(photos) {
     var s = collecter();
+    if (photos && photos.length) s.data[CLE_PHOTOS] = JSON.stringify(photos);
     var texte = JSON.stringify(s);
     var nom = 'Awakened-Sauvegarde-' + new Date().toISOString().split('T')[0] + '.json';
     var noter = function () { try { localStorage.setItem(K_DERNIERE, String(Date.now())); } catch (e) {} rendreReglages(); };

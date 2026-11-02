@@ -27,7 +27,7 @@ const EQUIPMENT_SETS = {
     shadow_monarch: {
         id:'shadow_monarch', name:'Souverain de l\'Aube', icon:'🌑',
         description:'L\'équipement du chasseur qui se lève avant la lumière elle-même.',
-        pieces:['shadow_crown','shadow_mantle','shadow_gauntlets','shadow_greaves','shadow_sabatons','shadow_dagger'],
+        pieces:['shadow_crown','shadow_mantle','shadow_gauntlets','shadow_greaves','shadow_sabatons','shadow_dagger','shadow_helm','arise_sword'],
         bonuses:{
             2:{ desc:'+20 STR · +15 AGI', stats:{ STR:20, AGI:15 } },
             4:{ desc:'+45 STR · +35 AGI · +20 VIT', stats:{ STR:45, AGI:35, VIT:20 } },
@@ -37,7 +37,7 @@ const EQUIPMENT_SETS = {
     iron_blood: {
         id:'iron_blood', name:'Sang de Fer', icon:'🩸',
         description:'Forgé dans la douleur. Chaque entraînement le rend plus puissant.',
-        pieces:['iron_horns','iron_breastplate','iron_knuckles','iron_tassets','iron_greaves','berserker_axe'],
+        pieces:['iron_horns','iron_breastplate','iron_knuckles','iron_tassets','iron_greaves','berserker_axe','iron_body_armor'],
         bonuses:{
             2:{ desc:'+25 STR · +10 END', stats:{ STR:25, END:10 } },
             4:{ desc:'+50 STR · +25 END · +15 VIT', stats:{ STR:50, END:25, VIT:15 } },
@@ -47,7 +47,7 @@ const EQUIPMENT_SETS = {
     phantom_speed: {
         id:'phantom_speed', name:'Vitesse Fantôme', icon:'💨',
         description:'Tellement rapide que tu laisses des images rémanentes.',
-        pieces:['phantom_visor','phantom_suit','phantom_wraps','phantom_tights','phantom_treads','phantom_blade'],
+        pieces:['phantom_visor','phantom_suit','phantom_wraps','phantom_tights','phantom_treads','phantom_blade','speed_of_light'],
         bonuses:{
             2:{ desc:'+25 AGI · +15 PER', stats:{ AGI:25, PER:15 } },
             4:{ desc:'+50 AGI · +30 PER · +20 SEN', stats:{ AGI:50, PER:30, SEN:20 } },
@@ -2386,7 +2386,7 @@ const EQUIPMENT_DATABASE = [
         description:'Tissée dans la lumière des étoiles que le Déclin n\'a jamais pu éteindre.',
         lore:'"Léger comme l\'aube, insaisissable comme un rayon."',
         ringEffect:{ type:'dodge', value:0.16, label:'+16 % esquive' } },
-    {   id:'radiant_steps', name:'Pas de Lumière', icon:'👟', slot:'feet', rarity:'mythic', set:'radiant_ascendant', riftOnly:true,
+    {   id:'radiant_steps', name:'Foulée Radieuse', icon:'👟', slot:'feet', rarity:'mythic', set:'radiant_ascendant', riftOnly:true,
         muscle:'Mollets',
         stats:{ STR:30, AGI:100, VIT:30, END:50, PER:50, SEN:40 },
         passive:'Course solaire : AGI +30% · +15% XP cardio.',
@@ -2781,7 +2781,7 @@ const EQUIPMENT_DATABASE = [
     // étaient portables, donc le bonus COMPLET (6 pièces) était
     // MATHÉMATIQUEMENT inatteignable. On crée les deux pièces manquantes.
     {   id:'iron_tassets', name:'Tassettes de Fer', icon:'🩸', slot:'legs', rarity:'rare', set:'iron_blood',
-        muscle:'Jambes',
+        muscle:'Quadriceps',
         stats:{ STR:14, AGI:0, VIT:22, END:16, PER:6, SEN:0 },
         passive:'Charge sanglante : +8% de dégâts quand les PV descendent sous 50%.',
         description:'Des plaques articulées, tachées par d’anciens combats.',

@@ -2675,19 +2675,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // activation + explosif) et les étirements (1 par muscle + antagonistes)
         // ne regardaient PAS la durée : une séance de 15 min avec 2 exercices
         // récoltait 5 échauffements + 4 étirements, soit 82 % d'annexes.
+        // v1558 : 4 au maximum, quelle que soit la durée (avant : jusqu'à 7 à 60 min)
         function _maxWarmupFor(minutes) {
-            if (!minutes || minutes <= 0) return 99;   // durée inconnue → comportement d'origine
+            if (!minutes || minutes <= 0) return 99;   // durée inconnue (routines…) → inchangé
             if (minutes <= 15) return 2;
             if (minutes <= 30) return 3;
-            if (minutes <= 45) return 5;
-            return 99;                                  // 60 min+ : structure complète
+            return 4;
         }
         function _maxStretchFor(minutes) {
             if (!minutes || minutes <= 0) return 99;
             if (minutes <= 15) return 2;
             if (minutes <= 30) return 3;
-            if (minutes <= 45) return 5;
-            return 99;
+            return 4;
         }
         // Réduit une liste en gardant les INTROS de phase (duration 0) utiles et
         // en coupant d'abord dans les exercices, sans casser l'ordre.
@@ -5392,6 +5391,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     startTime: typeof workoutStartTime !== 'undefined' ? workoutStartTime : Date.now(),
                     savedAt: Date.now(),
                 };
+                // v1560 : séries de l'exercice en cours (sinon la reprise repartait à la série 1)
+                try {
+                    const _ex = currentWorkout.exercises && currentWorkout.exercises[currentExerciseIndex];
+                    if (_ex && completedSets && completedSets.length) {
+                        state.etatExo = { idx: currentExerciseIndex, nom: _ex.name, faites: completedSets, num: currentSetNumber,
+                            total: totalSetsPlanned, wu: warmupSetsCount, vals: _gridVals };
+                    }
+                } catch (e) {}
                 localStorage.setItem(_workoutStateKey(), JSON.stringify(state));
             } catch(e) { console.warn('Save workout state failed:', e); }
         }
@@ -6163,6 +6170,15 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (_xp && _xp.startTime === _ancien) { _xp.startTime = workoutStartTime; localStorage.setItem(XP_WORKOUT_TRACKING_KEY, JSON.stringify(_xp)); }
                 } catch (e) {}
             }
+            // v1560 : rétablir les séries déjà faites de l'exercice en cours
+            try {
+                const _ee = state.etatExo;
+                if (_ee && _ee.idx === currentExerciseIndex) {
+                    _awakEtatsExo.cle = workoutStartTime || 0; _awakEtatsExo.idx = null; _awakEtatsExo.map = {};
+                    _awakEtatsExo.map[_ee.idx] = { nom: _ee.nom, faites: _ee.faites || [], num: _ee.num || 1, total: _ee.total || 3, wu: _ee.wu || 0, vals: _ee.vals || [] };
+                    window._awakRetourArriere = workoutStartTime || 0;
+                }
+            } catch (e) {}
             // 💾 Recharger les séries déjà saisies (le _currentSessionSets en
             // mémoire est vide après un rechargement de l'app). Sinon la reprise
             // repartirait sans les séries validées avant d'avoir quitté.
@@ -9721,7 +9737,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     celebBanner.style.borderColor = celeb.color + '60';
                     celebBanner.style.background = celeb.color + '15';
                     celebBanner.innerHTML = `
-                        <span style="font-size:1.5em;">${celeb.emoji}</span>
+                        <span style="display:flex;flex-shrink:0;">${(window.AwakIcon && AwakIcon.get('trophee', 26, celeb.color)) || ''}</span>
                         <div style="flex:1;">
                             <div style="font-size:0.62em;color:${celeb.color};font-weight:800;text-transform:uppercase;letter-spacing:1px;">Programme actif · Sem. ${prog.week}/12</div>
                             <div style="font-size:0.92em;font-weight:900;color:white;">${celeb.nickname} <span style="font-size:0.75em;font-weight:500;color:rgba(255,255,255,0.5);">— ${prog.phase.label}</span></div>
@@ -11578,6 +11594,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     typeLabel = 'Séance'; typeAccent = '#60a8f0';
                     typeSvg = _svgIcon('<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>', typeAccent);
             }
+            if (decisions.titre && decisions.workoutType !== 'recovery') typeLabel = decisions.titre;   // v1558
 
             const intensityPct = Math.round(decisions.intensity * 100);
 
@@ -12204,6 +12221,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             // ◈ Afficher l'écran d'analyse cyberpunk, puis lancer
             const decisions = _buildDecisionsFromWorkout(workout, realExercises);
+            // v1558 : l'écran d'analyse porte le NOM de la séance (avant : « Corps Entier » / « Split Ciblé »)
+            try {
+                const _t = String(workout.name || '').split(' · ⭐')[0].replace(/[^\p{L}\p{N}·'’ -]+/gu, '').replace(/\s+/g, ' ').trim();
+                if (_t && !/^Séance intelligente$/i.test(_t)) decisions.titre = _t;
+            } catch (e) {}
             showDecisionExplanation(decisions, () => {
                 // ✅ Use AI Workout DJ Quick Check (or skip if disabled)
                 startQuickCheck(workout);
@@ -13707,10 +13729,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             // Build workout structure
             const workout = {
-                name: `${_awakSplitNom ? _awakSplitNom + ' ' : 'Séance intelligente '}${userGoals[profile.goal].icon}${(typeof getActiveCelebrity==='function' && getActiveCelebrity()) ? ' · ⭐ '+getActiveCelebrity().nickname : ''}`,
+                name: `${(window._awakChoixManuel && Array.isArray(_overrideMuscles) && _overrideMuscles.length) ? _overrideMuscles.slice(0, 3).join(' · ') + ' ' : (_awakSplitNom ? _awakSplitNom + ' ' : 'Séance intelligente ')}${userGoals[profile.goal].icon}${(typeof getActiveCelebrity==='function' && getActiveCelebrity()) ? ' · ⭐ '+getActiveCelebrity().nickname : ''}`,
                 mode: selectedWorkoutMode, // 'timer', 'reps', 'hybrid'
                 exercises: []
             };
+            window._awakChoixManuel = false;   // v1557 : utilisé une seule fois
             // ⏱️ Avertissement « trop de muscles pour la durée » : porté par la séance
             // pour être affiché de façon PERSISTANTE sur l'écran « Préparez-vous »
             // (le toast disparaît trop vite).
@@ -14199,7 +14222,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         // Fenêtre de CRÉATION du mot de passe (choix + confirmation).
         // onDone() est appelé une fois le mot de passe enregistré.
-        function awakSecShowCreate(onDone) {
+        function awakSecShowCreate(onDone, onLater) {
             awakSecClose();
             const ov = document.createElement('div');
             ov.id = 'awakSecModal';
@@ -14230,7 +14253,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (typeof onDone === 'function') onDone();
             };
             ov.querySelector('#awakSecSave').onclick = submit;
-            ov.querySelector('#awakSecLater').onclick = function () { try { localStorage.setItem('awakSecPlusTard', String(Date.now())); } catch (e) {} awakSecClose(); };   // v1411 : pas redemandé avant 7 jours
+            ov.querySelector('#awakSecLater').onclick = function () { try { localStorage.setItem('awakSecPlusTard', String(Date.now())); } catch (e) {} awakSecClose(); if (typeof onLater === 'function') onLater(); };   // v1411 : pas redemandé avant 7 jours
             p2.addEventListener('keydown', function (e) { if (e.key === 'Enter') submit(); });
             setTimeout(function () { try { p1.focus(); } catch (e) {} }, 60);
         }
@@ -14276,7 +14299,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // demande sa saisie (l'utilisateur confirme ainsi qu'il le connaît).
         function awakSecGuard(actionLabel, onVerified) {
             if (!awakSecIsSet()) {
-                awakSecShowCreate(function () { awakSecShowEnter(actionLabel, onVerified); });
+                // v1552 : « Plus tard » pendant une action protégée → on le dit (avant : rien ne se passait)
+                awakSecShowCreate(function () { awakSecShowEnter(actionLabel, onVerified); }, function () {
+                    try { showToast('Action annulée : un mot de passe est nécessaire pour la confirmer', 'info', 3500); } catch (e) {}
+                });
             } else {
                 awakSecShowEnter(actionLabel, onVerified);
             }
@@ -14379,13 +14405,40 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             });
         }
         
+        // v1554 : vide une base IndexedDB (toute la table, ou les entrées choisies)
+        function awakViderBase(nom, table, garderSi) {
+            return new Promise(resolve => {
+                try {
+                    const rq = indexedDB.open(nom);
+                    rq.onsuccess = () => {
+                        const db = rq.result;
+                        try {
+                            if (!db.objectStoreNames.contains(table)) { db.close(); return resolve(false); }
+                            const tx = db.transaction(table, 'readwrite'), st = tx.objectStore(table);
+                            if (!garderSi) st.clear();
+                            else { const c = st.openCursor(); c.onsuccess = () => { const cur = c.result; if (!cur) return; if (garderSi(cur.key, cur.value)) cur.delete(); cur.continue(); }; }
+                            tx.oncomplete = () => { db.close(); resolve(true); };
+                            tx.onerror = () => { db.close(); resolve(false); };
+                        } catch (e) { try { db.close(); } catch (x) {} resolve(false); }
+                    };
+                    rq.onerror = () => resolve(false);
+                    rq.onblocked = () => resolve(false);
+                } catch (e) { resolve(false); }
+            });
+        }
+        window.awakViderBase = awakViderBase;
         function resetAllData() {
             awakSecGuard('réinitialiser complètement l\'application', function () {
                 showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données de TOUS les profils ? Action irréversible.', function() {
                 try {
-                    localStorage.clear();
-                    showToast('🔄 Toutes les données ont été supprimées. Rechargement...', 'success', 2000);
-                    setTimeout(() => { location.reload(); }, 2000);
+                    // v1554 : TOUT, comme promis : photos, tracés GPS, musiques ajoutées et copies automatiques
+                    try { if (window.AwakRunStore && AwakRunStore.toutVider) AwakRunStore.toutVider(); } catch (e) {}
+                    const _bases = [['awakPhotosDB', 'progressPhotos'], ['awakRunsDB', 'traces'], ['awakMusiquesPerso', 'pistes'], ['AwakenedBackups', 'backups']];
+                    Promise.all(_bases.map(b => awakViderBase(b[0], b[1]))).then(() => {
+                        localStorage.clear();
+                        showToast('🔄 Toutes les données ont été supprimées. Rechargement...', 'success', 2000);
+                        setTimeout(() => { location.reload(); }, 2000);
+                    });
                 } catch (error) {
                     showToast('❌ Erreur lors de la réinitialisation', 'error', 3000);
                 }
@@ -15210,7 +15263,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const faites = completedSets.some(cs => !cs.warmup);
             if (currentSetNumber > total && faites) {
                 vibrate([100, 50, 200]);
-                setTimeout(() => skipExercise(), 800);
+                { const _iAuto = currentExerciseIndex; setTimeout(() => { if (currentExerciseIndex === _iAuto) skipExercise(); }, 800); }   // v1557 : si « Suivant » a déjà avancé, pas de 2e saut
             }
         };
 
@@ -15832,6 +15885,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             } catch (e) {}
                             // v1499 : l'Effaceur tombe à 0 → le combat s'arrête ici (victoire)
                             if (_r.vaincu) {
+                                setTimeout(() => { try { _awakViderBulles(); } catch (e) {} }, 1550);   // v1550 : rien par-dessus la chute
                                 setTimeout(() => { try { if (currentWorkout && currentWorkout._isFinalBoss && !currentWorkout._completed) completeWorkout(); } catch (e) {} }, 1600);
                                 return 'fin';
                             }
@@ -15851,6 +15905,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                 }
                                 if (_rp.mort) {
                                     // Deuxième chute : le combat s'arrête, défaite (la séance est gardée)
+                                    setTimeout(() => { try { _awakViderBulles(); } catch (e) {} }, 1550);   // v1550
                                     setTimeout(() => { try { if (currentWorkout && currentWorkout._isFinalBoss && !currentWorkout._completed) completeWorkout(); } catch (e) {} }, 1600);
                                     return 'fin';
                                 }
@@ -15972,7 +16027,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // Séance normale : compléter (Rifts/Hunts sont déjà gérées en début de fonction)
                 if (!window._gridBulk) {
                     vibrate([100, 50, 200]);
-                    setTimeout(() => skipExercise(), 800);
+                    { const _iAuto = currentExerciseIndex; setTimeout(() => { if (currentExerciseIndex === _iAuto) skipExercise(); }, 800); }   // v1557 : si « Suivant » a déjà avancé, pas de 2e saut
                 }
                 return;
             }
@@ -16806,6 +16861,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try { onMuscleChoiceAI(); } catch (e) { try { switchTab('workouts'); } catch (x) {} }
         };
         function onMuscleChoiceAI() {
+            window._awakChoixManuel = false;
             const overlay = document.getElementById('muscleChoiceOverlay');
             if (overlay) overlay.remove();
 
@@ -17172,6 +17228,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (_manualSelectedMuscles.length === 0) return;
             // Sauvegarder temporairement comme muscles sélectionnés pour la séance
             window._overrideSessionMuscles = [..._manualSelectedMuscles];
+            window._awakChoixManuel = true;   // v1557 : la séance portera le nom des muscles choisis
             const overlay = document.getElementById('manualMuscleOverlay');
             if (overlay) overlay.remove();
             // Continuer le flow normal
@@ -18095,7 +18152,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // Update UI
             updateAIWorkoutDJUI();
             
-            const message = settings.enabled ? '✅ AI Workout DJ activé !' : '⏸️ AI Workout DJ désactivé';
+            const message = settings.enabled ? 'Bilan express activé' : 'Bilan express désactivé';
             showToast(message);
         }
         
@@ -18157,7 +18214,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             document.getElementById('quickCheckView').classList.remove('hidden');
             
             if (settings.voiceFeedback) {
-                speak("Quick Check : je vais évaluer ton état du jour");
+                speak("Bilan express : je vais évaluer ton état du jour");
             }
         }
         
@@ -18187,7 +18244,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             showWorkoutPreparation(workout);
             
             // Optional: notify user
-            showToast('Quick Check annulé - workout normal', 'info', 2000);
+            showToast('Bilan passé : séance normale', 'info', 2000);
         }
         
         function beginQuickCheck() {
@@ -24216,7 +24273,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1549);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1560);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24269,7 +24326,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1549" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1560" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -28872,22 +28929,27 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             globalRestSeconds = seconds;
             localStorage.setItem('fitproGlobalRest', seconds);
             // Update button states
-            document.querySelectorAll('#globalRestBtns button').forEach(btn => {
-                const isActive = parseInt(btn.dataset.rest) === seconds;
-                btn.style.background = isActive ? 'linear-gradient(135deg,#22d3ee,#0891b2)' : '';
-                btn.style.color      = isActive ? 'white' : '';
-                btn.style.border     = isActive ? 'none' : '';
-            });
+            _awakMajBoutonsRepos(seconds);
             const hint = document.getElementById('globalRestHint');
             const labels = {60:'1 min', 90:'1:30', 120:'2 min', 180:'3 min'};
             if (hint) hint.textContent = 'Actuel : ' + (labels[seconds] || seconds + 's');
             showToast(`⏱️ Repos : ${labels[seconds] || seconds+'s'}`, 'info', 1500);
         }
-        function initGlobalRestUI() {
+        // v1552 : bouton actif visible (!important : le thème sombre de .btn l'effaçait)
+        function _awakMajBoutonsRepos(sec) {
             document.querySelectorAll('#globalRestBtns button').forEach(btn => {
-                const isActive = parseInt(btn.dataset.rest) === globalRestSeconds;
-                if (isActive) { btn.style.background='linear-gradient(135deg,#22d3ee,#0891b2)'; btn.style.color='white'; btn.style.border='none'; }
+                const on = parseInt(btn.dataset.rest) === sec;
+                ['background', 'color', 'border', 'font-weight'].forEach(p => btn.style.removeProperty(p));
+                if (on) {
+                    btn.style.setProperty('background', 'linear-gradient(135deg,#22d3ee,#0891b2)', 'important');
+                    btn.style.setProperty('color', '#04121f', 'important');
+                    btn.style.setProperty('border', '1px solid #22d3ee', 'important');
+                    btn.style.setProperty('font-weight', '900', 'important');
+                }
             });
+        }
+        function initGlobalRestUI() {
+            _awakMajBoutonsRepos(globalRestSeconds);
             const hint = document.getElementById('globalRestHint');
             const labels = {60:'1 min', 90:'1:30', 120:'2 min', 180:'3 min'};
             if (hint) hint.textContent = 'Actuel : ' + (labels[globalRestSeconds] || globalRestSeconds + 's');
@@ -29138,21 +29200,25 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const active   = 'linear-gradient(135deg,#22d3ee,#0891b2)';
             const inactive = 'rgba(255,255,255,0.03)';
             const activeTxt   = 'white';
-            const inactiveTxt = '#374151';
+            const inactiveTxt = '#94a3b8';
+            // v1551 : !important — sinon le thème sombre (.btn) efface l'état actif
+            const _imp = (el, prop, val) => { try { el.style.setProperty(prop, val, 'important'); } catch (e) {} };
 
             // Boutons dans Réglages
             const bKg  = document.getElementById('unitBtnKg');
             const bLbs = document.getElementById('unitBtnLbs');
             if (bKg) {
-                bKg.style.background = useKg ? active : inactive;
-                bKg.style.color      = useKg ? activeTxt : inactiveTxt;
-                bKg.style.border     = useKg ? 'none' : '1px solid rgba(255,255,255,0.12)';
+                _imp(bKg, 'background', useKg ? active : inactive);
+                _imp(bKg, 'color', useKg ? '#04121f' : inactiveTxt);
+                _imp(bKg, 'border', useKg ? '1px solid #22d3ee' : '1px solid rgba(255,255,255,0.12)');
+                _imp(bKg, 'font-weight', useKg ? '900' : '700');
                 bKg.textContent      = useKg ? '✅ Kilogrammes actifs' : '🇨🇦 Utiliser les kilogrammes';
             }
             if (bLbs) {
-                bLbs.style.background = !useKg ? active : inactive;
-                bLbs.style.color      = !useKg ? activeTxt : inactiveTxt;
-                bLbs.style.border     = !useKg ? 'none' : '1px solid rgba(255,255,255,0.12)';
+                _imp(bLbs, 'background', !useKg ? active : inactive);
+                _imp(bLbs, 'color', !useKg ? '#04121f' : inactiveTxt);
+                _imp(bLbs, 'border', !useKg ? '1px solid #22d3ee' : '1px solid rgba(255,255,255,0.12)');
+                _imp(bLbs, 'font-weight', !useKg ? '900' : '700');
                 bLbs.textContent      = !useKg ? '✅ Livres actives' : '🇺🇸 Utiliser les livres';
             }
 
@@ -29362,12 +29428,45 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // de l'orateur, texte large ; ne bloque rien (le chrono continue), file d'attente.
         const _awakGrosFile = [];
         let _awakGrosEnCours = false;
+        // v1550 : une SCÈNE est à l'écran (carte de phase ou d'acte, « Relève-toi »,
+        // chute, victoire, défaite, fin de séance) → répliques et actions des alliés
+        // attendent leur tour au lieu de s'afficher par-dessus. Combat fini → on vide.
+        const _AWAK_SCENES = ['awkBossIntro', 'awakFinalStoryOverlay', 'awakFinalReleve', 'awakFinalChute', 'awakFinale',
+            'awakFinalVictoryOverlay', 'awakFinalDefaite', 'storyEventOverlay', 'heroReactionOverlay'];
+        function _awakSceneOuverte() {
+            for (let i = 0; i < _AWAK_SCENES.length; i++) {
+                const e = document.getElementById(_AWAK_SCENES[i]);
+                if (e && e.isConnected && getComputedStyle(e).display !== 'none') return true;
+            }
+            const cv = document.getElementById('completionView');
+            return !!(cv && !cv.classList.contains('hidden') && cv.style.display !== 'none');
+        }
+        function _awakCombatFini() {
+            // seulement le combat final (les Failles appellent aussi ces bulles, hors séance)
+            return !!(currentWorkout && currentWorkout._isFinalBoss && (currentWorkout._completed || currentWorkout._joueurMort || currentWorkout._bossHp <= 0));
+        }
+        function _awakViderBulles() {
+            _awakGrosFile.length = 0; _awakGrosEnCours = false;
+            try { _awakAideFile.length = 0; _awakAideEnCours = false; } catch (e) {}
+            document.getElementById('awakGros')?.remove();
+            document.getElementById('awakAide')?.remove();
+        }
+        window._awakViderBulles = _awakViderBulles;
+        // Pendant une scène, la bulle déjà affichée est cachée (pas supprimée)
+        setInterval(() => {
+            try {
+                const s = _awakSceneOuverte();
+                ['awakGros', 'awakAide'].forEach(id => { const e = document.getElementById(id); if (e) e.style.visibility = s ? 'hidden' : ''; });
+            } catch (e) {}
+        }, 250);
         function _awakDireGros(d) {
             if (!d || !d.txt) return;
             _awakGrosFile.push(d);
             if (!_awakGrosEnCours) _awakGrosSuivant();
         }
         function _awakGrosSuivant() {
+            if (_awakCombatFini()) { _awakGrosFile.length = 0; _awakGrosEnCours = false; return; }
+            if (_awakSceneOuverte() && _awakGrosFile.length) { _awakGrosEnCours = true; setTimeout(_awakGrosSuivant, 500); return; }
             const d = _awakGrosFile.shift();
             if (!d) { _awakGrosEnCours = false; return; }
             _awakGrosEnCours = true;
@@ -29421,6 +29520,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         let _awakAideEnCours = false;
         function _awakAideEpique(a) { if (!a || !_AWAK_AIDES[a.nom]) return; _awakAideFile.push(a); if (!_awakAideEnCours) _awakAideSuivante(); }
         function _awakAideSuivante() {
+            if (currentWorkout && currentWorkout._isFinalBoss && currentWorkout._completed) { _awakAideFile.length = 0; _awakAideEnCours = false; return; }
+            if (_awakSceneOuverte() && _awakAideFile.length) { _awakAideEnCours = true; setTimeout(_awakAideSuivante, 500); return; }
             const a = _awakAideFile.shift();
             if (!a) { _awakAideEnCours = false; return; }
             _awakAideEnCours = true;
@@ -29542,6 +29643,15 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch (e) {}
         }
 
+        // v1557 : une 2e touche sur « Suivant » à moins d'une demi-seconde est ignorée
+        // (avant : double touche = deux avances, le repos ou l'exercice suivant sautait)
+        let _awkSuivantT = 0;
+        window.awkSuivantTouche = function () {
+            const t = Date.now();
+            if (t - _awkSuivantT < 500) return;
+            _awkSuivantT = t;
+            skipExercise();
+        };
         function skipExercise() {
             // 🔇 Couper la phrase en cours + timers du coach vocal de l'exercice sauté
             if (typeof stopAllSpeech === 'function') stopAllSpeech();
@@ -30144,7 +30254,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1549");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1560");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -35163,7 +35273,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1549);'
+                +     'url(images/combat_bg_v1.webp?v=1560);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -35511,7 +35621,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1549);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1560);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -35865,7 +35975,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1549);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1560);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -37097,7 +37207,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1549');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1560');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -37857,7 +37967,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1549);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1560);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -38028,7 +38138,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1549);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1560);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -42630,7 +42740,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             section.style.display = 'block';
 
             const data = rpgLoad();
-            const profileXP = Object.values(data.muscles).reduce((s, m) => s + m.xp, 0);
+            // v1552 : même XP que l'Accueil et la Carte de chasseur (muscles + XP à vie)
+            const profileXP = (typeof window.awakXPTotale === 'function') ? window.awakXPTotale() : Object.values(data.muscles).reduce((s, m) => s + m.xp, 0);
             const profileLevel = rpgLevelFromXP(profileXP);
             const title = rpgTitle(profileLevel);
             const xpThis = rpgXPForLevel(profileLevel);
@@ -42833,7 +42944,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 renderGameTab();
                 // Mettre à jour la preview dans Réglages
                 const data = rpgLoad();
-                const profileXP = Object.values(data.muscles).reduce((s,m) => s+m.xp, 0);
+                const profileXP = (typeof window.awakXPTotale === 'function') ? window.awakXPTotale() : Object.values(data.muscles).reduce((s,m) => s+m.xp, 0);   // v1552
                 const profileLevel = rpgLevelFromXP(profileXP);
                 const t = rpgTitle(profileLevel);
                 const gEmoji = document.getElementById('gameTitleEmoji');
@@ -45064,6 +45175,23 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             phase3: { label:'Intensification', weeks:'9-12', setsScale:1.25, restScale:0.85, color:'#ef4444', desc:'Volume maximum, repos réduits.' },
         };
 
+        // v1556 : plan de la semaine du MENTOR actif d'un profil (Accueil + Agenda).
+        // Jours de repos du mentor = pas d'entrée. Avant : le mentor était ignoré.
+        window.awakMentorPlan = function (pid) {
+            try {
+                const cur = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
+                const id = localStorage.getItem(CELEBRITY_ACTIVE_KEY + '_' + pid) || (pid && pid === cur ? localStorage.getItem(CELEBRITY_ACTIVE_KEY) : null);
+                const c = id ? CELEBRITY_PROGRAMS.find(p => p.id === id) : null;
+                if (!c || !Array.isArray(c.splits)) return null;
+                const K = ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'], jours = {};
+                c.splits.forEach((s, i) => {
+                    if (i > 6 || !s || /repos|🛌/i.test(s.name || '')) return;
+                    let mus = []; try { mus = _splitNameToMuscles(s.name) || []; } catch (e) {}
+                    jours[K[i]] = { muscles: mus.length ? mus : ['Corps entier'], label: c.nickname + ' · ' + s.name, source: 'mentor', mentorDay: K[i], mentor: c.nickname };
+                });
+                return { nom: c.nickname, jours: jours };
+            } catch (e) { return null; }
+        };
         function getActiveCelebrity() {
             const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
             const key = profileId ? `${CELEBRITY_ACTIVE_KEY}_${profileId}` : CELEBRITY_ACTIVE_KEY;
@@ -47924,6 +48052,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     _suppr.forEach(k => localStorage.removeItem(k));
                 } catch (e) {}
                 try { if (typeof window.awakFamilleOublierProfil === 'function') window.awakFamilleOublierProfil(profileId); } catch (e) {}
+                // v1554 : ses photos et ses tracés GPS aussi
+                try { awakViderBase('awakPhotosDB', 'progressPhotos', (k, v) => v && v.profileId === profileId); } catch (e) {}
+                try { if (window.AwakRunStore && AwakRunStore.oublierPrefixe) AwakRunStore.oublierPrefixe('profile_' + profileId + '_'); } catch (e) {}
                 if (typeof updateFamilyNavVisibility === 'function') updateFamilyNavVisibility();
                 showToast(`Profil "${profile.name}" supprimé`, 'success', 2000);
             }, null, { title: 'Supprimer le profil ?', icon: '🗑️', confirmLabel: 'Supprimer', danger: true });
@@ -49440,6 +49571,27 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // (version, nombre de paramètres) : une console qui affiche des valeurs
         // inventées se remarque tout de suite.
         function awakRenderTerminalHead() {
+            // v1551 : icône (au lieu d'un emoji) dans « À propos »
+            try { const vi = document.getElementById('awakVersionIco'); if (vi && !vi.innerHTML && window.AwakIcon) vi.innerHTML = AwakIcon.get('etoile', 30, '#93c5fd'); } catch (e) {}
+            // v1553 : profil enfant → pas de réglages d'entraînement d'adulte (ses séances sont des jeux)
+            try {
+                const _kid = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild());
+                const _ADULTE = ['Type de séance automatique', 'Variété des exercices', 'Périodisation automatique'];   // v1555 : « Poids disponibles » retiré pour tous
+                document.querySelectorAll('#settingsTab .settings-sub-title').forEach(t => {
+                    if (_ADULTE.indexOf(t.textContent.trim()) < 0) return;
+                    const bloc = t.closest('.settings-sub'); if (bloc) bloc.style.display = _kid ? 'none' : '';
+                });
+            } catch (e) {}
+            // v1552 : aperçu « Niveau profil » recalculé à l'ouverture (même XP que l'Accueil)
+            try {
+                if (typeof window.awakXPTotale === 'function' && typeof rpgLevelFromXP === 'function') {
+                    const _xp = window.awakXPTotale(), _nv = rpgLevelFromXP(_xp);
+                    const gL = document.getElementById('gameProfileLevel'), gX = document.getElementById('gameProfileXP'), gT = document.getElementById('gameProfileTitle');
+                    if (gL) gL.textContent = _nv;
+                    if (gX) gX.textContent = _xp.toLocaleString('fr-CA');
+                    if (gT && typeof awakGetRank === 'function') gT.textContent = awakGetRank().name;
+                }
+            } catch (e) {}
             try {
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
@@ -49612,7 +49764,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1549" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1560" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -49694,7 +49846,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1549);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1560);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -49761,7 +49913,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1549);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1560);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -51921,6 +52073,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // 🔄 MISE À JOUR FORCÉE ROBUSTE — vide caches + SW + recharge
         // ═══════════════════════════════════════════════════════════════
         async function forceAppUpdate() {
+            // v1555 : SANS RÉSEAU, on ne touche à rien. Avant : caches vidés et service
+            // worker retiré même hors ligne → l'app ne s'ouvrait plus sans connexion.
+            const _horsLigne = () => { try { showToast('Pas de connexion : réessaie quand tu seras en ligne', 'warning', 3500); } catch (e) {} };
+            if (navigator.onLine === false) { _horsLigne(); return; }
+            try {
+                const _r = await fetch('index.html?_ping=' + Date.now(), { cache: 'no-store' });
+                if (!_r || !_r.ok) { _horsLigne(); return; }
+            } catch (e) { _horsLigne(); return; }
             try {
                 showToast && showToast('🔄 Nettoyage du cache…', 'info', 1500);
 
@@ -52221,7 +52381,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1549");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1560");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

@@ -389,6 +389,7 @@
       if (auj.heure) bits.push('<span class="ahp-m">' + ico('calendrier', 15, '#cbd5e1') + '<span>' + esc(fmtH(auj.heure)) + '</span></span>');
       meta = bits.join('');
       if (s.famille) go = 'if(window.AwakFamilyMove)AwakFamilyMove()';   // v1407 : jour en famille
+      else if (s.source === 'mentor') go = 'if(typeof startCelebrityWorkoutToday===\'function\')startCelebrityWorkoutToday(\'' + esc(s.mentorDay) + '\')';   // v1556
       else if (s.routineId) go = 'if(typeof startRoutineById===\'function\')startRoutineById(\'' + esc(s.routineId) + '\')';
       // v1400 : jour de yoga / pilates / mobilité du plan → la séance de la discipline
       else if (s.discipline === 'course' && s.session !== 'renfo') go = 'switchTab(\'course\');window.scrollTo(0,0)';   // course : l'onglet GPS
@@ -398,7 +399,7 @@
       bouton = auj.faite
         ? '<button class="ahp-cta ahp-cta-s" onclick="switchTab(\'history\')">Voir ma progression</button>'
         : '<button class="ahp-cta" onclick="' + go + '">Commencer ma séance</button>';
-    } else if (!faiteAuj && aPlan && (typeof window.awakSeanceRecente !== 'function' || window.awakSeanceRecente(2))) {
+    } else if (!faiteAuj && aPlan && (Object.keys(pl.plan || {}).some(function (k) { return pl.plan[k] && pl.plan[k].source === 'mentor'; }) || typeof window.awakSeanceRecente !== 'function' || window.awakSeanceRecente(2))) {
       // v1400 : « Jour de repos » seulement après une séance récente (sinon : la séance du Système)
       titre = 'Jour de repos';
       var pr = prochaine(pl, id);

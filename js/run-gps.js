@@ -240,8 +240,18 @@
       Object.keys(o).forEach(function (key) { cache[key] = o[key]; });
       tx('readwrite', function (st) { Object.keys(o).forEach(function (key) { st.put(o[key], key); }); });
     }
+    // v1554 : profil supprimé → ses tracés partent aussi (mémoire + base)
+    function oublierPrefixe(pre) {
+      var ks = Object.keys(cache).filter(function (key) { return key.indexOf(pre) === 0; });
+      ks.forEach(function (key) { delete cache[key]; });
+      tx('readwrite', function (st) {
+        var c = st.openCursor();
+        c.onsuccess = function () { var cur = c.result; if (!cur) return; if (String(cur.key).indexOf(pre) === 0) cur.delete(); cur.continue(); };
+      });
+    }
+    function toutVider() { cache = {}; tx('readwrite', function (st) { st.clear(); }); }
     return { dispo: function () { return ok; }, pret: function () { return pret; }, charger: charger, migrer: migrer, apercu: apercu,
-             mettre: mettre, retirer: retirer, complets: complets, tout: tout, importer: importer };
+             mettre: mettre, retirer: retirer, complets: complets, tout: tout, importer: importer, oublierPrefixe: oublierPrefixe, toutVider: toutVider };
   })();
   window.AwakRunStore = TR;
   try {
