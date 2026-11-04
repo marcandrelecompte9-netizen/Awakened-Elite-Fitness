@@ -310,6 +310,8 @@
    *  CONTENU — COURSE / MARATHON
    *  Séances guidées au chrono (footing + fractionné). Phases = "exercices".
    * ====================================================================== */
+  // v1564 : récupérations dans les séances = vrais repos (écran de repos, pas d'XP d'exercice)
+  function _repos(o) { if (o) { o.isRest = true; o.mode = 'timer'; } return o; }
   function _run(name, desc, instr, tip, dur) {
     return { name: name, muscle: "Cardio", difficulty: "Débutant", type: "exercise",
       equipment: ["Poids du corps"], mode: "timer", discipline: "course",
@@ -325,7 +327,7 @@
   var COURSE_FRACTIONNE = [ _run("Échauffement — footing lent", "6 min de footing très facile pour préparer les efforts.", ["Cours très lentement, sans jamais forcer", "Ajoute 3-4 accélérations courtes (15-20 s) sur la fin", "Mobilise chevilles et hanches", "Respire amplement"], "Bien s'échauffer rend les efforts plus efficaces et plus sûrs.", 360) ];
   for (var _i = 1; _i <= 8; _i++) {
     COURSE_FRACTIONNE.push(_run("Effort " + _i + "/8 (rapide)", "30 s de course rapide. C'est la phase d'effort.", ["Cours VITE, mais sans sprinter à fond", "Choisis une allure tenable sur les 8 efforts", "Bras dynamiques, foulée ample", "Reste relâché (épaules, mâchoire)"], "Même intensité sur les 8 : ne pars pas trop fort au début.", 30));
-    COURSE_FRACTIONNE.push(_run("Récupération " + _i + "/8", "30 s de footing très lent ou de marche entre deux efforts.", ["Ralentis franchement : footing très lent ou marche", "Respire et laisse le cœur redescendre un peu", "Reste en mouvement, ne t'arrête pas net", "Prépare-toi pour l'effort suivant"], "La récup sert à repartir frais : ne la saute pas.", 30));
+    COURSE_FRACTIONNE.push(_repos(_run("Récupération " + _i + "/8", "30 s de footing très lent ou de marche entre deux efforts.", ["Ralentis franchement : footing très lent ou marche", "Respire et laisse le cœur redescendre un peu", "Reste en mouvement, ne t'arrête pas net", "Prépare-toi pour l'effort suivant"], "La récup sert à repartir frais : ne la saute pas.", 30)));
   }
   COURSE_FRACTIONNE.push(_run("Retour au calme", "Ralentis jusqu'à la marche pour récupérer.", ["Footing très lent puis marche", "Continue de bouger quelques minutes", "Respiration profonde, relâche tout le corps", "Hydrate-toi"], "Termine toujours en douceur, jamais à l'arrêt net.", 300));
   var COURSE_SESSIONS = [
@@ -426,7 +428,7 @@
   var COURSE_ELITE = [ _run("Échauffement — footing + gammes", "Échauffement complet, obligatoire avant les efforts intenses.", ["Footing facile 3-4 min", "Gammes : talons-fesses, montées de genoux", "2-3 accélérations progressives", "Mobilise chevilles et hanches"], "Avant la VMA, échauffe-toi à fond pour éviter la blessure.", 360) ];
   for (var _j = 1; _j <= 10; _j++) {
     COURSE_ELITE.push(_run("VMA " + _j + "/10 (rapide)", "40 s d'effort proche du maximum. Travaille la vitesse.", ["Cours très vite, proche de ton maximum tenable", "Foulée ample et fréquence de pas élevée", "Bras dynamiques, regard devant", "Garde la MÊME allure sur les 10 efforts"], "La VMA développe ta vitesse max : intense mais maîtrisé.", 40));
-    COURSE_ELITE.push(_run("Récupération " + _j + "/10", "20 s de footing très lent entre deux efforts.", ["Ralentis bien : footing très lent", "Respire profondément", "Reste en mouvement", "Prépare le prochain effort"], "Récup courte : reste actif, ne t'arrête pas.", 20));
+    COURSE_ELITE.push(_repos(_run("Récupération " + _j + "/10", "20 s de footing très lent entre deux efforts.", ["Ralentis bien : footing très lent", "Respire profondément", "Reste en mouvement", "Prépare le prochain effort"], "Récup courte : reste actif, ne t'arrête pas.", 20)));
   }
   COURSE_ELITE.push(_run("Retour au calme", "Ralentis jusqu'à la marche pour récupérer.", ["Footing très lent puis marche", "Continue de bouger quelques minutes", "Respiration profonde, relâche tout le corps", "Hydrate-toi"], "Ne coupe jamais net après des efforts intenses.", 300));
 
@@ -554,12 +556,12 @@
   var HIIT_TABATA = [ _dx('hiit', "Échauffement (5 min)", "Cardio", "Préparation indispensable avant l'intensité maximale.", ["Cardio léger progressif", "Mobilité des articulations", "2-3 accélérations courtes", "Le cœur doit déjà être élevé"], "Échauffe-toi vraiment : le Tabata est quasi-maximal.", 300) ];
   for (var _t1 = 1; _t1 <= 8; _t1++) {
     HIIT_TABATA.push(_dx('hiit', "Tabata Burpees — round " + _t1 + "/8", "Cardio", "20 s d'effort quasi-maximal.", ["Burpees aussi vite que possible en sécurité", "Garde une forme correcte malgré la fatigue", "Donne tout sur les 20 s", "Souffle"], "Effort all-out, pas un rythme de croisière.", 20, "Avancé"));
-    if (_t1 < 8) HIIT_TABATA.push(_dx('hiit', "Repos 10 s", "Cardio", "Récupération incomplète.", ["Respire", "Reste debout, bouge un peu", "Prépare le round suivant"], "10 s c'est court : reste prêt.", 10));
+    if (_t1 < 8) HIIT_TABATA.push(_repos(_dx('hiit', "Repos 10 s", "Cardio", "Récupération incomplète.", ["Respire", "Reste debout, bouge un peu", "Prépare le round suivant"], "10 s c'est court : reste prêt.", 10)));
   }
-  HIIT_TABATA.push(_dx('hiit', "Repos entre blocs (1 min)", "Cardio", "Récupération entre les deux blocs.", ["Marche, respire", "Bois une gorgée d'eau", "Récupère activement"], "Le 2e bloc arrive.", 60));
+  HIIT_TABATA.push(_repos(_dx('hiit', "Repos entre blocs (1 min)", "Cardio", "Récupération entre les deux blocs.", ["Marche, respire", "Bois une gorgée d'eau", "Récupère activement"], "Le 2e bloc arrive.", 60)));
   for (var _t2 = 1; _t2 <= 8; _t2++) {
     HIIT_TABATA.push(_dx('hiit', "Tabata Squats sautés — round " + _t2 + "/8", "Quadriceps", "20 s d'effort quasi-maximal.", ["Squats sautés explosifs", "Atterris en douceur", "Donne tout sur les 20 s", "Garde le dos droit"], "Amortis chaque réception.", 20, "Avancé"));
-    if (_t2 < 8) HIIT_TABATA.push(_dx('hiit', "Repos 10 s", "Cardio", "Récupération incomplète.", ["Respire", "Reste mobile", "Prépare le round suivant"], "Reste prêt.", 10));
+    if (_t2 < 8) HIIT_TABATA.push(_repos(_dx('hiit', "Repos 10 s", "Cardio", "Récupération incomplète.", ["Respire", "Reste mobile", "Prépare le round suivant"], "Reste prêt.", 10)));
   }
   HIIT_TABATA.push(_dx('hiit', "Retour au calme (3 min)", "Cardio", "Récupération et étirements légers.", ["Marche lente", "Respiration profonde", "Étirements doux", "Fais redescendre le cœur"], "Ne coupe jamais net après du Tabata.", 180));
   var HIIT_ENFER = [
@@ -762,7 +764,7 @@
   var COURSE_CONF = [
     _run("Échauffement — footing", "Footing facile pour préparer l'effort au seuil.", ["Footing facile 4-5 min", "Quelques accélérations courtes", "Mobilise chevilles et hanches", "Respire amplement"], "Bien s'échauffer rend le bloc seuil plus efficace.", 360),
     _run("Tempo au seuil", "Bloc soutenu et régulier à l'allure « seuil ».", ["Allure ferme que tu pourrais tenir ~1h en course", "Reste régulier : ne pars surtout pas trop vite", "Respiration contrôlée, reste relâché", "Tiens le bloc entier"], "Si tu es à bout après 3 min, c'est que tu vas trop vite.", 600),
-    _run("Récupération", "2 min de footing très lent entre les deux blocs.", ["Ralentis franchement", "Respire et récupère", "Reste en mouvement", "Prépare le 2e bloc"], "Juste de quoi repartir frais sur le bloc suivant.", 120),
+    _repos(_run("Récupération", "2 min de footing très lent entre les deux blocs.", ["Ralentis franchement", "Respire et récupère", "Reste en mouvement", "Prépare le 2e bloc"], "Juste de quoi repartir frais sur le bloc suivant.", 120)),
     _run("2e bloc tempo", "Second effort au seuil, à la même allure que le 1er.", ["Reprends l'allure soutenue du 1er bloc", "Garde exactement la même intensité", "Foulée ample, respiration contrôlée", "Tiens jusqu'au bout"], "Vise la régularité : même allure que le bloc 1.", 300),
     _run("Retour au calme", "Ralentis jusqu'à la marche pour récupérer.", ["Footing lent puis marche", "Continue de bouger quelques minutes", "Respiration profonde, relâche", "Hydrate-toi"], "Termine toujours en douceur.", 240)
   ];
@@ -820,12 +822,12 @@
   CALIS_SESSIONS.push({ id: 'volume', name: 'Volume', level: 'Intermédiaire', rest: 25, minLevel: 2, exercises: CALIS_INTER });
   CALIS_SESSIONS.push({ id: 'force', name: 'Force & tenues', level: 'Confirmé', rest: 25, minLevel: 5, exercises: CALIS_CONF });
   CALIS_SESSIONS.push({ id: 'push', name: 'Pousser — pecto/épaules/triceps', level: 'Tous niveaux', rest: 30, exercises: CALIS_PUSH });
-  CALIS_SESSIONS.push({ id: 'pull', name: 'Tirer — dos/biceps (barre)', level: 'Intermédiaire', rest: 35, minLevel: 2, exercises: CALIS_PULL });
+  CALIS_SESSIONS.push({ id: 'pull', name: 'Tirer — dos/biceps (barre)', level: 'Intermédiaire', rest: 35, minLevel: 2, materiel: 'Barres parallèles', exercises: CALIS_PULL });   // v1564 : barre requise
   CALIS_SESSIONS.push({ id: 'legs', name: 'Jambes d\'acier', level: 'Tous niveaux', rest: 30, exercises: CALIS_LEGS });
   CALIS_SESSIONS.push({ id: 'gainage', name: 'Gainage du gymnaste', level: 'Tous niveaux', rest: 25, exercises: CALIS_CORE_POOL });
   CALIS_SESSIONS.push({ id: 'fullbody', name: 'Full body sans matériel', level: 'Tous niveaux', rest: 30, exercises: CALIS_FULL });
   CALIS_SESSIONS.push({ id: 'conditioning', name: 'Conditioning — circuit', level: 'Intermédiaire', rest: 20, minLevel: 3, exercises: CALIS_COND });
-  CALIS_SESSIONS.push({ id: 'skills', name: 'Skills & figures', level: 'Avancé', rest: 60, minLevel: 5, exercises: CALIS_SKILL });
+  CALIS_SESSIONS.push({ id: 'figures', name: 'Skills & figures', level: 'Avancé', rest: 60, minLevel: 5, exercises: CALIS_SKILL });
   COURSE_SESSIONS.push({ id: 'progressif', name: 'Endurance progressive', level: 'Intermédiaire', rest: 0, minLevel: 2, exercises: COURSE_INTER });
   COURSE_SESSIONS.push({ id: 'seuil', name: 'Seuil / Tempo', level: 'Confirmé', rest: 0, minLevel: 5, exercises: COURSE_CONF });
   HIIT_SESSIONS.push({ id: 'circuit', name: 'Circuit', level: 'Intermédiaire', rest: 20, minLevel: 2, exercises: HIIT_INTER });
@@ -865,12 +867,12 @@
   var YOGA_RECUP = [pResp(45), pChien(45), pFenteHanches(), pPinceDebout(45), pPapillon(45), pTorsionAllongee(), pEnfant(60), pSavasana(60)];
 
   // Séances par objectif : accessibles à tous (minLevel 1), groupées en tête de catalogue.
-  YOGA_SESSIONS.push({ id: 'matin', name: '🌅 Réveil énergisant', level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: YOGA_MATIN });
-  YOGA_SESSIONS.push({ id: 'soir', name: '🌙 Détente du soir', level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: YOGA_SOIR });
-  YOGA_SESSIONS.push({ id: 'stress', name: '🧠 Anti-stress', level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: YOGA_STRESS });
-  YOGA_SESSIONS.push({ id: 'dos', name: '🪑 Dos & posture', level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: YOGA_DOS });
-  YOGA_SESSIONS.push({ id: 'souplesse', name: '🤸 Souplesse & hanches', level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: YOGA_SOUPLESSE });
-  YOGA_SESSIONS.push({ id: 'recup', name: '💪 Récup post-séance', level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: YOGA_RECUP });
+  YOGA_SESSIONS.push({ id: 'matin', name: 'Réveil énergisant', level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: YOGA_MATIN });
+  YOGA_SESSIONS.push({ id: 'soir', name: 'Détente du soir', level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: YOGA_SOIR });
+  YOGA_SESSIONS.push({ id: 'stress', name: 'Anti-stress', level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: YOGA_STRESS });
+  YOGA_SESSIONS.push({ id: 'dos', name: 'Dos & posture', level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: YOGA_DOS });
+  YOGA_SESSIONS.push({ id: 'souplesse', name: 'Souplesse & hanches', level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: YOGA_SOUPLESSE });
+  YOGA_SESSIONS.push({ id: 'recup', name: 'Récup post-séance', level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: YOGA_RECUP });
 
   // Postures par côté des paliers : prompt auto « Change de côté » (moteur bilatéral déjà présent).
   (function () {
@@ -997,7 +999,7 @@
     [[20, 'souplesse', 'normal', 'Cours souplesse'], [30, 'complet', 'normal', 'Cours complet'], [45, 'complet', 'doux', 'Cours long et doux']].forEach(function (c) {
       try {
         var g = generateYogaSession({ durationMin: c[0], focus: c[1], intensity: c[2] });
-        YOGA_SESSIONS.push({ id: 'cours' + c[0], name: c[3] + ' · ' + c[0] + ' min', level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: g.exercises });
+        YOGA_SESSIONS.push({ id: 'cours' + c[0], name: c[3] /* v1564 : la carte affiche la vraie durée (« 45 min » en durait ~51) */, level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: g.exercises });
       } catch (e) {}
     });
     YOGA_CUSTOM = garde;

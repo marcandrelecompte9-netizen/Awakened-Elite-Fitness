@@ -52,6 +52,7 @@
   // mais en second choix. « allongé », « suspendu », « quadrupédie » sont
   // écartés (nécessitent de se mettre au sol / se suspendre).
   var SEATED_OK = ['assis'];
+  var DEBOUT_DYNAMIQUE = /saut|sauté|jump|burpee|sprint|course|courir|corde|skater|\bbox\b|pistol|squat|fente|lunge|step|montée|montees|high knees|genoux|cloche|grimp|mountain|soulevé de terre|deadlift|treadmill|tapis|marche|thruster|swing|clean|snatch|arraché|épaulé|kettlebell swing|wall ball|talons|skipping|plyo|bondi|wall sit|chaise|une jambe|single[- ]leg|équilibre|unipodal|sur la pointe|mollets debout|calf/;
   var STANDING_OK = ['assis', 'debout'];
 
   // Un exercice est-il difficilement réalisable en mobilité réduite ?
@@ -61,7 +62,9 @@
     if (!ex) return false;
     if (ex.position) {
       // écarté si la position n'est ni assis ni debout
-      return STANDING_OK.indexOf(ex.position) === -1;
+      if (STANDING_OK.indexOf(ex.position) === -1) return true;
+      // v1575 : debout, mais dynamique (sauts, course, squats, fentes…) → écarté aussi
+      return ex.position === 'debout' && DEBOUT_DYNAMIQUE.test(String(ex.name || '').toLowerCase());
     }
     return _keywordUnsuitable(ex);
   }

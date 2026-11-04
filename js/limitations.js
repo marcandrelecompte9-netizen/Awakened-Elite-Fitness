@@ -105,7 +105,7 @@
       test: function (ex) {
         var n = norm(ex.name);
         // ⚠️ « run » nu matchait « cRUNch » : on borne les mots courts.
-        return /(saut|jump|burpee|corde a sauter|course|sprint|plyo|mountain climber|jumping|skater|\bbox\b|\brun\b|high knees|talons[- ]fesses|butt kick|skipping|bondiss|bounding|marelle|explosi|\bhops?\b)/.test(n);   // v1302 : high knees = course sur place
+        return /(saut|jump|burpee|corde a sauter|course|sprint|plyo|mountain climber|jumping|skater|\bbox\b|\brun\b|high knees|montees? de genoux|talons[- ]fesses|butt kick|skipping|bondiss|bounding|marelle|explosi|\bhops?\b)/.test(n);   // v1302 : high knees = course sur place
       }
     },
     {
@@ -114,7 +114,9 @@
       titre: 'Ne peut pas descendre au sol',
       detail: 'Ne garde que les exercices debout ou assis. Écarte tout ce qui se fait allongé, à quatre pattes ou en planche.',
       test: function (ex) {
-        return ex.position === 'allongé' || ex.position === 'quadrupédie' || ex.position === 'planche';
+        // v1580 : + mouvements qui passent par le sol, même sans position renseignée
+        return ex.position === 'allongé' || ex.position === 'quadrupédie' || ex.position === 'planche'
+            || /(inchworm|chenille|pigeon|cobra|cat[- ]?cow|chat[- ]vache|dead bug|burpee)/.test(norm(ex.name));
       }
     },
     {
@@ -437,6 +439,7 @@
     bloque: bloque,
     filtrer: filtrer,
     ouvrir: ouvrir,
+    proposerSiNouveau: proposerSiNouveau,   // v1575 : fin de l'inscription du 1er profil
     dates: dates,
     maintien: maintien,
     basculerMaintien: function () {

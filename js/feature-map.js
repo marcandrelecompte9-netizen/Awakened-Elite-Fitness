@@ -87,7 +87,8 @@
       html += _section('Corps & bien-être', [
         _row('alerte', R, "Où as-tu mal ?", "Adapte les séances à une douleur", 'AwakPainOpen'),
         _row('sante', R, "Limitations", "Blessures et mouvements à éviter", 'awakOuvrirLimitations'),
-        _row('repos', V, "Suivi de cycle", "Adapte l'effort à ton cycle", 'openCycleSetup'),
+        // v1570 : suivi de cycle seulement pour un profil « femme »
+        (function () { try { var u = window.getUserProfile ? window.getUserProfile() : null; return u && u.sex === 'femme'; } catch (e) { return false; } })() ? _row('repos', V, "Suivi de cycle", "Adapte l'effort à ton cycle", 'openCycleSetup') : null,
         _row('flamme', O, "Rituels", "Tes rituels et habitudes", 'showRitualsManager'),
         _row('info', G, "Photo de progression", "Prends une photo pour suivre ton évolution", 'takeProgressPhoto')
       ]);

@@ -392,6 +392,7 @@
   // Suppression d'un exercice personnalisé, avec confirmation.
   API.supprimerPerso = function (id, nom) {
     if (!window.AwakCustomEx) return;
+    if (window.AwakCustomEx.demanderSuppression) return window.AwakCustomEx.demanderSuppression(id);   // v1578
     var faire = function () { window.AwakCustomEx.supprimer(id); };
     if (typeof window.showConfirm === 'function') {
       window.showConfirm('Supprimer « ' + nom + ' » de ton catalogue ? Les routines qui l\'utilisent le gardent, mais il ne sera plus proposé.',

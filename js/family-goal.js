@@ -97,6 +97,10 @@
     }
   };
 
+  // v1582 : icône SVG par type (au lieu des emojis)
+  var TYPE_ICO = { sessions: 'flamme', jours: 'calendrier', ensemble: 'groupe', varietes: 'boussole', matins: 'soleil', volume: 'halter', duration: 'chrono', exercises: 'cible' };
+  function _ico(type, t, c) { try { return window.AwakIcon ? AwakIcon.get(TYPE_ICO[type] || 'cible', t || 26, c || '#67e8f9') : ''; } catch (e) { return ''; } }
+
   function _load() {
     try { return JSON.parse(localStorage.getItem(GOAL_KEY) || 'null'); }
     catch (e) { return null; }
@@ -182,6 +186,9 @@
     if (!GOAL_TYPES[type] || !(target > 0)) return false;
     var now = Date.now();
     var span = (days && days > 0 ? days : 30) * 86400000;
+    // v1582 : nouvel objectif = tout le monde dedans (les retraits et la demande
+    // d'annulation de l'objectif précédent le cachaient à ceux qui s'en étaient retirés)
+    try { localStorage.removeItem('awakGoalRetraits'); localStorage.removeItem('awakGoalDemande'); } catch (e) {}
     _save({
       type: type,
       target: target,
@@ -439,7 +446,7 @@
 
     var def = st.def;
     var inf = GOAL_INFO[st.type] || {};
-    var couleur = st.reached ? '#fbbf24' : '#22c55e';
+    var couleur = st.reached ? '#fbbf24' : '#22d3ee';
 
     // Dates de la fenêtre
     var dDeb = '', dFin = '';
@@ -566,9 +573,9 @@
 
     // Pas d'objectif → carte d'invitation
     if (!st) {
-      return '<div style="background:linear-gradient(160deg,#0f1a14,#0d0d12);border:1px solid rgba(34,197,94,0.25);border-radius:18px;padding:20px;margin-bottom:14px;">'
+      return '<div style="background:linear-gradient(160deg,#0f1520,#0d0d12);border:1px solid rgba(34,211,238,0.25);border-radius:18px;padding:20px;margin-bottom:14px;">'
         + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'
-        +   '<span style="font-size:1.6em;">🎯</span>'
+        +   '<span style="display:flex;">' + _ico('exercises') + '</span>'
         +   '<div style="font-size:1.05em;font-weight:900;color:#fff;">Objectif commun</div>'
       +   (function () {
             // 🏅 Titre familial : la trace laissée par les objectifs accomplis.
@@ -579,14 +586,14 @@
               + t.actuel.emoji + ' ' + t.actuel.nom + '</div>';
           })()
         + '</div>'
-        + '<p style="font-size:0.82em;color:#94a3b8;line-height:1.5;margin:0 0 14px;">Fixez un but à atteindre <b style="color:#4ade80;">ensemble</b> — chaque séance de chacun fait avancer toute la famille.</p>'
+        + '<p style="font-size:0.82em;color:#94a3b8;line-height:1.5;margin:0 0 14px;">Fixez un but à atteindre <b style="color:#67e8f9;">ensemble</b> — chaque séance de chacun fait avancer toute la famille.</p>'
         + '<button onclick="AwakFamilyGoalOpen()" style="width:100%;padding:12px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;font-weight:800;font-size:0.9em;">🎯 Créer un objectif commun</button>'
         + '</div>';
     }
 
 
     var def = st.def;
-    var barColor = st.reached ? '#fbbf24' : '#22c55e';
+    var barColor = st.reached ? '#fbbf24' : '#22d3ee';
     var members = st.perMember.map(function (m) {
       var share = st.total > 0 ? Math.round((m.value / st.total) * 100) : 0;
       return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;">'
@@ -594,7 +601,7 @@
         + '<span style="flex:1;font-size:0.82em;color:#e5e7eb;font-weight:600;">' + esc(m.name) + '</span>'
         + '<span style="font-size:0.82em;color:#94a3b8;">' + _fmt(_dispVal(st.type, m.value)) + _dispUnit(st.type, def) + ' · ' + share + '%</span>'
         + '</div>';
-    }).join('') || '<div style="font-size:0.78em;color:#64748b;padding:6px 0;">Aucune contribution pour l\'instant — lancez-vous !</div>';
+    }).join('') || '<div style="font-size:0.78em;color:#64748b;padding:6px 0;">' + (st.expired ? 'Aucune contribution.' : 'Aucune contribution pour l\'instant — lancez-vous !') + '</div>';
 
     // 🏅 Prochain titre : donne une raison d'aller au bout, au-delà de la barre.
     var titreBloc = '';
@@ -631,21 +638,30 @@
         +   'color:#1a1408;font-weight:900;font-size:0.78em;letter-spacing:0.5px;">'
         +   'CLORE ET EN LANCER UN AUTRE</button>'
         + '</div>'
-      : '';
+      : (st.expired
+        // v1582 : expiré sans être atteint → se clôt pour tout le monde (avant : seulement ✕ = « te retirer »)
+        ? '<div style="text-align:center;padding:14px 12px 12px;margin-bottom:12px;border-radius:14px;'
+          + 'background:rgba(148,163,184,0.06);border:1px solid rgba(148,163,184,0.25);">'
+          + '<div style="font-size:1.05em;font-weight:900;color:#e2e8f0;">Objectif non atteint</div>'
+          + '<div style="font-size:0.74em;color:#94a3b8;margin-top:5px;line-height:1.45;">Le temps est écoulé : ' + _fmt(_dispVal(st.type, st.total)) + ' / ' + _fmt(_dispVal(st.type, st.target)) + _dispUnit(st.type, def) + '. Vous ferez mieux ensemble au prochain.</div>'
+          + '<button onclick="event.stopPropagation();AwakFamilyGoalClore()" style="width:100%;margin-top:12px;padding:12px;border-radius:12px;border:none;cursor:pointer;'
+          +   'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;font-weight:900;font-size:0.78em;letter-spacing:0.5px;">CLORE ET EN LANCER UN AUTRE</button>'
+          + '</div>'
+        : '');
     // 👁️ Ce profil vient de voir l'annonce : on le note pour que le bandeau
     // « NOUVEAU » ne réapparaisse plus chez lui.
     if (st.reached) { try { window.AwakGoalMarquerVu(); } catch (e) {} }
 
     // 📖 La carte entière ouvre la fiche détaillée (sauf les boutons, qui
     //    arrêtent la propagation pour garder leur propre action).
-    return '<div onclick="AwakFamilyGoalInfo()" style="cursor:pointer;background:linear-gradient(160deg,#0f1a14,#0d0d12);border:1px solid ' + (st.reached ? 'rgba(251,191,36,0.4)' : 'rgba(34,197,94,0.3)') + ';border-radius:18px;padding:20px;margin-bottom:14px;">'
+    return '<div onclick="AwakFamilyGoalInfo()" style="cursor:pointer;background:linear-gradient(160deg,#0f1520,#0d0d12);border:1px solid ' + (st.reached ? 'rgba(251,191,36,0.4)' : 'rgba(34,211,238,0.3)') + ';border-radius:18px;padding:20px;margin-bottom:14px;">'
       + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
-      +   '<span style="font-size:1.6em;">' + def.emoji + '</span>'
+      +   '<span style="display:flex;">' + _ico(st.type, 26, st.reached ? '#fbbf24' : '#67e8f9') + '</span>'
       +   '<div style="flex:1;min-width:0;"><div style="font-size:1.05em;font-weight:900;color:#fff;">Objectif commun</div>'
       +   '<div style="font-size:0.74em;color:#94a3b8;">' + (st.expired ? 'Terminé' : st.daysLeft + ' jour' + (st.daysLeft > 1 ? 's' : '') + ' restant' + (st.daysLeft > 1 ? 's' : '')) + '</div></div>'
       +   '<span style="flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;'
       +     'border-radius:50%;border:1px solid rgba(148,163,184,0.35);color:#94a3b8;font-size:0.72em;font-weight:900;">i</span>'
-      +   '<button onclick="event.stopPropagation();AwakFamilyGoalCancel()" style="background:none;border:none;color:#64748b;font-size:1.1em;cursor:pointer;padding:4px;">✕</button>'
+      +   ((st.expired || st.reached) ? '' : '<button onclick="event.stopPropagation();AwakFamilyGoalCancel()" style="background:none;border:none;color:#64748b;font-size:1.1em;cursor:pointer;padding:4px;">✕</button>')
       + '</div>'
       + head
       + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">'
@@ -662,11 +678,11 @@
         return '<div style="background:rgba(255,255,255,0.03);border-radius:10px;'
           + 'padding:9px 11px;margin-bottom:12px;font-size:0.68em;color:#94a3b8;'
           + 'line-height:1.45;">' + esc(inf.desc)
-          + (st.daysLeft > 0
-              ? '<br><span style="color:#cbd5e1;font-weight:700;">'
-                + st.daysLeft + ' jour' + (st.daysLeft > 1 ? 's' : '') + ' restant'
-                + (st.daysLeft > 1 ? 's' : '') + '.</span>'
-              : '<br><span style="color:#f87171;font-weight:700;">Dernier jour.</span>')
+          // v1583 : expiré → rien (le bandeau le dit) ; moins de 24 h → « Dernier jour »
+          + (st.expired ? ''
+              : st.daysLeft > 1
+              ? '<br><span style="color:#cbd5e1;font-weight:700;">' + st.daysLeft + ' jours restants.</span>'
+              : '<br><span style="color:#fbbf24;font-weight:700;">Dernier jour.</span>')
           + '</div>';
       })()
       + (st.reward ? '<div style="background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.3);border-radius:10px;padding:9px 11px;margin-bottom:12px;font-size:0.78em;color:#fde68a;font-weight:800;">'
@@ -720,7 +736,7 @@
     overlay.id = 'awakGoalModal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;';
     overlay.onclick = function (e) { if (e.target === overlay) overlay.remove(); };
-    overlay.innerHTML = '<div style="background:linear-gradient(160deg,#0f1a14,#0d0d12);border-top:1px solid rgba(34,197,94,0.35);border-radius:22px 22px 0 0;padding:22px;max-width:460px;width:100%;max-height:88vh;overflow-y:auto;">'
+    overlay.innerHTML = '<div style="background:linear-gradient(160deg,#0f1520,#0d0d12);border-top:1px solid rgba(34,211,238,0.35);border-radius:22px 22px 0 0;padding:22px;max-width:460px;width:100%;max-height:88vh;overflow-y:auto;">'
       + '<div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:4px;">🎯 Objectif commun</div>'
       + '<div style="font-size:0.78em;color:#94a3b8;margin-bottom:16px;">Choisissez ce que vous voulez accomplir ensemble.</div>'
       + '<div style="font-size:0.72em;color:#64748b;font-weight:700;margin-bottom:6px;">TYPE</div>'
@@ -762,13 +778,13 @@
     var grid = document.getElementById('goalTypeGrid');
     if (grid) Array.prototype.forEach.call(grid.children, function (b) {
       var on = b.getAttribute('data-goaltype') === type;
-      b.style.borderColor = on ? '#22c55e' : 'rgba(255,255,255,0.1)';
-      b.style.background = on ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.03)';
+      b.style.borderColor = on ? '#22d3ee' : 'rgba(255,255,255,0.1)';
+      b.style.background = on ? 'rgba(34,211,238,0.15)' : 'rgba(255,255,255,0.03)';
     });
     var zone = document.getElementById('goalTargetZone');
     if (!zone) return;
     var presetBtns = _presetList(type, d).map(function (pr) {
-      return '<button onclick="AwakFamilyGoalCreate(\'' + type + '\',' + pr.store + ')" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:11px 6px;border-radius:11px;cursor:pointer;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);color:#4ade80;font-weight:800;font-size:0.82em;">'
+      return '<button onclick="AwakFamilyGoalCreate(\'' + type + '\',' + pr.store + ')" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:11px 6px;border-radius:11px;cursor:pointer;border:1px solid rgba(34,211,238,0.3);background:rgba(34,211,238,0.08);color:#67e8f9;font-weight:800;font-size:0.82em;">'
         + '<span>' + _fmt(pr.disp) + _dispUnit(type, d) + '</span>'
         + '<span style="font-size:0.66em;color:#94a3b8;font-weight:700;">👥 ~' + pr.m + ' membres</span>'
         + '</button>';
@@ -850,9 +866,10 @@
     // leur laisse une demande à trancher.
     if (typeof window.showConfirm === 'function') {
       window.showConfirm(
-        'Tu ne verras plus cet objectif. Les ' + autres + ' autre'
-        + (autres > 1 ? 's membres' : ' membre') + ' le gardent, et pourront '
-        + "décider d'y mettre fin de leur côté.",
+        'Tu ne verras plus cet objectif. ' + (autres > 1
+          ? 'Les ' + autres + ' autres membres le gardent, et pourront '
+          : "L'autre membre le garde, et pourra ")
+        + "décider d'y mettre fin de son côté.".replace('de son côté', autres > 1 ? 'de leur côté' : 'de son côté'),
         function () {
           var r = _retraits();
           if (r.indexOf(moi) === -1) r.push(moi);
@@ -865,7 +882,7 @@
           } catch (e) {}
           _refresh();
           if (typeof window.showToast === 'function') {
-            window.showToast("🎯 Tu t'es retiré de l'objectif. Les autres en sont informés.", 'info', 4000);
+            window.showToast("Tu t'es retiré de l'objectif. Les autres en sont informés.", 'info', 4000);
           }
         },
         null,
@@ -899,7 +916,7 @@
         },
         function () {                                     // continuer
           if (typeof window.showToast === 'function') {
-            window.showToast('🎯 L\'objectif continue.', 'success', 3000);
+            window.showToast('L\'objectif continue.', 'success', 3000);
           }
         },
         { title: 'Objectif commun', icon: '🎯',

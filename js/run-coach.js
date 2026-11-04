@@ -648,9 +648,14 @@
     }
     for (var w = 1; w <= S; w++) {
       // Pic de volume 2 semaines avant la course, puis affûtage (−15 %) et Jour J.
-      var f = S > 3 ? Math.min(1, (w - 1) / (S - 3)) : 1;
-      var allege = (w % 4 === 0 && w <= S - 3);
-      var k = allege ? 0.8 : (w === S - 1 ? 0.85 : 1);
+      // v1571 : vrai affûtage. Pic de volume à J-21 (marathon) ou J-14 (autres), puis
+      // marathon ×0,75 et ×0,5 ; autres ×0,6 la semaine d'avant. Avant : pic à J-14 et
+      // seulement ×0,85 la dernière semaine (27 km six jours avant un marathon).
+      var pic = objId === '42' ? S - 3 : S - 2;
+      var f = pic > 1 ? Math.min(1, (w - 1) / (pic - 1)) : 1;
+      var allege = (w % 4 === 0 && w < pic);
+      var k = allege ? 0.8 : 1;
+      if (w > pic && w < S) k = objId === '42' ? (w === S - 1 ? 0.5 : 0.75) : 0.6;
       var longue = arrDemi((lg0 + (O.longue[1] - lg0) * f) * k);
       var facile = arr5((O.facile[0] + (O.facile[1] - O.facile[0]) * f) * k);
       var tpl = (debutant && w <= 4) ? 'minute' : O.qual[(w - 1) % O.qual.length];
@@ -1247,6 +1252,8 @@
   window.AwakCoachRun = {
     rendreChoix: rendreChoix, config: config, creer: creerAvecPlan, tick: tick, bilan: bilan, rendreBilan: rendreBilan,
     rendreForme: rendreForme, rendrePlan: rendrePlan, apresSortie: apresSortie,
+    // v1565 : arbre de progression → sortie préparée (objectif / fractionné)
+    preparer: function (o) { try { Object.keys(o || {}).forEach(function (k) { sel[k] = o[k]; }); sel.plan = null; activiteCourante = 'course'; } catch (e) {} },
     creerPlanUI: creerPlanUI, voirPlan: voirPlan, arreterPlan: arreterPlan, marquerFait: marquerFait, lancerPlan: lancerPlan,
     passer: passer, predictions: predictions, vma: vma,
     prefs: prefs, pasAnnonce: pasAnnonce, texteAnnonce: texteAnnonce, reglagesUI: reglagesUI,

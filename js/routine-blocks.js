@@ -302,8 +302,20 @@
     var exs = ctx.r.exercises;
     var j = i + delta;
     if (j < 0 || j >= exs.length) return;
-    var tmp = exs[i]; exs[i] = exs[j]; exs[j] = tmp;
+    var avant = Editor.nbSupersets(exs);
+    var src = exs[i], tgt = exs[j];
+    // v1574 : un exercice qui arrive sur un superset (dont il ne fait pas partie)
+    // saute par-dessus TOUT le groupe au lieu de s'y glisser (avant : groupe défait sans rien dire).
+    if (tgt && tgt.ss && (!src.ss || src.ss !== tgt.ss) && groupMembers(exs, j).length > 1) {
+      var mem = groupMembers(exs, j);
+      var item = exs.splice(i, 1)[0];
+      if (delta < 0) exs.splice(mem[0], 0, item);
+      else exs.splice(mem[mem.length - 1], 0, item);   // i < mem[0] : les indices ont reculé d'un
+    } else {
+      var tmp = exs[i]; exs[i] = exs[j]; exs[j] = tmp;
+    }
     commit(ctx);
+    if (Editor.nbSupersets(exs) < avant && typeof window.showToast === 'function') window.showToast('Superset défait', 'info', 1800);
   };
 
   // Lie / délie l'exercice i avec le suivant (superset)

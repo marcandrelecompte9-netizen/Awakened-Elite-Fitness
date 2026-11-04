@@ -69,6 +69,7 @@
     var act = activiteCardio();
     var h = '';
     h += '<div style="background:rgba(96,168,240,0.05);border:1px solid rgba(96,168,240,0.22);border-radius:14px;padding:13px 13px 12px;margin-bottom:16px;">';
+    h += blocCycle();   // v1570
     // Forme
     h += '<div style="display:flex;align-items:center;gap:7px;font-size:0.74em;font-weight:800;color:' + CLAIR + ';margin-bottom:8px;">'
       + ico('eclair', 15, CLAIR) + '<span>Comment te sens-tu ?</span>'
@@ -115,9 +116,26 @@
     hote.innerHTML = h;
   }
 
+  // v1570 : phase du cycle appliquée aux séances générées (avant : seulement « Séance intelligente »)
+  var _cyclePhase = null;
+  function cycleApplicable(w) {
+    if (!w) return false;
+    if (w.fromRoutine || w._discipline || w._isRift || w._isHunt || w._isAssaut || w._isFinalBoss || w._jeu || w._intensity != null) return false;
+    return true;
+  }
+  function blocCycle() {
+    var c = _cyclePhase; if (!c || !c.info) return '';
+    var allege = c.info.intensity < 1;
+    return '<div style="display:flex;gap:8px;align-items:flex-start;font-size:0.72em;color:#cbd5e1;line-height:1.45;margin:2px 2px 10px;">'
+      + ico('repos', 15, c.info.color || CLAIR)
+      + '<span><b style="color:#fff;">Phase ' + c.info.label.toLowerCase() + '</b> · énergie ' + c.info.energy.toLowerCase() + '. '
+      + (allege ? (c.phase === 'menstruelle' ? 'Une série de moins par exercice et repos plus longs.' : 'Repos un peu plus longs.') : (c.phase === 'ovulation' ? 'Bon moment pour viser un record — soigne l\'échauffement.' : 'Séance normale.')) + '</span></div>';
+  }
   var _calme = false;   // v1400 : yoga, pilates, sérénité → pas de cardio d'échauffement proposé
   function prep(workout) {
     etat = { humeur: null, cardio: 0 };
+    _cyclePhase = null;
+    try { if (cycleApplicable(workout) && typeof window.awakCyclePhase === 'function') _cyclePhase = window.awakCyclePhase(); } catch (e) {}
     _calme = !!(workout && /^(yoga|pilates|serenite|mobilite)$/.test(workout._discipline || ''));
     // v1403 : la séance commence déjà par un échauffement (ex. boxe « Échauffement & garde ») → pas de cardio en plus
     try { var _e0 = workout && workout.exercises && workout.exercises[0]; if (_e0 && (/chauffement|mise en route/i.test(_e0.name || '') || _e0.isWarmup || _e0.type === 'warmup')) _calme = true; } catch (e) {}   // v1407 : + échauffements étiquetés (Bouger ensemble)
@@ -174,6 +192,21 @@
         else if (typeof window.updateFitnessIndex === 'function') window.updateFitnessIndex(etat.dejaNote && etat.formeVal != null ? etat.formeVal : etat.humeur);
       } catch (e) {}
     }
+    // v1570 : phase du cycle → séries et repos adaptés (comme la Séance intelligente)
+    try {
+      var cp = (cycleApplicable(workout) && typeof window.awakCyclePhase === 'function') ? window.awakCyclePhase() : null;
+      if (cp && cp.info && cp.info.intensity < 1 && Array.isArray(workout.exercises)) {
+        var k = cp.info.intensity;
+        workout.exercises.forEach(function (x) {
+          if (!x || x.isRest || x.isInfo || x.type === 'warmup' || x.type === 'stretch' || x.isWarmup || x.isStretch) return;
+          if (cp.phase === 'menstruelle' && x.sets >= 3) x.sets = x.sets - 1;   // −1 série en phase menstruelle
+          var r0 = x.recoRest || x.repos || (window.AwakSSBridge && typeof AwakSSBridge.globalRest === 'function' ? AwakSSBridge.globalRest() : 90) || 90;
+          x.recoRest = Math.round(r0 / k);   // repos réellement appliqué (recoRest est lu par le moteur)
+        });
+        if (workout.restBetweenSets > 0) workout.restBetweenSets = Math.round(workout.restBetweenSets / k);
+        workout._cycle = cp.phase;
+      }
+    } catch (e) {}
     if (etat.cardio > 0 && Array.isArray(workout.exercises) && !enfant()) {
       var act = activiteCardio();
       workout.exercises.unshift({

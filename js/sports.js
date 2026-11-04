@@ -114,9 +114,17 @@
     } else {
       h += titre('SÉANCES', c, '<span style="font-size:0.6em;color:#64748b;">' + dispo.length + ' disponible' + (dispo.length > 1 ? 's' : '') + '</span>');
       h += dispo.map(function (s) {
-        var n = (s.exercises || []).length;
+        var n = (s.exercises || []).length, adapt = 0;
+        // v1565 : séance adaptée à tes réglages (limitations, douleurs, bannis)
+        try {
+          if (window.awakFiltrerDiscipline && window.awakListeDiscipline) {
+            var F = awakFiltrerDiscipline(awakListeDiscipline(d.id, s));
+            adapt = F.retires.length;
+            if (adapt) n = F.liste.filter(function (e) { return !e.isRest && !e.isInfo; }).length;
+          }
+        } catch (e) {}
         return ligne({ onclick: "startDisciplineSession('" + d.id + "','" + s.id + "')", ico: s.goal ? 'cible' : 'eclair', couleur: c,
-          nom: propre(s.name), meta: '~' + ((window.awakMinutesDiscipline && awakMinutesDiscipline(d.id, s)) || minutes(s)) + ' min · ' + n + ' exercice' + (n > 1 ? 's' : '') + (s.level ? ' · ' + s.level : ''), droite: jouer(c) });
+          nom: propre(s.name), meta: '~' + ((window.awakMinutesDiscipline && awakMinutesDiscipline(d.id, s)) || minutes(s)) + ' min · ' + n + ' exercice' + (n > 1 ? 's' : '') + (s.level ? ' · ' + s.level : '') + (adapt ? ' · Adaptée (' + adapt + ' retiré' + (adapt > 1 ? 's' : '') + ')' : ''), droite: jouer(c) });
       }).join('');
       if (verrou.length) {
         var cleL = d.id + ':lock', ouvL = !!_ouvert[cleL];

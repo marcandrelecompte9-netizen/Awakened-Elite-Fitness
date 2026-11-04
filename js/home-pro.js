@@ -82,6 +82,7 @@
     var cle = ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'][wIdx(d)];
     var s = pl.plan[cle];
     if (!s || !s.muscles || !s.muscles.length) return null;
+    try { if (pl.P && pl.P.actifLe && !pl.P.actifLe(s, d)) return null; } catch (e) {}   // v1572 : pas avant le début du planning
     var heure = null;
     try { heure = pl.P ? pl.P.timeFor(id, ymd(d), cle, pl.plan) : s.heure; } catch (e) { heure = s.heure || null; }
     return { s: s, heure: heure, faite: !!pl.faits[ymd(d)] };
@@ -472,7 +473,28 @@
         (meta ? '<div class="ahp-meta">' + meta + '</div>' : '') +
         '<div style="margin-top:14px;">' + bouton + '</div>' +
         lienAutre() +
+        rituelsHTML(info, hist) +
       '</div>';
+  }
+
+  // v1570 : rituels du jour (Rituels) sur la carte du jour — avant : affichés nulle part
+  function rituelsHTML(info, hist) {
+    try {
+      if (estEnfant() || !window.awakRituelsDuJour) return '';
+      var auj = new Date(), L = window.awakRituelsDuJour(info.id, wIdx(auj));
+      if (!L.length) return '';
+      var cle = ymd(auj);
+      return '<div style="height:1px;background:rgba(255,255,255,0.06);margin:14px -16px 12px;"></div>' +
+        '<div class="ahp-kick" style="color:#67e8f9;">RITUEL DU JOUR</div>' +
+        L.map(function (r) {
+          var fait = (hist || []).some(function (w) { return ymd(dateSeance(w)) === cle && w.workoutData && w.workoutData._discipline === r.disciplineId; });
+          return '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;">' +
+            '<span style="flex:1;min-width:0;font-weight:800;color:#f8fafc;font-size:0.92em;">' + esc(r.nom) + '</span>' +
+            (fait ? '<span style="font-size:0.7em;font-weight:900;color:#67e8f9;">FAIT</span>'
+                  : '<button onclick="if(typeof startDisciplineSession===\'function\')startDisciplineSession(\'' + esc(r.disciplineId) + '\')" style="flex-shrink:0;min-height:auto;padding:8px 13px;border-radius:10px;border:1px solid rgba(103,232,249,0.4);background:rgba(103,232,249,0.1);color:#67e8f9;font-weight:800;font-size:0.78em;cursor:pointer;">Lancer</button>') +
+          '</div>';
+        }).join('');
+    } catch (e) { return ''; }
   }
 
   // ── Tuiles : progression + semaine ──

@@ -142,14 +142,57 @@
     return false;
   }
   function isActive() { return _load().length > 0; }
-  function clear() { try { localStorage.removeItem(KEY()); localStorage.removeItem(LEGACY_KEY); } catch (e) {} }
+  // v1570 : date de chaque zone — une douleur se revoit après 3 jours (avant : active pour toujours)
+  var DUREE_JOURS = 3;
+  function _dates() { try { return JSON.parse(localStorage.getItem(KEY() + '_dates') || '{}') || {}; } catch (e) { return {}; } }
+  function _saveDates(d) { try { localStorage.setItem(KEY() + '_dates', JSON.stringify(d || {})); } catch (e) {} }
+  function clear() { try { localStorage.removeItem(KEY()); localStorage.removeItem(LEGACY_KEY); localStorage.removeItem(KEY() + '_dates'); } catch (e) {} }
 
   function toggleZone(id) {
     var a = _load();
     var i = a.indexOf(id);
-    if (i === -1) a.push(id); else a.splice(i, 1);
+    var d = _dates();
+    if (i === -1) { a.push(id); d[id] = Date.now(); } else { a.splice(i, 1); delete d[id]; }
     _save(a);
+    _saveDates(d);
     return a;
+  }
+  // Zones notées il y a plus de 3 jours (une zone sans date reçoit la date du jour)
+  function aRevoir() {
+    var a = _load(), d = _dates(), change = false, out = [];
+    a.forEach(function (id) {
+      if (!d[id]) { d[id] = Date.now(); change = true; return; }
+      if (Date.now() - d[id] >= DUREE_JOURS * 86400000) out.push(id);
+    });
+    if (change) _saveDates(d);
+    return out;
+  }
+  function prolonger(id) { var d = _dates(); d[id] = Date.now(); _saveDates(d); }
+  function retirer(id) { var a = _load(), i = a.indexOf(id); if (i !== -1) toggleZone(id); }
+  var _revueOuverte = false;
+  function revoirSiBesoin() {
+    try {
+      if (_revueOuverte || document.getElementById('awakPainRevue')) return;
+      var L = aRevoir(); if (!L.length) return;
+      var z = zoneById(L[0]); if (!z) { retirer(L[0]); return; }
+      _revueOuverte = true;
+      var ov = document.createElement('div');
+      ov.id = 'awakPainRevue';
+      ov.style.cssText = 'position:fixed;inset:0;z-index:12000;background:rgba(0,0,0,0.72);display:flex;align-items:center;justify-content:center;padding:16px;';
+      var ic = window.AwakIcon ? window.AwakIcon.get('alerte', 26, '#f59e0b') : '';
+      ov.innerHTML = '<div style="max-width:360px;width:100%;background:#12151c;border:1px solid rgba(245,158,11,0.35);border-radius:16px;padding:18px;text-align:center;">'
+        + '<div style="margin-bottom:8px;">' + ic + '</div>'
+        + '<div style="font-weight:900;color:#fff;font-size:1em;margin-bottom:6px;">Toujours mal : ' + z.label.toLowerCase() + ' ?</div>'
+        + '<div style="font-size:0.78em;color:#94a3b8;line-height:1.45;margin-bottom:14px;">Tu l\'as signalé il y a plus de ' + DUREE_JOURS + ' jours. Tant que la zone est active, tes séances l\'évitent.</div>'
+        + '<div style="display:flex;gap:8px;">'
+        +   '<button id="awakPainOui" style="flex:1;padding:12px 6px;border-radius:11px;cursor:pointer;border:1px solid rgba(245,158,11,0.45);background:rgba(245,158,11,0.12);color:#fbbf24;font-weight:800;font-size:0.8em;">Oui, 3 jours de plus</button>'
+        +   '<button id="awakPainNon" style="flex:1;padding:12px 6px;border-radius:11px;cursor:pointer;border:none;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;font-weight:900;font-size:0.8em;">Non, c\'est passé</button>'
+        + '</div></div>';
+      document.body.appendChild(ov);
+      var fin = function (msg) { ov.remove(); _revueOuverte = false; if (msg && typeof window.showToast === 'function') window.showToast(msg, 'info', 3000); setTimeout(revoirSiBesoin, 300); };
+      ov.querySelector('#awakPainOui').onclick = function () { prolonger(z.id); fin('Zone gardée 3 jours de plus'); };
+      ov.querySelector('#awakPainNon').onclick = function () { retirer(z.id); fin('Zone retirée : tes prochaines séances la retravaillent'); };
+    } catch (e) { _revueOuverte = false; }
   }
 
   function zoneById(id) {
@@ -202,6 +245,7 @@
     isActive: isActive,
     clear: clear,
     toggleZone: toggleZone,
+    aRevoir: aRevoir, prolonger: prolonger, retirer: retirer, revoirSiBesoin: revoirSiBesoin,
     zoneById: zoneById,
     painfulMuscles: painfulMuscles,
     isMusclePainful: isMusclePainful,

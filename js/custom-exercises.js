@@ -90,6 +90,7 @@
         difficulty: c.difficulty || 'Intermédiaire',
         type: 'exercise',
         position: c.position || 'debout',
+        mode: c.mesure === 'duree' ? 'timer' : undefined,   // v1578 : répétitions ou durée
         equipment: c.equipment && c.equipment.length ? c.equipment : ['Poids du corps'],
         description: c.description || 'Exercice personnalisé.',
         instructions: Array.isArray(c.instructions) ? c.instructions
@@ -143,11 +144,11 @@
 
   // ── État du formulaire ──
   var form = { nom: '', primaire: '', secondaires: [], equipement: [], difficulte: 'Intermédiaire',
-               image: null, note: '', instructions: '', editId: null };
+               image: null, note: '', instructions: '', editId: null, position: 'debout', mesure: 'reps', ancienNom: '' };
 
   function reset() {
     form = { nom: '', primaire: '', secondaires: [], equipement: [], difficulte: 'Intermédiaire',
-             image: null, note: '', instructions: '', editId: null };
+             image: null, note: '', instructions: '', editId: null, position: 'debout', mesure: 'reps', ancienNom: '' };
   }
 
   function chip(txt, actif, onclick, couleur) {
@@ -170,7 +171,7 @@
           image: e.image || null,
           note: e.note || '',
           instructions: Array.isArray(e.instructions) ? e.instructions.join('\n') : (e.instructions || ''),
-          editId: e.id
+          editId: e.id, position: e.position || 'debout', mesure: e.mesure || 'reps', ancienNom: e.name
         };
       }
     }
@@ -185,7 +186,7 @@
     var eq = equipements();
 
     var primaires = mus.map(function (m) {
-      return chip(m, form.primaire === m, "AwakCustomEx.setPrimaire('" + attr(m).replace(/'/g, "\\'") + "')", '#4ade80');
+      return chip(m, form.primaire === m, "AwakCustomEx.setPrimaire('" + attr(m).replace(/'/g, "\\'") + "')", '#22d3ee');
     }).join('');
 
     var secondaires = mus.filter(function (m) { return m !== form.primaire; }).map(function (m) {
@@ -196,6 +197,11 @@
       return chip(q, form.equipement.indexOf(q) >= 0, "AwakCustomEx.toggleEquip('" + attr(q).replace(/'/g, "\\'") + "')", '#60a8f0');
     }).join('');
 
+ // v1578 : position (règles « au sol », mobilité réduite) et mesure
+    var POS = [['debout', 'Debout'], ['assis', 'Assis'], ['allongé', 'Au sol'], ['suspendu', 'Suspendu']];
+    var posChips = POS.map(function (x) { return chip(x[1], form.position === x[0], "AwakCustomEx.setPosition('" + x[0] + "')", '#93c5fd'); }).join('');
+    var mesChips = [['reps', 'Répétitions'], ['duree', 'Durée (minuteur)']].map(function (x) {
+      return chip(x[1], form.mesure === x[0], "AwakCustomEx.setMesure('" + x[0] + "')", '#93c5fd'); }).join('');
     var diffChips = ['Débutant', 'Intermédiaire', 'Avancé'].map(function (d) {
       return chip(d, form.difficulte === d, "AwakCustomEx.setDifficulte('" + d + "')", '#fbbf24');
     }).join('');
@@ -210,7 +216,7 @@
       : '<label style="display:flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;' +
           'padding:18px;border:1.5px dashed rgba(34,211,238,0.35);border-radius:12px;' +
           'background:rgba(34,211,238,0.04);color:#67e8f9;font-size:0.8em;font-weight:700;">' +
-          '📷 Ajouter une photo' +
+          (window.AwakIcon ? AwakIcon.get('image', 16, '#67e8f9') : '') + 'Ajouter une photo' +
           '<input type="file" accept="image/*" onchange="AwakCustomEx.choisirImage(this)" style="display:none;">' +
         '</label>';
 
@@ -226,7 +232,7 @@
         'border-top:2px solid #22d3ee;box-shadow:0 24px 60px rgba(0,0,0,0.7);overflow:hidden;">' +
         '<div style="padding:14px 18px 11px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.07);' +
           'display:flex;align-items:center;gap:10px;">' +
-          '<span style="font-size:1.3em;flex-shrink:0;">✎</span>' +
+          '<span style="flex-shrink:0;display:flex;">' + (window.AwakIcon ? AwakIcon.get('crayon', 20, '#22d3ee') : '') + '</span>' +
           '<div style="min-width:0;flex:1;">' +
             '<div style="font-size:0.56em;letter-spacing:2px;color:#22d3ee;font-weight:900;">CATALOGUE</div>' +
             '<div style="font-size:0.98em;font-weight:900;color:#fff;">' +
@@ -247,7 +253,7 @@
             'font-family:inherit;box-sizing:border-box;">' +
           '<div id="awakCxErr" style="display:none;color:#f87171;font-size:0.74em;font-weight:700;margin-top:6px;"></div>' +
 
-          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#4ade80;font-weight:900;margin:16px 0 7px;">MUSCLE PRINCIPAL <span style="color:#64748b;">· obligatoire</span></div>' +
+          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#22d3ee;font-weight:900;margin:16px 0 7px;">MUSCLE PRINCIPAL <span style="color:#64748b;">· obligatoire</span></div>' +
           '<div style="display:flex;flex-wrap:wrap;gap:6px;">' + primaires + '</div>' +
 
           '<div style="font-size:0.58em;letter-spacing:1.6px;color:#a855f7;font-weight:900;margin:16px 0 7px;">MUSCLES SECONDAIRES <span style="color:#64748b;">· facultatif</span></div>' +
@@ -256,6 +262,10 @@
           '<div style="font-size:0.58em;letter-spacing:1.6px;color:#60a8f0;font-weight:900;margin:16px 0 7px;">ÉQUIPEMENT</div>' +
           '<div style="display:flex;flex-wrap:wrap;gap:6px;">' + equipChips + '</div>' +
 
+          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#93c5fd;font-weight:900;margin:16px 0 7px;">POSITION</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:6px;">' + posChips + '</div>' +
+          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#93c5fd;font-weight:900;margin:16px 0 7px;">MESURE</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:6px;">' + mesChips + '</div>' +
           '<div style="font-size:0.58em;letter-spacing:1.6px;color:#fbbf24;font-weight:900;margin:16px 0 7px;">DIFFICULTÉ</div>' +
           '<div style="display:flex;flex-wrap:wrap;gap:6px;">' + diffChips + '</div>' +
 
@@ -330,15 +340,17 @@
     rafraichir();
   };
   API.setDifficulte = function (d) { form.difficulte = d; rafraichir(); };
+  API.setPosition = function (v) { form.position = v; rafraichir(); };
+  API.setMesure = function (v) { form.mesure = v; rafraichir(); };
   API.retirerImage = function () { form.image = null; rafraichir(); };
 
   API.choisirImage = function (input) {
     var f = input && input.files && input.files[0];
     if (!f) return;
-    if (typeof window.showToast === 'function') window.showToast('📷 Traitement de la photo…', 'info', 1500);
+    if (typeof window.showToast === 'function') window.showToast('Traitement de la photo…', 'info', 1500);
     compresser(f, function (dataUrl) {
       if (!dataUrl) {
-        if (typeof window.showToast === 'function') window.showToast('⚠️ Photo illisible', 'error', 3000);
+        if (typeof window.showToast === 'function') window.showToast('Photo illisible', 'error', 3000);
         return;
       }
       form.image = dataUrl;
@@ -349,7 +361,7 @@
   function erreur(msg) {
     var el = document.getElementById('awakCxErr');
     if (el) { el.textContent = msg; el.style.display = 'block'; }
-    if (typeof window.showToast === 'function') window.showToast('⚠️ ' + msg, 'error', 3000);
+    if (typeof window.showToast === 'function') window.showToast(msg, 'error', 3000);
   }
 
   API.enregistrer = function () {
@@ -372,6 +384,8 @@
       secondaryMuscles: form.secondaires.slice(),
       equipment: form.equipement.length ? form.equipement.slice() : ['Poids du corps'],
       difficulty: form.difficulte,
+      position: form.position || 'debout',
+      mesure: form.mesure === 'duree' ? 'duree' : 'reps',
       image: form.image || null,
       note: (form.note || '').trim(),
       instructions: (form.instructions || '').split('\n').map(function (x) { return x.trim(); })
@@ -392,7 +406,7 @@
       if (ecrire(sansImage)) {
         injecter();
         if (typeof window.showToast === 'function') {
-          window.showToast('✓ Exercice créé, mais la photo n\'a pas pu être enregistrée (mémoire pleine).', 'info', 5000);
+          window.showToast('Exercice créé, mais la photo n\'a pas pu être enregistrée (mémoire pleine).', 'info', 5000);
         }
       } else {
         return erreur('Mémoire pleine : impossible d\'enregistrer.');
@@ -400,10 +414,17 @@
     } else {
       injecter();
       if (typeof window.showToast === 'function') {
-        window.showToast(form.editId ? '✓ Exercice modifié' : '✓ « ' + nom +' » ajouté au catalogue', 'success', 2600);
+        window.showToast(form.editId ? 'Exercice modifié' : '« ' + nom +' » ajouté au catalogue', 'success', 2600);
       }
     }
 
+    // v1578 : renommé → les routines suivent le nouveau nom (sinon l'exercice y devenait inconnu)
+    if (form.editId && form.ancienNom && form.ancienNom !== nom) {
+      var nb = renommerDansRoutines(form.ancienNom, nom);
+      try { if (window.EXERCISE_IMAGES && window.EXERCISE_IMAGES[form.ancienNom] && !obj.image) delete window.EXERCISE_IMAGES[form.ancienNom]; } catch (e) {}
+      if (nb && typeof window.showToast === 'function') setTimeout(function () { window.showToast(nb + ' routine' + (nb > 1 ? 's mises' : ' mise') + ' à jour avec le nouveau nom', 'info', 3000); }, 900);
+    }
+    try { if (document.getElementById('exercisesTab') && typeof window.filterExercises === 'function') window.filterExercises(); } catch (e) {}
     var m = document.getElementById('awakCustomExModal');
     if (m) m.remove();
     // Rafraîchit l'atelier de routine s'il est ouvert
@@ -414,8 +435,51 @@
     var liste = lire().filter(function (x) { return x.id !== id; });
     ecrire(liste);
     injecter();
-    if (typeof window.showToast === 'function') window.showToast('🗑️ Exercice supprimé', 'success', 2000);
+    if (typeof window.showToast === 'function') window.showToast('Exercice supprimé', 'success', 2000);
     try { if (window.AwakBuilder && window.AwakBuilder.refresh) window.AwakBuilder.refresh(false); } catch (e) {}
+  };
+
+  // v1578 : routines qui utilisent un exercice (parcours de tout l'objet : blocs, supersets…)
+  function parcourir(o, fn) {
+    if (!o || typeof o !== 'object') return;
+    if (Array.isArray(o)) { o.forEach(function (x) { parcourir(x, fn); }); return; }
+    fn(o);
+    Object.keys(o).forEach(function (k) { if (o[k] && typeof o[k] === 'object') parcourir(o[k], fn); });
+  }
+  function routines() { try { return typeof window.getRoutines === 'function' ? (window.getRoutines() || []) : []; } catch (e) { return []; } }
+  function routinesAvec(nom) {
+    return routines().filter(function (r) { var t = false; parcourir(r, function (o) { if (o.name === nom || o._baseName === nom) t = true; }); return t; }).length;
+  }
+  function renommerDansRoutines(ancien, nouveau) {
+    var rs = routines(), n = 0;
+    rs.forEach(function (r) {
+      var t = false;
+      parcourir(r, function (o) {
+        if (o.name === ancien) { o.name = nouveau; t = true; }
+        if (o._baseName === ancien) { o._baseName = nouveau; t = true; }
+      });
+      if (t) n++;
+    });
+    if (n && typeof window.saveRoutines === 'function') { try { window.saveRoutines(rs); } catch (e) {} }
+    return n;
+  }
+  API.routinesAvec = routinesAvec;
+  // Suppression avec confirmation, en disant combien de routines l'utilisent
+  API.demanderSuppression = function (id) {
+    var e = lire().filter(function (x) { return x.id === id; })[0];
+    if (!e) return;
+    var nb = routinesAvec(e.name);
+    var faire = function () {
+      API.supprimer(id);
+      try { var md = document.getElementById('exerciseModal'); if (md) md.classList.remove('active'); } catch (er) {}
+      try { if (typeof window.filterExercises === 'function') window.filterExercises(); } catch (er) {}
+    };
+    var txt = 'Supprimer « ' + e.name + ' » de ton catalogue ?' + (nb
+      ? ' Il est utilisé dans ' + nb + ' routine' + (nb > 1 ? 's' : '') + ' : il y restera, mais sans muscle ni matériel connus. Retire-le de ces routines ou remplace-le.'
+      : '');
+    if (typeof window.showConfirm === 'function') {
+      window.showConfirm(txt, faire, null, { title: 'Exercice personnalisé', danger: true, confirmLabel: 'Supprimer' });
+    } else faire();
   };
 
   API.liste = lire;

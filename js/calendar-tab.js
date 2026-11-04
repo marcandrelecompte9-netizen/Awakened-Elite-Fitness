@@ -133,7 +133,8 @@
         if (ex && ex.muscle && mus.indexOf(ex.muscle) < 0) mus.push(ex.muscle);
       });
       out[cle] = { muscles: mus.length ? mus : ['Séance'], label: se.name || o.name || 'Programme',
-                   source: 'programme', planWeek: no, planIdx: idx, programme: o.name || '' };
+                   source: 'programme', planWeek: no, planIdx: idx, programme: o.name || '',
+                   depuis: o.startDate ? Date.parse(o.startDate) : null };   // v1572
     });
     return out;
   }
@@ -167,6 +168,13 @@
     return { routine: a, ia: m || i, programme: !!(prog && prog.weeks) || !!men, nomProgramme: (prog && prog.weeks) ? (prog.name || '') : (men ? men.nom : '') };
   }
 
+  // v1572 : un planning démarré un jour donné ne s'applique pas aux jours d'avant
+  function actifLe(s, date) {
+    if (!s || !s.depuis) return true;
+    var d0 = new Date(s.depuis); d0.setHours(0, 0, 0, 0);
+    var x = new Date(date); x.setHours(0, 0, 0, 0);
+    return x.getTime() >= d0.getTime();
+  }
   // Planning résolu d'un membre : { lun: {muscles,label,heure,source}, … }
   function planFor(id) {
     var out = {};
@@ -182,6 +190,9 @@
     var assign = pref === 'ia' ? {} : dayRoutinesFor(id);
     var routines = routinesFor(id);
     var actif = pref === 'routine' ? null : activePlanFor(id);
+    // v1572 : en automatique, le programme Salle démarré compte aussi (avant : seulement si « Programme » était choisi)
+    var progAuto = pref === 'auto' ? programmeFor(id) : null;
+    var actifDepuis = null; try { var _ap = readJSON('profile_' + id + '_weeklyPlan', null); if (_ap && _ap.startDate) actifDepuis = Date.parse(_ap.startDate); } catch (e) {}
 
     // v1407 : jours « en famille » (onglet Famille) → « Bouger ensemble » chez chaque membre
     var _fam = null; try { _fam = window.AwakFamJours ? window.AwakFamJours.get() : null; } catch (e) {}
@@ -220,6 +231,11 @@
         };
         return;
       }
+      // ②ter v1572 : programme Salle démarré
+      if (progAuto && progAuto[d]) {
+        out[d] = Object.assign({}, progAuto[d], { heure: (manual[d] && manual[d].heure) || null });
+        return;
+      }
       // ②bis v1556 : le mentor actif
       if (mentor && mentor.jours[d]) {
         out[d] = Object.assign({}, mentor.jours[d], { heure: (manual[d] && manual[d].heure) || null });
@@ -236,6 +252,7 @@
             heure: (manual[d] && manual[d].heure) || null,
             source: 'plan',
             discipline: j.discipline || null, session: j.session || null,   // v1400 : jour de yoga, pilates…
+            depuis: actifDepuis,   // v1572
             hybride: j.hybride || null   // v1409 : semaine course + muscu
           };
         }
@@ -251,7 +268,8 @@
     plan:    { txt: 'PLAN',    col: '#c084fc' },
     programme: { txt: 'PROGRAMME', col: '#fbbf24' },
     mentor: { txt: 'MENTOR', col: '#fbbf24' },
-    famille: { txt: 'FAMILLE', col: '#ec4899' }
+    famille: { txt: 'FAMILLE', col: '#ec4899' },
+    rituel: { txt: 'RITUEL', col: '#67e8f9' }
   };
   function sourceChip(src) {
     var m = SOURCES[src];
@@ -373,7 +391,15 @@
     var out = [];
     list.forEach(function (p) {
       if (!cal.selected.has(p.id)) return;
+      // v1570 : rituels (Réglages › Rituels) du jour — avant : affichés nulle part
+      try {
+        (window.awakRituelsDuJour ? window.awakRituelsDuJour(p.id, JOURS.indexOf(dayKey)) : []).forEach(function (r) {
+          out.push({ profil: p, seance: { label: 'Rituel · ' + r.nom, muscles: [r.nom], source: 'rituel', discipline: r.disciplineId },
+                     heure: null, exception: false, faite: false, rituel: true });
+        });
+      } catch (e) {}
       var s = (plans[p.id] || {})[dayKey];
+      if (s && !actifLe(s, new Date(y, m, d))) s = null;   // v1572 : pas avant le début du planning
       if (!s || !s.muscles || !s.muscles.length) {
         // v1319 : séance faite sans être prévue → elle apparaît quand même (au lieu de « Repos »)
         var nm = dones[p.id] && dones[p.id][ymd];
@@ -553,10 +579,10 @@
       var d = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate() + i);
       var ymd = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
       var sc = (plans[p.id] || {})[JOURS[wIdx(d)]];
-      if (sc && sc.muscles && sc.muscles.length) {
-        prevues++;
-        if (dones[p.id] && dones[p.id][ymd]) faites++;
-      }
+      if (sc && !actifLe(sc, d)) sc = null;   // v1572
+      if (sc && sc.muscles && sc.muscles.length) prevues++;
+      // v1572 : toutes les séances faites comptent (comme l'Accueil), pas seulement les jours prévus
+      if (dones[p.id] && dones[p.id][ymd]) faites++;
     }
     return { prevues: prevues, faites: faites };
   }
@@ -568,7 +594,7 @@
       var c = colorById[p.id];
       return '<div title="' + esc(p.name || 'Membre') + ' : ' + st.faites + ' sur ' + st.prevues + ' cette semaine" ' +
           'style="position:relative;flex-shrink:0;">' +
-          anneau(st.faites / st.prevues, c.base, 34) +
+          anneau(Math.min(1, st.faites / st.prevues), c.base, 34) +
           '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;' +
             'font-size:0.56em;font-weight:800;color:#cbd5e1;font-family:var(--font-display);">' +
             st.faites + '/' + st.prevues + '</div>' +
@@ -1158,6 +1184,21 @@
       var c = colorById[e.profil.id];
       var s = e.seance;
       var label = s.label || s.muscles.slice(0, 3).join(' · ');
+      // v1570 : rituel — simple carte (pas de réglage d'heure), lançable pour le profil actif
+      if (e.rituel) {
+        var moi = false; try { moi = window.getCurrentProfileId && window.getCurrentProfileId() === e.profil.id; } catch (x) {}
+        return '<div style="background:rgba(103,232,249,0.04);border:1px solid rgba(103,232,249,0.2);' +
+            'border-left:3px solid ' + c.base + ';border-radius:12px;padding:12px 14px;margin-bottom:9px;">' +
+            '<div style="display:flex;align-items:center;gap:9px;">' +
+              '<span style="display:inline-flex;flex-shrink:0;">' + av(e.profil.avatar, 30) + '</span>' +
+              '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.9em;font-weight:800;color:#e8f0f8;">' + esc(label) + '</span>' +
+              '<span style="display:block;font-size:0.72em;color:#94a3b8;margin-top:2px;">' + esc(e.profil.name || 'Membre') + '</span></span>' +
+              sourceChip('rituel') +
+            '</div>' +
+            (moi && s.discipline ? '<button onclick="var m=document.getElementById(\'awakCalDayModal\');if(m)m.remove();if(typeof startDisciplineSession===\'function\')startDisciplineSession(\'' + esc(s.discipline) + '\')" ' +
+              'style="margin-top:10px;width:100%;padding:10px;border-radius:10px;border:1px solid rgba(103,232,249,0.4);background:rgba(103,232,249,0.1);color:#67e8f9;font-weight:800;font-size:0.8em;cursor:pointer;">Lancer le rituel</button>' : '') +
+          '</div>';
+      }
       if (e.horsPlan) {
         return '<div style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);' +
             'border-left:3px solid ' + c.base + ';border-radius:12px;padding:13px 14px;margin-bottom:9px;">' +
@@ -1385,7 +1426,7 @@
   window.AwakCalPlan = {
     planFor: planFor, doneDates: doneDates, timeFor: timeFor, fmtTime: fmtTime,
     sourcePref: sourcePref, setSourcePref: setSourcePref, sourcesDispo: sourcesDispo,
-    lundiDe: lundiDe, JOURS: JOURS, wIdx: wIdx
+    lundiDe: lundiDe, JOURS: JOURS, wIdx: wIdx, actifLe: actifLe
   };
 
   window.awakCalVue = function (v) {

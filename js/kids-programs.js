@@ -179,8 +179,9 @@
   function missionsFaites() {
     var out = {};
     try {
-      var raw = localStorage.getItem('workoutHistory') || '[]';
-      (JSON.parse(raw) || []).forEach(function (h) {
+      // v1585 : historique du profil (la copie de travail n'existe plus)
+      var _h = (typeof window.getWorkoutHistory === 'function') ? (window.getWorkoutHistory() || []) : JSON.parse(localStorage.getItem('workoutHistory') || '[]');
+      (_h || []).forEach(function (h) {
         var k = h && h.workoutData && h.workoutData._kidsProg;
         if (!k) return;
         out[k.id] = out[k.id] || { total: 0, jours: {} };

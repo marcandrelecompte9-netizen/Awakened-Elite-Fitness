@@ -57,7 +57,7 @@
                desc: 'Les répétitions montent puis redescendent.',
                reglage: 'Sommet de la pyramide', options: [6, 8, 10], defaut: 8 },
     chipper: { name: 'Chipper', emoji: '📋', mecanique: 'liste', duo: false,
-               desc: 'Une longue liste à terminer, dans l\'ordre que tu veux.',
+               desc: 'Une longue liste, une étape après l\'autre, de plus en plus de répétitions.',
                reglage: 'Nombre d\'exercices', options: [5, 8, 12], defaut: 8 },
     yougo:   { name: 'You go, I go', emoji: '🔄', mecanique: 'alternance', duo: true,
                desc: 'Chacun son tour : l\'un travaille, l\'autre récupère.',
@@ -218,6 +218,26 @@
       }
     } catch (e) {}
 
+    // v1567 : mêmes refus que les séances (limitations, exercices bannis, mode
+    // silencieux, matériel caché) pour le profil actif, + limitations du PARTENAIRE.
+    try {
+      if (typeof window.awakRaisonRefus === 'function') {
+        var _okR = base.filter(function (e) { try { return !window.awakRaisonRefus(e, { sansNiveau: true }); } catch (x) { return true; } });
+        if (_okR.length) base = _okR;
+      }
+      if (Array.isArray(idsParticipants) && window.AwakLimitations && Array.isArray(window.AwakLimitations.liste)) {
+        var _moiL = null; try { _moiL = window.getCurrentProfileId ? window.getCurrentProfileId() : null; } catch (x) {}
+        idsParticipants.forEach(function (pid) {
+          if (!pid || pid === _moiL) return;
+          var ids = []; try { ids = JSON.parse(localStorage.getItem('awakLimitations_' + pid) || '[]') || []; } catch (x) {}
+          var tests = window.AwakLimitations.liste.filter(function (l) { return ids.indexOf(l.id) >= 0; });
+          if (!tests.length) return;
+          var _okP = base.filter(function (e) { return !tests.some(function (l) { try { return l.test(e); } catch (x) { return false; } }); });
+          if (_okP.length) base = _okP;
+        });
+      }
+    } catch (e) {}
+
     // Niveau de l'utilisateur : un débutant ne doit pas tomber sur un exercice
     // avancé. Garde-fou : on n'applique le filtre que s'il reste assez de choix.
     try {
@@ -235,6 +255,7 @@
             if (niv && rang[niv] !== undefined && rang[niv] < mini) mini = rang[niv];
           } catch (e) {}
         });
+        if (opts.invite && rang[opts.invite.niveau] !== undefined && rang[opts.invite.niveau] < mini) mini = rang[opts.invite.niveau];   // v1567
         lvl = Object.keys(rang).filter(function (k) { return rang[k] === mini; })[0] || lvl;
       }
       var permis = lvl === 'beginner' ? ['Débutant']
@@ -259,6 +280,7 @@
           });
         }
       }
+      if (opts.invite && opts.invite.age === 'enfant') _enfantPresent = true;   // v1567 : invité enfant
       if (_enfantPresent) {
         base = base.filter(function (e) {
           return !Array.isArray(e.equipment) ||
@@ -280,6 +302,7 @@
           });
         }
       }
+      if (opts.invite && opts.invite.age === 'senior') _seniorPresent = true;   // v1567 : invité 65+
       if (_seniorPresent) {
         base = base.filter(function (e) { return !RX_IMPACT.test(e.name || ''); });
       }
@@ -317,7 +340,7 @@
   var RX_IMPACT = /saut|jump|burpee|jumping jack|high knees|montées de genoux|plyo|pliom|explosif|explosive|skater|box jump|bond/i;
 
   var RX_TENUE = /planche|plank|hollow|superman|wall ?sit|dead ?hang|l-?sit|gainage|chaise murale|posture/i;
-  var RX_DYNAMIQUE = /dynamique|rotation|drag|balancement|swing|jump|saut/i;
+  var RX_DYNAMIQUE = /dynamique|rotation|drag|balancement|swing|jump|saut|taps|rowing|tirage/i;   // v1566 : Shoulder taps, Superman rowing = répétitions
   // Déplacements et portés (marche, ours, fermier…) : ils se comptent en
   // secondes, pas en répétitions — « 17 Marche rapide » n'avait aucun sens.
   var RX_DUREE = /marche|walk|crawl|carry|fermier|farmer|\bours\b|course|jogging|shuffle|corde à sauter|jump rope/i;
@@ -536,7 +559,11 @@
       exos: function () { return 2; },
       idx: function (p) { return Math.floor(p.pas / 2) % p.exercices.length; },
       prepare: function (p) { p.duo = duoJoueurs(); p.parTour = 15; p.cumul = 0; },
-      total: function (p) { return Math.ceil(p.reglage / p.parTour); },
+      // v1568 : le volume commun avance des répétitions RÉELLES (adaptées au niveau)
+      total: function (p) {
+        if (p.cumul >= p.reglage) return p.pas;
+        return p.pas + Math.max(1, Math.ceil((p.reglage - p.cumul) / Math.max(3, Math.round(p.parTour * (p.cMoy || 1)))));
+      },
       etape: function (p) {
         return { nom: nomEx(p.exercices[Math.floor(p.pas / 2) % p.exercices.length]),
                  valeur: Math.min(p.parTour, p.reglage - p.cumul), unite: 'reps' };
@@ -556,7 +583,11 @@
           + bouton('AwakGamesValider()', 'Passé au suivant ✓');
       },
       // Le dernier passage complète juste ce qui manque (avant : 210 / 200).
-      apres: function (p) { p.cumul = Math.min(p.reglage, p.cumul + p.parTour); }
+      apres: function (p) {
+        var x = p.journal[p.journal.length - 1];
+        var inc = (x && x.unite === 'reps') ? x.reps : p.parTour;
+        p.cumul = Math.min(p.reglage, p.cumul + inc);
+      }
     },
 
     // 🪞 MIROIR — même exercice, en même temps
@@ -647,7 +678,7 @@
       exos: function () { return 3; },
       idx: function (p) { return p.pas % p.exercices.length; },
       chrono: 40,
-      prepare: function (p) { p.duo = duoJoueurs(); },
+      prepare: function (p) { p.duo = duoJoueurs(); p.scores = [0, 0]; },
       total: function (p) { return p.reglage * 2; },
       etape: function (p) { return { nom: nomEx(p.exercices[p.pas % p.exercices.length]), valeur: 15, unite: 'reps' }; },
       corps: function (p) {
@@ -663,7 +694,12 @@
           + '</div>'
           + blocChrono()
           + gros(p.exercices[p.pas % p.exercices.length], 15, 'reps pendant que l\'autre tient')
-          + bouton('AwakGamesValider()', 'Échanger les rôles ✓');
+          // v1566 : un vrai duel — la planche a-t-elle tenu jusqu'au bout ?
+          + '<div style="font-size:0.68em;color:#94a3b8;margin-bottom:8px;">' + esc(tient) + ' a tenu la planche ?</div>'
+          + '<div style="display:flex;gap:8px;">'
+          +   '<button onclick="AwakGamesGainage(true)" style="flex:1;padding:13px 6px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#fbbf24,#d97706);color:#3b2606;font-weight:900;font-size:0.84em;">Tenue jusqu\'au bout</button>'
+          +   '<button onclick="AwakGamesGainage(false)" style="flex:1;padding:13px 6px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;font-weight:900;font-size:0.84em;">Lâchée avant</button>'
+          + '</div>';
       }
     },
 
@@ -674,6 +710,7 @@
       idx: function (p) { return p.jeu.course ? p.pas % p.exercices.length : Math.floor(p.pas / 2) % p.exercices.length; },
       prepare: function (p) {
         p.joueurs = nomsJoueurs();
+        try { p.duo = duoJoueurs(); } catch (e) {}   // v1568 : niveaux des deux joueurs
         if (p.jeu.course) p.scores = [0, 0];
       },
       total: function (p) { return p.reglage; },
@@ -787,9 +824,35 @@
       + '<img src="' + esc(src) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>';
   }
 
+  // v1568 : répétitions adaptées au niveau / à l'âge de celui qui fait l'étape
+  // (coefNiveau : 1 avancé, 0,75 intermédiaire, 0,55 débutant, moins pour un enfant
+  // ou 65 ans et plus). Les durées de tenue ne changent pas. Jamais sous 3 (sauf si
+  // la consigne est déjà plus basse, ex. Death by minute 1).
+  function ech(n, c) {
+    if (!(c > 0) || c >= 1 || !(n > 0)) return n;
+    return Math.max(Math.min(n, 3), Math.round(n * c));
+  }
+  function coefJoueur(i) { return (partie && partie.coefs && partie.coefs[i]) || 1; }
+  function tourAlterne(p) {
+    var mec = p.jeu.mecanique;
+    return mec === 'relais' || mec === 'partage' || mec === 'gainage' || (mec === 'alternance' && !p.jeu.course);
+  }
+  function quiFait(p) { return (p.jeu.duo && tourAlterne(p) && !moiCourant(p)) ? 1 : 0; }
   function gros(ex, val, unite) {
     var nom = typeof ex === 'string' ? ex : nomEx(ex);
     var img = typeof ex === 'string' ? '' : visuel(ex);
+    var autreLigne = '';
+    if (partie && !partie.fini && partie.jeu.mecanique !== 'handicap' && typeof ex !== 'string'
+        && !(estTenue(ex) || estDuree(ex)) && /rep/i.test(unite || '')) {
+      var base = val;
+      val = ech(base, coefJoueur(quiFait(partie)));
+      // Jeux à deux simultanés : chacun ses répétitions
+      if (partie.jeu.duo && !tourAlterne(partie) && partie.duo && partie.duo[1]) {
+        var v2 = ech(base, coefJoueur(1));
+        if (v2 !== val) unite = (unite || '').replace(/\s*chacun,?/, '');
+        if (v2 !== val) autreLigne = '<div style="font-size:0.74em;color:#c4b5fd;margin:-10px 0 14px;">' + esc(partie.duo[0].nom) + ' : ' + val + ' · ' + esc(partie.duo[1].nom) + ' : ' + v2 + '</div>';
+      }
+    }
     // Un exercice à tenir s'exprime en secondes : on adapte valeur ET libellé.
     if (typeof ex !== 'string' && (estTenue(ex) || estDuree(ex)) && /rep/i.test(unite || '')) {
       var ef = effortPour(ex, val);
@@ -801,7 +864,8 @@
       + '<div style="font-size:1.05em;font-weight:900;color:#fff;margin-bottom:3px;">' + esc(nom) + '</div>'
       + '<div style="font-size:2.2em;font-weight:900;color:#60a8f0;line-height:1;">' + val + '</div>'
       + '<div style="font-size:0.75em;color:#94a3b8;margin-bottom:16px;">' + esc(unite)
-      + (typeof ex !== 'string' && estUnilat(ex) ? ' <b style="color:#93c5fd;">par côté</b>' : '') + '</div>';
+      + (typeof ex !== 'string' && estUnilat(ex) ? ' <b style="color:#93c5fd;">par côté</b>' : '') + '</div>'
+      + autreLigne;
   }
   function bouton(fn, txt, cyan) {
     var fond = cyan ? 'linear-gradient(135deg,#22d3ee,#0891b2);color:#032027' : 'linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f';
@@ -815,6 +879,9 @@
   // Le joueur 2 vient, par ordre de préférence : des participants choisis pour
   // la séance de groupe, puis d'un proche lié dans l'onglet Famille, puis d'un
   // autre profil de l'appareil.
+  // v1566 : partenaire CHOISI dans la fenêtre d'ouverture (profil de l'appareil ou invité).
+  // Avant : 1er autre profil pris d'office, nom et niveau parfois de deux personnes.
+  var partenaireChoisi = null;
   function nomsJoueurs() {
     var moi = 'Moi', partenaire = 'Partenaire';
     var monId = null;
@@ -826,6 +893,7 @@
         if (p && p.name) moi = p.name;
       }
     } catch (e) {}
+    if (partenaireChoisi && partenaireChoisi.nom) return [moi, partenaireChoisi.nom];
 
     // 1) Participants explicitement choisis pour la séance de groupe
     try {
@@ -976,6 +1044,8 @@
     var monId = null;
     try { if (typeof window.getCurrentProfileId === 'function') monId = window.getCurrentProfileId(); } catch (e) {}
     var noms = nomsJoueurs();
+    if (partenaireChoisi && partenaireChoisi.invite) return [infosJoueur(monId, noms[0]), { id: null, nom: partenaireChoisi.nom, coef: coefNiveau(partenaireChoisi.niveau || 'beginner', partenaireChoisi.age) }];
+    if (partenaireChoisi) return [infosJoueur(monId, noms[0]), infosJoueur(partenaireChoisi.id || null, partenaireChoisi.nom)];
     var autreId = null;
     try {
       if (window.AwakGroup && typeof window.AwakGroup.getParticipants === 'function') {
@@ -1012,7 +1082,8 @@
     // Jeux à deux où les deux bougent EN MÊME TEMPS, et Death by (rapide).
     var _opts = {
       simultane: ['handicap', 'miroir', 'roi'].indexOf(g.mecanique) >= 0 || (g.mecanique === 'alternance' && !!g.course),
-      rapide: g.mecanique === 'minute'
+      rapide: g.mecanique === 'minute',
+      invite: (g.duo && partenaireChoisi && partenaireChoisi.invite) ? { niveau: partenaireChoisi.niveau || 'beginner', age: partenaireChoisi.age || null } : null
     };
     var ex = pool(nb, null, _ids, _opts);
     if (!ex.length) {
@@ -1025,6 +1096,11 @@
     partie = { id: gameId, jeu: g, meca: m, reglage: reglage, exercices: ex, poolOpts: _opts, ids: _ids,
                debut: Date.now(), pas: 0, fini: false, journal: [] };
     m.prepare(partie);
+    // v1568 : coefficients des joueurs (répétitions adaptées)
+    try {
+      partie.coefs = partie.duo ? [partie.duo[0].coef, partie.duo[1].coef] : [infosJoueur(monIdJeu(), '').coef, 1];
+      if (partie.duo) partie.cMoy = (partie.duo[0].coef + partie.duo[1].coef) / 2;
+    } catch (e) { partie.coefs = [1, 1]; }
     // Normalisation : les mécaniques à deux stockent leurs joueurs soit dans
     // `joueurs` (noms), soit dans `duo` (objets). L'écran de fin n'en connaît
     // qu'une — on dérive l'autre ici plutôt que dans chaque mécanique.
@@ -1063,7 +1139,9 @@
       var e0 = partie.meca.etape(partie);
       var x0 = partie.exercices[partie.meca.idx(partie)];
       var f0 = x0 ? effortPour(x0, e0.valeur) : { valeur: e0.valeur, unite: 'reps' };
-      partie.journal.push({ nom: e0.nom, reps: f0.valeur, unite: f0.unite, moi: moiCourant(partie) });
+      var b0 = f0.valeur;
+      if (f0.unite === 'reps' && partie.jeu.mecanique !== 'handicap') f0.valeur = ech(b0, coefJoueur(quiFait(partie)));   // v1568
+      partie.journal.push({ nom: e0.nom, reps: f0.valeur, base: b0, unite: f0.unite, moi: moiCourant(partie) });
       crediterXP(partie.journal[partie.journal.length - 1]);
       partie.fait = true;
       // Dernière minute faite : inutile d'attendre la fin du chrono.
@@ -1075,7 +1153,9 @@
       // Le récapitulatif doit refléter l'effort réel : secondes pour une tenue.
       var exCourant = (partie.meca.idx && partie.exercices) ? partie.exercices[partie.meca.idx(partie)] : null;
       var ef = exCourant ? effortPour(exCourant, et.valeur) : { valeur: et.valeur, unite: 'reps' };
-      partie.journal.push({ nom: et.nom, reps: ef.valeur, unite: ef.unite, moi: moiCourant(partie) });
+      var bef = ef.valeur;
+      if (ef.unite === 'reps' && partie.jeu.mecanique !== 'handicap') ef.valeur = ech(bef, coefJoueur(quiFait(partie)));   // v1568
+      partie.journal.push({ nom: et.nom, reps: ef.valeur, base: bef, unite: ef.unite, moi: moiCourant(partie) });
       crediterXP(partie.journal[partie.journal.length - 1]);
     }
     partie.carte = null; partie.lance = null;
@@ -1109,6 +1189,19 @@
     if (roi && partie && !partie.fini) { partie.aChoisir = true; afficher(); }
   };
   window.AwakGamesRoiGagnant = window.AwakGamesGagne;
+  // v1566 : Duel de gainage. Point à celui qui tient s'il tient jusqu'au bout, sinon
+  // à celui qui enchaîne. Les secondes de planche du profil actif sont créditées.
+  window.AwakGamesGainage = function (tenue) {
+    if (!partie || partie.fini || partie.jeu.mecanique !== 'gainage') return;
+    var q = partie.pas % 2;
+    if (partie.scores) partie.scores[tenue ? q : 1 - q]++;
+    var duree = partie.meca.chrono || 40;
+    var sec = tenue ? duree : Math.max(5, duree - ((chrono && chrono.restant) || 0));
+    var x = { nom: 'Planche (tenue)', reps: sec, unite: 'secondes à tenir', moi: q === 0 };
+    partie.journal.push(x);
+    crediterXP(x);
+    window.AwakGamesValider();
+  };
   window.AwakGamesRoiChoix = function (k) {
     if (!partie || !partie.aChoisir) return;
     partie.choix = k; partie.aChoisir = false;
@@ -1117,7 +1210,7 @@
 
   window.AwakGamesAbandonner = function () {
     if (!partie) return;
-    if (partie.journal.length) return terminer();
+    if (partie.journal.length) { partie.arrete = true; return terminer(); }
     fermer();
   };
 
@@ -1192,28 +1285,35 @@
     // étapes » s'affichait à chaque partie plus longue que la précédente.
     partie.score = partie.pas;
     partie.record = (partie.id === 'deathby') ? majRecord(partie.id, partie.pas) : false;
-    if (partie.journal.length) { try { noterPartie(partie); } catch (e) {} }
+    // v1566 : arrêtée avant la moitié → répétitions gardées, mais ni victoire, ni
+    // partie au carnet, ni étoile, ni badge (Death by : lâcher EST la fin normale).
+    var _tot = 0; try { _tot = partie.meca.total(partie); } catch (e) {}
+    partie.comptee = !partie.arrete || partie.id === 'deathby' || partie.pas >= Math.ceil(_tot / 2);
+    if (partie.journal.length && partie.comptee) { try { noterPartie(partie); } catch (e) {} }
     try { bingoAuto(); } catch (e) {}
 
     // 🏅 Badge « À deux c'est mieux » — seuls les jeux marqués duo comptent.
     // On se fie au drapeau du JEU (partie.jeu.duo), pas au nombre de joueurs
     // saisi : c'est la seule donnée fiable ici.
     try {
-      if (partie.jeu && partie.jeu.duo && typeof window.AwakFamBadgeInc === 'function') {
+      if (partie.comptee && partie.jeu && partie.jeu.duo && typeof window.AwakFamBadgeInc === 'function') {
         window.AwakFamBadgeInc('seancesDuo', 1);
       }
     } catch (e) {}
     var minutes = Math.max(1, Math.round((Date.now() - partie.debut) / 60000));
     // Les tenues et déplacements sont en secondes : ils ne comptent pas comme répétitions.
-    var totalReps = partie.journal.reduce(function (s, x) { return s + ((x.unite && /seconde/i.test(x.unite)) ? 0 : (x.reps || 0)); }, 0);
+    var totalReps = partie.journal.reduce(function (s, x) { return s + ((x.unite && /seconde/i.test(x.unite)) || !x.moi ? 0 : (x.reps || 0)); }, 0);   // v1566 : les tiennes
+    partie.totalDeux = partie.journal.reduce(function (s, x) { return s + ((x.unite && /seconde/i.test(x.unite)) ? 0 : (x.reps || 0)); }, 0);
     try {
       if (typeof window.saveWorkoutToHistory === 'function') {
         // Répétitions du profil actif par exercice (completedSets) : le Bingo
         // (100 répétitions, 50 squats…) et les stats voient ce qui a été fait.
         var noms = {};
         partie.journal.forEach(function (x) {
+          if (!x.moi) return;   // v1567 : seulement ce que TU as fait (avant : exercices du partenaire à 0 série)
           var e = noms[x.nom] = noms[x.nom] || { name: x.nom, completedSets: [] };
           if (x.moi && !(x.unite && /seconde/i.test(x.unite))) e.completedSets.push({ reps: x.reps, weight: 0 });
+          else if (x.moi) e.completedSets.push({ reps: 0, weight: 0, duration: x.reps });   // v1566 : tenues (secondes)
         });
         window.saveWorkoutToHistory({
           name: partie.jeu.name,
@@ -1223,13 +1323,60 @@
         }, minutes);
       }
     } catch (e) {}
+    // v1567 : la partie aussi chez le PARTENAIRE (profil de l'appareil) : ses
+    // répétitions et son résultat. Pas d'XP pour lui (seul le profil actif joue).
+    try { enregistrerPartenaire(minutes); } catch (e) {}
     afficherFin(minutes, totalReps);
+  }
+
+  function enregistrerPartenaire(minutes) {
+    if (!partie || !partie.jeu.duo || !partie.comptee) return;
+    var pid = (partie.duo && partie.duo[1] && partie.duo[1].id) || (partenaireChoisi && !partenaireChoisi.invite ? partenaireChoisi.id : null);
+    var monId = monIdJeu();
+    if (!pid || pid === monId) return;
+    var mec = partie.jeu.mecanique;
+    var noms = {};
+    partie.journal.forEach(function (x) {
+      // Ses étapes : celles qui ne sont pas les miennes dans les jeux à tour de rôle ;
+      // dans les jeux simultanés (Duel, Miroir, Égalisateur, Roi), il fait les mêmes.
+      var alterne = tourAlterne(partie);
+      var lui = alterne ? !x.moi : x.moi;
+      if (!lui) return;
+      var e = noms[x.nom] = noms[x.nom] || { name: x.nom, completedSets: [] };
+      var reps = x.reps;
+      if (!alterne && mec !== 'handicap' && x.base && x.unite === 'reps') reps = ech(x.base, coefJoueur(1));   // v1568
+      if (mec === 'handicap' && partie.duo && partie.duo[0] && partie.duo[1] && partie.duo[0].coef) reps = Math.max(1, Math.round(x.reps * partie.duo[1].coef / partie.duo[0].coef));
+      if (x.unite && /seconde/i.test(x.unite)) e.completedSets.push({ reps: 0, weight: 0, duration: x.reps });
+      else e.completedSets.push({ reps: reps, weight: 0 });
+    });
+    var exos = Object.keys(noms).map(function (n) {
+      var o = noms[n];
+      try { var d = (window.exerciseDatabase || []).filter(function (z) { return z.name === n; })[0]; if (d && d.muscle) o.muscle = d.muscle; } catch (e) {}
+      return o;
+    });
+    if (exos.length && typeof window.saveGroupWorkoutForProfile === 'function') {
+      window.saveGroupWorkoutForProfile(pid, { name: partie.jeu.name, _jeu: partie.id, _durationSec: minutes * 60, exercises: exos });
+    }
+    // Son carnet : la partie et le bilan contre moi (résultat inversé)
+    try {
+      var k = 'awakGameCarnet_' + pid, c = JSON.parse(localStorage.getItem(k) || '{}') || {};
+      var e2 = c[partie.id] = c[partie.id] || { parties: 0, duo: {} };
+      e2.parties++; e2.derniere = new Date().toISOString();
+      if (partie.scores && partie.joueurs && partie.joueurs[0]) {
+        var d2 = e2.duo[partie.joueurs[0]] = e2.duo[partie.joueurs[0]] || { v: 0, d: 0, n: 0 };
+        if (partie.scores[1] > partie.scores[0]) d2.v++; else if (partie.scores[1] < partie.scores[0]) d2.d++; else d2.n++;
+      }
+      localStorage.setItem(k, JSON.stringify(c));
+    } catch (e) {}
   }
 
   function afficherFin(minutes, totalReps) {
     var host = overlay();
     var extra = '';
-    if (partie.scores) {
+    if (partie.scores && !partie.comptee) {
+      extra = '<div style="background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.25);border-radius:12px;padding:10px;margin-bottom:14px;font-size:0.78em;color:#cbd5e1;">'
+        + 'Partie arrêtée avant la moitié : pas de vainqueur. Tes répétitions sont gardées.</div>';
+    } else if (partie.scores) {
       var j = partie.joueurs, s = partie.scores;
       var gagnant = s[0] === s[1] ? 'Égalité !' : (s[0] > s[1] ? j[0] : j[1]) + ' l\'emporte';
       extra = '<div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:12px;padding:11px;margin-bottom:14px;">'
@@ -1255,7 +1402,9 @@
           : (partie.id === 'deathby' && records()[partie.id] ? '<div style="font-size:0.74em;color:#64748b;margin-bottom:14px;">Ton record : ' + records()[partie.id] + ' minutes</div>' : ''))
       + extra
       + '<div style="display:flex;gap:10px;margin-bottom:16px;">'
-      +   stat(totalReps, 'RÉPÉTITIONS', '#60a8f0') + stat(minutes, 'MINUTES', '#fff')
+      +   stat(totalReps, partie.jeu.duo ? 'TES RÉPÉTITIONS' : 'RÉPÉTITIONS', '#60a8f0')
+      +   ((partie.id === 'relais' || partie.id === 'partage') ? stat(partie.totalDeux, 'À DEUX', '#c4b5fd') : '')
+      +   stat(minutes, 'MINUTES', '#fff')
       + '</div>'
       + (lignes ? '<div style="text-align:left;background:rgba(255,255,255,0.03);border-radius:12px;padding:11px 13px;margin-bottom:16px;max-height:160px;overflow-y:auto;">' + lignes + '</div>' : '')
       + bouton('AwakGamesFermer()', 'Terminer'));
@@ -1405,7 +1554,27 @@
       return S.some(function (h) { return duos.indexOf(h.name) >= 0 || (h.workoutData && (h.workoutData._groupe || h.workoutData.isGroup)); });
     },
     'Terminer une séance complète': function (S) { var J = nomsJeux(); return S.some(function (h) { return J.indexOf(h.name) < 0 && exosReels(h).length >= 3; }); },
-    'Un jeu d\'entraînement': function (S) { var J = nomsJeux(); return S.some(function (h) { return J.indexOf(h.name) >= 0; }); }
+    'Un jeu d\'entraînement': function (S) { var J = nomsJeux(); return S.some(function (h) { return J.indexOf(h.name) >= 0; }); },
+    // v1568 : deux défis qui étaient à cocher à la main
+    'Battre un record personnel': function () {
+      var id = monIdJeu(), deb = debutSemaine(), pr = {};
+      try { pr = JSON.parse(localStorage.getItem('personalRecords_' + id) || '{}') || {}; } catch (e) {}
+      return Object.keys(pr).some(function (k) {
+        var r = pr[k] || {};
+        return ['weight', 'reps', 'volume', 'time', 'duration'].some(function (t) { return r[t] && r[t].date && Date.parse(r[t].date) >= deb; });
+      });
+    },
+    'Un étirement de 5 min': function (S) {
+      return S.some(function (h) {
+        var w = h.workoutData || {};
+        if (/^(yoga|mobilite|serenite|pilates)$/.test(w._discipline || '')) return true;
+        var sec = 0;
+        (Array.isArray(w.exercises) ? w.exercises : []).forEach(function (e) {
+          if (e && (e.type === 'stretch' || e.isStretch || /étirement|stretch/i.test(e.name || ''))) sec += (parseInt(e.duration, 10) || 0) * Math.max(1, parseInt(e.sets, 10) || 1);
+        });
+        return sec >= 300;
+      });
+    }
   };
   function bingoAuto() {
     var g = chargerBingo(), H = [];
@@ -1434,6 +1603,10 @@
     var g = chargerBingo();
     if (!g.cases[i]) return;
     if (g.cases[i].auto) return;                    // validée par l'app : on ne la décoche pas
+    if (VERIFS[g.cases[i].t]) {                      // v1568 : se coche d'après tes séances, pas à la main
+      if (typeof window.showToast === 'function') window.showToast('Cette case se coche toute seule d\'après tes séances', 'info', 2500);
+      return;
+    }
     g.cases[i].fait = !g.cases[i].fait;
     sauverBingo(g);
     verifierGrille(g);
@@ -1449,14 +1622,14 @@
         + 'background:' + (c.fait ? 'rgba(96,168,240,0.16)' : 'rgba(255,255,255,0.03)') + ';'
         + 'color:' + (c.fait ? '#60a8f0' : '#cbd5e1') + ';font-size:0.66em;font-weight:700;line-height:1.3;display:flex;align-items:center;justify-content:center;text-align:center;">'
         + (c.fait ? '✓ ' : '') + esc(c.t)
-        + (VERIFS[c.t] && !c.fait ? '<span style="display:block;font-size:0.82em;color:#64748b;font-weight:600;margin-top:3px;">auto</span>' : '')
+
         + '</button>';
     }).join('');
     overlay().innerHTML = panneau(
       '<div style="margin-bottom:6px;">' + ic('cible', 36, '#93c5fd') + '</div>'
       + '<div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:3px;">Bingo de la semaine</div>'
       + '<div style="font-size:0.78em;color:#94a3b8;margin-bottom:6px;">' + faits + ' / 9 défis validés · la grille se renouvelle chaque lundi</div>'
-      + '<div style="font-size:0.68em;color:#64748b;margin-bottom:14px;line-height:1.4;">Les cases « auto » se cochent toutes seules d\'après tes séances. Les autres, coche-les toi-même. Grille complète : une étoile.</div>'
+      + '<div style="font-size:0.68em;color:#64748b;margin-bottom:14px;line-height:1.4;">Les cases se cochent toutes seules d\'après tes séances, tes jeux et tes records. Grille complète : une étoile.</div>'
       + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:16px;">' + cases + '</div>'
       + (faits === 9 ? '<div style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);border-radius:12px;padding:11px;margin-bottom:14px;font-size:0.86em;font-weight:900;color:#fbbf24;">Grille complète : une étoile gagnée !</div>' : '')
       + bouton('AwakGamesFermer()', 'Fermer'), 430);
@@ -1478,10 +1651,82 @@
   }
 
   // ── ÉCRAN DE RÉGLAGE ───────────────────────────────────────────────
+  // ── v1566 : « Avec qui ? » (jeux à deux) ─────────────────────────────
+  var jeuOuvert = null;
+  function monIdJeu() { try { return (typeof window.getCurrentProfileId === 'function') ? window.getCurrentProfileId() : null; } catch (e) { return null; } }
+  function clePartenaire() { var id = monIdJeu(); return id ? 'awakGamePartenaire_' + id : 'awakGamePartenaire'; }
+  function autresProfils() {
+    var moi = monIdJeu(), L = [];
+    try { (window.getAllProfiles ? window.getAllProfiles() : []).forEach(function (p) { if (p && p.id && p.id !== moi && p.name) L.push({ id: p.id, nom: p.name }); }); } catch (e) {}
+    return L;
+  }
+  function partenaireParDefaut() {
+    var L = autresProfils(), sauve = null;
+    try { sauve = JSON.parse(localStorage.getItem(clePartenaire()) || 'null'); } catch (e) {}
+    if (sauve && sauve.id && L.some(function (x) { return x.id === sauve.id; })) return L.filter(function (x) { return x.id === sauve.id; })[0];
+    if (sauve && !sauve.id) return { id: null, nom: sauve.nom || 'Invité', invite: true, niveau: sauve.niveau || 'beginner', age: sauve.age || null };
+    return L[0] || { id: null, nom: 'Invité', invite: true };
+  }
+  function sauverPartenaire() { try { localStorage.setItem(clePartenaire(), JSON.stringify(partenaireChoisi)); } catch (e) {} }
+  window.AwakGamesPartenaire = function (id) {
+    if (id) { var x = autresProfils().filter(function (p) { return p.id === id; })[0]; if (x) partenaireChoisi = { id: x.id, nom: x.nom }; }
+    else {
+      var ancien = null; try { ancien = JSON.parse(localStorage.getItem(clePartenaire() + '_invite') || 'null'); } catch (e) {}
+      if (typeof ancien === 'string') ancien = { nom: ancien };
+      ancien = ancien || {};
+      partenaireChoisi = { id: null, nom: ancien.nom || 'Invité', invite: true, niveau: ancien.niveau || 'beginner', age: ancien.age || null };
+    }
+    sauverPartenaire();
+    if (jeuOuvert) window.AwakGamesOuvrir(jeuOuvert);
+  };
+  function sauverInvite() {
+    sauverPartenaire();
+    try { localStorage.setItem(clePartenaire() + '_invite', JSON.stringify({ nom: partenaireChoisi.nom, niveau: partenaireChoisi.niveau, age: partenaireChoisi.age })); } catch (e) {}
+  }
+  window.AwakGamesNomInvite = function (v) {
+    var nom = String(v || '').trim().slice(0, 20) || 'Invité';
+    var pc = partenaireChoisi || {};
+    partenaireChoisi = { id: null, nom: nom, invite: true, niveau: pc.niveau || 'beginner', age: pc.age || null };
+    sauverInvite();
+  };
+  // v1567 : âge / niveau de l'invité (Égalisateur + protections enfant / 65 ans et plus)
+  window.AwakGamesProfilInvite = function (k) {
+    if (!partenaireChoisi || !partenaireChoisi.invite) return;
+    var M = { enfant: ['beginner', 'enfant'], beginner: ['beginner', null], intermediate: ['intermediate', null], advanced: ['advanced', null], senior: ['beginner', 'senior'] };
+    var v = M[k] || M.beginner;
+    partenaireChoisi.niveau = v[0]; partenaireChoisi.age = v[1];
+    sauverInvite();
+    if (jeuOuvert) window.AwakGamesOuvrir(jeuOuvert);
+  };
+  function blocAvecQui() {
+    if (!partenaireChoisi) partenaireChoisi = partenaireParDefaut();
+    var pc = partenaireChoisi;
+    var puce = function (on, onclick, contenu) {
+      return '<button onclick="' + onclick + '" style="display:inline-flex;align-items:center;gap:6px;padding:8px 11px;border-radius:11px;cursor:pointer;font-weight:800;font-size:0.78em;'
+        + (on ? 'background:rgba(34,211,238,0.14);border:1.5px solid #22d3ee;color:#fff;' : 'background:rgba(255,255,255,0.03);border:1.5px solid rgba(255,255,255,0.1);color:#94a3b8;') + '">' + contenu + '</button>';
+    };
+    var puces = autresProfils().map(function (x) {
+      return puce(!pc.invite && pc.id === x.id, 'AwakGamesPartenaire(\'' + esc(x.id) + '\')', avatarDe(x.nom, 20) + esc(x.nom));
+    }).join('') + puce(!!pc.invite, 'AwakGamesPartenaire(null)', ic('personne', 16, pc.invite ? '#fff' : '#94a3b8') + 'Invité');
+    return '<div style="font-size:0.62em;color:#64748b;font-weight:800;letter-spacing:1px;margin:12px 0 8px;">AVEC QUI ?</div>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;">' + puces + '</div>'
+      + (pc.invite ? '<input type="text" maxlength="20" placeholder="Prénom de ton invité" value="' + esc(pc.nom === 'Invité' ? '' : pc.nom) + '" oninput="AwakGamesNomInvite(this.value)" style="width:100%;box-sizing:border-box;margin-top:8px;padding:10px 12px;border-radius:11px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.04);color:#fff;font-size:0.85em;">'
+          + (function () {
+              var cur = pc.age === 'enfant' ? 'enfant' : pc.age === 'senior' ? 'senior' : (pc.niveau || 'beginner');
+              return '<div style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:8px;">'
+                + [['enfant', 'Enfant'], ['beginner', 'Débutant'], ['intermediate', 'Intermédiaire'], ['advanced', 'Avancé'], ['senior', '65 ans et plus']].map(function (o) {
+                    var on = cur === o[0];
+                    return '<button onclick="AwakGamesProfilInvite(\'' + o[0] + '\')" style="padding:6px 9px;border-radius:9px;cursor:pointer;font-weight:800;font-size:0.7em;'
+                      + (on ? 'background:rgba(34,211,238,0.14);border:1.5px solid #22d3ee;color:#fff;' : 'background:rgba(255,255,255,0.03);border:1.5px solid rgba(255,255,255,0.1);color:#94a3b8;') + '">' + o[1] + '</button>';
+                  }).join('') + '</div>';
+            })() : '');
+  }
+
   window.AwakGamesOuvrir = function (gameId) {
     var g = GAMES[gameId];
     if (!g) return;
     if (g.mecanique === 'grille') return ouvrirBingo();
+    jeuOuvert = gameId;
     var opts = g.options.map(function (o) {
       return '<button onclick="AwakGamesDemarrer(\'' + gameId + '\',' + o + ')" style="flex:1;padding:14px 6px;border-radius:12px;cursor:pointer;border:1px solid rgba(96,168,240,0.3);background:rgba(96,168,240,0.08);color:#60a8f0;font-weight:900;font-size:0.95em;">' + o + '</button>';
     }).join('');
@@ -1491,6 +1736,7 @@
       + '<div style="font-size:0.82em;color:#94a3b8;line-height:1.5;margin-bottom:6px;">' + esc(g.desc) + '</div>'
       + (g.duo ? '<div style="display:inline-block;background:rgba(168,85,247,0.14);border:1px solid rgba(168,85,247,0.35);color:#c4b5fd;border-radius:8px;padding:3px 9px;font-size:0.68em;font-weight:800;margin-bottom:14px;">À deux</div>' : '')
       + carnetHTML(gameId)
+      + (g.duo ? blocAvecQui() : '')
       + '<div style="font-size:0.62em;color:#64748b;font-weight:800;letter-spacing:1px;margin:12px 0 8px;">' + esc(g.reglage).toUpperCase() + '</div>'
       + '<div style="display:flex;gap:8px;margin-bottom:16px;">' + opts + '</div>'
       + '<button onclick="AwakGamesFermer()" style="width:100%;padding:11px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.8em;">Annuler</button>');
@@ -1522,7 +1768,7 @@
   function renderSection() {
     var host = document.getElementById('workoutGamesSection');
     if (!host) return;
-    var nb = Object.keys(GAMES).length;
+    var nb = Object.keys(GAMES).filter(function (k) { return GAMES[k].mecanique !== 'grille'; }).length;   // v1568 : sans le Bingo
     host.innerHTML =
       '<div class="card" style="background:linear-gradient(135deg,rgba(96,168,240,0.06) 0%,rgba(96,168,240,0.02) 100%);border:1px solid rgba(96,168,240,0.22);">'
       + '<div style="display:flex;align-items:center;gap:14px;">'
@@ -1638,7 +1884,7 @@
       +   '<h2 style="margin:0;color:#c4b5fd !important;display:flex;align-items:center;gap:8px;">' + ic('manette', 22, '#c4b5fd') + 'S\'entraîner à deux</h2>'
       +   '<button onclick="var p=document.getElementById(\'awakGamesFamilyPicker\');if(p)p.remove();" aria-label="Fermer" style="flex-shrink:0;background:rgba(255,255,255,0.06);border:none;border-radius:10px;width:40px;height:40px;color:#94a3b8;font-size:1.3em;cursor:pointer;line-height:1;">×</button>'
       + '</div>'
-      + '<p style="margin:0 0 16px;color:#94a3b8;font-size:0.84em;">Deux formats pensés pour se pousser mutuellement.</p>'
+      + '<p style="margin:0 0 16px;color:#94a3b8;font-size:0.84em;">' + Object.keys(GAMES).filter(function (k) { return GAMES[k].duo; }).length + ' formats pensés pour se pousser mutuellement.</p>'
       + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">' + _familyDuoTiles() + '</div>'
       + '</div>';
     document.body.appendChild(m);

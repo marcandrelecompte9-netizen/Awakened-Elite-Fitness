@@ -138,7 +138,7 @@
     if (!secParKm || !isFinite(secParKm) || secParKm > 3600) return '–:––';
     return hms(secParKm);
   }
-  function km(m) { return (m / 1000).toFixed(2); }
+  function km(m) { return (m / 1000).toFixed(2).replace('.', ','); }   // v1571 : virgule (français)
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   var N = function () { return window.AwakNative || null; };
   function parler(t) {
@@ -1018,6 +1018,8 @@
       }
     } catch (e) {}
     try { if (typeof window.awakCompterSeance === 'function') window.awakCompterSeance(s.duree / 60); } catch (e) {}
+    try { if (typeof window.awakCourseEtapeFaite === 'function') window.awakCourseEtapeFaite(s.distance); } catch (e) {}   // v1565 : étape de l'arbre Course
+    try { if (window.AwakMission && AwakMission.verser) AwakMission.verser(); } catch (e) {}   // v1571 : Mission de la semaine tout de suite
     try { if (typeof updateHomeStats === 'function') updateHomeStats(); } catch (e) {}
   }
 
@@ -1076,7 +1078,7 @@
             + '<div style="font-size:0.6em;letter-spacing:1.6px;color:#fbbf24;font-weight:900;">NOUVEAU RECORD</div>'
             + '<div style="font-size:0.84em;font-weight:800;color:#fde68a;margin-top:2px;">' + esc(nouveaux.join(' · ')) + '</div></div>' : '')
       + '<div style="display:flex;gap:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:13px;padding:12px 6px;">'
-      +   st(hms(s.duree), 'TEMPS') + st(allure(moy), 'ALLURE /KM') + st(moy ? (3600 / moy).toFixed(1) : '–', 'KM/H') + '</div>'
+      +   st(hms(s.duree), 'TEMPS') + st(allure(moy), 'ALLURE /KM') + st(moy ? (3600 / moy).toFixed(1).replace('.', ',') : '–', 'KM/H') + '</div>'
       + (window.AwakCoachRun ? AwakCoachRun.rendreBilan(s) + AwakCoachRun.rendreAnalyse(s) : '')
       + (s.pausesAuto ? '<div style="font-size:0.66em;color:#64748b;margin-top:8px;">Pause auto ' + s.pausesAuto + ' fois · durée totale ' + hms(s.dureeTotale || s.duree) + '</div>' : '')
       + '<div id="awakRunDetailCarte" style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:14px;margin:10px 0;overflow:hidden;">' + trace(TR.complets(s), 340, 200, ACCENT) + '</div>'

@@ -118,9 +118,15 @@
     if (salleBondeeBloque(ex)) return false;
     return true;
   }
+  // v1573 : réglages de sécurité (limitations, douleurs, bannis, mode silencieux, matériel caché)
+  function refuse(e) {
+    try { if (typeof window.awakRaisonRefus === 'function' && window.awakRaisonRefus(e, { sansNiveau: true })) return true; } catch (x) {}
+    try { if (window.AwakPain && AwakPain.exerciseHitsPain && AwakPain.exerciseHitsPain(e)) return true; } catch (x) {}
+    return false;
+  }
   function remplacant(ex, deja, eq) {
     var L = (window.exerciseDatabase || []).filter(function (e) {
-      return e && e.type === 'exercise' && !e.discipline && e.muscle === ex.muscle && deja.indexOf(e.name) < 0 && dispo(e, eq);
+      return e && e.type === 'exercise' && !e.discipline && e.muscle === ex.muscle && deja.indexOf(e.name) < 0 && dispo(e, eq) && !refuse(e);
     });
     try { if (window.AwakPain && typeof AwakPain.filterExercises === 'function') L = AwakPain.filterExercises(L); } catch (e) {}
     if (!L.length) return null;
@@ -141,11 +147,12 @@
     var eq = equipDispo(), deja = [], out = [];
     (day.exercises || []).forEach(function (n) {
       var e = db(n); if (!e) return;
-      var r = null;
-      if (!dispo(e, eq)) { r = e; e = remplacant(e, deja.concat(day.exercises), eq); }
-      if (!e) { out.push({ ex: db(n), rx: prescription(db(n), progId), manque: true }); return; }
+      var r = null, adapte = false;
+      if (refuse(e)) { r = e; adapte = true; e = remplacant(e, deja.concat(day.exercises), eq); }   // v1573
+      else if (!dispo(e, eq)) { r = e; e = remplacant(e, deja.concat(day.exercises), eq); }
+      if (!e) { out.push({ ex: db(n), rx: prescription(db(n), progId), manque: true, adapte: adapte }); return; }
       deja.push(e.name);
-      out.push({ ex: e, rx: prescription(e, progId), remplace: r });
+      out.push({ ex: e, rx: prescription(e, progId), remplace: r, adapte: adapte });
     });
     return out;
   }
@@ -171,9 +178,11 @@
         { title: 'Tu es à la salle ?', confirmLabel: 'Passer à ' + gym.name, cancelLabel: 'Rester en mode ' + lieu.name });
       return;
     }
-    var L = composer(progId, dayKey).filter(function (x) { return !x.manque; });
+    var _tous = composer(progId, dayKey);
+    var nAdapte = _tous.filter(function (x) { return x.adapte; }).length;   // v1573
+    var L = _tous.filter(function (x) { return !x.manque; });
     if (!L.length) {
-      if (typeof window.showToast === 'function') window.showToast('Aucun exercice possible avec le matériel de ce lieu', 'warning', 3500);
+      if (typeof window.showToast === 'function') window.showToast(nAdapte ? 'Aucun exercice de cette séance ne convient à tes réglages (limitations, douleurs ou exercices bannis)' : 'Aucun exercice possible avec le matériel de ce lieu', 'warning', 4000);
       return;
     }
     var exercices = [], entre = 90;
@@ -191,7 +200,10 @@
       exercises: exercices, _salleProg: progId, _salleJour: dayKey,
       badgeHTML: 'Salle', badgeStyle: 'linear-gradient(135deg,#22d3ee,#0891b2)'
     };
-    var rp = L.filter(function (x) { return x.remplace; });
+    var rp = L.filter(function (x) { return x.remplace && !x.adapte; });
+    if (nAdapte && typeof window.showToast === 'function') {
+      setTimeout(function () { window.showToast(nAdapte + ' exercice' + (nAdapte > 1 ? 's' : '') + ' adapté' + (nAdapte > 1 ? 's' : '') + ' à tes réglages', 'info', 4000); }, rp.length ? 4800 : 700);
+    }
     if (rp.length && typeof window.showToast === 'function') {
       setTimeout(function () { window.showToast(rp.length + ' machine' + (rp.length > 1 ? 's' : '') + ' absente' + (rp.length > 1 ? 's' : '') + ' de ton lieu : remplacée' + (rp.length > 1 ? 's' : '') + ' par un équivalent', 'info', 4000); }, 700);
     }
