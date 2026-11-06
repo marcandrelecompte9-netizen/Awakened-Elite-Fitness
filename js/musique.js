@@ -37,7 +37,8 @@
     { fichier: 'zen.mp3', titre: 'Yoga', type: 'zen' },
     // v1641 : type 'matin' — seulement pendant le Réveil matinal
     { fichier: 'softening_light.mp3', titre: 'Softening Light', type: 'matin' },
-    { fichier: 'rise_and_shine.mp3', titre: 'Rise and Shine', type: 'matin' }
+    { fichier: 'rise_and_shine.mp3', titre: 'Rise and Shine', type: 'matin' },
+    { fichier: 'awakening_the_hero.mp3', titre: 'Awakening the Hero', type: 'matin', jeu: true }   // v1642 : Réveil matinal + mode jeu activé
   ];
 
   var CLE = 'awakMusique';
@@ -154,7 +155,7 @@
   }
   function liste() {
     var r = reglages(); if (r.externe) return [];   // « J'écoute ma musique dans une autre app »
-    if (seanceMatin()) return r.entrainement ? AWAK_MUSIQUES.filter(function (m) { return m.type === 'matin'; }) : [];   // v1641
+    if (seanceMatin()) return r.entrainement ? AWAK_MUSIQUES.filter(function (m) { return m.type === 'matin' && (!m.jeu || modeJeu()); }) : [];   // v1641
     var zen = seanceZen();
     if (zen) return r.entrainement ? AWAK_MUSIQUES.filter(function (m) { return m.type === 'zen'; }) : [];
     var jeu = r.jeu && modeJeu(), ctx = modeJeu() ? contexte() : null, ex = exclus();
