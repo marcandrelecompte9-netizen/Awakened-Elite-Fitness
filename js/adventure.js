@@ -958,11 +958,11 @@ function showItemDetail(itemId, context, invId) {
         <div style="background:#0a0a0a;border-radius:14px;padding:12px;margin-bottom:12px;border:1px solid #1a1a1a;">
             <div style="font-size:0.56em;color:#1e293b;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Statistiques</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-                ${[['⚔️','STR','STR','#ef4444'],['⚡','AGI','AGI','#f59e0b'],['💚','END','END','#22c55e'],['💙','VIT','VIT','#3b82f6'],['👁️','PER','PER','#06b6d4'],['🌀','SEN','SEN','#a855f7']].map(([icon,label,key,c])=>`
+                ${[['⚔️','STR','STR','#ef4444'],['⚡','AGI','AGI','#f59e0b'],['💚','END','END','#f472b6'],['💙','VIT','VIT','#60a5fa'],['👁️','PER','PER','#22d3ee'],['🌀','SEN','SEN','#cbd5e1']].map(([icon,label,key,c])=>`
                 <div style="display:flex;align-items:center;gap:6px;background:#0d0d0d;padding:7px 9px;border-radius:10px;border:1px solid #1a1a1a;">
                     <span style="font-size:0.82em;">${icon}</span>
                     <span style="font-size:0.68em;color:#1e293b;flex:1;">${label}</span>
-                    <span style="font-size:0.85em;font-weight:800;color:${c};">+${item.stats[key]||0}</span>
+                    <span style="font-size:0.85em;font-weight:800;color:${(item.stats[key]||0)<0?'#f87171':c};">${(item.stats[key]||0)<0?'':'+'}${item.stats[key]||0}</span>
                 </div>`).join('')}
             </div>
         </div>
@@ -1001,7 +1001,7 @@ function showDropModal(item, rarityInfo, qualityScore) {
         <div style="font-size:0.75em;color:#334155;margin-bottom:8px;line-height:1.5;">${item.description}</div>
         ${item.passive ? `<div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.18);border-radius:10px;padding:7px 10px;margin-bottom:10px;"><span style="font-size:0.62em;color:#22c55e;font-weight:700;text-transform:uppercase;letter-spacing:1px;">⚡ Passif</span><div style="font-size:0.7em;color:#4ade80;margin-top:2px;line-height:1.4;">${item.passive}</div></div>` : ''}
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:12px;">
-            ${[['⚔️','STR','STR','#ef4444'],['⚡','AGI','AGI','#f59e0b'],['💚','END','END','#22c55e'],['💙','VIT','VIT','#3b82f6'],['👁️','PER','PER','#06b6d4'],['🌀','SEN','SEN','#a855f7']].map(([icon,label,key,c])=>`<div style="background:#111;border-radius:6px;padding:5px;border:1px solid #1a1a1a;"><span style="font-size:0.72em;">${icon}</span><span style="font-size:0.62em;color:#1e293b;"> ${label} </span><span style="font-size:0.75em;font-weight:800;color:${c};">+${item.stats[key]||0}</span></div>`).join('')}
+            ${[['⚔️','STR','STR','#ef4444'],['⚡','AGI','AGI','#f59e0b'],['💚','END','END','#f472b6'],['💙','VIT','VIT','#60a5fa'],['👁️','PER','PER','#22d3ee'],['🌀','SEN','SEN','#cbd5e1']].map(([icon,label,key,c])=>`<div style="background:#111;border-radius:6px;padding:5px;border:1px solid #1a1a1a;"><span style="font-size:0.72em;">${icon}</span><span style="font-size:0.62em;color:#1e293b;"> ${label} </span><span style="font-size:0.75em;font-weight:800;color:${(item.stats[key]||0)<0?'#f87171':c};">${(item.stats[key]||0)<0?'':'+'}${item.stats[key]||0}</span></div>`).join('')}
         </div>
         <!-- Qualité de l'entraînement -->
         <div style="background:#111;border:1px solid #1a1a1a;border-radius:14px;padding:10px 12px;margin-bottom:14px;">

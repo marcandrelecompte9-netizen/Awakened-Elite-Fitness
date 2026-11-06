@@ -522,7 +522,7 @@
       var e = seanceDu(pl, id, d), f = !!faites[ymd(d)], estAuj = ymd(d) === ymd(today);
       if (e) { prevues++; if (f) prevuesFaites++; }
       points += '<span title="' + LETTRES[i] + '" style="width:9px;height:9px;border-radius:50%;box-sizing:border-box;' +
-        (f ? 'background:' + ACCENT + ';' : 'border:1.5px solid ' + (estAuj ? ACCENT : (e ? 'rgba(167,139,250,0.8)' : 'rgba(255,255,255,0.14)')) + ';') + '"></span>';
+        (f ? 'background:' + ACCENT + ';' : 'border:1.5px solid ' + (estAuj ? ACCENT : (e ? 'rgba(103,232,249,0.55)' : 'rgba(255,255,255,0.14)')) + ';') + '"></span>';
     }
     // v1399 : TOUTES les séances de la semaine comptent (avant, avec un planning,
     // une séance faite un jour non prévu ne comptait pas : « 0 / 5 » après une

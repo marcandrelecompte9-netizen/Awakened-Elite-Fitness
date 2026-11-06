@@ -2,7 +2,10 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v1381';
+const CACHE_NAME = 'awakened-v1620';
+// v1586 : images d'exercices dans un cache DURABLE, jamais vidé à une mise à jour
+// (avant : chaque déploiement les effaçait → retéléchargées, absentes hors ligne)
+const IMG_CACHE = 'awakened-images';
 const ASSETS = [
   './',
   './index.html',
@@ -25,6 +28,7 @@ const ASSETS = [
   './js/no-emoji.js',
   './js/stat-noms.js',
   './js/fenetres.js',
+  './js/seuil.js',
   './js/qrcode.js',
   './js/partage-seance.js',
   './js/salle.js',
@@ -54,17 +58,29 @@ const ASSETS = [
   './js/pre-workout-mood.js',
   './js/workout-games.js',
   './js/kids-games.js',
+  './js/bilan-4sem.js',
   './js/home-pro.js',
   './js/echelle.js',
   './js/seance-ecran.js',
   './js/regle-mesures.js',
+  './js/photos-mesures.js',
   './js/back-button.js',
   './js/gestures.js',
   './js/rift-visuals.js',
+  './js/musique.js',
   './js/family-sky.js',
   './js/family-week.js',
   './js/session-ux.js',
   './js/progress-tab.js',
+  './js/progres-onglets.js',
+  './js/dev-outils.js',
+  './js/ressenti.js',
+  './js/mission-semaine.js',
+  './js/xp-fin.js',
+  './js/fin-seance.js',
+  './js/import-csv.js',
+  './js/reglage-machine.js',
+  './js/dev-temps.js',
   './js/mon-defi.js',
   './js/health-sync.js',
   './js/regle.js',
@@ -73,8 +89,11 @@ const ASSETS = [
   './js/backup.js',
   './js/routine-print.js',
   './js/item-icons.js',
+  './js/skill-tree.js',
+  './js/nav-icons.js',
   './js/exercise-names.js',
   './js/group-workout.js',
+  './js/duo.js',
   './js/youth-safety.js',
   './js/kids-programs.js',
   './js/senior-programs.js',
@@ -82,11 +101,11 @@ const ASSETS = [
   './js/pain-mode.js',
   './js/recovery-mode.js',
   './data/items.js',
-  './manifest.json?v=1381',
-  './icons/icon-192.png?v=1381',
-  './icons/icon-512.png?v=1381',
-  './icons/icon-192-maskable.png?v=1381',
-  './icons/icon-512-maskable.png?v=1381',
+  './manifest.json?v=1620',
+  './icons/icon-192.png?v=1620',
+  './icons/icon-512.png?v=1620',
+  './icons/icon-192-maskable.png?v=1620',
+  './icons/icon-512-maskable.png?v=1620',
   // icon-1024.png : asset de soumission aux stores, volontairement hors du
   // précache (487 Ko). Reste dans manifest.json, récupérable à la demande.
   './images/banner_v3.webp',
@@ -139,7 +158,9 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      // v1586 : seulement les ANCIENS caches d'Awakened (sur GitHub Pages, l'origine est
+      // partagée avec les autres projets du compte : on ne touche pas à leurs caches)
+      Promise.all(keys.filter(k => k !== CACHE_NAME && k !== IMG_CACHE && /^(awakened-v|fitpro)/.test(k)).map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
@@ -149,6 +170,10 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
 
   const url = e.request.url;
+
+  // 🎵 v1471 : l'audio n'est PAS intercepté (requêtes « Range » : Safari refuse de
+  // lire une musique servie d'un bloc par le service worker).
+  if (/\.(mp3|m4a|aac|ogg|wav)(\?|$)/i.test(url) || e.request.headers.has('range')) return;
 
   // 🌐 NETWORK-FIRST pour les fichiers de code (HTML, JS, CSS)
   // → les modifications de code apparaissent immédiatement
@@ -165,8 +190,9 @@ self.addEventListener('fetch', e => {
           return response;
         })
         .catch(() => {
-          // Offline : retourner du cache
-          return caches.match(e.request).then(cached => {
+          // Offline : retourner du cache. v1586 : repli SANS le ?v=NNNN (le précache
+          // garde « js/app.js » alors que la page demande « js/app.js?v=NNNN »)
+          return caches.match(e.request).then(cached => cached || caches.match(e.request, { ignoreSearch: true })).then(cached => {
             if (cached) return cached;
             if (e.request.mode === 'navigate') return caches.match('./index.html');
             return new Response('', { status: 503, statusText: 'Offline' });
@@ -184,7 +210,7 @@ self.addEventListener('fetch', e => {
         if (url.includes('/images/exercises/')) {
           fetch(e.request).then(response => {
             if (response && response.status === 200) {
-              caches.open(CACHE_NAME).then(c => c.put(e.request, response));
+              caches.open(IMG_CACHE).then(c => c.put(e.request, response));
             }
           }).catch(() => {});
         }
@@ -193,9 +219,10 @@ self.addEventListener('fetch', e => {
       return fetch(e.request).then(response => {
         if (!response || response.status !== 200 || response.type === 'opaque') return response;
         const clone = response.clone();
-        if (url.includes('./images/') || url.includes('.webp') || url.includes('.png') ||
-            url.includes('.woff') || url.includes('.svg')) {
-          caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+        if (url.includes('/images/') || url.includes('.webp') || url.includes('.png') ||
+            url.includes('.jpg') || url.includes('.woff') || url.includes('.svg')) {
+          // images → cache durable ; le reste (polices…) → cache de la version
+          caches.open(/\/images\/|\.(webp|png|jpe?g|svg)(\?|$)/.test(url) ? IMG_CACHE : CACHE_NAME).then(c => c.put(e.request, clone));
         }
         return response;
       }).catch(() => {

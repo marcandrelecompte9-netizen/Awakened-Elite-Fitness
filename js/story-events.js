@@ -15,7 +15,7 @@
 
 // ── PERSONNAGES (référence pour couleurs/images) ───────────────────
 const STORY_CHARS = {
-    systeme: { name: 'Le Système', color: '#4ade80', image: null },
+    systeme: { name: 'Le Système', color: '#22d3ee', image: null },
     esen:    { name: 'Esen',  color: '#4ade80', image: null },   // le silencieux (image à fournir)
     nyra:    { name: 'Nyra',  color: '#a855f7', image: null },   // la joueuse (image à fournir)
     // jamais nommé avant la scène « Le Nom »

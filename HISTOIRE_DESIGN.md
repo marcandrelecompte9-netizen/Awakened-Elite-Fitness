@@ -281,3 +281,53 @@ awakApplyBossMechanic ignore ces ids custom (pas de conflit).
   Avant la Fin 79, Bilan 79. Scènes de compagnon : seulement si recruté, avant la Dernière Porte.
 - **Épilogue « Après »** : la photo d'Esen (sa sœur Ilia), la promesse du duo (« …Demain. »).
 - **Combat final personnalisé** : nombre de séances, plus longue série, compagnons présents.
+
+## Rang D — « La Forme » (v1388, evt_rang_d_classe)
+- Scène du Système au passage au rang D, seulement si aucune classe n'est choisie.
+- Six silhouettes = les six classes (la dernière, floue, « quelqu'un d'assis très loin » = Aspirant Souverain, écho voilé à Nabdano).
+- Le partenaire : « Prends celle qui te ressemble. Pas celle qui a l'air la plus forte. »
+- À la fermeture, la fenêtre de choix de classe s'ouvre. Pas d'image pour l'instant (proposition : `images/story/la_forme.webp`).
+
+## Scènes de passage de rang (v1389, evt_rang_c … evt_rang_sss)
+Remplacent les courts messages du Système (C, B, A, S) et en ajoutent pour SS et SSS. Proposées seulement
+pendant le rang concerné (un joueur déjà plus haut ne les reçoit pas en rafale). Placées dans STORY_EVENTS
+avant les portes narratives du même niveau, pour ne pas être bloquées.
+- **C — Plus Lourd** : ce qui est lourd attire ce qui veut s'accrocher (annonce « Le Poids »).
+- **B — Là où les Autres se sont Arrêtés** : la plupart des Ancres se sont arrêtées avant ; le Système commence à avoir peur de te perdre (annonce sa révélation).
+- **A — Un Seul Avant Toi** : tu sers de phare ; « un seul est allé aussi loin… il était magnifique » ; le Système se tait (Nabdano, sans le nommer).
+- **S — L'Exception** : « Tu ne devrais pas être là » ; la porte au bout de la route blanche, quelqu'un d'assis devant.
+- **SS — Personne ne Regarde** : tu continues même quand personne ne regarde ; « c'est le jour où plus personne ne le regardait tenir qu'il s'est assis ».
+- **SSS — Plus de Lettres** : plus de rang après ; le Système garde le premier mot : Ancre. « Rester. C'est tout. »
+Textes neutres vis-à-vis de la fin (SS/SSS peuvent arriver avant ou après le combat final).
+
+## v1422 — Cohérence + nouvelles Failles d'histoire
+Ordre des Failles narratives (une seule ouverte à la fois, dans cet ordre) :
+| Faille | Apparition | Scène débloquée | Particularité |
+|---|---|---|---|
+| La Boulangerie qui s'efface | niv. 27 | « Le Croissant du Bout » (28) | expire en 5 jours → souvenir perdu (scène + épilogue changent) |
+| Le Premier Souvenir | niv. 31 (avant : rang D) | « Ce que Je Suis » (33) | |
+| La Tour qui Murmure | niv. 35 (avant : 5 Failles) | « Le Nom » (35) | |
+| L'Écho | niv. 44 | « L'Écho » (45) | tient la Promesse (41) ; long repos (> 2 min 30) = le partenaire s'éloigne ; à 0 il oublie, « Le Souvenir Revient » 2 séances après |
+| Le Faux Système | niv. 48 | « Lequel Était Moi » (49) | avant chaque vague, deux voix : la vraie n'interdit jamais le repos ; vraie −20 % PV, fausse +25 % ; 2 fausses = variante |
+| Le Marchand pâlit | niv. 52 | « Payé d'Avance » (53) | prix +25 % tant qu'ouverte ; récompense Larme du Système ; prépare « Le Client » (62) |
+| Celui qui a Porté | rang A | (55) | désormais AVANT la suivante |
+| Celui qui ne parle plus (ex « Le Silencieux ») | niv. 63 | « Presque Tendre » (65) | |
+| La Dernière Porte | rang S | (80) puis « Les Quatre Épreuves » à la séance suivante | |
+| Ce qui reste | niv. 100 après l'Effaceur | « Ce qui Reste » | ouvre l'arc SS/SSS ; hors prérequis des sous-boss |
+Joueurs déjà loin (> niveau de la Faille + 2) lors de la mise à jour : les 4 ajouts sont comptés comme passés, une fois par profil.
+Textes corrigés : rang B (« Tu sais ce que je suis. Pas encore tout ce que je cache »), « AV, les Veilleurs », « J'avais tort pour tous les jours » (Malgré Tout).
+
+## v1441 — Rythme (simulation d'équilibrage)
+- 3 séances/sem (mission + Failles comprises) : D ≈ 2 sem, C ≈ 5 sem, B ≈ 4 mois, A ≈ 10 mois, S ≈ 1 an 9 mois, SS ≈ 2 ans 9 mois.
+- 13 scènes ajoutées entre les niveaux 58 et 78 (Dispute, Ligne de trop, Carnet, Coin de la photo, Garçon du parc, Carte rallumée, Esen rit, L'Offre, Autres signaux, Sur l'épaule, Économie d'énergie, Une seule question, Dernier stock) + 4 entre 84 et 96 (Mardi matin, Deuxième lampadaire, Bandes, Court de lettres).
+- Défaite dans une Faille d'histoire : XP perdue ÷2 (15 % du palier), vagues gagnées conservées.
+
+## v1524 — L'histoire sur ~1 an (fin au rang A)
+- But : à 3 séances/semaine, combat final vers 10-12 mois (avant : rang S, ≈ 1 an 9 mois).
+- Niveaux de l'histoire comprimés : niv ≤ 20 inchangé ; au-delà, 20 + (niv − 20) × 35/60 (80 → 55).
+  Scènes (xp, levelAndNarrativeRift), Failles d'histoire et Failles de compagnon (12, 22, 32, 42, 50).
+- « Celui qui a Porté » : niveau 40 (avant rang A). « La Dernière Porte » : rang A (avant rang S).
+- Rangs de difficulté des Failles alignés sur le nouveau niveau d'apparition ; 4 sous-boss au rang A.
+- « L'Exception » (ex-scène du rang S) : juste après le rang A (niv 56), « Le Système affiche A ».
+- Les rangs ne changent pas : S, SS, SSS, « Ce qui reste » (niv 100) et les Abysses deviennent l'après-histoire.
+- Repères (3 séances/sem) : B ≈ 3,5 mois · Celui qui a Porté ≈ 4,5 mois · rang A / Dernière Porte ≈ 9-10 mois · combat final ≈ 10-12 mois.

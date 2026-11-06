@@ -12,7 +12,7 @@
 (function () {
   'use strict';
 
-  var BLEU = '#60a8f0', CLAIR = '#93c5fd', VIOLET = '#a78bfa', OR = '#fbbf24';
+  var BLEU = '#60a8f0', CLAIR = '#93c5fd', VIOLET = '#22d3ee', OR = '#fbbf24';
   var COULEURS = {
     'Pectoraux': '#f87171', 'Dos': '#60a5fa', 'Épaules': '#a78bfa', 'Biceps': '#34d399',
     'Triceps': '#fbbf24', 'Quadriceps': '#f97316', 'Fessiers': '#ec4899', 'Abdominaux': '#2dd4bf',

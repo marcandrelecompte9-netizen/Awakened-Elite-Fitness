@@ -3576,9 +3576,10 @@
             background: #1A1B20 !important;
             color: #e2e8f0 !important;
         }
-        body.dark-mode .modal-content h2,
-        body.dark-mode .modal-content h3,
-        body.dark-mode .modal-content h4 { color: #4ade80 !important; }
+        /* v1617 : un titre qui déclare sa couleur en ligne la garde (ex. titres blancs forcés en vert) */
+        body.dark-mode .modal-content h2:not([style*="color"]),
+        body.dark-mode .modal-content h3:not([style*="color"]),
+        body.dark-mode .modal-content h4:not([style*="color"]) { color: #22d3ee !important; }   /* v1619 : cyan (avant : vert) */
         body.dark-mode .modal-content p,
         body.dark-mode .modal-content label { color: #94a3b8 !important; }
 
@@ -3647,10 +3648,6 @@
         /* ── FIN DARK MODE GLOBAL ─────────────────────────────── */
 
         /* ── Textes inline #666 illisibles en dark mode ──────────── */
-        body.dark-mode [style*="color: #94a3b8;"],
-        body.dark-mode [style*="color: #94a3b8;"] {
-            color: #94a3b8 !important;
-        }
         body.dark-mode [style*="color: #94a3b8;"],
         body.dark-mode [style*="color: #94a3b8;"] {
             color: #8391a7 !important;
@@ -4489,7 +4486,7 @@ body.dark-mode .card:not(#awakHunterCard) {
             border-radius: 0 !important;
         }
 
-        /* Suppression complète du bleu clair agressif — remplacé par violet doux */
+        /* Bleu clair agressif → cyan */
         body.dark-mode [style*="color: #06b6d4;"],
         body.dark-mode [style*="color:#06b6d4;"],
         body.dark-mode [style*="color: #0ea5e9;"],
@@ -4498,20 +4495,23 @@ body.dark-mode .card:not(#awakHunterCard) {
         body.dark-mode [style*="color:#38bdf8;"],
         body.dark-mode [style*="color: #0284c7;"],
         body.dark-mode [style*="color:#0284c7;"] {
-            color: #4ade80 !important;
+            color: #22d3ee !important;   /* v1617 : cyan (avant : vert #4ade80, d'où du vert partout) */
         }
-        /* Remplacer les fonds cyan/bleu vif par des fonds violets doux */
+        /* Fonds cyan/bleu vif → sarcelle sombre */
         body.dark-mode [style*="background: #06b6d4;"],
         body.dark-mode [style*="background:#06b6d4;"],
         body.dark-mode [style*="background: #0ea5e9;"],
         body.dark-mode [style*="background: linear-gradient(135deg, #06b6d4 "],
         body.dark-mode [style*="background:linear-gradient(135deg, #06b6d4 "],
-        body.dark-mode [style*="background: linear-gradient(135deg, #0284c7 "],
+        body.dark-mode [style*="background: linear-gradient(135deg, #0284c7 "] {
+            background: linear-gradient(135deg, #0e7490 0%, #155e75 100%) !important;
+            border-color: #0891b2 !important;
+        }
+        /* v1619 : une simple bordure cyan ne remplace plus le fond (avant : fond sarcelle imposé) */
         body.dark-mode [style*="border: 2px solid #06b6d4;"],
         body.dark-mode [style*="border:2px solid #06b6d4;"],
         body.dark-mode [style*="border-left: 4px solid #06b6d4"],
         body.dark-mode [style*="border-color: #06b6d4;"] {
-            background: linear-gradient(135deg, #0e7490 0%, #155e75 100%) !important;
             border-color: #0891b2 !important;
         }
         /* Fonds clairs cyan → fonds sombres violets */
@@ -4559,14 +4559,14 @@ body.dark-mode .card:not(#awakHunterCard) {
             background: #1e293b !important;
             color: #e2e8f0 !important;
         }
-        /* Fonds verts très clairs (e6ffe6, d4f4dd, dcfce7) → dark vert */
+        /* Fonds verts très clairs (e6ffe6, d4f4dd, dcfce7) → teinte cyan sombre */
         body.dark-mode [style*="background: #e6ffe6"],
         body.dark-mode [style*="background:#e6ffe6"],
         body.dark-mode [style*="background: #d4f4dd"],
         body.dark-mode [style*="background: #dcfce7"],
         body.dark-mode [style*="background: linear-gradient(135deg, #e6ffe6"],
         body.dark-mode [style*="background: rgba(34,197,94,0.1)"] {
-            background: rgba(34,197,94,0.12) !important;
+            background: rgba(34,211,238,0.08) !important;   /* v1619 : cyan (avant : vert) */
         }
         /* Fonds bleus très clairs (f0f9ff, dbeafe, bfdbfe, e0f2fe) → dark neutre */
         body.dark-mode [style*="background: #f0f9ff"],
@@ -5611,7 +5611,7 @@ body.dark-mode [style*="background:#ffffff"],
 body.dark-mode [style*="background-color: white"],
 body.dark-mode [style*="background-color:#fff"] {
     background: linear-gradient(160deg, #0a0e18, #0F1014) !important;
-    border-color: rgba(34,197,94,0.15) !important;
+    border-color: rgba(255,255,255,0.08) !important;   /* v1619 : neutre (avant : bordure verte) */
 }
 
 /* Texte #666 → gris-400 lisible */
@@ -6930,9 +6930,9 @@ input:focus, select:focus, textarea:focus {
    sous le seuil lisible de 4,5:1. On éclaircit les textes.
    Mesuré après correction : titre 6,0:1 · corps 5,5:1.
    ═══════════════════════════════════════════════════════════════════ */
-body.dark-mode [style*="border-left: 4px solid #06b6d4"] { color: #dcfce7 !important; }
+body.dark-mode [style*="border-left: 4px solid #06b6d4"] { color: #cffafe !important; }
 body.dark-mode [style*="border-left: 4px solid #06b6d4"] strong { color: #ffffff !important; }
-body.dark-mode [style*="border-left: 4px solid #06b6d4"] span { color: #dcfce7 !important; }
+body.dark-mode [style*="border-left: 4px solid #06b6d4"] span { color: #cffafe !important; }
 
 /* ═══════════════════════════════════════════════════════════════════
    BOUTON « DÉMARRER LA SÉANCE » — cyan électrique (v632)
