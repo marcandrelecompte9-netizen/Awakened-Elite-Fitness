@@ -386,8 +386,13 @@
       enCours = null;
     }
     function cible() { try { return etapes[i].c(); } catch (e) { return null; } }
+    // v1636 : la cible est cherchée UNE fois par étape. Avant, placer() (toutes les 400 ms
+    // et à chaque défilement) rappelait c(), qui pour Progrès refait la section
+    // (pg('corps')) : nouveau rendu → défilement → placer → nouveau rendu… la bulle et le
+    // bouton sautaient en cadence (étape « Ton corps »).
+    var elCourant = null;
     function placer() {
-      var el = cible(); if (!el) return;
+      var el = (elCourant && document.body.contains(elCourant)) ? elCourant : (elCourant = cible()); if (!el) return;
       var r = el.getBoundingClientRect(), m = 6;
       var top = Math.max(4, r.top - m), left = Math.max(4, r.left - m);
       var h = Math.min(r.height + 2 * m, window.innerHeight - top - 4), w = Math.min(r.width + 2 * m, window.innerWidth - left - 4);
@@ -412,7 +417,7 @@
             'color:#04121f !important;font-weight:900;font-size:0.85em;letter-spacing:0.5px;padding:10px 18px !important;">' +
             (dernier ? 'Compris' : 'Suivant ›') + '</button>' +
         '</div>';
-      var el = cible();
+      var el = elCourant = cible();
       try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (x) { _awkE(x); }
       placer();
       setTimeout(placer, 380);
