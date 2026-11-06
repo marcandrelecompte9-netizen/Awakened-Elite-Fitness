@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v1622';
+const CACHE_NAME = 'awakened-v1623';
 // v1586 : images d'exercices dans un cache DURABLE, jamais vidé à une mise à jour
 // (avant : chaque déploiement les effaçait → retéléchargées, absentes hors ligne)
 const IMG_CACHE = 'awakened-images';
@@ -21,6 +21,7 @@ const ASSETS = [
   './js/story-events.js',
   './js/share-card.js',
   './js/app.js',
+  './js/failles.js',
   './js/calendar-tab.js',
   './js/routine-blocks.js',
   './js/routine-builder.js',
@@ -101,11 +102,11 @@ const ASSETS = [
   './js/pain-mode.js',
   './js/recovery-mode.js',
   './data/items.js',
-  './manifest.json?v=1622',
-  './icons/icon-192.png?v=1622',
-  './icons/icon-512.png?v=1622',
-  './icons/icon-192-maskable.png?v=1622',
-  './icons/icon-512-maskable.png?v=1622',
+  './manifest.json?v=1623',
+  './icons/icon-192.png?v=1623',
+  './icons/icon-512.png?v=1623',
+  './icons/icon-192-maskable.png?v=1623',
+  './icons/icon-512-maskable.png?v=1623',
   // icon-1024.png : asset de soumission aux stores, volontairement hors du
   // précache (487 Ko). Reste dans manifest.json, récupérable à la demande.
   './images/banner_v3.webp',
@@ -124,6 +125,62 @@ const ASSETS = [
   './fonts/rajdhani-latin-600-normal.woff2',
   './fonts/rajdhani-latin-700-normal.woff2',
 ];
+
+// v1623 : images d'interface (fonds, silhouettes, coffres, avatars, compagnons, ~3,5 Mo)
+// mises en cache durable en arrière-plan à l'activation : disponibles hors ligne
+// même si on ne les a jamais vues en ligne. (Les images d'exercices de la
+// semaine sont préchargées par la page : awakPrechargerImages, exercise-visuals.js.)
+const UI_IMAGES = [
+  './images/Coffres/coffre_commun.webp',
+  './images/Coffres/coffre_commun_ouvert.webp',
+  './images/Coffres/coffre_epique.webp',
+  './images/Coffres/coffre_epique_ouvert.webp',
+  './images/Coffres/coffre_rare.webp',
+  './images/Coffres/coffre_rare_ouvert.webp',
+  './images/avatars/avatar_femme.png',
+  './images/avatars/avatar_homme.png',
+  './images/avatars/portrait_01.webp',
+  './images/avatars/portrait_02.webp',
+  './images/avatars/portrait_03.webp',
+  './images/avatars/portrait_04.webp',
+  './images/avatars/portrait_05.webp',
+  './images/avatars/portrait_06.webp',
+  './images/avatars/portrait_07.webp',
+  './images/avatars/portrait_08.webp',
+  './images/avatars/portrait_09.webp',
+  './images/avatars/portrait_10.webp',
+  './images/avatars/portrait_11.webp',
+  './images/avatars/portrait_12.webp',
+  './images/banner_v3.webp',
+  './images/banner_v3_mobile.webp',
+  './images/body/body_dos.webp',
+  './images/body/body_face.webp',
+  './images/calendar_banner.webp',
+  './images/calendar_empty.webp',
+  './images/card_bg_femme_v2.webp',
+  './images/card_bg_homme_v2.webp',
+  './images/carte_ville.webp',
+  './images/combat_bg_v1.webp',
+  './images/companions/chen.webp',
+  './images/companions/elise.webp',
+  './images/companions/kira.webp',
+  './images/companions/marcus.webp',
+  './images/companions/yuna.webp',
+  './images/constellation_bg.webp',
+  './images/faille_fermee_bg.webp',
+  './images/faille_ouverte.webp',
+  './images/journal_bg.webp',
+  './images/kiosk_bg.webp',
+  './images/miroir_vide.webp',
+  './images/salle_bg_v5.webp',
+  './images/seuil_fond.webp',
+  './images/tree_bg.webp',
+];
+// Clé de cache d'une image : sans « ?v=NNNN ». Avant, chaque build changeait l'URL
+// (salle_bg_v5.webp?v=1621 → ?v=1623) et ajoutait une copie de plus dans le cache
+// durable, sans jamais la retirer.
+function cleImage(url) { return url.split('?')[0]; }
+function estImage(url) { return /\/images\/|\.(webp|png|jpe?g|svg|gif)(\?|$)/i.test(url); }
 
 // Identifie les fichiers critiques (code) → network-first pour avoir les MAJ immédiates
 function isCodeFile(url) {
@@ -161,9 +218,27 @@ self.addEventListener('activate', e => {
       // v1586 : seulement les ANCIENS caches d'Awakened (sur GitHub Pages, l'origine est
       // partagée avec les autres projets du compte : on ne touche pas à leurs caches)
       Promise.all(keys.filter(k => k !== CACHE_NAME && k !== IMG_CACHE && /^(awakened-v|fitpro)/.test(k)).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    ).then(() => migrerImages())
+     .then(() => self.clients.claim())
+     .then(() => { prechargerUI(); })   // v1623 : sans attendre (arrière-plan)
   );
 });
+
+// v1623 : ramène les copies « ?v=NNNN » du cache d'images à une seule entrée sans requête
+function migrerImages() {
+  return caches.open(IMG_CACHE).then(cache => cache.keys().then(reqs => Promise.all(reqs.map(req => {
+    if (req.url.indexOf('?') < 0) return null;
+    const cle = cleImage(req.url);
+    return cache.match(cle).then(deja => deja ? null : cache.match(req).then(r => r && cache.put(cle, r)))
+      .then(() => cache.delete(req));
+  })))).catch(() => {});
+}
+function prechargerUI() {
+  return caches.open(IMG_CACHE).then(cache => Promise.all(UI_IMAGES.map(u => {
+    const abs = new URL(u, self.registration.scope).href;
+    return cache.match(abs).then(deja => deja ? null : fetch(abs).then(r => { if (r && r.status === 200) return cache.put(abs, r); }).catch(() => {}));
+  }))).catch(() => {});
+}
 
 // Fetch — network-first for code (HTML/JS/CSS), cache-first for assets
 self.addEventListener('fetch', e => {
@@ -198,6 +273,31 @@ self.addEventListener('fetch', e => {
             return new Response('', { status: 503, statusText: 'Offline' });
           });
         })
+    );
+    return;
+  }
+
+  // 🖼️ v1623 : IMAGES — cache durable sans « ?v= », servies du cache puis rafraîchies
+  // en arrière-plan (une image remplacée apparaît à la vue suivante).
+  if (estImage(url)) {
+    const cle = cleImage(url);
+    e.respondWith(
+      caches.open(IMG_CACHE).then(cache => cache.match(cle)
+        .then(cached => cached || caches.match(e.request) || null)
+        .then(cached => {
+          const reseau = () => fetch(e.request).then(r => {
+            if (r && r.status === 200 && r.type !== 'opaque') cache.put(cle, r.clone());
+            return r;
+          });
+          if (cached) {
+            // rafraîchir au plus une fois par 3 jours (pas à chaque affichage)
+            const d = Date.parse(cached.headers.get('date') || '');
+            if (!d || Date.now() - d > 3 * 86400000) reseau().catch(() => {});
+            return cached;
+          }
+          return reseau().catch(() => caches.match(e.request, { ignoreSearch: true })
+            .then(c2 => c2 || new Response('', { status: 503, statusText: 'Offline' })));
+        }))
     );
     return;
   }

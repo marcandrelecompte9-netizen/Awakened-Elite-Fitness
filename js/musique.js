@@ -171,6 +171,7 @@
       if (etapeFinale === 'milieu') jouerBoucle('climax', 1500);
     }
   }
+  var erreursSuite = 0;   // v1623
   function el() {
     if (audio) return audio;
     audio = new Audio();
@@ -181,7 +182,16 @@
       if (enFinal()) { jouerBoucle(phaseFinale() >= 3 ? 'climax' : 'milieu', 0); return; }
       suivante();
     });
-    audio.addEventListener('error', function () { if (actif && file.length > 1) setTimeout(suivante, 400); else majBarre(); });
+    // v1623 : hors ligne, chaque morceau échouait → suivant toutes les 400 ms, sans fin.
+    // On s'arrête après un tour complet de la file et on le dit.
+    audio.addEventListener('error', function () {
+      erreursSuite++;
+      if (actif && file.length > 1 && erreursSuite < file.length) { setTimeout(suivante, 400); return; }
+      actif = false; erreursSuite = 0;
+      try { if (window.showToast) window.showToast(navigator.onLine === false ? 'Musique indisponible hors ligne' : 'Musique introuvable', 'info', 2500); } catch (x) { _awkE(x); }
+      majBarre();
+    });
+    audio.addEventListener('playing', function () { erreursSuite = 0; });
     audio.addEventListener('play', majBarre);
     audio.addEventListener('pause', majBarre);
     audio.addEventListener('timeupdate', majProgression);   // v1588

@@ -1735,3 +1735,49 @@ window.awakImageV2 = function (src) {
 })();
 
 })();
+
+// v1623 : PRÉCHARGEMENT HORS LIGNE des images d'exercices qu'on risque de voir
+// (historique, routines, programme du mentor actif…) : une fois par jour, en ligne,
+// 25 s après l'ouverture. Elles passent par le service worker → cache durable.
+// Une salle sans réseau affiche ainsi les images de la séance.
+window.awakPrechargerImages = function (force, source) {
+  try {
+    if (!('caches' in window) || navigator.onLine === false) return;
+    if (navigator.connection && navigator.connection.saveData) return;
+    var jour = new Date().toISOString().slice(0, 10);
+    if (!source && !force && localStorage.getItem('awakPrechargeImg') === jour) return;
+    var noms = {};
+    var marcher = function (o, prof) {
+      if (!o || prof > 9) return;
+      if (Array.isArray(o)) { for (var i = 0; i < o.length; i++) marcher(o[i], prof + 1); return; }
+      if (typeof o !== 'object') return;
+      for (var k in o) {
+        var v = o[k];
+        if ((k === 'name' || k === '_baseName' || k === 'exercise' || k === 'nom') && typeof v === 'string' && window.EXERCISE_IMAGES[v]) noms[v] = 1;
+        else if (v && typeof v === 'object') marcher(v, prof + 1);
+      }
+    };
+    if (source) marcher(source, 0);   // v1623 : séance qui démarre → ses images (et celles du remplacement)
+    else for (var i = 0; i < localStorage.length; i++) {
+      var cle = localStorage.key(i), val = localStorage.getItem(cle);
+      if (!val || val.length > 3000000 || (val.charAt(0) !== '[' && val.charAt(0) !== '{')) continue;
+      try { marcher(JSON.parse(val), 0); } catch (e) { /* valeur non JSON */ }
+    }
+    if (!source) try { if (typeof getActiveCelebrity === 'function') marcher(getActiveCelebrity(), 0); } catch (e) { _awkE(e); }
+    var urls = Object.keys(noms).slice(0, 200).map(function (n) {
+      return new URL(window.EXERCISE_IMAGES[n].split('/').map(function (seg, j) { return j === 0 ? seg : encodeURIComponent(seg).replace(/'/g, '%27'); }).join('/'), location.href).href;
+    }).filter(function (u, j, t) { return t.indexOf(u) === j; });
+    var n = 0, faits = 0;
+    var suivant = function () {
+      if (n >= urls.length) return;
+      var u = urls[n++];
+      caches.match(u, { ignoreSearch: true }).then(function (deja) {
+        if (deja) return;
+        return fetch(u).then(function () { faits++; });
+      }).catch(function () {}).then(suivant);
+    };
+    for (var c = 0; c < 4; c++) suivant();
+    if (!source) localStorage.setItem('awakPrechargeImg', jour);
+  } catch (e) { _awkE(e); }
+};
+window.addEventListener('load', function () { setTimeout(function () { window.awakPrechargerImages(); }, 25000); });
