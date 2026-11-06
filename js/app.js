@@ -21164,7 +21164,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     </div>
                     <div style="padding:10px 16px;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;display:flex;gap:6px;">
                         <button onclick="_addExerciseToEditingRoutine()" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:white;border-radius:10px;padding:11px;font-weight:800;font-size:0.82em;cursor:pointer;">＋ Ajouter exercice</button>
-                        <button onclick="_regenerateRoutineExercises()" ${(!routine.muscles || routine.muscles.length === 0) ? 'disabled' : ''} style="flex:1;background:${(routine.muscles && routine.muscles.length) ? 'rgba(168,85,247,0.15)' : 'rgba(255,255,255,0.03)'};border:1px solid ${(routine.muscles && routine.muscles.length) ? 'rgba(168,85,247,0.3)' : 'rgba(255,255,255,0.05)'};color:${(routine.muscles && routine.muscles.length) ? '#c084fc' : '#7c8aa0'};border-radius:10px;padding:11px;font-weight:800;font-size:0.82em;cursor:${(routine.muscles && routine.muscles.length) ? 'pointer' : 'not-allowed'};">🎲 Régénérer</button>
+${(routine.muscles && routine.muscles.length) ? `                        <button onclick="_regenerateRoutineExercises()" style="flex:1;background:${(routine.muscles && routine.muscles.length) ? 'rgba(168,85,247,0.15)' : 'rgba(255,255,255,0.03)'};border:1px solid ${(routine.muscles && routine.muscles.length) ? 'rgba(168,85,247,0.3)' : 'rgba(255,255,255,0.05)'};color:${(routine.muscles && routine.muscles.length) ? '#c084fc' : '#7c8aa0'};border-radius:10px;padding:11px;font-weight:800;font-size:0.82em;cursor:${(routine.muscles && routine.muscles.length) ? 'pointer' : 'not-allowed'};">🎲 Régénérer</button>` : ''}
                     </div>
                 </div>
             `;
@@ -21238,9 +21238,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const r = routines[_editingRoutineIdx];
             if (!r || !r.muscles || r.muscles.length === 0) return;
             showConfirm(
-                `Les exercices actuels de "<strong style="color:#4ade80">${r.name}</strong>" seront remplacés par de nouveaux exercices générés aléatoirement.`,
+                `Les exercices actuels de "<strong style="color:#22d3ee">${r.name}</strong>" seront remplacés par de nouveaux exercices générés aléatoirement.`,
                 () => {
-                    r.exercises = generateExercisesForMuscles(r.muscles, { count: 6, level: r.level || 'Intermédiaire' });
+                    r.exercises = generateExercisesForMuscles(r.muscles, { count: 6, level: r.level || (typeof _awakNiveauProfil === 'function' ? _awakNiveauProfil() : null) || 'Intermédiaire' });
                     saveRoutines(routines);
                     const cont = document.getElementById('routineEditorExercises');
                     if (cont) cont.innerHTML = _renderEditorExercises(r);
@@ -21258,8 +21258,23 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         window._regenerateRoutineExercises = _regenerateRoutineExercises;
 
+        // v1639 : le niveau du profil (au lieu d'« Intermédiaire » codé en dur)
+        function _awakNiveauProfil() {
+            try {
+                const p = (typeof getUserProfile === 'function') ? (getUserProfile() || {}) : {};
+                return ({ beginner: 'Débutant', intermediate: 'Intermédiaire', advanced: 'Avancé' })[p.level] || null;
+            } catch (e) { _awkE(e); return null; }
+        }
         function _addExerciseToEditingRoutine() {
             if (_editingRoutineIdx === null) return;
+            // v1639 : raccourci vers le catalogue intégré (au lieu d'une 2e fenêtre)
+            const cat = document.querySelector('#routineEditorModal .awak-bld-cat');
+            const champ = document.getElementById('awakBldSearch');
+            if (cat && champ) {
+                try { cat.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { _awkE(e); }
+                setTimeout(() => { try { champ.focus({ preventScroll: true }); } catch (e) { _awkE(e); } }, 350);
+                return;
+            }
             _openExercisePickerForRoutine();
         }
         window._addExerciseToEditingRoutine = _addExerciseToEditingRoutine;
@@ -21475,7 +21490,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 </div>`;
 
             document.body.appendChild(modal);
-            setTimeout(() => { try { document.getElementById('awakNewRoutineName').focus(); } catch (e) { _awkE(e); } }, 250);
+            setTimeout(() => { try { document.getElementById('awakNewRoutineName')?.focus(); } catch (e) { _awkE(e); } }, 250);
         }
         window.openCreateRoutineModal = openCreateRoutineModal;
 
@@ -24677,7 +24692,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1638);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1639);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24730,7 +24745,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1638" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1639" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -30806,7 +30821,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1638");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1639");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -44474,7 +44489,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1638';
+                    let ver = 'v0.95.1639';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -44642,7 +44657,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1638" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1639" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -44724,7 +44739,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1638);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1639);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -44791,7 +44806,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1638);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1639);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47256,7 +47271,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1638");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1639");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

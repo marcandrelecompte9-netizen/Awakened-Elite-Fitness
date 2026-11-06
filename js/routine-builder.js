@@ -249,7 +249,7 @@
                 'cursor:pointer;background:rgba(239,68,68,0.10);border:1px solid rgba(239,68,68,0.3);' +
                 'color:#f87171;font-size:0.78em;font-weight:900;font-family:inherit;line-height:1;">✕</button>'
             : '') +
-          '<button onclick="AwakBuilder.add(\'' + attr(e.name).replace(/'/g, "\\'") + '\')" ' +
+          '<button data-ajout="' + attr(e.name) + '" onclick="AwakBuilder.add(\'' + attr(e.name).replace(/'/g, "\\'") + '\')" ' +
             'style="flex-shrink:0;width:32px;height:32px;min-height:auto;border-radius:9px;cursor:pointer;' +
             'background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.4);color:#67e8f9;' +
             'font-size:1em;font-weight:900;font-family:inherit;line-height:1;">+</button>' +
@@ -434,7 +434,18 @@
     if (window.saveRoutines) window.saveRoutines(c.routines);
     noteRecent(ex.name);
     refresh(false);
-    if (typeof window.showToast === 'function') window.showToast('➕ ' + ex.name, 'success', 1400);
+    // v1639 : retour léger — ✓ sur le bouton + (le compteur de la routine est déjà mis à jour)
+    try {
+      var bs = document.querySelectorAll('[data-ajout]');
+      for (var i = 0; i < bs.length; i++) {
+        if (bs[i].getAttribute('data-ajout') !== ex.name) continue;
+        var b = bs[i];
+        b.textContent = '✓';
+        b.style.background = 'rgba(34,211,238,0.35)';
+        b.style.color = '#fff';
+        setTimeout(function (bt) { return function () { bt.textContent = '+'; bt.style.background = 'rgba(34,211,238,0.12)'; bt.style.color = '#67e8f9'; }; }(b), 900);
+      }
+    } catch (e) { _awkE(e); }
     try { if (navigator.vibrate) navigator.vibrate(25); } catch (e) { _awkE(e); }
   };
 
