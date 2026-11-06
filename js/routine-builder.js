@@ -286,21 +286,21 @@
         'color:' + (on ? '#67e8f9' : '#8391a7') + ';">' + txt + '</button>';
     }
 
-    function selMuscle() {
-      var opts = ['<option value="">Tous les muscles</option>'].concat(muscles().map(function (m) {
-        return '<option value="' + attr(m) + '"' + (ETAT.muscle === m ? ' selected' : '') + '>' + esc(m) + '</option>';
-      })).join('');
-      return '<select onchange="AwakBuilder.setMuscle(this.value)" style="flex:1;min-width:0;background:rgba(255,255,255,0.04);' +
-        'border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;border-radius:8px;padding:7px 8px;' +
-        'font-size:0.74em;font-weight:700;font-family:inherit;">' + opts + '</select>';
-    }
-    function selEquip() {
-      var opts = ['<option value="">Tout équipement</option>'].concat(equipements().map(function (q) {
-        return '<option value="' + attr(q) + '"' + (ETAT.equip === q ? ' selected' : '') + '>' + esc(q) + '</option>';
-      })).join('');
-      return '<select onchange="AwakBuilder.setEquip(this.value)" style="flex:1;min-width:0;background:rgba(255,255,255,0.04);' +
-        'border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;border-radius:8px;padding:7px 8px;' +
-        'font-size:0.74em;font-weight:700;font-family:inherit;">' + opts + '</select>';
+    // v1638 : filtres en pastilles, comme la bibliothèque d'exercices (avant : listes déroulantes)
+    function rangee(type, label, valeurs, courant, tous) {
+      var b = function (v, t) {
+        var on = (v === courant);
+        return '<button data-filtre="' + type + '" data-v="' + attr(v) + '" onclick="AwakBuilder.' + (type === 'muscle' ? 'setMuscle' : 'setEquip') + '(this.getAttribute(\'data-v\'))" ' +
+          'style="flex-shrink:0;padding:7px 13px;border-radius:99px;cursor:pointer;font-family:inherit;' +
+          'font-size:0.7em;font-weight:800;white-space:nowrap;transition:all .15s;' +
+          'background:' + (on ? 'rgba(96,168,240,0.16)' : 'rgba(255,255,255,0.04)') + ';' +
+          'border:1px solid ' + (on ? 'rgba(96,168,240,0.6)' : 'rgba(255,255,255,0.09)') + ';' +
+          'color:' + (on ? '#fff' : '#94a3b8') + ';">' + esc(t) + '</button>';
+      };
+      return '<div style="margin-bottom:9px;">' +
+        '<div style="font-size:0.52em;letter-spacing:1.5px;color:#8391a7;font-weight:900;margin-bottom:5px;">' + label + '</div>' +
+        '<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:3px;-webkit-overflow-scrolling:touch;scrollbar-width:none;">' +
+          b('', tous) + valeurs.map(function (v) { return b(v, v); }).join('') + '</div></div>';
     }
 
     return '<div class="awak-bld-cat">' +
@@ -321,7 +321,8 @@
           'style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(34,211,238,0.25);' +
           'color:#e8f0f8;border-radius:9px;padding:9px 11px;font-size:0.82em;font-weight:600;' +
           'font-family:inherit;box-sizing:border-box;margin-bottom:7px;">' +
-        '<div style="display:flex;gap:6px;margin-bottom:9px;">' + selMuscle() + selEquip() + '</div>' +
+        rangee('muscle', 'MUSCLE', muscles(), ETAT.muscle, 'Tous') +
+        rangee('equip', 'ÉQUIPEMENT', equipements(), ETAT.equip, 'Tout') +
         '<button onclick="if(window.awakCreerExercice)awakCreerExercice()" ' +
           'style="width:100%;margin-bottom:9px;padding:9px;border-radius:10px;cursor:pointer;' +
           'background:rgba(34,211,238,0.08);border:1.5px dashed rgba(34,211,238,0.4);color:#67e8f9;' +
@@ -385,8 +386,19 @@
   }
 
   API.setQ = function (v) { ETAT.q = v || ''; majListe(); };
-  API.setMuscle = function (v) { ETAT.muscle = v || ''; majListe(); };
-  API.setEquip = function (v) { ETAT.equip = v || ''; majListe(); };
+  // v1638 : met à jour l'état visuel des pastilles du filtre
+  function majPastilles(type, courant) {
+    var l = document.querySelectorAll('[data-filtre="' + type + '"]');
+    for (var k = 0; k < l.length; k++) {
+      var on = l[k].getAttribute('data-v') === courant;
+      l[k].style.background = on ? 'rgba(96,168,240,0.16)' : 'rgba(255,255,255,0.04)';
+      l[k].style.borderColor = on ? 'rgba(96,168,240,0.6)' : 'rgba(255,255,255,0.09)';
+      l[k].style.color = on ? '#fff' : '#94a3b8';
+      if (on) { try { l[k].scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); } catch (e) { _awkE(e); } }
+    }
+  }
+  API.setMuscle = function (v) { ETAT.muscle = v || ''; majPastilles('muscle', ETAT.muscle); majListe(); };
+  API.setEquip = function (v) { ETAT.equip = v || ''; majPastilles('equip', ETAT.equip); majListe(); };
   API.setOnglet = function (v) { ETAT.onglet = v; majOnglets(); majListe(); };
 
   // Suppression d'un exercice personnalisé, avec confirmation.
