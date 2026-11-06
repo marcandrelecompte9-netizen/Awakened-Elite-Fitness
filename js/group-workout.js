@@ -20,7 +20,7 @@
     size = size || 26;
     try {
       if (typeof window.renderAvatar === 'function') return window.renderAvatar(a, size);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return '<span style="font-size:' + Math.round(size * 0.62) + 'px;">' +
            String(a == null ? '\u{1F464}' : a).replace(/[&<>"]/g, function (c) {
              return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }) + '</span>';
@@ -45,7 +45,7 @@
     try { localStorage.setItem(SETS_KEY, JSON.stringify(o || {})); return true; }
     catch (e) { return false; }
   }
-  function clearSets() { try { localStorage.removeItem(SETS_KEY); } catch (e) {} }
+  function clearSets() { try { localStorage.removeItem(SETS_KEY); } catch (e) { _awkE(e); } }
 
   // Enregistrer une série pour un participant sur un exercice.
   function logSet(participantId, exerciseName, setNum, reps, weight, isWarmup) {
@@ -68,12 +68,12 @@
   // Pour un profil, id = profileId. Pour un invité, id = 'guest_<n>'.
 
   function _profiles() {
-    try { if (typeof window.getAllProfiles === 'function') return window.getAllProfiles() || []; } catch (e) {}
+    try { if (typeof window.getAllProfiles === 'function') return window.getAllProfiles() || []; } catch (e) { _awkE(e); }
     return [];
   }
   function _currentId() {
-    try { if (typeof window.getCurrentProfileId === 'function') return window.getCurrentProfileId(); } catch (e) {}
-    try { return localStorage.getItem('currentProfileId'); } catch (e) {}
+    try { if (typeof window.getCurrentProfileId === 'function') return window.getCurrentProfileId(); } catch (e) { _awkE(e); }
+    try { return localStorage.getItem('currentProfileId'); } catch (e) { _awkE(e); }
     return null;
   }
 
@@ -89,7 +89,7 @@
     try { localStorage.setItem(STORE_KEY, JSON.stringify({ participants: list, startedAt: Date.now() })); return true; }
     catch (e) { return false; }
   }
-  function clear() { try { localStorage.removeItem(STORE_KEY); } catch (e) {} }
+  function clear() { try { localStorage.removeItem(STORE_KEY); } catch (e) { _awkE(e); } }
 
   // La liste inclut TOUJOURS le profil actif en premier (le "meneur").
   function getParticipants() {
@@ -123,7 +123,7 @@
 
   function isActive() {
     // v1604 : en mode duo, « à plusieurs » seulement si le duo tourne (pas « Solo cette fois »)
-    try { if (window.AwakDuo && AwakDuo.mode() === 'duo') return AwakDuo.actif(); } catch (e) {}
+    try { if (window.AwakDuo && AwakDuo.mode() === 'duo') return AwakDuo.actif(); } catch (e) { _awkE(e); }
     var p = getParticipants();
     return p.length > 1;   // à plusieurs seulement si ≥2 participants
   }
@@ -182,19 +182,19 @@
       if (window.AwakDuo && AwakDuo.mode() === 'duo' && AwakDuo.lire()) {
         clearSets(); _promptedExercises = {}; AwakDuo.nouvelleSeance(); AwakDuo.setSolo(false); return;
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     reset();
   }
   function enSeance() { try { return document.body.classList.contains('in-session'); } catch (e) { return false; } }
   function bloqueEnSeance() {
     if (!enSeance()) return false;
-    try { if (window.showToast) showToast('Séance en cours : change le duo après la séance', 'info', 2600); } catch (e) {}
+    try { if (window.showToast) showToast('Séance en cours : change le duo après la séance', 'info', 2600); } catch (e) { _awkE(e); }
     return true;
   }
-  function reset() { clear(); clearSets(); _promptedExercises = {}; try { if (window.AwakDuo) { AwakDuo.oublier(); AwakDuo.setSolo(false); } } catch (e) {} }
+  function reset() { clear(); clearSets(); _promptedExercises = {}; try { if (window.AwakDuo) { AwakDuo.oublier(); AwakDuo.setSolo(false); } } catch (e) { _awkE(e); } }
   // v1312 : nouvelle séance → on garde les participants, mais on oublie les séries
   // d'une séance précédente abandonnée (elles se retrouvaient dans la suivante).
-  function nouvelleSeance() { clearSets(); _promptedExercises = {}; try { if (window.AwakDuo) AwakDuo.nouvelleSeance(); } catch (e) {} }
+  function nouvelleSeance() { clearSets(); _promptedExercises = {}; try { if (window.AwakDuo) AwakDuo.nouvelleSeance(); } catch (e) { _awkE(e); } }
   // v1601 (duo) : annuler la dernière série d'un participant sur un exercice
   function retirerDerniere(pid, exerciseName, warmup) {
     var all = loadSets();
@@ -219,7 +219,7 @@
     // n'étaient enregistrées nulle part : on leur faisait remplir des cases pour rien)
     var others = getParticipants().filter(function (p) { return !p.self && p.kind === 'profile'; });
     if (!others.length) return;   // solo malgré tout
-    try { if (window.AwakDuo && AwakDuo.actif()) return; } catch (e) {}   // v1601 : en duo, le partenaire a son propre carnet
+    try { if (window.AwakDuo && AwakDuo.actif()) return; } catch (e) { _awkE(e); }   // v1601 : en duo, le partenaire a son propre carnet
     // déjà demandé pour cet exercice ? on ne redemande pas.
     if (_promptedExercises[exerciseName]) return;
     if (document.getElementById('awakGroupSetModal')) return;   // déjà ouvert
@@ -292,7 +292,7 @@
     // L'app STOCKE les poids en kg mais les AFFICHE selon le réglage (lb par
     // défaut). On convertit donc la saisie (dans l'unité affichée) vers kg.
     var useKg = false;
-    try { useKg = localStorage.getItem('fitproUseKg') === 'true'; } catch (e) {}
+    try { useKg = localStorage.getItem('fitproUseKg') === 'true'; } catch (e) { _awkE(e); }
     var toKg = function (v) { return useKg ? v : (v / 2.20462); };
 
     others.forEach(function (p) {
@@ -324,7 +324,7 @@
   // enregistrer, ou null si le participant n'a saisi aucune série.
   function buildWorkoutForParticipant(participantId, templateWorkout) {
     // v1601 : en duo, le partenaire suit SA séance → son gabarit
-    try { if (window.AwakDuo && AwakDuo.actif() && AwakDuo.pid() === participantId) templateWorkout = AwakDuo.gabarit() || templateWorkout; } catch (e) {}
+    try { if (window.AwakDuo && AwakDuo.actif() && AwakDuo.pid() === participantId) templateWorkout = AwakDuo.gabarit() || templateWorkout; } catch (e) { _awkE(e); }
     var sets = getParticipantSets(participantId);
     var exNames = Object.keys(sets);
     if (!exNames.length) return null;
@@ -383,7 +383,7 @@
     profiledContributors: profiledContributors,
     retirerDerniere: retirerDerniere,
     finSeance: finSeance,
-    gabaritPour: function (pid, w) { try { if (window.AwakDuo && AwakDuo.actif() && AwakDuo.pid() === pid) return AwakDuo.gabarit() || w; } catch (e) {} return w; },
+    gabaritPour: function (pid, w) { try { if (window.AwakDuo && AwakDuo.actif() && AwakDuo.pid() === pid) return AwakDuo.gabarit() || w; } catch (e) { _awkE(e); } return w; },
     _self: _selfParticipant
   };
 
@@ -402,7 +402,7 @@
     try {
       if (window.AwakDuo && AwakDuo.actif()) { var d = AwakDuo.lire(); label = 'Duo avec ' + d.nom; sub = 'Sa séance : ' + d.nomSeance + ' · lance la tienne'; }
       else if (window.AwakDuo && AwakDuo.mode() === 'duo' && nb > 1) { sub = 'Choisis la séance de ton partenaire'; }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return '<button onclick="AwakGroupOpen()" style="'
       + 'width:100%;margin:8px 0 14px;background:linear-gradient(135deg,rgba(34,211,238,0.13) 0%,rgba(8,145,178,0.09) 100%);color:white;border:1px solid rgba(103,232,249,0.34);'
       + 'border-radius:14px;padding:13px 16px;font-size:0.95em;font-weight:800;cursor:pointer;'
@@ -420,7 +420,7 @@
 
 
   function _ico(nom, t, c) {
-    try { if (window.AwakIcon) return window.AwakIcon.get(nom, t, c); } catch (e) {}
+    try { if (window.AwakIcon) return window.AwakIcon.get(nom, t, c); } catch (e) { _awkE(e); }
     return '';
   }
   var _PLUS = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
@@ -548,7 +548,7 @@
 
   window.AwakGroupOpen = function () { _renderModal(); };
   window.AwakGroupClose = function () { var el = document.getElementById('awakGroupModal'); if (el) el.remove();
-    if (typeof window.updateHomeGroupButton === 'function') { try { window.updateHomeGroupButton(); } catch (e) {} }
+    if (typeof window.updateHomeGroupButton === 'function') { try { window.updateHomeGroupButton(); } catch (e) { _awkE(e); } }
   };
   window.AwakGroupAddProfile = function (id) { addProfile(id); _renderModal(); };
   window.AwakGroupAddGuest = function () {
@@ -562,7 +562,7 @@
   // v1601 : mode « Même séance » / « Chacun sa séance » (duo = 2 profils, sans invité)
   window.AwakGroupMode = function (m) {
     if (bloqueEnSeance()) return;
-    try { localStorage.setItem('awakGroupMode', m === 'duo' ? 'duo' : 'meme'); } catch (e) {}
+    try { localStorage.setItem('awakGroupMode', m === 'duo' ? 'duo' : 'meme'); } catch (e) { _awkE(e); }
     if (m === 'duo') {
       var garde = null;
       var list = getParticipants().filter(function (p) {

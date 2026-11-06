@@ -157,17 +157,17 @@
   global.AwakKidsAleatoire = function () {
     var cles = Object.keys(JEUX);
     var dernier = null;
-    try { dernier = localStorage.getItem('awakKidsDernier'); } catch (e) {}
+    try { dernier = localStorage.getItem('awakKidsDernier'); } catch (e) { _awkE(e); }
     var choix = cles.filter(function (k) { return k !== dernier; });
     if (!choix.length) choix = cles;
     var k = choix[Math.floor(Math.random() * choix.length)];
-    try { localStorage.setItem('awakKidsDernier', k); } catch (e) {}
+    try { localStorage.setItem('awakKidsDernier', k); } catch (e) { _awkE(e); }
     global.AwakKidsDetail(k);
   };
 
   // ── Liste des jeux ────────────────────────────────────────────────
   global.AwakKidsOpen = function () {
-    try { if (global.AwakFamCloseAll) global.AwakFamCloseAll(); } catch (e) {}
+    try { if (global.AwakFamCloseAll) global.AwakFamCloseAll(); } catch (e) { _awkE(e); }
     document.getElementById('awakKidsModal')?.remove();
 
     var cartes = Object.keys(JEUX).map(function (k) {
@@ -310,7 +310,7 @@
     partie.reste--;
     if (partie.reste <= 0) {
       // Manche terminée : on enchaîne, ou on conclut.
-      try { if (typeof vibrate === 'function') vibrate([80, 60, 80]); } catch (e) {}
+      try { if (typeof vibrate === 'function') vibrate([80, 60, 80]); } catch (e) { _awkE(e); }
       if (partie.manche >= partie.jeu.manches) { _fin(); return; }
       partie.manche++;
       partie.reste = partie.jeu.duree * 60;
@@ -318,7 +318,7 @@
         if (typeof showToast === 'function') {
           showToast('🔄 Manche ' + partie.manche + ' — changez de rôle !', 'info', 3000);
         }
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     }
     _maj();
   }
@@ -396,7 +396,7 @@
     try {
       enfant = !!(global.AwakYouth && typeof global.AwakYouth.isChild === 'function'
                   && global.AwakYouth.isChild());
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     try {
       if (typeof global.saveWorkoutToHistory === 'function') {
         global.saveWorkoutToHistory({
@@ -407,10 +407,10 @@
           _legere: !enfant               // parent : activité légère
         }, minutes);
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     try {
       if (typeof global.AwakFamBadgeInc === 'function') global.AwakFamBadgeInc('seancesDuo', 1);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     var ov = document.createElement('div');
     ov.id = 'awakKidsFin';

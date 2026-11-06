@@ -38,12 +38,12 @@
   function cleCardio() { try { return typeof window._cleProfil === 'function' ? window._cleProfil(CLE_CARDIO) : CLE_CARDIO; } catch (e) { return CLE_CARDIO; } }
   function activitesDispo() {
     var eq = [];
-    try { if (typeof getSelectedEquipmentNames === 'function') eq = getSelectedEquipmentNames() || []; } catch (e) {}
+    try { if (typeof getSelectedEquipmentNames === 'function') eq = getSelectedEquipmentNames() || []; } catch (e) { _awkE(e); }
     return CARDIO.filter(function (c) { return !c.equip || eq.indexOf(c.equip) !== -1; });
   }
   function activiteCardio() {
     var dispo = activitesDispo(), voulu = null;
-    try { voulu = etat.activite || localStorage.getItem(cleCardio()); } catch (e) {}
+    try { voulu = etat.activite || localStorage.getItem(cleCardio()); } catch (e) { _awkE(e); }
     for (var i = 0; i < dispo.length; i++) if (dispo[i].name === voulu) return dispo[i];
     return dispo[0] || CARDIO[CARDIO.length - 1];
   }
@@ -135,22 +135,22 @@
   function prep(workout) {
     etat = { humeur: null, cardio: 0 };
     _cyclePhase = null;
-    try { if (cycleApplicable(workout) && typeof window.awakCyclePhase === 'function') _cyclePhase = window.awakCyclePhase(); } catch (e) {}
+    try { if (cycleApplicable(workout) && typeof window.awakCyclePhase === 'function') _cyclePhase = window.awakCyclePhase(); } catch (e) { _awkE(e); }
     _calme = !!(workout && /^(yoga|pilates|serenite|mobilite)$/.test(workout._discipline || ''));
     // v1403 : la séance commence déjà par un échauffement (ex. boxe « Échauffement & garde ») → pas de cardio en plus
-    try { var _e0 = workout && workout.exercises && workout.exercises[0]; if (_e0 && (/chauffement|mise en route/i.test(_e0.name || '') || _e0.isWarmup || _e0.type === 'warmup')) _calme = true; } catch (e) {}   // v1407 : + échauffements étiquetés (Bouger ensemble)
+    try { var _e0 = workout && workout.exercises && workout.exercises[0]; if (_e0 && (/chauffement|mise en route/i.test(_e0.name || '') || _e0.isWarmup || _e0.type === 'warmup')) _calme = true; } catch (e) { _awkE(e); }   // v1407 : + échauffements étiquetés (Bouger ensemble)
     // v1559 : séance du Système = « Phase 1 : Cardio général » déjà incluse → pas de 2e cardio (jumping jacks en double)
-    try { (workout && workout.exercises || []).slice(0, 4).forEach(function (x) { if (x && (/^\W*Phase 1|chauffement/i.test(x.name || '') || x.isWarmup || x.type === 'warmup')) _calme = true; }); } catch (e) {}
+    try { (workout && workout.exercises || []).slice(0, 4).forEach(function (x) { if (x && (/^\W*Phase 1|chauffement/i.test(x.name || '') || x.isWarmup || x.type === 'warmup')) _calme = true; }); } catch (e) { _awkE(e); }
     // ⌚ v1232 : nuit courte mesurée par la montre → « Fatigué » présélectionné
     try {
       var nc = window.AwakSante && AwakSante.nuitCourte && AwakSante.nuitCourte();
       if (nc) { etat.humeur = 2; etat.nuit = nc; }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     // v1410 : forme déjà notée aujourd'hui → reprise (modifiable), on ne redemande pas
     try {
       var fj = window.awakFormeDuJour && window.awakFormeDuJour();
       if (fj != null && etat.humeur == null) { etat.humeur = fj <= 3 ? 2 : fj <= 6 ? 5 : 8; etat.dejaNote = true; etat.formeVal = fj; }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     // Une routine ou une séance qui contient déjà son échauffement : pas de cardio proposé
     rendrePrep();
   }
@@ -158,24 +158,24 @@
   function choisir(groupe, val) {
     if (groupe === 'humeur') { etat.humeur = (etat.humeur === val) ? null : val; etat.dejaNote = false; }
     else etat.cardio = val;
-    try { if (window.AwakNative) AwakNative.vibrer(8); } catch (e) {}
+    try { if (window.AwakNative) AwakNative.vibrer(8); } catch (e) { _awkE(e); }
     rendrePrep();
   }
 
   function choisirActivite(i) {
     var c = CARDIO[i]; if (!c) return;
     etat.activite = c.name;
-    try { localStorage.setItem(cleCardio(), c.name); } catch (e) {}
-    try { if (window.AwakNative) AwakNative.vibrer(8); } catch (e) {}
+    try { localStorage.setItem(cleCardio(), c.name); } catch (e) { _awkE(e); }
+    try { if (window.AwakNative) AwakNative.vibrer(8); } catch (e) { _awkE(e); }
     rendrePrep();
   }
 
   function douce() {
-    try { localStorage.setItem(CLE_HUMEUR, String(Date.now())); } catch (e) {}
-    try { if (window.awakNoterForme) window.awakNoterForme(2); } catch (e) {}
-    try { if (typeof window.setFitnessIndex === 'function') window.setFitnessIndex(2); } catch (e) {}
-    try { if (typeof window.cancelWorkoutPreparation === 'function') window.cancelWorkoutPreparation(); } catch (e) {}
-    setTimeout(function () { try { window.startWorkout('mobility'); } catch (e) {} }, 80);
+    try { localStorage.setItem(CLE_HUMEUR, String(Date.now())); } catch (e) { _awkE(e); }
+    try { if (window.awakNoterForme) window.awakNoterForme(2); } catch (e) { _awkE(e); }
+    try { if (typeof window.setFitnessIndex === 'function') window.setFitnessIndex(2); } catch (e) { _awkE(e); }
+    try { if (typeof window.cancelWorkoutPreparation === 'function') window.cancelWorkoutPreparation(); } catch (e) { _awkE(e); }
+    setTimeout(function () { try { window.startWorkout('mobility'); } catch (e) { _awkE(e); } }, 80);
   }
 
   // Appelé par startPreparedWorkout() avant de lancer : applique les choix
@@ -184,13 +184,13 @@
     if (!workout || workout._prepApplique) return;
     workout._prepApplique = true;
     workout._cardioAsked = true;   // plus de fenêtre « Cardio d'échauffement ? »
-    try { localStorage.setItem(CLE_HUMEUR, String(Date.now())); } catch (e) {}   // plus de fenêtre « Quelle est ta forme ? »
+    try { localStorage.setItem(CLE_HUMEUR, String(Date.now())); } catch (e) { _awkE(e); }   // plus de fenêtre « Quelle est ta forme ? »
     if (etat.humeur != null) {
-      try { if (!etat.dejaNote && window.awakNoterForme) window.awakNoterForme(etat.humeur); } catch (e) {}
+      try { if (!etat.dejaNote && window.awakNoterForme) window.awakNoterForme(etat.humeur); } catch (e) { _awkE(e); }
       try {
         if (typeof window.setFitnessIndex === 'function') window.setFitnessIndex(etat.dejaNote && etat.formeVal != null ? etat.formeVal : etat.humeur);
         else if (typeof window.updateFitnessIndex === 'function') window.updateFitnessIndex(etat.dejaNote && etat.formeVal != null ? etat.formeVal : etat.humeur);
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     }
     // v1570 : phase du cycle → séries et repos adaptés (comme la Séance intelligente)
     try {
@@ -206,7 +206,7 @@
         if (workout.restBetweenSets > 0) workout.restBetweenSets = Math.round(workout.restBetweenSets / k);
         workout._cycle = cp.phase;
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     if (etat.cardio > 0 && Array.isArray(workout.exercises) && !enfant()) {
       var act = activiteCardio();
       workout.exercises.unshift({
@@ -240,8 +240,8 @@
         + 'animation:awakBulle ' + (grand ? '1.9s' : '1.4s') + ' ease forwards;';
       b.innerHTML = html;
       document.body.appendChild(b);
-      setTimeout(function () { try { b.remove(); } catch (e) {} }, grand ? 2000 : 1500);
-    } catch (e) {}
+      setTimeout(function () { try { b.remove(); } catch (e) { _awkE(e); } }, grand ? 2000 : 1500);
+    } catch (e) { _awkE(e); }
   }
 
   // Un exercice vient d'être terminé.
@@ -259,7 +259,7 @@
       + '<span style="font-weight:900;font-size:0.95em;">Exercice terminé' + (info.etoiles && enfant() ? ' · ' + info.etoiles + ' étoile' + (info.etoiles > 1 ? 's' : '') : '') + '</span>'
       + '<span style="font-size:0.75em;color:' + CLAIR + ';font-weight:700;">' + sous + '</span></span>';
     bulle(html, true);
-    try { if (typeof vibrate === 'function') vibrate([40, 30, 80]); } catch (e) {}
+    try { if (typeof vibrate === 'function') vibrate([40, 30, 80]); } catch (e) { _awkE(e); }
   }
 
   // Une série validée une par une (pas la validation groupée de la grille).

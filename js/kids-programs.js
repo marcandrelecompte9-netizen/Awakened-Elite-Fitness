@@ -188,7 +188,7 @@
         out[k.id].total++;
         out[k.id].jours[k.idx] = true;
       });
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return out;
   }
 
@@ -208,7 +208,7 @@
     var w = { type: 'kids', name: p.name + ' — ' + se.name, exercises: exos, _kidsProg: { id: id, idx: idx }, _cardioAsked: true, // la mission contient déjà son échauffement
       badgeHTML: 'Mission : ' + esc(se.name), badgeStyle: 'linear-gradient(135deg,#22d3ee,#0891b2)' };
     // L'écran de préparation vit dans l'onglet Séance : y aller d'abord.
-    try { if (typeof window.switchTab === 'function') window.switchTab('workouts'); } catch (e) {}
+    try { if (typeof window.switchTab === 'function') window.switchTab('workouts'); } catch (e) { _awkE(e); }
     setTimeout(function () {
       if (typeof window.showWorkoutPreparation === 'function') window.showWorkoutPreparation(w);
     }, 60);

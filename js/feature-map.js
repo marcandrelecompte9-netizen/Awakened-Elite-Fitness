@@ -26,7 +26,7 @@
       try {
         var r = _fn(fn); if (!r) return;
         if (arg !== undefined && arg !== null && arg !== '') r.f.call(r.ctx, arg); else r.f.call(r.ctx);
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     }, 120);
   }
   window._featGo = _go;
@@ -122,7 +122,7 @@
       });
       s.body.innerHTML = html + uiCloseButton('featureMapOverlay');
       s.mount();
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   window.showFeatureMap = showFeatureMap;

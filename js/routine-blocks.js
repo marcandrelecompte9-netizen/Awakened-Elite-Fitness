@@ -108,7 +108,7 @@
     if (rerender !== false) {
       // L'atelier gère le re-rendu complet (2 colonnes) quand il est actif.
       if (window.AwakBuilder && typeof window.AwakBuilder.refresh === 'function') {
-        try { window.AwakBuilder.refresh(false); return; } catch (e) {}
+        try { window.AwakBuilder.refresh(false); return; } catch (e) { _awkE(e); }
       }
       var cont = document.getElementById('routineEditorExercises');
       if (cont) cont.innerHTML = Editor.renderExercises(ctx.r);
@@ -358,7 +358,7 @@
     if (typeof window.awakEstimerSeance === 'function') {
       try {
         return Math.max(1, Math.round(window.awakEstimerSeance({ fromRoutine: true, exercises: exs }) / 60));
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     }
     function travail(ex) {
       return isTimed(ex) ? (parseInt(ex.duration, 10) || 45) : (parseInt(ex.reps, 10) || 10) * 4;
@@ -401,7 +401,7 @@
 
   // v1560 : superset déjà TERMINÉ (on y revient avec « Préc. ») → on ne le relance pas
   function _fini(w, g) { return !!(w && g && w._ssFinis && w._ssFinis[g]); }
-  function _marquerFini(g) { try { var w = B() && B().getWorkout(); if (w && g) { w._ssFinis = w._ssFinis || {}; w._ssFinis[g] = true; } } catch (e) {} }
+  function _marquerFini(g) { try { var w = B() && B().getWorkout(); if (w && g) { w._ssFinis = w._ssFinis || {}; w._ssFinis[g] = true; } } catch (e) { _awkE(e); } }
 
   // Appelé au démarrage d'un exercice : arme le groupe si besoin.
   SS.sync = function () {
@@ -503,7 +503,7 @@
           ? '<div style="font-size:0.66em;color:#94a3b8;margin-top:2px;">enchaîne sans repos → ' + esc(nomSuivant) + '</div>'
           : '<div style="font-size:0.66em;color:#94a3b8;margin-top:2px;">dernier du tour — repos après</div>');
       host.parentNode.insertBefore(el, host);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   };
 
   SS.clearBanner = function () {
@@ -557,7 +557,7 @@
             };
           }
         }
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     }
     if (!SS.isActive()) return false;
 
@@ -590,7 +590,7 @@
       var w = b.getWorkout();
       var exA = w.exercises[premier];
       repos = (exA && exA.repos) || w.restBetweenSets || b.globalRest() || (exA && exA.rest) || 60;
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     goTo(premier, prochain);
     reposAvant(premier, repos);
     return true;
@@ -619,7 +619,7 @@
             SS.st = { g: ex0.ss, members: mem0, round: tour, total: parseInt(ex0.sets, 10) || 3 };
           }
         }
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     }
 
     if (!SS.isActive()) return false;

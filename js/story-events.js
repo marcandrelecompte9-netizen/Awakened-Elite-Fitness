@@ -1897,7 +1897,7 @@ function awakHerosPages(c) {
             if (se.pages) p = se.pages;
             else if (se.remplacer) p = p.map(function (t) { return String(t).split(se.remplacer[0]).join(se.remplacer[1]); });
         }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return p.map(awakHerosTexte);
 }
 
@@ -1910,7 +1910,7 @@ function awakFinCompagnons() {
 // ── ÉTAT / ANTI-DOUBLON ────────────────────────────────────────────
 function _seenKey(id) { return 'awakStoryEvt_' + id; }
 function storyEventSeen(id) { return localStorage.getItem(_seenKey(id)) === '1'; }
-function storyEventMarkSeen(id) { try { localStorage.setItem(_seenKey(id), '1'); } catch(e) {} }
+function storyEventMarkSeen(id) { try { localStorage.setItem(_seenKey(id), '1'); } catch(e) { _awkE(e); } }
 
 // ── ÉVALUATION DES DÉCLENCHEURS ────────────────────────────────────
 function storyEventEligible(evt, ctx) {
@@ -2000,9 +2000,9 @@ function storyBuildContext() {
         // Données nécessaires aux déclencheurs PAR ACTE (comeback, streak)
         ctx.lastWorkout = stats.lastWorkout || null;
         ctx.streak = stats.currentStreak || stats.streak || 0;
-    } catch(e) {}
-    try { if (typeof _awakGetCurrentLevel === 'function') ctx.level = _awakGetCurrentLevel(); } catch(e) {}
-    try { if (typeof awakGetRank === 'function') ctx.rank = awakGetRank().id; } catch(e) {}
+    } catch(e) { _awkE(e); }
+    try { if (typeof _awakGetCurrentLevel === 'function') ctx.level = _awakGetCurrentLevel(); } catch(e) { _awkE(e); }
+    try { if (typeof awakGetRank === 'function') ctx.rank = awakGetRank().id; } catch(e) { _awkE(e); }
     // XP totale accumulée (cohérente avec le niveau affiché sur la carte)
     try {
         if (typeof rpgLoad === 'function') {
@@ -2011,11 +2011,11 @@ function storyBuildContext() {
             const lifetime = parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0');
             ctx.xp = muscleXP + lifetime;
         }
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
     try {
         const rifts = (typeof awakRiftsLoad === 'function') ? awakRiftsLoad() : [];
         ctx.rifts = rifts.filter(r => r.completed).length;
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
     return ctx;
 }
 
@@ -2070,7 +2070,7 @@ function storyShowEvent(evt) {
     if (typeof window.AwakCine !== 'undefined' && window.AwakCine.defer(function () { storyShowEvent(evt); })) return;
     if (evt.id && _storyEnFile[evt.id]) {
         delete _storyEnFile[evt.id]; storyEventMarkSeen(evt.id);
-        try { localStorage.setItem(_STORY_K_SEANCE, String(storyBuildContext().workouts || 0)); } catch (e) {}
+        try { localStorage.setItem(_STORY_K_SEANCE, String(storyBuildContext().workouts || 0)); } catch (e) { _awkE(e); }
     }
     const c = evt.content;
     const char = STORY_CHARS[c.speaker] || STORY_CHARS.systeme;
@@ -2081,7 +2081,7 @@ function storyShowEvent(evt) {
 
     const overlay = document.createElement('div');
     overlay.id = 'storyEventOverlay';
-    try { overlay.setAttribute('data-evt', evt.id || ''); } catch (e) {}   // v1410 : repère pour le mode dev
+    try { overlay.setAttribute('data-evt', evt.id || ''); } catch (e) { _awkE(e); }   // v1410 : repère pour le mode dev
     overlay.style.cssText = `
         position:fixed; inset:0; z-index:99997;
         background:rgba(0,0,0,0.93); backdrop-filter:blur(9px);
@@ -2135,7 +2135,7 @@ function storyShowEvent(evt) {
             setTimeout(() => {
                 try {
                     if (!localStorage.getItem('fitproRPGClass') && typeof window.showClassSelectionModal === 'function') window.showClassSelectionModal();
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }, 450);
         }
         // Après la rencontre du Marchand : fenêtre explicative (une seule fois)
@@ -2144,7 +2144,7 @@ function storyShowEvent(evt) {
                 try {
                     if (typeof window.awakShowMerchantGuide === 'function'
                         && !(window.awakMerchantGuideSeen && window.awakMerchantGuideSeen())) window.awakShowMerchantGuide();
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }, 450);
         }
     }
@@ -2185,7 +2185,7 @@ function storyCheckEvents(opts) {
         }
         if (evt.once !== false) _storyEnFile[evt.id] = 1;
         // une seule scène en file à la fois pour la même séance
-        try { localStorage.setItem(_STORY_K_SEANCE, String(storyBuildContext().workouts || 0)); } catch (e) {}
+        try { localStorage.setItem(_STORY_K_SEANCE, String(storyBuildContext().workouts || 0)); } catch (e) { _awkE(e); }
         const delay = (opts && opts.delay) || 0;
         setTimeout(() => storyShowEvent(evt), delay);
         return true;
@@ -2234,7 +2234,7 @@ function storyMaybeHintNarrativeRift(opts) {
                 }
             }
         }
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
 }
 
 // ── RÉACTION D'UN HÉROS (déçu mais bienveillant) ───────────────────
@@ -2428,13 +2428,13 @@ function awakGetEndingState() {
             var d = awakCompanionsLoad();
             compagnons = (d && Array.isArray(d.unlocked)) ? d.unlocked.length : 0;
         }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     try {
         AWAK_NARRATIVE_RIFT_IDS.forEach(function (id) {
             if (localStorage.getItem('awakStoryEvt_' + id) === '1'
                 || localStorage.getItem('fitproStorySeen_' + id) === '1') { failles++; }
         });
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     var ancre = (compagnons >= 3 && failles >= 3);
     return {
         ending: ancre ? 'ancre' : 'echo',
@@ -2444,6 +2444,6 @@ function awakGetEndingState() {
         manqueFailles: Math.max(0, 3 - failles)
     };
 }
-try { window.awakGetEndingState = awakGetEndingState; } catch (e) {}
+try { window.awakGetEndingState = awakGetEndingState; } catch (e) { _awkE(e); }
 
 })();

@@ -19,7 +19,7 @@
   'use strict';
 
   var LB = 0.45359237;
-  function toast(m, t, d) { try { window.showToast(m, t || 'info', d || 3000); } catch (e) {} }
+  function toast(m, t, d) { try { window.showToast(m, t || 'info', d || 3000); } catch (e) { _awkE(e); } }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function norm(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim(); }
   function unite() { try { return window.weightUnit ? window.weightUnit() : 'kg'; } catch (e) { return 'kg'; } }
@@ -73,7 +73,7 @@
   // Forme simple : sans accents, ponctuation ni pluriel (« Pull-Ups » = « pull up »)
   function sim(x) { return norm(x).replace(/[-_()\[\],.\/]/g, ' ').replace(/\s+/g, ' ').trim().split(' ').map(function (w) { return w.length > 3 ? w.replace(/s$/, '') : w; }).join(' '); }
   function nomAppli(n) {
-    var db = []; try { db = window.exerciseDatabase || (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : []); } catch (e) {}
+    var db = []; try { db = window.exerciseDatabase || (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : []); } catch (e) { _awkE(e); }
     if (!_index) {
       _index = {};
       var N = window.AWAK_NOMS_EX || {};
@@ -164,9 +164,9 @@
   // ── Enregistrement ───────────────────────────────────────────────
   function importer(res) {
     var pid = window.getCurrentProfileId ? window.getCurrentProfileId() : null;
-    var hist = []; try { hist = JSON.parse((pid && window.getProfileData ? window.getProfileData(pid, 'workoutHistory') : localStorage.getItem('workoutHistory')) || '[]') || []; } catch (e) {}
+    var hist = []; try { hist = JSON.parse((pid && window.getProfileData ? window.getProfileData(pid, 'workoutHistory') : localStorage.getItem('workoutHistory')) || '[]') || []; } catch (e) { _awkE(e); }
     var deja = {}; hist.forEach(function (h) { if (h && h.date) deja[String(h.date).slice(0, 16) + '|' + h.name] = 1; });
-    var perfs = {}; try { perfs = window.getExercisePerformances ? window.getExercisePerformances() : {}; } catch (e) {}
+    var perfs = {}; try { perfs = window.getExercisePerformances ? window.getExercisePerformances() : {}; } catch (e) { _awkE(e); }
     // v1553 : les records du Hall of Fame (personalRecords_<profil>) suivent l'import
     var prKey = pid ? 'personalRecords_' + pid : null, prs = {};
     try { if (prKey) prs = JSON.parse(localStorage.getItem(prKey) || '{}') || {}; } catch (e) { prs = {}; }
@@ -211,8 +211,8 @@
       if (window.saveExercisePerformances) window.saveExercisePerformances(perfs);
       if (prKey) localStorage.setItem(prKey, JSON.stringify(prs));
     } catch (e) { toast('Stockage plein : import impossible.', 'error', 4000); return 0; }
-    try { if (window.renderWorkoutHistory) window.renderWorkoutHistory('all'); } catch (e) {}
-    try { if (window.updateHomeStats) window.updateHomeStats(); } catch (e) {}
+    try { if (window.renderWorkoutHistory) window.renderWorkoutHistory('all'); } catch (e) { _awkE(e); }
+    try { if (window.updateHomeStats) window.updateHomeStats(); } catch (e) { _awkE(e); }
     return n;
   }
 
@@ -271,7 +271,7 @@
   // ── Export CSV ───────────────────────────────────────────────────
   function cellule(v) { v = String(v == null ? '' : v); return /[",;\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
   function exporter() {
-    var h = []; try { h = window.getWorkoutHistory ? window.getWorkoutHistory() : []; } catch (e) {}
+    var h = []; try { h = window.getWorkoutHistory ? window.getWorkoutHistory() : []; } catch (e) { _awkE(e); }
     if (!h.length) { toast('Aucune séance à exporter pour le moment.'); return; }
     var u = unite();
     var L = [['Date', 'Séance', 'Durée (min)', 'Exercice', 'Série', 'Poids (' + u + ')', 'Reps'].join(',')];

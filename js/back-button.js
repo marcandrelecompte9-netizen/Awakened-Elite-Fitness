@@ -35,18 +35,18 @@
     try {
       var d = profondeur();
       while (d < RESERVE) { d++; history.pushState({ awakGarde: d }, ''); }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
   // Après un Retour traité : si la réserve est vide, on remet au moins une
   // entrée (elle peut être sautée par Chrome, mais le prochain toucher
   // reconstituera la réserve complète).
   function garde() {
     if (MODE_NATIF) return;
-    try { if (profondeur() === 0) history.pushState({ awakGarde: 1 }, ''); } catch (e) {}
+    try { if (profondeur() === 0) history.pushState({ awakGarde: 1 }, ''); } catch (e) { _awkE(e); }
   }
 
   function toast(msg) {
-    try { if (typeof window.showToast === 'function') window.showToast(msg, 'info', 2000); } catch (e) {}
+    try { if (typeof window.showToast === 'function') window.showToast(msg, 'info', 2000); } catch (e) { _awkE(e); }
   }
 
   // Éléments plein écran à ne JAMAIS fermer par Retour : ils font partie
@@ -96,13 +96,13 @@
   function fermer(el) {
     var sp = SPECIAUX[el.id];
     if (sp && typeof window[sp] === 'function') {
-      try { window[sp](); } catch (e) {}
+      try { window[sp](); } catch (e) { _awkE(e); }
       if (!document.body.contains(el) || !visible(el)) return true;
     }
     // a) un bouton de fermeture explicite dans la fenêtre
     // Fenêtre statique : le clic sur le fond est prévu pour la fermer
     if (el.classList.contains('modal')) {
-      try { el.dispatchEvent(new MouseEvent('click', { bubbles: true })); } catch (e) {}
+      try { el.dispatchEvent(new MouseEvent('click', { bubbles: true })); } catch (e) { _awkE(e); }
       if (el.classList.contains('active') && visible(el)) el.classList.remove('active');
       return true;
     }
@@ -121,12 +121,12 @@
       var action = (/close|fermer/i.test(oc) || vise) && !/_remove|supprim|delete|retir/i.test(oc);
       if (/^(Fermer|Annuler|↩ Annuler)$/.test(t) || /fermer|close/i.test(lbl) ||
           (action && /^(×|✕|✖|x|X)?$/.test(t))) {
-        try { b.click(); } catch (e) {}
+        try { b.click(); } catch (e) { _awkE(e); }
         if (!document.body.contains(el) || !visible(el)) return true;
       }
     }
     // b) un clic sur le fond (beaucoup de fenêtres se ferment ainsi)
-    try { el.dispatchEvent(new MouseEvent('click', { bubbles: true })); } catch (e) {}
+    try { el.dispatchEvent(new MouseEvent('click', { bubbles: true })); } catch (e) { _awkE(e); }
     if (!document.body.contains(el) || !visible(el)) return true;
     // d) fenêtre créée à la volée : retirée — mais jamais pendant une séance,
     //    où elle peut porter la suite du déroulement (on met en pause à la place)
@@ -167,7 +167,7 @@
       var pb = document.getElementById('pauseBtn');
       var enPause = !!document.getElementById('awakPauseOverlay') || !!(pb && (pb.textContent || '').trim() === '▶');
       if (!enPause && typeof window.togglePause === 'function') {
-        try { window.togglePause(); } catch (e) {}
+        try { window.togglePause(); } catch (e) { _awkE(e); }
         toast('Séance en pause');
       } else {
         toast('Séance en pause · utilise « Quitter » pour sortir');
@@ -178,8 +178,8 @@
 
     // 3. Autre onglet → Accueil
     if (!surAccueil()) {
-      try { if (typeof window.switchTab === 'function') window.switchTab('home'); } catch (e) {}
-      try { window.scrollTo(0, 0); } catch (e) {}
+      try { if (typeof window.switchTab === 'function') window.switchTab('home'); } catch (e) { _awkE(e); }
+      try { window.scrollTo(0, 0); } catch (e) { _awkE(e); }
       garde();
       return;
     }
@@ -217,7 +217,7 @@
         MODE_NATIF = true;
         return;
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     try {
       if (!history.state || (!history.state.awakBase && !history.state.awakGarde)) history.replaceState({ awakBase: 1 }, '');
       garde();
@@ -226,7 +226,7 @@
       ['pointerup', 'click', 'keydown', 'touchend'].forEach(function (ev) {
         window.addEventListener(ev, function () { if (!sortie) remplir(); }, true);
       });
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

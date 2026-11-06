@@ -21,7 +21,7 @@
     catch (e) { return 0; }
   }
   function _markAsked() {
-    try { localStorage.setItem(GATE_KEY, String(Date.now())); } catch (e) {}
+    try { localStorage.setItem(GATE_KEY, String(Date.now())); } catch (e) { _awkE(e); }
   }
 
   // v1410 : demandé UNE fois par jour (avant : toutes les 90 min). La réponse
@@ -53,7 +53,7 @@
         var g = parseInt(window.getFitnessIndex(), 10);
         if (!isNaN(g)) startVal = g;
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     var overlay = document.createElement('div');
     overlay.id = 'awakMoodPreModal';
@@ -102,14 +102,14 @@
     var msg    = overlay.querySelector('#mpwMsg');
     var actions = overlay.querySelector('#mpwActions');
 
-    function finish() { try { overlay.remove(); } catch (e) {} proceed(); }
+    function finish() { try { overlay.remove(); } catch (e) { _awkE(e); } proceed(); }
 
     function _save(v) {
-      try { if (typeof window.awakNoterForme === 'function') window.awakNoterForme(v); } catch (e) {}
+      try { if (typeof window.awakNoterForme === 'function') window.awakNoterForme(v); } catch (e) { _awkE(e); }
       try {
         if (typeof window.setFitnessIndex === 'function') window.setFitnessIndex(v);
         else if (typeof window.updateFitnessIndex === 'function') window.updateFitnessIndex(v);
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     }
 
     function render(v) {
@@ -129,7 +129,7 @@
         if (typeof window.startWorkout === 'function') {
           actions.innerHTML = '<button id="mpwSoft" style="width:100%;padding:13px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#5eead4,#14b8a6);color:#062e2a;font-weight:800;font-size:0.88em;margin-bottom:8px;">Faire plutôt une séance douce</button>';
           var sb = overlay.querySelector('#mpwSoft');
-          if (sb) sb.onclick = function () { _save(v); try { overlay.remove(); } catch (e) {} try { window.startWorkout('mobility'); } catch (e) { finish(); } };
+          if (sb) sb.onclick = function () { _save(v); try { overlay.remove(); } catch (e) { _awkE(e); } try { window.startWorkout('mobility'); } catch (e) { finish(); } };
         } else { actions.innerHTML = ''; }
       } else if (v <= 6) {
         msg.style.background = 'rgba(245,158,11,0.08)';

@@ -49,7 +49,7 @@
   function actif() { return true; }
 
   function definir(on) {
-    try { localStorage.setItem(cle(), on ? '1' : '0'); } catch (e) {}
+    try { localStorage.setItem(cle(), on ? '1' : '0'); } catch (e) { _awkE(e); }
     if (on) { injecterStyles(); demarrer(); balayer(document.body); }
     else { arreter(); location.reload(); }   // seul moyen fiable de remettre les emojis
   }
@@ -128,7 +128,7 @@
       var v = parseFloat(fs);
       if (/em|rem/.test(fs)) return v >= 1.4;
       if (/px/.test(fs)) return v >= 22;
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return false;
   }
 
@@ -155,7 +155,7 @@
       // Ex. : l'icône carrée du bouton « Équipement » de l'onglet Jeu.
       var propre = (parent.textContent || '').replace(RE_EMOJI, '').trim();
       if (!propre && parent !== ctrl && (tailleGrande(parent) || caseIcone(parent))) return true;
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return false;
   }
 
@@ -201,7 +201,7 @@
         var propre = nettoyerTexte(node.nodeValue);
         if (propre !== node.nodeValue) node.nodeValue = propre;
       });
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   // L'app redessine en permanence : un observateur garde le filtre appliqué.
@@ -227,7 +227,7 @@
     obs.observe(document.body, { childList: true, subtree: true });
   }
   function arreter() {
-    if (obs) { try { obs.disconnect(); } catch (e) {} obs = null; }
+    if (obs) { try { obs.disconnect(); } catch (e) { _awkE(e); } obs = null; }
   }
 
   // ── Réglage ──

@@ -38,10 +38,10 @@
   function jour(d) { try { var x = new Date(d); return x.getFullYear() + '-' + (x.getMonth() + 1) + '-' + x.getDate(); } catch (e) { return ''; } }
   function dateLongue(d) { try { return new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }); } catch (e) { return ''; } }
   function dateCourte(d) { try { return new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }); } catch (e) { return ''; } }
-  function toast(m, t, d) { try { window.showToast(m, t || 'info', d || 2200); } catch (e) {} }
+  function toast(m, t, d) { try { window.showToast(m, t || 'info', d || 2200); } catch (e) { _awkE(e); } }
   function pid() { try { return typeof window._photoPid === 'function' ? window._photoPid() : ((window.getCurrentProfileId && window.getCurrentProfileId()) || 'default'); } catch (e) { return 'default'; } }
   function lsGet(k) { try { return localStorage.getItem(k + '_' + pid()); } catch (e) { return null; } }
-  function lsSet(k, v) { try { localStorage.setItem(k + '_' + pid(), v); } catch (e) {} }
+  function lsSet(k, v) { try { localStorage.setItem(k + '_' + pid(), v); } catch (e) { _awkE(e); } }
 
   function photos() { try { return (typeof window.getProgressPhotos === 'function' ? window.getProgressPhotos() : []) || []; } catch (e) { return []; } }
   function mesures() { try { return (typeof window.getBodyMeasurements === 'function' ? window.getBodyMeasurements() : []) || []; } catch (e) { return []; } }
@@ -97,14 +97,14 @@
       l.sort(function (a, b) { return new Date(b.date) - new Date(a.date); });   // plus récente d'abord
       if (l.length > 100) l.length = 100;
     }
-    try { window.saveBodyMeasurements(l); } catch (e) {}
+    try { window.saveBodyMeasurements(l); } catch (e) { _awkE(e); }
     rafraichir();
   }
   function rafraichir() {
-    try { if (typeof window.renderBodyMeasurements === 'function') window.renderBodyMeasurements(); } catch (e) {}
-    try { if (typeof window.renderProgressPhotos === 'function') window.renderProgressPhotos(); } catch (e) {}
-    try { if (typeof window.awakRenderCorpsCard === 'function') window.awakRenderCorpsCard(); } catch (e) {}
-    try { if (typeof window.awakRenderSilhouetteMesures === 'function') window.awakRenderSilhouetteMesures(); } catch (e) {}
+    try { if (typeof window.renderBodyMeasurements === 'function') window.renderBodyMeasurements(); } catch (e) { _awkE(e); }
+    try { if (typeof window.renderProgressPhotos === 'function') window.renderProgressPhotos(); } catch (e) { _awkE(e); }
+    try { if (typeof window.awakRenderCorpsCard === 'function') window.awakRenderCorpsCard(); } catch (e) { _awkE(e); }
+    try { if (typeof window.awakRenderSilhouetteMesures === 'function') window.awakRenderSilhouetteMesures(); } catch (e) { _awkE(e); }
   }
 
   // ── Discrétion (floutage) ─────────────────────────────────────────
@@ -237,7 +237,7 @@
 
   // ── 2. Caméra intégrée avec fantôme ──────────────────────────────
   var flux = null;
-  function arreterFlux() { try { if (flux) flux.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {} flux = null; }
+  function arreterFlux() { try { if (flux) flux.getTracks().forEach(function (t) { t.stop(); }); } catch (e) { _awkE(e); } flux = null; }
   function camera(pose) {
     var s = seanceCourante; if (!s) return;
     var fant = derniere(pose, s.groupe);
@@ -280,7 +280,7 @@
       var md = navigator.mediaDevices;
       if (!md || typeof md.getUserMedia !== 'function') { sansCamera(); return; }
       md.getUserMedia({ video: { facingMode: avant ? 'user' : 'environment', width: { ideal: 1280 }, height: { ideal: 1706 } }, audio: false })
-        .then(function (st) { flux = st; video.srcObject = st; try { video.play(); } catch (e) {} })
+        .then(function (st) { flux = st; video.srcObject = st; try { video.play(); } catch (e) { _awkE(e); } })
         .catch(function () { sansCamera(); });
     }
     function sansCamera() {
@@ -304,7 +304,7 @@
         var g = c.getContext('2d');
         if (avant) { g.translate(c.width, 0); g.scale(-1, 1); }   // même sens que l'aperçu (miroir)
         g.drawImage(video, sx, sy, sw, sh, 0, 0, c.width, c.height);
-        try { navigator.vibrate && navigator.vibrate(30); } catch (e) {}
+        try { navigator.vibrate && navigator.vibrate(30); } catch (e) { _awkE(e); }
         montrer(c.toDataURL('image/jpeg', 0.7));
       };
       if (!minuteur) { go(); return; }
@@ -340,7 +340,7 @@
       sauverPhoto(capture, pose, seanceCourante.groupe, seanceCourante.existante ? seanceCourante.date : null).then(function (ph) {
         if (ancienne) {
           // v1395 : les mesures liées à la photo remplacée suivent la nouvelle
-          try { var ml = mesures(), chg = false; ml.forEach(function (m) { if (m && m.photoId === ancienne.id) { m.photoId = ph.id; chg = true; } }); if (chg) window.saveBodyMeasurements(ml); } catch (e) {}
+          try { var ml = mesures(), chg = false; ml.forEach(function (m) { if (m && m.photoId === ancienne.id) { m.photoId = ph.id; chg = true; } }); if (chg) window.saveBodyMeasurements(ml); } catch (e) { _awkE(e); }
           supprimerPhoto(ancienne);
         }
         if (seanceCourante) seanceCourante.prises[pose] = ph;

@@ -24,7 +24,7 @@
     if (force) return true;
     var premier = Math.min.apply(null, T);
     if (now - premier < CYCLE * DAY) return false;
-    var vu = 0; try { vu = parseInt(localStorage.getItem(cle()), 10) || 0; } catch (e) {}
+    var vu = 0; try { vu = parseInt(localStorage.getItem(cle()), 10) || 0; } catch (e) { _awkE(e); }
     return !vu || now - vu >= CYCLE * DAY;
   }
 
@@ -34,7 +34,7 @@
     var semaines = [0, 0, 0, 0];
     R.forEach(function (h) { var i = Math.floor((now - ts(h)) / (7 * DAY)); if (i >= 0 && i < 4) semaines[i]++; });
     var visee = 3;
-    try { var s = window.AwakHomePro && AwakHomePro.semaine && AwakHomePro.semaine(); if (s && s.visee) visee = s.visee; } catch (e) {}
+    try { var s = window.AwakHomePro && AwakHomePro.semaine && AwakHomePro.semaine(); if (s && s.visee) visee = s.visee; } catch (e) { _awkE(e); }
     var d = { n: R.length, actives: semaines.filter(function (x) { return x > 0; }).length, visee4: visee * 4, visee: visee, prog: [], stables: 0, plateau: null, mesures: [], photos: null };
     if (!enfant()) {
       try {
@@ -46,7 +46,7 @@
         });
         d.prog.sort(function (a, b) { return b.pct - a.pct; });
         d.prog = d.prog.slice(0, 3);
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
       // Mensurations : la plus récente vs celle d'il y a ~4 semaines (entre 3 et 8 semaines)
       try {
         var M = (typeof window.getBodyMeasurements === 'function' ? window.getBodyMeasurements() : []) || [];
@@ -65,13 +65,13 @@
           });
         }
         d.aMesures = M.length > 0;
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
       try {
         var G = (window.AwakPhotoMesures && AwakPhotoMesures.groupes) ? AwakPhotoMesures.groupes() : [];
         var gRec = G.filter(function (g) { return now - Date.parse(g.date) < CYCLE * DAY; });
         var gAnc = G.filter(function (g) { return now - Date.parse(g.date) >= 21 * DAY; });
         d.photos = { recentes: gRec.length, total: G.length, comparer: (gRec[0] && gAnc[0] && gRec[0].cle !== gAnc[0].cle) ? [gAnc[0].cle, gRec[0].cle] : null };
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     }
     return d;
   }
@@ -138,7 +138,7 @@
     return { h: h, et: et };
   }
 
-  function vu() { try { localStorage.setItem(cle(), String(Date.now())); } catch (e) {} }
+  function vu() { try { localStorage.setItem(cle(), String(Date.now())); } catch (e) { _awkE(e); } }
 
   // hote : conteneur de l'Accueil (ahpAvant). force : mode dev / test.
   function monter(hote, force) {
@@ -151,9 +151,9 @@
     hote.insertBefore(c, hote.firstChild);
     var b = c.querySelector('[data-bilan-vu]'); if (b) b.onclick = function () { vu(); c.remove(); };
     var g = c.querySelector('[data-bilan-go]');
-    if (g) g.onclick = function () { vu(); c.remove(); try { (new Function(r.et.f))(); } catch (e) {} };
+    if (g) g.onclick = function () { vu(); c.remove(); try { (new Function(r.et.f))(); } catch (e) { _awkE(e); } };
     var p = c.querySelector('[data-bilan-photos]');
-    if (p) p.onclick = function () { try { AwakPhotoMesures.comparerGroupes(d.photos.comparer[0], d.photos.comparer[1]); } catch (e) {} };
+    if (p) p.onclick = function () { try { AwakPhotoMesures.comparerGroupes(d.photos.comparer[0], d.photos.comparer[1]); } catch (e) { _awkE(e); } };
     return c;
   }
 

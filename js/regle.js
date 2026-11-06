@@ -85,7 +85,7 @@
       + '</div>';
   }
 
-  function vibrer(ms) { try { if (window.AwakNative) AwakNative.vibrer(ms); else if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} }
+  function vibrer(ms) { try { if (window.AwakNative) AwakNative.vibrer(ms); else if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { _awkE(e); } }
 
   function init(id, surChange) {
     var el = document.getElementById(id);
@@ -114,7 +114,7 @@
         var d = Math.floor(v / (pas < 1 ? 1 : 10));
         if (dernierDix !== null && d !== dernierDix) vibrer(8);
         dernierDix = d;
-        if (typeof surChange === 'function') { try { surChange(v); } catch (e) {} }
+        if (typeof surChange === 'function') { try { surChange(v); } catch (e) { _awkE(e); } }
       }
     }
     piste.addEventListener('scroll', function () {

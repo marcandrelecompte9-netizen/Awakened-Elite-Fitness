@@ -48,7 +48,7 @@
     if (/!important/.test(el.getAttribute('style') || '') && el.style.getPropertyPriority('padding-top') === 'important') {
       el.style.setProperty('padding', 'calc(14px + env(safe-area-inset-top, 0px)) 12px calc(14px + env(safe-area-inset-bottom, 0px))', 'important');
     }
-    requestAnimationFrame(function () { try { finir(el); } catch (e) {} });
+    requestAnimationFrame(function () { try { finir(el); } catch (e) { _awkE(e); } });
   }
   function finir(el) {
     var carte = el.firstElementChild;

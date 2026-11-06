@@ -31,8 +31,8 @@
   var JOUR_MS = 864e5;
 
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
-  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-  function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { _awkE(e); } }
+  function lsDel(k) { try { localStorage.removeItem(k); } catch (e) { _awkE(e); } }
 
   function estNatif() {
     try { var c = window.Capacitor; return !!(c && (typeof c.isNativePlatform === 'function' ? c.isNativePlatform() : c.isNative)); }
@@ -46,7 +46,7 @@
       if (m[1] === '0') { lsDel(K_TEST); return; }
       lsSet(K_TEST, '1');
       if (m[1] === 'fini') { lsSet(K_DEBUT, String(Date.now() - (JOURS + 1) * JOUR_MS)); lsDel(K_ACHAT); }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   })();
   function enTest() { return lsGet(K_TEST) === '1'; }
   function actif() { return !window.__AWAK_SANS_ESSAI && (estNatif() || enTest()); }
@@ -76,14 +76,14 @@
     var store = C.store, prix = null, attente = null;
     function possede() { try { var p = store.get(PRODUIT_ID); return !!(p && p.owned); } catch (e) { return false; } }
     function maj() {
-      try { var p = store.get(PRODUIT_ID); if (p && p.pricing && p.pricing.price) prix = p.pricing.price; } catch (e) {}
+      try { var p = store.get(PRODUIT_ID); if (p && p.pricing && p.pricing.price) prix = p.pricing.price; } catch (e) { _awkE(e); }
       if (possede()) debloquer();
     }
     try {
       store.register([{ id: PRODUIT_ID, type: C.ProductType.NON_CONSUMABLE, platform: C.Platform.GOOGLE_PLAY }]);
       store.when()
         .productUpdated(maj)
-        .approved(function (t) { try { t.finish(); } catch (e) {} })   // accuse réception (obligatoire chez Google)
+        .approved(function (t) { try { t.finish(); } catch (e) { _awkE(e); } })   // accuse réception (obligatoire chez Google)
         .finished(function () { debloquer(); if (attente) { attente(true); attente = null; } })
         .receiptUpdated(maj);
       store.error(function (e) { if (attente) { attente(false, e && e.message); attente = null; } });
@@ -161,7 +161,7 @@
       + '<div id="awakEssaiMsg" style="min-height:1.4em;margin-top:12px;font-size:0.8em;color:#fbbf24;"></div>'
       + '</div>';
     document.body.appendChild(ov);
-    try { document.body.style.overflow = 'hidden'; } catch (e) {}
+    try { document.body.style.overflow = 'hidden'; } catch (e) { _awkE(e); }
     var msg = ov.querySelector('#awakEssaiMsg');
     function occupe(on) { ['awakEssaiAcheter', 'awakEssaiRestaurer'].forEach(function (id) { var b = ov.querySelector('#' + id); if (b) { b.disabled = on; b.style.opacity = on ? '0.6' : '1'; } }); }
     ov.querySelector('#awakEssaiAcheter').onclick = function () {
@@ -186,7 +186,7 @@
     var ov = document.getElementById('awakPremiumMur');
     if (ov) {
       ov.remove();
-      try { document.body.style.overflow = ''; } catch (e) {}
+      try { document.body.style.overflow = ''; } catch (e) { _awkE(e); }
       if (typeof window.showToast === 'function') window.showToast('Merci ! Awakened est débloqué pour de bon.', 'success', 3500);
     }
   }
@@ -223,7 +223,7 @@
       new MutationObserver(function () {
         if (!document.getElementById('awakPremiumMur') && termine() && !enSeance()) montrerBlocage();
       }).observe(document.body, { childList: true });
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     document.addEventListener('visibilitychange', function () { if (!document.hidden) verifier(); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(demarrer, 600); });

@@ -64,7 +64,7 @@
         if (id === 'measureWeight' && typeof window.awakMesurePoids === 'function') x = window.awakMesurePoids(h) || x;
         return borner(x, c);
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return borner(c.def, c);
   }
 
@@ -91,7 +91,7 @@
     document.body.appendChild(fond);
     window.AwakRegle.init(RID);
     ouvert = { id: id, fond: fond, cible: cible || null };
-    if (!cible) { try { if (typeof window.awakMesureFocus === 'function') window.awakMesureFocus(id, true); } catch (e) {} }
+    if (!cible) { try { if (typeof window.awakMesureFocus === 'function') window.awakMesureFocus(id, true); } catch (e) { _awkE(e); } }
 
     fond.querySelector('[data-ok]').onclick = valider;
     fond.querySelector('[data-annuler]').onclick = fermer;
@@ -114,8 +114,8 @@
   function fermer() {
     if (!ouvert) return;
     var o = ouvert; ouvert = null;
-    if (!o.cible) { try { if (typeof window.awakMesureFocus === 'function') window.awakMesureFocus(o.id, false); } catch (e) {} }
-    try { if (typeof window.awakRenderSilhouetteMesures === 'function') window.awakRenderSilhouetteMesures(); } catch (e) {}
+    if (!o.cible) { try { if (typeof window.awakMesureFocus === 'function') window.awakMesureFocus(o.id, false); } catch (e) { _awkE(e); } }
+    try { if (typeof window.awakRenderSilhouetteMesures === 'function') window.awakRenderSilhouetteMesures(); } catch (e) { _awkE(e); }
     o.fond.remove();
   }
 

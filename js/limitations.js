@@ -173,7 +173,7 @@
   }
 
   function set(ids) {
-    try { localStorage.setItem(cle(), JSON.stringify(ids || [])); } catch (e) {}
+    try { localStorage.setItem(cle(), JSON.stringify(ids || [])); } catch (e) { _awkE(e); }
     // v1408 : date de début de chaque limitation (« depuis »), et date de dernière revue
     try {
       var d = dates(); var auj = new Date().toISOString().slice(0, 10);
@@ -181,12 +181,12 @@
       Object.keys(d).forEach(function (id) { if ((ids || []).indexOf(id) < 0) delete d[id]; });
       localStorage.setItem(cle() + '_dates', JSON.stringify(d));
       localStorage.setItem(cle() + '_revue', String(Date.now()));
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
   function dates() { try { return JSON.parse(localStorage.getItem(cle() + '_dates') || '{}') || {}; } catch (e) { return {}; } }
   // v1408 : mode « garder mes capacités » (condition qui évolue) : pas de charge plus lourde suggérée
   function maintien() { try { return localStorage.getItem(cle() + '_maintien') === '1'; } catch (e) { return false; } }
-  function setMaintien(v) { try { localStorage.setItem(cle() + '_maintien', v ? '1' : '0'); } catch (e) {} }
+  function setMaintien(v) { try { localStorage.setItem(cle() + '_maintien', v ? '1' : '0'); } catch (e) { _awkE(e); } }
   function moisFr(iso) {
     try { var M = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.']; var d = new Date(iso + 'T12:00:00'); return M[d.getMonth()] + ' ' + d.getFullYear(); } catch (e) { return ''; }
   }
@@ -201,7 +201,7 @@
     if (!ex || !ex.name) return null;
     var act = actives();
     for (var i = 0; i < act.length; i++) {
-      try { if (act[i].test(ex)) return act[i]; } catch (e) {}
+      try { if (act[i].test(ex)) return act[i]; } catch (e) { _awkE(e); }
     }
     return null;
   }
@@ -316,7 +316,7 @@
     var hote = document.getElementById('awakLimitImpact');
     if (!hote) return;
     var db = [];
-    try { if (typeof exerciseDatabase !== 'undefined') db = exerciseDatabase; } catch (e) {}
+    try { if (typeof exerciseDatabase !== 'undefined') db = exerciseDatabase; } catch (e) { _awkE(e); }
     if (!db.length) { hote.innerHTML = ''; return; }
 
     var reels = db.filter(function (e) { return e && e.type !== 'warmup' && e.type !== 'stretch'; });
@@ -370,13 +370,13 @@
       var tenter = function () {
         try {
           var occupe = false;
-          try { var up = (typeof getUserProfile === 'function') ? getUserProfile() : null; if (up && !up.setupComplete) occupe = true; } catch (e) {}
+          try { var up = (typeof getUserProfile === 'function') ? getUserProfile() : null; if (up && !up.setupComplete) occupe = true; } catch (e) { _awkE(e); }
           // v1234 : jamais pour un enfant (< 13 ans) — c'est à l'adulte de le
           // régler au besoin (Réglages › Mes limitations), pas une question à
           // poser à un enfant à la fin de son inscription.
           // v1235 : l'offre du Parcours de l'Éveil passe avant
-          try { if (window._cleProfil && localStorage.getItem(window._cleProfil('awakEveilPlusTard')) === '1') occupe = true; } catch (e) {}
-          if (!occupe) { try { if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) return; } catch (e) {} }
+          try { if (window._cleProfil && localStorage.getItem(window._cleProfil('awakEveilPlusTard')) === '1') occupe = true; } catch (e) { _awkE(e); }
+          if (!occupe) { try { if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) return; } catch (e) { _awkE(e); } }
           var cand = document.querySelectorAll('[id$="Modal"], [id$="Overlay"], [id*="Onb"], [id*="onb"], [id*="story"], [id*="Story"], [id*="tuto"], [id*="Tuto"], [id*="Welcome"]');
           for (var j = 0; j < cand.length && !occupe; j++) {
             var c = cand[j], cs = getComputedStyle(c), r = c.getBoundingClientRect();
@@ -384,10 +384,10 @@
           }
           if (occupe) { if (++essais < 40) setTimeout(tenter, 3000); return; }
           ouvrir();
-        } catch (e) {}
+        } catch (e) { _awkE(e); }
       };
       setTimeout(tenter, 1500);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   // v1408 : « Tes limitations ont-elles changé ? » — tous les 3 mois quand il y en a.
@@ -403,10 +403,10 @@
       if (typeof window.showConfirm !== 'function') return false;
       var act = actives().map(function (l) { return l.titre; }).join(', ');
       window.showConfirm('Tes limitations actuelles : ' + act + '. Quelque chose a changé ? Mets-les à jour pour que tes séances restent sûres.', function () {
-        try { localStorage.setItem(cle() + '_revue', String(Date.now())); } catch (e) {}
+        try { localStorage.setItem(cle() + '_revue', String(Date.now())); } catch (e) { _awkE(e); }
         ouvrir();
       }, function () {
-        try { localStorage.setItem(cle() + '_revue', String(Date.now() - TROIS_MOIS + UN_MOIS)); } catch (e) {}
+        try { localStorage.setItem(cle() + '_revue', String(Date.now() - TROIS_MOIS + UN_MOIS)); } catch (e) { _awkE(e); }
       }, { title: 'Tes limitations ont-elles changé ?', subtitle: '◈ TOUS LES 3 MOIS ◈', confirmLabel: 'Revoir mes limitations', cancelLabel: 'Plus tard' });
       return true;
     } catch (e) { return false; }
@@ -420,7 +420,7 @@
           || [].some.call(document.body.children, function (el) { var cs = getComputedStyle(el); return cs.position === 'fixed' && (parseInt(cs.zIndex, 10) || 0) >= 9000 && cs.display !== 'none' && el.getBoundingClientRect().height > window.innerHeight * 0.5; });
         if (occupe) { if (++essais < 60) setTimeout(tenter, 3000); return; }
         revoir(false);
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     })();
   }
 
@@ -439,7 +439,7 @@
     try { ids = JSON.parse(localStorage.getItem(CLE + '_' + pid) || '[]') || []; } catch (e) { ids = []; }
     for (var i = 0; i < LIMITATIONS.length; i++) {
       if (ids.indexOf(LIMITATIONS[i].id) < 0) continue;
-      try { if (LIMITATIONS[i].test(ex)) return LIMITATIONS[i]; } catch (e) {}
+      try { if (LIMITATIONS[i].test(ex)) return LIMITATIONS[i]; } catch (e) { _awkE(e); }
     }
     return null;
   }

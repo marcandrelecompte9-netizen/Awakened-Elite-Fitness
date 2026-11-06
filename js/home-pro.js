@@ -74,15 +74,15 @@
     var P = window.AwakCalPlan;
     if (!P || !id) return { plan: {}, faits: {}, P: null };
     var plan = {}, faits = {};
-    try { plan = P.planFor(id) || {}; } catch (e) {}
-    try { faits = P.doneDates(id) || {}; } catch (e) {}
+    try { plan = P.planFor(id) || {}; } catch (e) { _awkE(e); }
+    try { faits = P.doneDates(id) || {}; } catch (e) { _awkE(e); }
     return { plan: plan, faits: faits, P: P };
   }
   function seanceDu(pl, id, d) {
     var cle = ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'][wIdx(d)];
     var s = pl.plan[cle];
     if (!s || !s.muscles || !s.muscles.length) return null;
-    try { if (pl.P && pl.P.actifLe && !pl.P.actifLe(s, d)) return null; } catch (e) {}   // v1572 : pas avant le début du planning
+    try { if (pl.P && pl.P.actifLe && !pl.P.actifLe(s, d)) return null; } catch (e) { _awkE(e); }   // v1572 : pas avant le début du planning
     var heure = null;
     try { heure = pl.P ? pl.P.timeFor(id, ymd(d), cle, pl.plan) : s.heure; } catch (e) { heure = s.heure || null; }
     return { s: s, heure: heure, faite: !!pl.faits[ymd(d)] };
@@ -164,10 +164,10 @@
     var P = window.AwakCalPlan;
     if (!P || !P.sourcePref) return;
     var id = null;
-    try { id = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null; } catch (e) {}
+    try { id = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null; } catch (e) { _awkE(e); }
     if (!id) return;
     var v = P.sourcePref(id), dispo = {};
-    try { dispo = P.sourcesDispo(id) || {}; } catch (e) {}
+    try { dispo = P.sourcesDispo(id) || {}; } catch (e) { _awkE(e); }
     document.getElementById('awakPlanSrcModal') && document.getElementById('awakPlanSrcModal').remove();
     var ov = document.createElement('div');
     ov.id = 'awakPlanSrcModal';
@@ -198,17 +198,17 @@
   };
   window.awakPlanSrcSet = function (k) {
     var P = window.AwakCalPlan, id = null;
-    try { id = getCurrentProfileId(); } catch (e) {}
+    try { id = getCurrentProfileId(); } catch (e) { _awkE(e); }
     if (P && P.setSourcePref && id) P.setSourcePref(id, k);
     var m = document.getElementById('awakPlanSrcModal'); if (m) m.remove();
     render();
-    try { if (typeof window.renderCalendarTab === 'function' && document.getElementById('calendarTab') && document.getElementById('calendarTab').classList.contains('active')) window.renderCalendarTab(); } catch (e) {}
+    try { if (typeof window.renderCalendarTab === 'function' && document.getElementById('calendarTab') && document.getElementById('calendarTab').classList.contains('active')) window.renderCalendarTab(); } catch (e) { _awkE(e); }
   };
 
   // ═══ 4. RACCOURCIS ═════════════════════════════════════════════════
   function raccourcisHTML() {
     var zones = 0;
-    try { zones = (window.AwakPain && window.AwakPain.activeZones) ? window.AwakPain.activeZones().length : 0; } catch (e) {}
+    try { zones = (window.AwakPain && window.AwakPain.activeZones) ? window.AwakPain.activeZones().length : 0; } catch (e) { _awkE(e); }
     var faille = document.getElementById('quickFailleBtn');
     var jeu = faille && faille.style.display !== 'none';
 
@@ -275,7 +275,7 @@
         var se = sem && sem.sessions && sem.sessions[+s.planIdx || 0];
         if (se && se.exercises) exos = se.exercises.map(function (n) { return typeof n === 'string' ? { name: n } : n; });
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     if (!exos || !exos.length) return { exos: 0, duree: '' };
     var repos = parseInt(localStorage.getItem('fitproGlobalRest') || '90', 10) || 90, sec = 0;
     exos.forEach(function (e) {
@@ -296,7 +296,7 @@
           'font-size:0.74em;color:#94a3b8;display:inline-flex;align-items:center;gap:5px;max-width:52%;">' +
           '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Planning : <b style="color:#e2e8f0;">' + esc(nom) + '</b></span><span style="color:' + ACCENT + ';">›</span></button>';
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;">' +
         '<button onclick="awakAutreActivite()" style="min-height:auto;padding:4px 0;background:none;border:none;cursor:pointer;font-family:inherit;' +
           'font-size:0.76em;color:#cbd5e1;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(203,213,225,0.35);">Ou choisir une autre activité</button>' +
@@ -319,7 +319,7 @@
 
     // Portrait : le chasseur en mode jeu, sinon l'avatar du profil
     var portrait = '';
-    try { portrait = (typeof renderAvatar === 'function') ? renderAvatar(p.avatar, 50) : ''; } catch (e) {}
+    try { portrait = (typeof renderAvatar === 'function') ? renderAvatar(p.avatar, 50) : ''; } catch (e) { _awkE(e); }
     var srcPortrait = (typeof window.awakPortraitSrc === 'function') ? window.awakPortraitSrc(p.avatar) : '';
     if (srcPortrait) {
       // v1320 : portrait choisi par le membre → plein cadre
@@ -339,12 +339,12 @@
     // v1399 : Parcours de l'Éveil actif → SA séance est l'objectif du jour.
     // Avant : « Jour de repos » (plan automatique) juste au-dessus de la carte
     // Éveil qui proposait la séance du jour — deux messages contraires.
-    var ev = null; try { ev = window.awakEveilAujourdhui ? window.awakEveilAujourdhui() : null; } catch (e) {}
-    var runP = null; try { runP = (!ev && window.AwakCoachRun && AwakCoachRun.aujourdhui) ? AwakCoachRun.aujourdhui() : null; } catch (e) {}
+    var ev = null; try { ev = window.awakEveilAujourdhui ? window.awakEveilAujourdhui() : null; } catch (e) { _awkE(e); }
+    var runP = null; try { runP = (!ev && window.AwakCoachRun && AwakCoachRun.aujourdhui) ? AwakCoachRun.aujourdhui() : null; } catch (e) { _awkE(e); }
     // v1409 : semaine HYBRIDE (course + muscu) → c'est le jour du plan qui décide. La sortie
     // du plan de course n'est l'objectif que les jours de course (avant : tous les jours,
     // et les jours de muscu disparaissaient de l'accueil).
-    var _hyb = false; try { _hyb = Object.keys(pl.plan || {}).some(function (k) { return pl.plan[k] && pl.plan[k].hybride; }); } catch (e) {}
+    var _hyb = false; try { _hyb = Object.keys(pl.plan || {}).some(function (k) { return pl.plan[k] && pl.plan[k].hybride; }); } catch (e) { _awkE(e); }
     if (runP && _hyb && !(auj && auj.s && auj.s.discipline === 'course')) runP = null;
     var _enc = seanceEnCours();
     if (_enc) {
@@ -410,7 +410,7 @@
       bouton = '<button class="ahp-cta" onclick="if(typeof showMorningRoutineModal===\'function\')showMorningRoutineModal()">Mobilité douce</button>';
       // v1400 : quelqu'un qui aime le yoga se voit proposer un yoga doux
       try { var _aimeH = ((typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}).aime || [];
-        if (_aimeH.indexOf('yoga') >= 0) bouton = '<button class="ahp-cta" onclick="if(typeof startDisciplineSession===\'function\')startDisciplineSession(\'yoga\',\'soir\')">Yoga doux</button>'; } catch (e) {}
+        if (_aimeH.indexOf('yoga') >= 0) bouton = '<button class="ahp-cta" onclick="if(typeof startDisciplineSession===\'function\')startDisciplineSession(\'yoga\',\'soir\')">Yoga doux</button>'; } catch (e) { _awkE(e); }
     } else if (faiteAuj) {
       etiq = 'TON OBJECTIF DU JOUR · ACCOMPLI';
       titre = 'Séance faite';
@@ -423,20 +423,20 @@
         meta = '<span class="ahp-m">' + ico('eclair', 15, '#cbd5e1') + '<span>Jeux et mouvements pour ton âge</span></span>';
       } else {
       // v1331 : le type du jour (haut du corps, jambes…) quand il y en a un
-      try { var sp = window.awakSplitDuJour ? window.awakSplitDuJour() : null; if (sp) titre = sp.nom; } catch (e) {}
+      try { var sp = window.awakSplitDuJour ? window.awakSplitDuJour() : null; if (sp) titre = sp.nom; } catch (e) { _awkE(e); }
       meta = '<span class="ahp-m">' + ico('eclair', 15, '#cbd5e1') + '<span>Choisie selon ta récupération</span></span>';
       }
       // v1403 : « Boxe » cochée → une séance de boxe plutôt qu'une séance de muscu
       try {
         var _aimeB = ((typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}).aime || [];
         if (_aimeB.indexOf('boxe') >= 0 && typeof window.startDisciplineSession === 'function') {
-          var _lvB = 1; try { _lvB = window.getDisciplineLevel('boxe').level || 1; } catch (e) {}
+          var _lvB = 1; try { _lvB = window.getDisciplineLevel('boxe').level || 1; } catch (e) { _awkE(e); }
           var _sB = _lvB >= 2 ? ['enchainements', 'Boxe · enchaînements'] : ['shadow', 'Boxe · shadow'];
           titre = _sB[1];
           meta = '<span class="ahp-m">' + ico('chrono', 15, '#cbd5e1') + '<span>Rounds avec récupération</span></span>';
           go = 'startDisciplineSession(\'boxe\',\'' + _sB[0] + '\')';
         }
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
       bouton = '<button class="ahp-cta" onclick="' + go + '">Commencer ma séance</button>';
     }
 
@@ -448,13 +448,13 @@
         if (!/\d\s*min</.test(meta)) meta += '<span class="ahp-m">' + ico('chrono', 15, '#cbd5e1') + '<span>' + esc(_txtD) + '</span></span>';
         bouton += '<button onclick="awakLancerSeanceSysteme(true)" style="display:block;margin:7px auto 0;min-height:auto;padding:4px 8px;background:none;border:none;cursor:pointer;font-family:inherit;font-size:0.76em;color:#cbd5e1;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(203,213,225,0.35);">Autre durée</button>';
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     // v1400 : aime la course, pas encore de plan → raccourci vers le plan (même sans courir encore)
     try {
       var _aimeC = ((typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}).aime || [];
       if (!ev && !runP && (_aimeC.indexOf('course') >= 0 || ((typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}).goal === 'hybride') && window.AwakCoachRun && AwakCoachRun.creerPlanUI && !(AwakCoachRun.lePlan && AwakCoachRun.lePlan()))
         bouton += '<button onclick="switchTab(\'course\');setTimeout(function(){AwakCoachRun.creerPlanUI()},200)" style="display:block;width:100%;margin-top:8px;min-height:auto;padding:9px;border-radius:11px;cursor:pointer;font-family:inherit;font-weight:800;font-size:0.8em;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.4);color:#fde68a;">Créer mon plan de course (5 km au marathon)</button>';
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return '<div class="ahp-card" style="padding:16px 16px 12px;">' +
         '<div style="display:flex;align-items:flex-start;gap:12px;">' +
           '<div style="flex:1;min-width:0;padding-top:2px;">' +
@@ -502,7 +502,7 @@
     var id = info.id, today = new Date(), debut = lundiDe(today);
     var niv = niveauJeu();
     var t1, _recup = enRecup();
-    var _viseeSem = 0; try { tuileSemaine(); _viseeSem = (_semaine && _semaine.visee) || 0; } catch (e) {}
+    var _viseeSem = 0; try { tuileSemaine(); _viseeSem = (_semaine && _semaine.visee) || 0; } catch (e) { _awkE(e); }
     if (niv) {
       t1 = tuile('eclair', ACCENT, 'PROGRESSION', niv.dans + ' / ' + niv.pas + ' XP', barreHTML(niv.dans / niv.pas), 'Niveau ' + niv.n, 'switchTab(\'game\')');
     } else {
@@ -527,11 +527,11 @@
     // v1399 : TOUTES les séances de la semaine comptent (avant, avec un planning,
     // une séance faite un jour non prévu ne comptait pas : « 0 / 5 » après une
     // séance). Objectif = séances prévues, sinon le rythme de l'Éveil, sinon le profil.
-    var evS = null; try { evS = window.awakEveilAujourdhui ? window.awakEveilAujourdhui() : null; } catch (e) {}
-    var runS = null; try { runS = (!evS && window.AwakCoachRun && AwakCoachRun.aujourdhui) ? AwakCoachRun.aujourdhui() : null; } catch (e) {}
+    var evS = null; try { evS = window.awakEveilAujourdhui ? window.awakEveilAujourdhui() : null; } catch (e) { _awkE(e); }
+    var runS = null; try { runS = (!evS && window.AwakCoachRun && AwakCoachRun.aujourdhui) ? AwakCoachRun.aujourdhui() : null; } catch (e) { _awkE(e); }
     // v1400 : plan de course → ses sorties de la semaine sont l'objectif
     // v1409 : semaine hybride → toutes les séances prévues (courses + muscu), pas seulement les sorties
-    var _hybS = false; try { var _plS = planning((typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null); _hybS = Object.keys(_plS.plan || {}).some(function (k) { return _plS.plan[k] && _plS.plan[k].hybride; }); } catch (e) {}
+    var _hybS = false; try { var _plS = planning((typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null); _hybS = Object.keys(_plS.plan || {}).some(function (k) { return _plS.plan[k] && _plS.plan[k].hybride; }); } catch (e) { _awkE(e); }
     var visee2 = evS ? evS.parSemaine : ((runS && !_hybS) ? runS.total : Math.max(prevues, objectifHebdo())), fait2 = total, reste = visee2 - fait2;
     _semaine = { fait: fait2, visee: visee2 };   // v1410 : lu par la mission de la semaine
     var sous = reste <= 0 ? 'Objectif atteint' : (reste === 1 ? 'Plus qu\'une pour l\'objectif' : 'Encore ' + reste + ' pour l\'objectif');
@@ -563,7 +563,7 @@
   function queteHTML(info, hist) {
     if (jeuActif() && typeof window.rpgGetDailyQuests === 'function') {
       var q = [];
-      try { q = window.rpgGetDailyQuests() || []; } catch (e) {}
+      try { q = window.rpgGetDailyQuests() || []; } catch (e) { _awkE(e); }
       if (q.length) {
         var a = q.filter(function (x) { return !x.done; })[0];
         var reste = q._timeLeft || '';
@@ -581,14 +581,14 @@
     }
     // Hors jeu : les grands muscles pas encore travaillés depuis lundi
     // v1407 : pas pour un enfant (liste de muscles d'adulte : biceps, triceps…)
-    try { if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) return ''; } catch (e) {}
+    try { if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) return ''; } catch (e) { _awkE(e); }
     var debut = lundiDe(new Date()), compte = {};
     hist.forEach(function (w) {
       if (dateSeance(w) < debut) return;
       try {
         if (typeof accumulateWeightedMuscles === 'function') accumulateWeightedMuscles(w, compte);
         else (w.musclesWorked || w.muscles || []).forEach(function (m) { compte[m] = (compte[m] || 0) + 1; });
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     });
     var aPrevoir = MUSCLES_CLES.filter(function (m) { return !compte[m]; });
     if (!aPrevoir.length || aPrevoir.length === MUSCLES_CLES.length) return '';
@@ -603,15 +603,15 @@
   // ── « Ou choisir une autre activité » ──
   // Ouvre la discipline calme préférée (yoga par défaut) dans Programme › Sports
   window.awakOuvrirCalme = function (disc) {
-    var up = {}; try { up = (typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}; } catch (e) {}
+    var up = {}; try { up = (typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}; } catch (e) { _awkE(e); }
     var a = up.aime || [];
     disc = disc || (a.indexOf('yoga') >= 0 ? 'yoga' : (a.indexOf('pilates') >= 0 ? 'pilates' : 'yoga'));
     try {
-      try { localStorage.setItem('awakSelectedDiscipline', disc); } catch (e) {}
+      try { localStorage.setItem('awakSelectedDiscipline', disc); } catch (e) { _awkE(e); }
       if (typeof window.setProgramTabView === 'function') window.setProgramTabView('discipline');
       if (typeof window.switchTab === 'function') window.switchTab('program');
       if (typeof window.selectDisciplineCard === 'function') window.selectDisciplineCard(disc);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   };
   window.awakAutreActivite = function () {
     var vieux = document.getElementById('awakAutreModal'); if (vieux) vieux.remove();
@@ -690,21 +690,21 @@
       // v1318 : carte héros · tuiles · quête
       document.getElementById('ahpEntete').innerHTML = heroHTML(info, pl, hist);
       // v1543 : séance en cours → la carte du jour porte « Reprendre », pas de carte en double
-      try { var _rc = document.getElementById('resumeSessionCard'); if (_rc) _rc.style.display = seanceEnCours() ? 'none' : ''; } catch (e) {}
+      try { var _rc = document.getElementById('resumeSessionCard'); if (_rc) _rc.style.display = seanceEnCours() ? 'none' : ''; } catch (e) { _awkE(e); }
       document.getElementById('ahpAujourdhui').innerHTML = tuilesHTML(info, pl, hist);
       document.getElementById('ahpSemaine').innerHTML = queteHTML(info, hist);
       document.getElementById('ahpRaccourcis').innerHTML = raccourcisHTML();
       // v1544 : Carte du Système du jour gardée pour l'accueil si une séance l'a retardée
-      try { if (jeuActif() && typeof window.awakShowSystemCard === 'function' && !seanceEnCours()) setTimeout(function () { try { window.awakShowSystemCard(); } catch (e) {} }, 1800); } catch (e) {}
+      try { if (jeuActif() && typeof window.awakShowSystemCard === 'function' && !seanceEnCours()) setTimeout(function () { try { window.awakShowSystemCard(); } catch (e) { _awkE(e); } }, 1800); } catch (e) { _awkE(e); }
       // v1410 : bilan des 4 semaines (une fois par cycle de 28 jours)
-      try { if (window.AwakBilan4) AwakBilan4.monter(document.getElementById('ahpAvant')); } catch (e) {}
-    } catch (e) { try { console.warn('AwakHomePro', e); } catch (x) {} }
+      try { if (window.AwakBilan4) AwakBilan4.monter(document.getElementById('ahpAvant')); } catch (e) { _awkE(e); }
+    } catch (e) { try { console.warn('AwakHomePro', e); } catch (x) { _awkE(x); } }
   }
 
   var _semaine = null;
   // v1410 : séances faites / objectif de la semaine (même calcul que la tuile « Cette semaine »)
   function semaine() {
-    try { var info = profilActif(); tuilesHTML(info, planning(info.id), historique(info.id)); } catch (e) {}
+    try { var info = profilActif(); tuilesHTML(info, planning(info.id), historique(info.id)); } catch (e) { _awkE(e); }
     return _semaine;
   }
   // v1413 : « demain : Haut du corps » — pour le Prochain objectif de l'écran de fin

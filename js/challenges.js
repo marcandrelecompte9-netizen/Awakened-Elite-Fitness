@@ -271,7 +271,7 @@ const PENALTIES = [
                 const stats = JSON.parse(localStorage.getItem('workoutStats') || '{}');
                 stats.streak = 0;
                 localStorage.setItem('workoutStats', JSON.stringify(stats));
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             return { type: 'streak_reset', instant: true, expiresAt: Date.now() + 1000 };
         },
     },
@@ -300,7 +300,7 @@ const PENALTIES = [
                     const item = EQUIPMENT_DB.find(i => i.id === victim.itemId);
                     return { type: 'item_destroy', instant: true, destroyedItem: item?.name || 'Item inconnu', expiresAt: Date.now() + 1000 };
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             return { type: 'item_destroy', instant: true, destroyedItem: null, expiresAt: Date.now() + 1000 };
         },
     },
@@ -334,7 +334,7 @@ const PENALTIES = [
                         return { type: 'muscle_decay', instant: true, muscle: weakest[0], xpLost: lost, expiresAt: Date.now() + 1000 };
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             return { type: 'muscle_decay', instant: true, expiresAt: Date.now() + 1000 };
         },
     },
@@ -396,7 +396,7 @@ const PENALTIES = [
                     const item = EQUIPMENT_DB.find(i => i.id === victim.itemId);
                     return { type: 'rare_item_destroy', instant: true, destroyedItem: item?.name || 'Item Rare', destroyedRarity: item?.rarity, expiresAt: Date.now() + 1000 };
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             return { type: 'rare_item_destroy', instant: true, destroyedItem: null, expiresAt: Date.now() + 1000 };
         },
     },
@@ -417,7 +417,7 @@ const PENALTIES = [
                     localStorage.setItem('fitproRPG', JSON.stringify(data));
                     return { type: 'level_regression', instant: true, muscle: strongest[0], xpLost: lost, expiresAt: Date.now() + 1000 };
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             return { type: 'level_regression', instant: true, expiresAt: Date.now() + 1000 };
         },
     },
@@ -457,7 +457,7 @@ const PENALTIES = [
                 });
                 localStorage.setItem('fitpro_inventory', JSON.stringify(newInv));
                 return { type: 'inventory_purge', instant: true, itemsDestroyed: count, expiresAt: Date.now() + 1000 };
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             return { type: 'inventory_purge', instant: true, itemsDestroyed: 0, expiresAt: Date.now() + 1000 };
         },
     },
@@ -479,7 +479,7 @@ const PENALTIES = [
                     });
                     localStorage.setItem('fitproRPG', JSON.stringify(data));
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             return {
                 type: 'monarch_wrath',
                 stat_multiplier: 0.40,
@@ -508,7 +508,7 @@ const PENALTIES = [
                 const toDestroy = notLegendary.slice(0, 3).map(e => e.id);
                 const newInv = inv.filter(e => !toDestroy.includes(e.id));
                 localStorage.setItem('fitpro_inventory', JSON.stringify(newInv));
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             // XP du muscle le plus fort -25%
             try {
                 const data = JSON.parse(localStorage.getItem('fitproRPG') || '{}');
@@ -517,7 +517,7 @@ const PENALTIES = [
                     data.muscles[strongest[0]].xp = Math.max(0, Math.floor(strongest[1].xp * 0.75));
                     localStorage.setItem('fitproRPG', JSON.stringify(data));
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             return {
                 type: 'system_erasure',
                 stat_multiplier: 0.30,
@@ -648,13 +648,13 @@ function getActivePenalties() {
 // sont pas rendus.
 function awkPenaliteAvecCompetences(applyFn, challenge) {
     let sk = {};
-    try { sk = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {}; } catch (e) {}
+    try { sk = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {}; } catch (e) { _awkE(e); }
     if (sk.penaltyDodge && Math.random() < sk.penaltyDodge) {
         if (typeof showToast === 'function') showToast('Pénalité esquivée grâce à tes compétences', 'success', 3200);
         return { type: 'esquive', dodged: true, expiresAt: Date.now() + 1000 };
     }
     let avant = null;
-    try { avant = JSON.parse(localStorage.getItem('fitproRPG') || '{}'); } catch (e) {}
+    try { avant = JSON.parse(localStorage.getItem('fitproRPG') || '{}'); } catch (e) { _awkE(e); }
     const data = applyFn(challenge);
     const r = Math.min(0.8, sk.penaltyReduction || 0);
     if (r > 0) {
@@ -667,7 +667,7 @@ function awkPenaliteAvecCompetences(applyFn, challenge) {
                 });
                 localStorage.setItem('fitproRPG', JSON.stringify(apres));
             }
-        } catch (e) {}
+        } catch (e) { _awkE(e); }
         if (data && typeof data === 'object') {
             ['multiplier', 'xp_multiplier', 'stat_multiplier'].forEach(k => {
                 if (typeof data[k] === 'number') data[k] = 1 - (1 - data[k]) * (1 - r);
@@ -693,12 +693,12 @@ function awkDefiEffets() {
             if (typeof p.xp_multiplier === 'number') out.xp *= p.xp_multiplier;
             if (typeof p.stat_multiplier === 'number') out.equip *= p.stat_multiplier;
         });
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     try {
         const r = getChallengeRewards();
         if (r.xp_boost && r.xp_boost.expiresAt > now) out.xp *= r.xp_boost.multiplier || 1;
         if (r.stat_boost && r.stat_boost.expiresAt > now) out.equip *= r.stat_boost.multiplier || 1;
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return out;
 }
 window.awkDefiEffets = awkDefiEffets;
@@ -706,7 +706,7 @@ window.awkDefiEffets = awkDefiEffets;
 function addPenalty(penaltyData) {
     if (!penaltyData || penaltyData.dodged) return;
     try {
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
     const penalties = getActivePenalties();
     penalties.push(penaltyData);
     localStorage.setItem(CHALLENGE_STORAGE.penalties, JSON.stringify(penalties));
@@ -815,7 +815,7 @@ const LEGENDARY_PENALTY = {
                 });
                 localStorage.setItem('fitproRPG', JSON.stringify(data));
             }
-        } catch(e) {}
+        } catch(e) { _awkE(e); }
         // 2. Tous les items communs et rares détruits
         let itemsDestroyed = 0;
         try {
@@ -827,13 +827,13 @@ const LEGENDARY_PENALTY = {
             });
             itemsDestroyed = inv.length - survivors.length;
             localStorage.setItem('fitpro_inventory', JSON.stringify(survivors));
-        } catch(e) {}
+        } catch(e) { _awkE(e); }
         // 3. Streak remis à zéro
         try {
             const stats = JSON.parse(localStorage.getItem('workoutStats') || '{}');
             stats.streak = 0;
             localStorage.setItem('workoutStats', JSON.stringify(stats));
-        } catch(e) {}
+        } catch(e) { _awkE(e); }
         return {
             type: 'armageddon',
             stat_multiplier: 0.20,
@@ -895,7 +895,7 @@ function _giveXPBonus(amount) {
         const perMuscle = Math.floor(amount / muscleKeys.length);
         muscleKeys.forEach(m => { data.muscles[m].xp = (data.muscles[m].xp||0) + perMuscle; });
         localStorage.setItem('fitproRPG', JSON.stringify(data));
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
     return { type:'xp_bonus', amount };
 }
 
@@ -1501,11 +1501,11 @@ function maybeRollSystemChallenge(force) {
     const _jour = new Date().toDateString();
     try {
         if (localStorage.getItem('challengeLastRollDay') === _jour) return;
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
     try {
         localStorage.setItem('challengeLastRollDay', _jour);
         localStorage.setItem('challengeLastRoll', String(Date.now()));
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
 
     const challenge = getActiveSystemChallenge();
     const noActive = !challenge || challenge.status !== 'active';
@@ -1534,7 +1534,7 @@ function initChallengeSystem() {
         document.addEventListener('visibilitychange', function () {
             if (document.visibilityState === 'visible') maybeRollSystemChallenge(false);
         });
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
 }
 
 // Après une séance — pas de nouveau défi automatique,

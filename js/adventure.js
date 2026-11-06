@@ -20,7 +20,7 @@ try {
         if (e.type === 'xpGain') e.label = '+' + pc + ' % d\'XP en fin de Faille';
         else if (e.type === 'recovery') e.label = '+' + pc + ' % de PV récupérés en Faille';
     });
-} catch (e) {}
+} catch (e) { _awkE(e); }
 
 // RARITIES locaux (étendus) — indépendants de items.js
 const RARITIES = {
@@ -63,7 +63,7 @@ function getAdventureEnabled() {
     try {
         if (typeof window.rpgEnabled === 'function') { if (!window.rpgEnabled()) return false; }
         else if (localStorage.getItem('fitproGameMode') !== '1') return false;
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return localStorage.getItem(ADVENTURE_STORAGE.enabled) === 'true';
 }
 function setAdventureEnabled(val) { localStorage.setItem(ADVENTURE_STORAGE.enabled, val ? 'true' : 'false'); }
@@ -98,7 +98,7 @@ function getHunterRankIndex() {
     // Aligner sur le rang AFFICHÉ (_awakGetCurrentLevel) : muscle XP + XP cumulée à vie.
     // Sans le lifetime, le rang d'équipement diverge du rang réel du joueur.
     let lifetimeXP = 0;
-    try { lifetimeXP = parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0') || 0; } catch(e) {}
+    try { lifetimeXP = parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0') || 0; } catch(e) { _awkE(e); }
     const totalXP = muscleXP + lifetimeXP;
     const level   = (typeof rpgLevelFromXP === 'function') ? rpgLevelFromXP(totalXP) : 1;
     // Seuils alignés sur le rang affiché (v1536) : E=1, D=10, C=20, B=35, A=55, S=80, SS=100, SSS=120
@@ -217,7 +217,7 @@ function equipItem(invId) {
     try {
         const _lk = (typeof window.awkDefiEffets === 'function') ? window.awkDefiEffets().locks : [];
         if (_lk.indexOf(item.slot) >= 0) return { success: false, reason: 'slot_locked', label: 'Emplacement scellé', itemName: item.name };
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     const eq = getEquipped();
     eq[item.slot] = invId;
     saveEquipped(eq);
@@ -233,7 +233,7 @@ function unequipSlot(slot) {
     try {
         const _lk = (typeof window.awkDefiEffets === 'function') ? window.awkDefiEffets().locks : [];
         if (_lk.indexOf(slot) >= 0) { if (typeof showToast === 'function') showToast('Emplacement scellé par le Système : impossible de le changer pour l\'instant', 'error', 3200); return; }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     const eq = getEquipped(); eq[slot] = null; saveEquipped(eq);
     // v680 : voir equipItem — le retrait modifie aussi les stats affichées, la
     // Carte de Chasseur doit suivre.
@@ -292,7 +292,7 @@ function getPlayerEquipStats() {
     try {
         const sk = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {};
         _penaltyRed = Math.min(0.9, sk.equipPenaltyReduction || 0);
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
     for (const item of Object.values(eqItems)) {
         if (!item) continue;
         for (const [s,v] of Object.entries(item.stats||{})) {
@@ -307,7 +307,7 @@ function getPlayerEquipStats() {
         for (const it of Object.values(eqItems)) {
             if (it && it.cursed && it.curse && (it.curse.type === 'disableOtherPassives')) { _disablePassives = true; break; }
         }
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
     if (!_disablePassives) {
         for (const {bonus} of setBonuses) {
             for (const [s,v] of Object.entries(bonus.stats||{})) stats[s] = (stats[s]||0)+v;
@@ -318,14 +318,14 @@ function getPlayerEquipStats() {
     try {
         const _dm = (typeof window.awkDefiEffets === 'function') ? window.awkDefiEffets().equip : 1;
         if (_dm !== 1) for (const s of Object.keys(stats)) stats[s] = Math.round(stats[s] * _dm);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     // Ajouter les points de stats alloués par le joueur
     try {
         const sp = JSON.parse(localStorage.getItem('fitproStatPoints') || 'null');
         if (sp && sp.allocated) {
             for (const [s,v] of Object.entries(sp.allocated)) stats[s] = (stats[s]||0)+(v||0);
         }
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
     // 🐛 Bonus « SET COMPLET » (tous les stats +30 %, +45 %…) : ils n'étaient
     // que du TEXTE, jamais appliqués. On les applique EN DERNIER, sur le total
     // (équipement + sets + points investis) — sinon le pourcentage ne
@@ -336,7 +336,7 @@ function getPlayerEquipStats() {
         if (_pctTotal > 0) {
             for (const k of Object.keys(stats)) stats[k] = Math.round(stats[k] * (1 + _pctTotal));
         }
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
     // Ajouter les bonus de stats permanents de la classe (évolution incluse)
     try {
         const classId = localStorage.getItem('fitproRPGClass');
@@ -358,7 +358,7 @@ function getPlayerEquipStats() {
                 for (const [s,v] of Object.entries(statBonus)) stats[s] = (stats[s]||0)+(v||0);
             }
         }
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
     // Ajouter les bonus de stats des compétences débloquées
     try {
         const unlocked = JSON.parse(localStorage.getItem('fitproRPGSkills') || '[]');
@@ -371,7 +371,7 @@ function getPlayerEquipStats() {
                 }
             });
         }
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
     return stats;
 }
 
@@ -483,13 +483,13 @@ function tryEquipmentDrop(muscle, workoutQuality) {
     if (daily.count >= MAX_DROPS_PER_DAY) return null;
     // v1537 : défis du Système — butin interdit / bonus de chance / butin garanti (avant : sans effet)
     let _garanti = null, _bonusDrop = 1;
-    try { if (typeof window.awkDefiEffets === 'function' && window.awkDefiEffets().ban) return null; } catch (e) {}
+    try { if (typeof window.awkDefiEffets === 'function' && window.awkDefiEffets().ban) return null; } catch (e) { _awkE(e); }
     try {
         _garanti = JSON.parse(localStorage.getItem('fitpro_guaranteed_drop') || 'null');
         const _db = JSON.parse(localStorage.getItem('fitpro_drop_bonus') || 'null');
         if (_db && (!_db.expiresAt || _db.expiresAt > Date.now())) _bonusDrop = _db.multiplier || 1;
         localStorage.removeItem('fitpro_drop_bonus');   // « prochaine séance » : utilisé maintenant
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     // ── Drop ultra-rare du Tome de l'Éveil (0.5%) ────────────────────
     // Conditions : avoir déjà une classe ET ne pas déjà avoir un tome
@@ -507,7 +507,7 @@ function tryEquipmentDrop(muscle, workoutQuality) {
                 return { item: tome, rarity: RARITIES.legendary, qualityScore: 1.0, effectiveRank: 5, isSpecial: true };
             }
         }
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
 
     // ── Qualité de l'entraînement (0 à 1) ────────────────────────────
     // workoutQuality = { exerciseCount, durationSeconds, skipRatio }
@@ -577,7 +577,7 @@ function tryEquipmentDrop(muscle, workoutQuality) {
             if (compBonus.rareLootBoost) rareLootMult = 1 + compBonus.rareLootBoost;
             if (compBonus.doubleDropChance) doubleDropChance = compBonus.doubleDropChance;
         }
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
 
     // 🌀 SEN : bonus chance de loot rare (depuis les stats joueur)
     try {
@@ -587,7 +587,7 @@ function tryEquipmentDrop(muscle, workoutQuality) {
                 rareLootMult += bonuses.rareLootBonus;
             }
         }
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
 
     const baseTable = rankTables[effectiveRank];
     // Si Yuna est active, redistribuer les probas vers les hautes raretés
@@ -629,13 +629,13 @@ function tryEquipmentDrop(muscle, workoutQuality) {
         if (sk.epicToLegendary && rarity === 'epic' && Math.random() < sk.epicToLegendary) {
             rarity = 'legendary';
         }
-    } catch(e) {}
+    } catch(e) { _awkE(e); }
 
     // v1537 : butin garanti d'un défi réussi (rareté minimale), puis consommé
     if (_garanti && _garanti.minRarity) {
         const _ord = ['common', 'uncommon', 'rare', 'superior', 'epic', 'legendary', 'mythic'];
         if (_ord.indexOf(rarity) < _ord.indexOf(_garanti.minRarity)) rarity = _garanti.minRarity;
-        try { localStorage.removeItem('fitpro_guaranteed_drop'); } catch (e) {}
+        try { localStorage.removeItem('fitpro_guaranteed_drop'); } catch (e) { _awkE(e); }
     }
 
     // ── Sélection de l'item ──────────────────────────────────────────
@@ -661,7 +661,7 @@ function tryEquipmentDrop(muscle, workoutQuality) {
             inv.unshift({ itemId: bonusItem.id, obtainedAt: new Date().toISOString(), id: Date.now() + 1 });
             if (typeof showToast === 'function') setTimeout(() => showToast('Double butin : ' + bonusItem.name + ' rejoint ton inventaire', 'success', 3500), 2500);
         }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     saveInventory(inv);
     daily.count++;
     saveDailyDrops(daily);
@@ -719,7 +719,7 @@ function toggleAvatarGender() {
     // 🎴 La CARTE DU JOUEUR utilise aussi cet avatar comme fond : sans ce
     // re-rendu, le fond restait celui de l'ancien genre jusqu'au prochain
     // changement d'onglet.
-    try { if (typeof renderGameTab === 'function') renderGameTab(); } catch (e) {}
+    try { if (typeof renderGameTab === 'function') renderGameTab(); } catch (e) { _awkE(e); }
 }
 window.toggleAvatarGender = toggleAvatarGender;
 
@@ -850,20 +850,20 @@ function renderFamilyTab() {
     // à moitié vide, et ce qui se passe se voit sans ouvrir de fenêtre.
     const _sky = window.AwakFamilySky || null;
     let _enfant = false;
-    try { _enfant = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) {}
-    if (_sky) { try { html += _sky.avant(); } catch (e) {} }
+    try { _enfant = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) { _awkE(e); }
+    if (_sky) { try { html += _sky.avant(); } catch (e) { _awkE(e); } }
     if (_enfant) {
         // 🧒 v1346 : version ENFANT allégée (7 blocs → 4) : le ciel (qui montre déjà qui
         // a bougé) avec ses jeux, « Bouger ensemble », puis la constellation de la semaine.
         // Sans tableau « Notre semaine », barre Défis/Badges/Ma famille/Journal ni invitation à un défi.
         html += constCard;
-        try { if (window.AwakFamilyWeek && AwakFamilyWeek.renderBouger) html += AwakFamilyWeek.renderBouger(); } catch (e) {}
-        if (_sky) { try { html += (_sky.apresEnfant || _sky.apres)(); } catch (e) {} }
+        try { if (window.AwakFamilyWeek && AwakFamilyWeek.renderBouger) html += AwakFamilyWeek.renderBouger(); } catch (e) { _awkE(e); }
+        if (_sky) { try { html += (_sky.apresEnfant || _sky.apres)(); } catch (e) { _awkE(e); } }
     } else {
         // v1295 : « Notre semaine » — qui a bougé, jour par jour, avant le ciel
-        try { if (window.AwakFamilyWeek) html += window.AwakFamilyWeek.render(); } catch (e) {}
+        try { if (window.AwakFamilyWeek) html += window.AwakFamilyWeek.render(); } catch (e) { _awkE(e); }
         html += constCard;
-        if (_sky) { try { html += _sky.apres(); } catch (e) {} }
+        if (_sky) { try { html += _sky.apres(); } catch (e) { _awkE(e); } }
         // v1407 : « Ajouter un membre » reste visible (avant : seulement avec 1 profil —
         // pour ajouter un 3e ou un 4e membre, il fallait passer par le portrait de l'accueil)
         if (profileCount < (window.AWAK_MAX_PROFILS || 8)) {
@@ -884,13 +884,13 @@ function renderFamilyTab() {
 // onglet Famille). Les actions des cartes (attaque, réclamation, liaison…)
 // appellent cette fonction pour que les deux onglets restent synchronisés.
 function refreshCoopViews() {
-    try { if (typeof renderFamilyTab === 'function') renderFamilyTab(); } catch (e) {}
+    try { if (typeof renderFamilyTab === 'function') renderFamilyTab(); } catch (e) { _awkE(e); }
     try {
         const adv = document.getElementById('adventureContainer');
         if (adv && typeof renderAdventureTab === 'function' && typeof getAdventureEnabled === 'function' && getAdventureEnabled()) {
             renderAdventureTab();
         }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 }
 window.renderFamilyTab = renderFamilyTab;
 window.refreshCoopViews = refreshCoopViews;
@@ -980,9 +980,9 @@ function showItemDetail(itemId, context, invId) {
 function showDropModal(item, rarityInfo, qualityScore) {
     if (!item) return;
     // v1413 : sur l'écran de fin, l'équipement va dans « Butin de la séance » (« Voir » rouvre cette fenêtre)
-    try { if (!window._awakFinVoir && window.AwakFin && window.AwakFin.objet(item, rarityInfo, qualityScore)) return; } catch (e) {}
+    try { if (!window._awakFinVoir && window.AwakFin && window.AwakFin.objet(item, rarityInfo, qualityScore)) return; } catch (e) { _awkE(e); }
     // v1450 : ailleurs aussi, l'équipement sort d'un coffre (« Voir l'objet » rouvre cette fenêtre)
-    try { if (!window._awakFinVoir && typeof window.awakCoffreEquipement === 'function' && window.awakCoffreEquipement(item, rarityInfo, qualityScore)) return; } catch (e) {}
+    try { if (!window._awakFinVoir && typeof window.awakCoffreEquipement === 'function' && window.awakCoffreEquipement(item, rarityInfo, qualityScore)) return; } catch (e) { _awkE(e); }
     document.getElementById('dropModal')?.remove();
 
     const qScore = Math.round((qualityScore || 0.5) * 100);

@@ -61,7 +61,7 @@
     try {
       var w = e.workoutData && e.workoutData.exercises;
       if (Array.isArray(w)) return w.filter(function (x) { return x && !x.isRest && !x.isInfo; }).length;
-    } catch (er) {}
+    } catch (er) { _awkE(er); }
     return 0;
   }
   function volumeMuscles(e) {
@@ -86,7 +86,7 @@
   // ── Records : séries qui ont battu tout ce qui précédait ──
   function records() {
     var perf = {};
-    try { perf = (typeof window.getExercisePerformances === 'function') ? (window.getExercisePerformances() || {}) : {}; } catch (e) {}
+    try { perf = (typeof window.getExercisePerformances === 'function') ? (window.getExercisePerformances() || {}) : {}; } catch (e) { _awkE(e); }
     var out = [];
     Object.keys(perf).forEach(function (nom) {
       var h = perf[nom];
@@ -247,12 +247,12 @@
       try {
         var mf = window.AwakKidsPrograms && AwakKidsPrograms.missionsFaites ? AwakKidsPrograms.missionsFaites() : {};
         Object.keys(mf).forEach(function (k) { missions += mf[k].total || 0; });
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
       var defis = 0;
       try {
         var dt = (typeof window.awakDefisTermines === 'function') ? window.awakDefisTermines() : {};
         Object.keys(dt).forEach(function (k) { defis += dt[k] || 0; });
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
       h += carteBloc('Ce que tu as accompli', 'etoile', OR,
         '<div style="display:flex;gap:7px;margin-bottom:7px;">'
         + tuile(hist.length, 'séances', BLEU) + tuile(etoiles, 'étoiles', OR) + '</div>'
@@ -319,7 +319,7 @@
         var n = typeof x === 'string' ? x : x.name;
         if (n && !/^(repos|échauffement|retour au calme)/i.test(n) && noms.indexOf(n) === -1) noms.push(n);
       });
-    } catch (er) {}
+    } catch (er) { _awkE(er); }
     if (!noms.length) return '';
     var txt = noms.slice(0, 2).join(', ') + (noms.length > 2 ? ' +' + (noms.length - 2) : '');
     return '<div style="font-size:0.66em;color:#8391a7;font-weight:600;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(txt) + '</div>';
@@ -410,7 +410,7 @@
   }
   function plus() {
     window._awakHistMax = (window._awakHistMax || PAS) + 20;
-    try { window.renderWorkoutHistory(window._histFilter || 'all'); } catch (e) {}
+    try { window.renderWorkoutHistory(window._histFilter || 'all'); } catch (e) { _awkE(e); }
   }
 
   // ── Version enfant : ce qui ne le concerne pas disparaît ──
@@ -433,12 +433,12 @@
     if (hof) hof.textContent = kid ? 'Mes records' : 'Hall of Fame';
     if (hofSub) hofSub.textContent = kid ? 'Ce que tu fais de mieux' : 'Tes records personnels';
     // v1548 : enfant → « Mes records » est déjà affiché en haut : pas de tuile en double
-    try { var _t = hof && hof.closest('[onclick]'); if (_t) _t.style.display = kid ? 'none' : ''; } catch (e) {}
+    try { var _t = hof && hof.closest('[onclick]'); if (_t) _t.style.display = kid ? 'none' : ''; } catch (e) { _awkE(e); }
   }
 
   function rendre() {
-    try { appliquerAge(); } catch (e) {}
-    try { rendreHaut(); } catch (e) {}
+    try { appliquerAge(); } catch (e) { _awkE(e); }
+    try { rendreHaut(); } catch (e) { _awkE(e); }
   }
 
   window.AwakProg = {

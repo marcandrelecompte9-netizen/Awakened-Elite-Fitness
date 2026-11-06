@@ -93,7 +93,7 @@
     try {
       if (typeof machineTypes === 'undefined') return null;
       for (var i = 0; i < machineTypes.length; i++) if ((machineTypes[i].exercises || []).indexOf(n) >= 0) return machineTypes[i];
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return null;
   }
   function salleBondeeBloque(ex) {
@@ -120,15 +120,15 @@
   }
   // v1573 : réglages de sécurité (limitations, douleurs, bannis, mode silencieux, matériel caché)
   function refuse(e) {
-    try { if (typeof window.awakRaisonRefus === 'function' && window.awakRaisonRefus(e, { sansNiveau: true })) return true; } catch (x) {}
-    try { if (window.AwakPain && AwakPain.exerciseHitsPain && AwakPain.exerciseHitsPain(e)) return true; } catch (x) {}
+    try { if (typeof window.awakRaisonRefus === 'function' && window.awakRaisonRefus(e, { sansNiveau: true })) return true; } catch (x) { _awkE(x); }
+    try { if (window.AwakPain && AwakPain.exerciseHitsPain && AwakPain.exerciseHitsPain(e)) return true; } catch (x) { _awkE(x); }
     return false;
   }
   function remplacant(ex, deja, eq) {
     var L = (window.exerciseDatabase || []).filter(function (e) {
       return e && e.type === 'exercise' && !e.discipline && e.muscle === ex.muscle && deja.indexOf(e.name) < 0 && dispo(e, eq) && !refuse(e);
     });
-    try { if (window.AwakPain && typeof AwakPain.filterExercises === 'function') L = AwakPain.filterExercises(L); } catch (e) {}
+    try { if (window.AwakPain && typeof AwakPain.filterExercises === 'function') L = AwakPain.filterExercises(L); } catch (e) { _awkE(e); }
     if (!L.length) return null;
     var rang = function (e) {
       var q = e.equipment || [], s = 0;
@@ -173,7 +173,7 @@
     if (!_lieuOk && lieu && lieu.mode !== 'gym' && gym && typeof window.showConfirm === 'function'
         && (day.exercises || []).some(function (n) { var e = db(n); return e && (e.equipment || []).indexOf('Machine') >= 0; })) {
       window.showConfirm('Tu es en mode ' + lieu.name + ' : les machines de cette séance seraient remplacées par ce que tu as à cet endroit. Passer à ' + gym.name + ' ?',
-        function () { try { window.switchLocation(gym.id); } catch (e) {} lancer(progId, dayKey, true); },
+        function () { try { window.switchLocation(gym.id); } catch (e) { _awkE(e); } lancer(progId, dayKey, true); },
         function () { lancer(progId, dayKey, true); },
         { title: 'Tu es à la salle ?', confirmLabel: 'Passer à ' + gym.name, cancelLabel: 'Rester en mode ' + lieu.name });
       return;
@@ -218,7 +218,7 @@
         var w = H[i] && H[i].workoutData;
         if (w && w._salleProg && w._salleJour) return { prog: w._salleProg, jour: w._salleJour, date: H[i].date };
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return null;
   }
   function prochaine() {
@@ -299,7 +299,7 @@
     // v1281 : au gym, des machines remplacées = types de machines non cochés dans le lieu
     if (!bandeauLieu && lieu && lieu.mode === 'gym') {
       var nRemp = 0;
-      try { PROGS.forEach(function (p) { var pr = g[p.id]; if (pr) Object.keys(pr).forEach(function (k) { nRemp += composer(p.id, k).filter(function (x) { return x.remplace; }).length; }); }); } catch (e) {}
+      try { PROGS.forEach(function (p) { var pr = g[p.id]; if (pr) Object.keys(pr).forEach(function (k) { nRemp += composer(p.id, k).filter(function (x) { return x.remplace; }).length; }); }); } catch (e) { _awkE(e); }
       if (nRemp) bandeauLieu = '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);">'
         + ic('alerte', 18, '#fbbf24')
         + '<div style="flex:1;min-width:0;font-size:0.72em;color:#fde68a;line-height:1.4;">Certaines machines ne sont pas cochées dans <b>' + esc(lieu.name) + '</b> : elles sont remplacées.</div>'

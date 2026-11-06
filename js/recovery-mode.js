@@ -25,7 +25,7 @@
     try {
       if (obj) localStorage.setItem(KEY, JSON.stringify(obj));
       else localStorage.removeItem(KEY);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   function isActive() {
@@ -82,7 +82,7 @@
         }
         window.rpgSave(data);
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     _save(null);
   }
@@ -158,6 +158,6 @@
     deactivate();
     updateBanner();
     if (typeof window.showToast === 'function') window.showToast('💪 Bon retour ! Ta progression t\'attendait.', 'success', 3500);
-    if (typeof window.updateHomeStats === 'function') { try { window.updateHomeStats(); } catch (e) {} }
+    if (typeof window.updateHomeStats === 'function') { try { window.updateHomeStats(); } catch (e) { _awkE(e); } }
   };
 })();

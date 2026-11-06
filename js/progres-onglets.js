@@ -89,15 +89,15 @@
       x.setAttribute('aria-selected', on ? 'true' : 'false');
     });
     ouvrirAccordeons(g);
-    try { localStorage.setItem(cle(), g); } catch (e) {}
+    try { localStorage.setItem(cle(), g); } catch (e) { _awkE(e); }
     if (haut) {
       try {
         var r = b.getBoundingClientRect();
         if (r.top < 0 || window.scrollY > t.offsetTop + 40) window.scrollTo({ top: Math.max(0, t.offsetTop - 8), behavior: 'auto' });
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     }
     if (g === 'corps') {
-      try { if (typeof window.awakRenderCorpsCard === 'function') window.awakRenderCorpsCard(); } catch (e) {}
+      try { if (typeof window.awakRenderCorpsCard === 'function') window.awakRenderCorpsCard(); } catch (e) { _awkE(e); }
     }
   }
 

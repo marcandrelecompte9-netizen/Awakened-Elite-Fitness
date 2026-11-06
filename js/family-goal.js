@@ -19,7 +19,7 @@
     size = size || 26;
     try {
       if (typeof window.renderAvatar === 'function') return window.renderAvatar(a, size);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return '<span style="font-size:' + Math.round(size * 0.62) + 'px;">' +
            String(a == null ? '\u{1F464}' : a).replace(/[&<>"]/g, function (c) {
              return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }) + '</span>';
@@ -109,7 +109,7 @@
     try {
       if (obj) localStorage.setItem(GOAL_KEY, JSON.stringify(obj));
       else localStorage.removeItem(GOAL_KEY);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   function _currentId() {
@@ -177,7 +177,7 @@
     // 🎯 Masqué pour qui s'en est retiré : l'objectif continue pour les autres.
     try {
       if (window.AwakGoalRetireePour && window.AwakGoalRetireePour()) return false;
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     var g = _load(); return !!(g && g.target > 0);
   }
 
@@ -188,7 +188,7 @@
     var span = (days && days > 0 ? days : 30) * 86400000;
     // v1582 : nouvel objectif = tout le monde dedans (les retraits et la demande
     // d'annulation de l'objectif précédent le cachaient à ceux qui s'en étaient retirés)
-    try { localStorage.removeItem('awakGoalRetraits'); localStorage.removeItem('awakGoalDemande'); } catch (e) {}
+    try { localStorage.removeItem('awakGoalRetraits'); localStorage.removeItem('awakGoalDemande'); } catch (e) { _awkE(e); }
     _save({
       type: type,
       target: target,
@@ -231,14 +231,14 @@
   }
   function incrementGoalsDone() {
     var n = goalsDone() + 1;
-    try { localStorage.setItem(DONE_KEY, String(n)); } catch (e) {}
+    try { localStorage.setItem(DONE_KEY, String(n)); } catch (e) { _awkE(e); }
     // 🏅 Badge « Cap tenu » — on réutilise CE compteur plutôt que d'en créer
     // un second : deux sources pour la même donnée finiraient par diverger.
     try {
       if (typeof window.AwakFamBadgeInc === 'function') {
         window.AwakFamBadgeInc('objectifsAtteints', 1);
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return n;
   }
   // Titre actuel (le plus haut atteint) et le prochain à viser.
@@ -267,7 +267,7 @@
       if (!v[goalId]) v[goalId] = {};
       v[goalId][profileId] = true;
       localStorage.setItem('awakGoalVu', JSON.stringify(v));
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
   function _dejaVu(goalId, profileId) {
     var v = _vuPar();
@@ -282,14 +282,14 @@
           function () { cancel(); _refresh(); },
           null, { title: 'Objectif terminé', confirmLabel: 'Clore' });
       } else { cancel(); _refresh(); }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   };
 
   window.AwakGoalMarquerVu = function () {
     try {
       var g = _load();
       if (g) _marquerVu(g.startsAt || 'g', _currentId());
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   };
 
   function status() {
@@ -458,7 +458,7 @@
         dDeb = a.getDate() + ' ' + MO[a.getMonth()];
         dFin = b.getDate() + ' ' + MO[b.getMonth()];
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     function bloc(titre, contenu, couleurTitre) {
       return '<div style="margin-bottom:13px;">'
@@ -617,7 +617,7 @@
         titreBloc = '<div style="margin-top:10px;padding-top:9px;border-top:1px solid rgba(255,255,255,0.06);font-size:0.7em;color:#fbbf24;">'
           + _t.actuel.emoji + ' ' + esc(_t.actuel.nom) + ' — titre le plus haut atteint</div>';
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     var head = st.reached
       ? '<div style="text-align:center;padding:14px 12px 12px;margin-bottom:12px;'
@@ -650,7 +650,7 @@
         : '');
     // 👁️ Ce profil vient de voir l'annonce : on le note pour que le bandeau
     // « NOUVEAU » ne réapparaisse plus chez lui.
-    if (st.reached) { try { window.AwakGoalMarquerVu(); } catch (e) {} }
+    if (st.reached) { try { window.AwakGoalMarquerVu(); } catch (e) { _awkE(e); } }
 
     // 📖 La carte entière ouvre la fiche détaillée (sauf les boutons, qui
     //    arrêtent la propagation pour garder leur propre action).
@@ -701,9 +701,9 @@
     // « Changer d'objectif » de la fiche (mode 'nouveau').
     if (mode !== 'nouveau') {
       var _enCours = null;
-      try { _enCours = isActive() ? status() : null; } catch (e) {}
+      try { _enCours = isActive() ? status() : null; } catch (e) { _awkE(e); }
       if (_enCours && _enCours.def) {
-        try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+        try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) { _awkE(e); }
         window.AwakFamilyGoalInfo();
         return;
       }
@@ -732,7 +732,7 @@
 
     var overlay = document.createElement('div');
     // 🧹 Fermer toute autre modale famille avant d'ouvrir celle-ci.
-    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) { _awkE(e); }
     overlay.id = 'awakGoalModal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;';
     overlay.onclick = function (e) { if (e.target === overlay) overlay.remove(); };
@@ -759,7 +759,7 @@
       if (typeof window.AwakYouth.isChildProfile === 'function') {
         return _allProfiles().some(function (p) { return window.AwakYouth.isChildProfile(p.id); });
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return false;
   }
 
@@ -771,7 +771,7 @@
         if (typeof showToast === 'function') {
           showToast('Objectif indisponible : un enfant fait partie de la famille. Choisis plutôt les séances, les minutes ou les exercices.', 'info', 5000);
         }
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
       return;
     }
     // surligner le type choisi
@@ -802,7 +802,7 @@
     var el = document.getElementById('awakGoalRewardInput');
     if (!el) return;
     setReward(el.value);
-    try { window.AwakFamilyGoalInfo(); } catch (e) {}
+    try { window.AwakFamilyGoalInfo(); } catch (e) { _awkE(e); }
     _refresh();
     if (typeof window.showToast === 'function') window.showToast(el.value.trim() ? 'Récompense enregistrée' : 'Récompense retirée', 'success', 2200);
   };
@@ -832,7 +832,7 @@
     catch (e) { return []; }
   }
   function _retraitsSave(a) {
-    try { localStorage.setItem(RETRAITS_KEY, JSON.stringify(a || [])); } catch (e) {}
+    try { localStorage.setItem(RETRAITS_KEY, JSON.stringify(a || [])); } catch (e) { _awkE(e); }
   }
 
   // L'objectif est-il masqué pour le profil actif ?
@@ -850,7 +850,7 @@
       autres = tous.filter(function (p) {
         return p && p.id !== moi && r.indexOf(p.id) === -1;
       }).length;
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     // Seul participant restant : suppression directe, personne à consulter.
     if (autres <= 0) {
@@ -879,7 +879,7 @@
               par: moi, quand: Date.now(),
               nom: (typeof getUserProfile === 'function' && getUserProfile()) ? getUserProfile().name : 'Un membre'
             }));
-          } catch (e) {}
+          } catch (e) { _awkE(e); }
           _refresh();
           if (typeof window.showToast === 'function') {
             window.showToast("Tu t'es retiré de l'objectif. Les autres en sont informés.", 'info', 4000);
@@ -922,11 +922,11 @@
         { title: 'Objectif commun', icon: '🎯',
           confirmLabel: 'Arrêter aussi', cancelLabel: 'Continuer' }
       );
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   };
 
 
   function _refresh() {
-    try { if (typeof window.renderFamilyTab === 'function') window.renderFamilyTab(); } catch (e) {}
+    try { if (typeof window.renderFamilyTab === 'function') window.renderFamilyTab(); } catch (e) { _awkE(e); }
   }
 })();

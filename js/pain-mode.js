@@ -35,7 +35,7 @@
       if (cible === LEGACY_KEY) return;            // profil inconnu : on attend
       if (!localStorage.getItem(cible)) localStorage.setItem(cible, ancien);
       localStorage.removeItem(LEGACY_KEY);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   // Zones proposées → muscles (dbName) qu'elles recouvrent.
@@ -69,10 +69,10 @@
     toggleZone(zid);
     _paintBody();
     _refreshExtraChips();
-    try { updateButton(); } catch (e) {}
+    try { updateButton(); } catch (e) { _awkE(e); }
   };
   // Exposé : permet de rallumer les zones douloureuses après un changement de vue
-  window.AwakPainRepaint = function () { try { _paintBody(); } catch (e) {} };
+  window.AwakPainRepaint = function () { try { _paintBody(); } catch (e) { _awkE(e); } };
   // Rafraîchit les pastilles Poignets / Genoux sans reconstruire la fenêtre
   function _refreshExtraChips() {
     var active = _load();
@@ -103,7 +103,7 @@
       return Array.isArray(a) ? a : [];
     } catch (e) { return []; }
   }
-  function _save(a) { try { _migrer(); localStorage.setItem(KEY(), JSON.stringify(a || [])); } catch (e) {} }
+  function _save(a) { try { _migrer(); localStorage.setItem(KEY(), JSON.stringify(a || [])); } catch (e) { _awkE(e); } }
 
   function activeZones() { return _load(); }
 
@@ -145,8 +145,8 @@
   // v1570 : date de chaque zone — une douleur se revoit après 3 jours (avant : active pour toujours)
   var DUREE_JOURS = 3;
   function _dates() { try { return JSON.parse(localStorage.getItem(KEY() + '_dates') || '{}') || {}; } catch (e) { return {}; } }
-  function _saveDates(d) { try { localStorage.setItem(KEY() + '_dates', JSON.stringify(d || {})); } catch (e) {} }
-  function clear() { try { localStorage.removeItem(KEY()); localStorage.removeItem(LEGACY_KEY); localStorage.removeItem(KEY() + '_dates'); } catch (e) {} }
+  function _saveDates(d) { try { localStorage.setItem(KEY() + '_dates', JSON.stringify(d || {})); } catch (e) { _awkE(e); } }
+  function clear() { try { localStorage.removeItem(KEY()); localStorage.removeItem(LEGACY_KEY); localStorage.removeItem(KEY() + '_dates'); } catch (e) { _awkE(e); } }
 
   function toggleZone(id) {
     var a = _load();
@@ -282,13 +282,13 @@
     var host = document.getElementById('painButtonContainer');
     if (host) host.innerHTML = renderButton();
     // v1262 : le personnage de l'onglet Séance montre les zones douloureuses
-    try { if (typeof window.awakRafraichirCorps === 'function') window.awakRafraichirCorps(); } catch (e) {}
+    try { if (typeof window.awakRafraichirCorps === 'function') window.awakRafraichirCorps(); } catch (e) { _awkE(e); }
   }
 
   window.AwakPainOpen = function () {
     var active = _load();
     // Le personnage passe en mode « douleur » (surbrillance rouge, clics → zones)
-    try { if (window._mmpSetMode) { window._mmpSetMode('pain'); if (!document.getElementById('awakPainModal')) window._mmpResetView(); } } catch (e) {}
+    try { if (window._mmpSetMode) { window._mmpSetMode('pain'); if (!document.getElementById('awakPainModal')) window._mmpResetView(); } } catch (e) { _awkE(e); }
     // Zones sans équivalent sur la silhouette → conservées en pastilles
     var extraChips = ZONES.filter(function (z) { return z.id === 'poignets' || z.id === 'genoux'; }).map(function (z) {
       var on = active.indexOf(z.id) !== -1;
@@ -328,7 +328,7 @@
       + '<button onclick="AwakPainCloseModal()" style="width:100%;padding:13px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-weight:800;font-size:0.9em;">Terminé</button>'
       + '</div>';
     document.body.appendChild(overlay);
-    try { _paintBody(); } catch (e) {}
+    try { _paintBody(); } catch (e) { _awkE(e); }
   };
 
   window.AwakPainToggle = function (id) {
@@ -339,7 +339,7 @@
   window.AwakPainToggleChip = function (zid) {
     toggleZone(zid);
     _refreshExtraChips();
-    try { updateButton(); } catch (e) {}
+    try { updateButton(); } catch (e) { _awkE(e); }
   };
   window.AwakPainClear = function () {
     // 🐛 Avant : on vidait le stockage puis on FERMAIT la fenêtre, sans rafraîchir
@@ -347,13 +347,13 @@
     // pour que ce soit pris en compte. Désormais on efface et on met tout à jour
     // SUR PLACE, la fenêtre reste ouverte.
     clear();
-    try { _paintBody(); } catch (e) {}            // éteint les zones sur le personnage
-    try { _refreshExtraChips(); } catch (e) {}    // Poignets / Genoux
-    try { updateButton(); } catch (e) {}          // bouton d'accès
-    try { if (window.awakRenderPainCard) window.awakRenderPainCard(); } catch (e) {} // carte d'accueil
+    try { _paintBody(); } catch (e) { _awkE(e); }            // éteint les zones sur le personnage
+    try { _refreshExtraChips(); } catch (e) { _awkE(e); }    // Poignets / Genoux
+    try { updateButton(); } catch (e) { _awkE(e); }          // bouton d'accès
+    try { if (window.awakRenderPainCard) window.awakRenderPainCard(); } catch (e) { _awkE(e); } // carte d'accueil
   };
-  function _closeModal() { var el = document.getElementById('awakPainModal'); if (el) el.remove(); try { if (window._mmpSetMode) window._mmpSetMode('select'); } catch (e) {} }
-  window.AwakPainCloseModal = function () { _closeModal(); try { if (window._mmpSetMode) window._mmpSetMode('select'); } catch (e) {} updateButton(); try { if (window.awakRenderPainCard) window.awakRenderPainCard(); } catch (e) {} };
+  function _closeModal() { var el = document.getElementById('awakPainModal'); if (el) el.remove(); try { if (window._mmpSetMode) window._mmpSetMode('select'); } catch (e) { _awkE(e); } }
+  window.AwakPainCloseModal = function () { _closeModal(); try { if (window._mmpSetMode) window._mmpSetMode('select'); } catch (e) { _awkE(e); } updateButton(); try { if (window.awakRenderPainCard) window.awakRenderPainCard(); } catch (e) { _awkE(e); } };
 
   window.AwakPain.renderButton = renderButton;
   window.AwakPain.updateButton = updateButton;

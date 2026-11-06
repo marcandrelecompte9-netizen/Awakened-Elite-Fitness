@@ -51,7 +51,7 @@
       if (_lfEtat !== 1) return;
       _lfEtat = ok ? 2 : -1;
       var l = _lfAttente; _lfAttente = [];
-      l.forEach(function (f) { try { f(ok); } catch (e) {} });
+      l.forEach(function (f) { try { f(ok); } catch (e) { _awkE(e); } });
     };
     try {
       if (!document.getElementById('awkLeafletCss')) {
@@ -84,7 +84,7 @@
     div.style.cssText = 'height:' + hauteur + 'px;width:100%;';
     hote.appendChild(div);
     var map = L.map(div, { zoomControl: false, attributionControl: true });
-    try { map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>'); } catch (e) {}
+    try { map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>'); } catch (e) { _awkE(e); }
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19, className: 'awk-tuile',
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
@@ -116,10 +116,10 @@
         if (!R._centre) { c.map.setView(ll, 17); R._centre = true; }
         else if (!c.map.getBounds().pad(-0.2).contains(ll)) c.map.panTo(ll, { animate: true });
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
   function retirerCarte() {
-    try { if (R && R._carte) { R._carte.map.remove(); R._carte = null; } } catch (e) {}
+    try { if (R && R._carte) { R._carte.map.remove(); R._carte = null; } } catch (e) { _awkE(e); }
   }
 
   // ── outils ──
@@ -142,14 +142,14 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   var N = function () { return window.AwakNative || null; };
   function parler(t) {
-    try { if (N() && N().voix.parler(t)) return; } catch (e) {}
-    try { if (typeof speak === 'function') speak(t, { interrupt: true }); } catch (e) {}
+    try { if (N() && N().voix.parler(t)) return; } catch (e) { _awkE(e); }
+    try { if (typeof speak === 'function') speak(t, { interrupt: true }); } catch (e) { _awkE(e); }
   }
   function vibrer(m) {
-    try { if (N()) { N().vibrer(m); return; } } catch (e) {}
-    try { navigator.vibrate && navigator.vibrate(m); } catch (e) {}
+    try { if (N()) { N().vibrer(m); return; } } catch (e) { _awkE(e); }
+    try { navigator.vibrate && navigator.vibrate(m); } catch (e) { _awkE(e); }
   }
-  function toast(m, t) { try { if (typeof showToast === 'function') showToast(m, t || 'info', 2600); } catch (e) {} }
+  function toast(m, t) { try { if (typeof showToast === 'function') showToast(m, t || 'info', 2600); } catch (e) { _awkE(e); } }
   function ico(d, t, c) {
     return '<svg viewBox="0 0 24 24" width="' + (t || 20) + '" height="' + (t || 20) + '" fill="none" stroke="' + (c || 'currentColor') + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
   }
@@ -168,7 +168,7 @@
   // chiffres (distance, temps, records) ne sont jamais supprimés.
   function sauver(a) {
     var ecrire = function () { localStorage.setItem(cle(), JSON.stringify(a)); };
-    try { ecrire(); return true; } catch (e) {}
+    try { ecrire(); return true; } catch (e) { _awkE(e); }
     var alleges = 0;
     for (var pas = 0; pas < 2; pas++) {
       for (var i = a.length - 1; i >= 1; i--) {      // de la plus ancienne vers la plus récente, jamais la dernière
@@ -177,9 +177,9 @@
         else if (pas === 1) { x.points = []; x.traceRetire = true; }
         else continue;
         alleges++;
-        if (alleges % 10 === 0) { try { ecrire(); toastMemoire(); return true; } catch (e) {} }
+        if (alleges % 10 === 0) { try { ecrire(); toastMemoire(); return true; } catch (e) { _awkE(e); } }
       }
-      try { ecrire(); if (alleges) toastMemoire(); return true; } catch (e) {}
+      try { ecrire(); if (alleges) toastMemoire(); return true; } catch (e) { _awkE(e); }
     }
     toast('Mémoire du téléphone pleine : la sortie n\'a pas pu être enregistrée. Fais une sauvegarde puis libère de la place.', 'error');
     return false;
@@ -257,7 +257,7 @@
   try {
     // Mémoire « persistante » : le navigateur ne peut plus l'effacer seul s'il manque de place
     if (navigator.storage && navigator.storage.persist) navigator.storage.persisted().then(function (p) { if (!p) navigator.storage.persist(); }).catch(function () {});
-  } catch (e) {}
+  } catch (e) { _awkE(e); }
   // Au chargement de la page (profil actif connu), puis migration des anciennes sorties
   (function () {
     var go = function () { setTimeout(function () { TR.charger(function () { TR.migrer(); }); }, 400); };
@@ -336,9 +336,9 @@
       var o = { sauve: Date.now(), cumulVrai: duree() };
       CHAMPS.forEach(function (k) { o[k] = R[k]; });
       localStorage.setItem(cleEnCours(true), JSON.stringify(o));
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
-  function oublierInstantane() { try { localStorage.removeItem(cleEnCours(true)); } catch (e) {} }
+  function oublierInstantane() { try { localStorage.removeItem(cleEnCours(true)); } catch (e) { _awkE(e); } }
   function brancherGPS() {
     R.watch = N()
       ? N().geo.suivre(surPosition, surErreur, { titre: 'Awakened · ' + R.a.nom, message: 'Sortie en cours : distance et allure suivies.' })
@@ -357,7 +357,7 @@
   }
   function verifierInterrompue() {
     var o = null;
-    try { o = JSON.parse(localStorage.getItem(cleEnCours(false)) || 'null'); } catch (e) {}
+    try { o = JSON.parse(localStorage.getItem(cleEnCours(false)) || 'null'); } catch (e) { _awkE(e); }
     if (!o || R) return;
     if (!o.distance || o.distance < 50 || Date.now() - (o.sauve || 0) > 12 * 3600 * 1000) { oublierInstantane(); return; }
     var nom = (ACTIVITES[o.type] || ACTIVITES.course).nom.toLowerCase();
@@ -387,11 +387,11 @@
           wake = w; w.addEventListener('release', function () { wake = null; });
         }).catch(function () {});
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
   function libererEcran() {
     if (N()) { N().ecran.liberer(); return; }
-    try { if (wake) wake.release(); } catch (e) {} wake = null;
+    try { if (wake) wake.release(); } catch (e) { _awkE(e); } wake = null;
   }
   document.addEventListener('visibilitychange', function () {
     if (!R) return;
@@ -460,7 +460,7 @@
     if (!b) return;
     b.style.display = '';
     var l = document.getElementById('awakRunAutreLien'); if (l) l.style.display = 'none';
-    try { b.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+    try { b.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { _awkE(e); }
   }
 
   // hote = conteneur du sous-onglet (sinon : feuille par-dessus l'écran)
@@ -528,13 +528,13 @@
           x.style.borderColor = on ? ACCENT : 'transparent';
           x.style.color = on ? '#fff' : '#94a3b8';
         });
-        try { if (window.AwakCoachRun) AwakCoachRun.rendreChoix('awakRunCoachChoix', choisi); } catch (e) {}
+        try { if (window.AwakCoachRun) AwakCoachRun.rendreChoix('awakRunCoachChoix', choisi); } catch (e) { _awkE(e); }
       };
     });
-    try { if (window.AwakCoachRun) AwakCoachRun.rendreChoix('awakRunCoachChoix', 'course'); } catch (e) {}
+    try { if (window.AwakCoachRun) AwakCoachRun.rendreChoix('awakRunCoachChoix', 'course'); } catch (e) { _awkE(e); }
     document.getElementById('awakRunGo').onclick = function () {
       var cfg = null;
-      try { cfg = window.AwakCoachRun ? AwakCoachRun.config() : null; } catch (e) {}
+      try { cfg = window.AwakCoachRun ? AwakCoachRun.config() : null; } catch (e) { _awkE(e); }
       if (!hote) ov.remove();
       demarrer(choisi, cfg);
     };
@@ -673,7 +673,7 @@
     if (R.pasAnn && R.pasAnn.d && window.AwakCoachRun) {
       while (R.distance >= R.prochainAnn) {
         var tA = interp(R.prochainAnn);
-        try { parler(AwakCoachRun.texteAnnonce(R, { d: R.prochainAnn, t: tA, segD: R.prochainAnn - R.dAnn, segT: tA - R.tAnn })); } catch (e) {}
+        try { parler(AwakCoachRun.texteAnnonce(R, { d: R.prochainAnn, t: tA, segD: R.prochainAnn - R.dAnn, segT: tA - R.tAnn })); } catch (e) { _awkE(e); }
         R.dAnn = R.prochainAnn; R.tAnn = tA;
         R.prochainAnn += R.pasAnn.d;
       }
@@ -807,7 +807,7 @@
     // La carte n'est créée qu'une fois la 1re position connue (sinon fond vide)
     if (!R._carte && R._lfPret && R.pos && tr) {
       R._carte = creerCarte(tr, 240);
-      setTimeout(function () { try { R && R._carte && R._carte.map.invalidateSize(); } catch (e) {} }, 200);
+      setTimeout(function () { try { R && R._carte && R._carte.map.invalidateSize(); } catch (e) { _awkE(e); } }, 200);
     }
     if (R._carte) majCarte();
     else if (tr && _lfEtat !== 1 && !R._lfPret && (!R._nbTrace || R._nbTrace !== R.points.length)) { R._nbTrace = R.points.length; tr.innerHTML = trace(R.points, 340, 240, ACCENT); }
@@ -826,11 +826,11 @@
     }
     // v1239 : annonces au temps (toutes les 5 / 10 min)
     if (R.etat === 'run' && R.pasAnn && R.pasAnn.t && window.AwakCoachRun && t >= R.prochainT) {
-      try { parler(AwakCoachRun.texteAnnonce(R, { d: R.distance, t: t, segD: R.distance - R.dAnn, segT: t - R.tAnn, parTemps: true })); } catch (e) {}
+      try { parler(AwakCoachRun.texteAnnonce(R, { d: R.distance, t: t, segD: R.distance - R.dAnn, segT: t - R.tAnn, parTemps: true })); } catch (e) { _awkE(e); }
       R.dAnn = R.distance; R.tAnn = t; R.prochainT += R.pasAnn.t;
     }
     if (R.coach && window.AwakCoachRun) {
-      try { AwakCoachRun.tick(R, { t: t, d: R.distance, a: R.etat === 'run' ? allureActuelle() : 0, run: R.etat === 'run' }); } catch (e) {}
+      try { AwakCoachRun.tick(R, { t: t, d: R.distance, a: R.etat === 'run' ? allureActuelle() : 0, run: R.etat === 'run' }); } catch (e) { _awkE(e); }
     }
     instantane(false);
     var sp = document.getElementById('awakRunSplits');
@@ -891,7 +891,7 @@
   // de course sur un ordinateur. Jamais proposé sans le paramètre.
   function simuler() {
     if (!R) return;
-    try { if (R.watch != null) { if (N()) N().geo.arreter(R.watch); else navigator.geolocation.clearWatch(R.watch); } } catch (e) {}
+    try { if (R.watch != null) { if (N()) N().geo.arreter(R.watch); else navigator.geolocation.clearWatch(R.watch); } } catch (e) { _awkE(e); }
     R.watch = null; R.demo = true;
     var lat = (R.pos && R.pos.lat) || 45.5017, lon = (R.pos && R.pos.lon) || -73.5673, cap = 0;
     R.demoTimer = setInterval(function () {
@@ -907,11 +907,11 @@
   }
 
   function arreterGPS() {
-    try { if (R && R.demoTimer) clearInterval(R.demoTimer); } catch (e) {}
+    try { if (R && R.demoTimer) clearInterval(R.demoTimer); } catch (e) { _awkE(e); }
     try {
       if (R && R.watch != null) { if (N()) N().geo.arreter(R.watch); else navigator.geolocation.clearWatch(R.watch); }
-    } catch (e) {}
-    try { if (R && R.tick) clearInterval(R.tick); } catch (e) {}
+    } catch (e) { _awkE(e); }
+    try { if (R && R.tick) clearInterval(R.tick); } catch (e) { _awkE(e); }
   }
   function fermerEcran() { var el = document.getElementById('awakRunScreen'); if (el) el.remove(); }
   function annuler() { arreterGPS(); retirerCarte(); R = null; libererEcran(); fermerEcran(); oublierInstantane(); }
@@ -928,7 +928,7 @@
       points: simplifier(R.points, 600),
       prof: R.prof.length > 500 ? R.prof.filter(function (x, i) { return i % Math.ceil(R.prof.length / 500) === 0; }) : R.prof
     };
-    try { if (R.coach && window.AwakCoachRun) { var b = AwakCoachRun.bilan(R); if (b) s.coach = b; } } catch (e) {}
+    try { if (R.coach && window.AwakCoachRun) { var b = AwakCoachRun.bilan(R); if (b) s.coach = b; } } catch (e) { _awkE(e); }
     if (TR.dispo() && s.points.length > 80) { var _pc = s.points; TR.mettre(s, _pc); s.points = TR.apercu(_pc); s.idb = 1; }
     var hist = lesSorties();
     var avant = records(hist.filter(function (x) { return x.type === 'course'; }));
@@ -947,12 +947,12 @@
       if (s.t42 && (!avant.km42 || s.t42 < avant.km42)) nouveaux.push('Marathon');
       if (!avant.longue || s.distance > avant.longue) nouveaux.push('Plus longue sortie');
     }
-    try { if (window.AwakCoachRun) { AwakCoachRun.apresSortie(s); AwakCoachRun.poulsApres(s); } } catch (e) {}
+    try { if (window.AwakCoachRun) { AwakCoachRun.apresSortie(s); AwakCoachRun.poulsApres(s); } } catch (e) { _awkE(e); }
     enregistrerSeance(s);
     retirerCarte();
     R = null;
     fermerEcran();
-    try { if (document.getElementById('awakRunOnglet') && typeof switchTab === 'function') switchTab('course'); } catch (e) {}
+    try { if (document.getElementById('awakRunOnglet') && typeof switchTab === 'function') switchTab('course'); } catch (e) { _awkE(e); }
     detail(0, nouveaux);
     parler('Sortie terminée. ' + (s.distance / 1000).toFixed(2).replace('.', ' virgule ') + ' kilomètres.');
   }
@@ -991,7 +991,7 @@
               hist[0].musclesWeighted = Object.assign({ 'Cardio': 1 }, J);
               hist[0].musclesWorked = ['Cardio'].concat(Object.keys(J));
               var cleT = 'muscleRecoveryTracking';
-              var tr = {}; try { tr = JSON.parse((pid && typeof getProfileData === 'function' ? getProfileData(pid, cleT) : localStorage.getItem(cleT)) || '{}') || {}; } catch (e2) {}
+              var tr = {}; try { tr = JSON.parse((pid && typeof getProfileData === 'function' ? getProfileData(pid, cleT) : localStorage.getItem(cleT)) || '{}') || {}; } catch (e2) { _awkE(e2); }
               var maint = new Date().toISOString();
               Object.keys(J).forEach(function (m) {
                 var v = Math.round(vol * J[m] * 10) / 10;
@@ -1002,13 +1002,13 @@
               if (pid && typeof setProfileData === 'function') setProfileData(pid, cleT, JSON.stringify(tr));
               else localStorage.setItem(cleT, JSON.stringify(tr));
             }
-          } catch (e1) {}
+          } catch (e1) { _awkE(e1); }
           var json = JSON.stringify(hist);
           if (pid && typeof setProfileData === 'function') setProfileData(pid, 'workoutHistory', json);
           else localStorage.setItem('workoutHistory', json);
         }
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     // XP : environ 5 min d'effort par kilomètre (plafonds habituels du jeu)
     try {
       if (typeof rpgGainXP === 'function') {
@@ -1016,11 +1016,11 @@
         var parKm = Math.max(60, Math.round(s.duree / Math.max(1, s.distance / 1000)));
         for (var i = 0; i < n; i++) rpgGainXP(a.exo, 0, 0, parKm);
       }
-    } catch (e) {}
-    try { if (typeof window.awakCompterSeance === 'function') window.awakCompterSeance(s.duree / 60); } catch (e) {}
-    try { if (typeof window.awakCourseEtapeFaite === 'function') window.awakCourseEtapeFaite(s.distance); } catch (e) {}   // v1565 : étape de l'arbre Course
-    try { if (window.AwakMission && AwakMission.verser) AwakMission.verser(); } catch (e) {}   // v1571 : Mission de la semaine tout de suite
-    try { if (typeof updateHomeStats === 'function') updateHomeStats(); } catch (e) {}
+    } catch (e) { _awkE(e); }
+    try { if (typeof window.awakCompterSeance === 'function') window.awakCompterSeance(s.duree / 60); } catch (e) { _awkE(e); }
+    try { if (typeof window.awakCourseEtapeFaite === 'function') window.awakCourseEtapeFaite(s.distance); } catch (e) { _awkE(e); }   // v1565 : étape de l'arbre Course
+    try { if (window.AwakMission && AwakMission.verser) AwakMission.verser(); } catch (e) { _awkE(e); }   // v1571 : Mission de la semaine tout de suite
+    try { if (typeof updateHomeStats === 'function') updateHomeStats(); } catch (e) { _awkE(e); }
   }
 
   function records(hist) {
@@ -1108,7 +1108,7 @@
         L.circleMarker(tous[0], { radius: 6, color: '#0d1117', weight: 2, fillColor: '#4ade80', fillOpacity: 1 }).addTo(c.map);
         L.circleMarker(tous[tous.length - 1], { radius: 7, color: '#fff', weight: 2, fillColor: ACCENT, fillOpacity: 1 }).addTo(c.map);
         setTimeout(function () { c.map.invalidateSize(); c.map.fitBounds(c.ligne.getBounds(), { padding: [20, 20], maxZoom: 17 }); }, 150);
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     });
   }
 

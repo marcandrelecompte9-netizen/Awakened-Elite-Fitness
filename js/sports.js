@@ -122,7 +122,7 @@
             adapt = F.retires.length;
             if (adapt) n = F.liste.filter(function (e) { return !e.isRest && !e.isInfo; }).length;
           }
-        } catch (e) {}
+        } catch (e) { _awkE(e); }
         return ligne({ onclick: "startDisciplineSession('" + d.id + "','" + s.id + "')", ico: s.goal ? 'cible' : 'eclair', couleur: c,
           nom: propre(s.name), meta: '~' + ((window.awakMinutesDiscipline && awakMinutesDiscipline(d.id, s)) || minutes(s)) + ' min · ' + n + ' exercice' + (n > 1 ? 's' : '') + (s.level ? ' · ' + s.level : '') + (adapt ? ' · Adaptée (' + adapt + ' retiré' + (adapt > 1 ? 's' : '') + ')' : ''), droite: jouer(c) });
       }).join('');
@@ -153,7 +153,7 @@
     var list = (typeof listDisciplinesByRole === 'function')
       ? listDisciplinesByRole('principal').filter(function (d) { return d.id !== 'muscu'; }) : [];
     var selId = null;
-    try { selId = localStorage.getItem('awakSelectedDiscipline'); } catch (e) {}
+    try { selId = localStorage.getItem('awakSelectedDiscipline'); } catch (e) { _awkE(e); }
     if (!list.some(function (d) { return d.id === selId; })) selId = list[0] ? list[0].id : null;
     var d = list.filter(function (x) { return x.id === selId; })[0];
     return '<div style="display:grid;gap:12px;">'

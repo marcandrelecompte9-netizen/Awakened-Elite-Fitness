@@ -32,7 +32,7 @@
     return s + ' s';
   }
   function reposGlobal() {
-    try { if (typeof globalRestSeconds === 'number' && globalRestSeconds > 0) return globalRestSeconds; } catch (e) {}
+    try { if (typeof globalRestSeconds === 'number' && globalRestSeconds > 0) return globalRestSeconds; } catch (e) { _awkE(e); }
     return 60;
   }
   function groupe(exs, i) {
@@ -98,7 +98,7 @@
     maxSeries = Math.min(maxSeries, 6);   // au-delà, la feuille déborde
     var u = unite();
     var min = 0;
-    try { min = window.AwakRoutineEditor && window.AwakRoutineEditor.estimer ? window.AwakRoutineEditor.estimer(exs) : 0; } catch (e) {}
+    try { min = window.AwakRoutineEditor && window.AwakRoutineEditor.estimer ? window.AwakRoutineEditor.estimer(exs) : 0; } catch (e) { _awkE(e); }
 
     var entetes = '';
     for (var s = 1; s <= maxSeries; s++) entetes += '<th class="awp-case">Série ' + s + '</th>';

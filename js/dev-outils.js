@@ -10,7 +10,7 @@
 
   var J = 86400000;
   function pid() { try { return (window.getCurrentProfileId && window.getCurrentProfileId()) || 'default'; } catch (e) { return 'default'; } }
-  function toast(m, t, ms) { try { window.showToast(m, t || 'info', ms || 2500); } catch (e) {} }
+  function toast(m, t, ms) { try { window.showToast(m, t || 'info', ms || 2500); } catch (e) { _awkE(e); } }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function confirmer(msg, ok, titre) {
     if (typeof window.showConfirm === 'function') window.showConfirm(msg, ok, null, { title: titre || 'MODE DÉVELOPPEUR', confirmLabel: 'Continuer' });
@@ -21,14 +21,14 @@
   function decalage() { try { return parseInt(localStorage.getItem('awakDevDecalage') || '0', 10) || 0; } catch (e) { return 0; } }
   function avancer(jours) {
     var n = decalage() + jours * J;
-    try { localStorage.setItem('awakDevDecalage', String(n)); } catch (e) {}
+    try { localStorage.setItem('awakDevDecalage', String(n)); } catch (e) { _awkE(e); }
     toast('Temps simulé : +' + Math.round(n / J) + ' j. Rechargement…', 'info', 1500);
     setTimeout(function () { location.reload(); }, 600);
   }
   function present() {
     if (!decalage()) { toast('Déjà au présent.'); return; }
     confirmer('Revenir au présent ? Ce qui a été enregistré pendant le temps simulé garde sa date « future ».', function () {
-      try { localStorage.removeItem('awakDevDecalage'); } catch (e) {}
+      try { localStorage.removeItem('awakDevDecalage'); } catch (e) { _awkE(e); }
       setTimeout(function () { location.reload(); }, 200);
     });
   }
@@ -93,7 +93,7 @@
 
     var IMG = window.EXERCISE_IMAGES || {};
     var db = [];
-    try { db = (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : (window.exerciseDatabase || [])); } catch (e) {}
+    try { db = (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : (window.exerciseDatabase || [])); } catch (e) { _awkE(e); }
     var sansImage = db.filter(function (ex) { return ex && ex.name && !IMG[ex.name]; }).map(function (ex) { return ex.name + (ex.muscle ? ' (' + ex.muscle + ')' : ''); });
 
     // Fichiers référencés : exercices + scènes de l'histoire
@@ -140,7 +140,7 @@
   }
   function secours(t) {
     var a = document.createElement('textarea'); a.value = t; a.style.cssText = 'position:fixed;opacity:0;';
-    document.body.appendChild(a); a.select(); try { document.execCommand('copy'); } catch (e) {} a.remove();
+    document.body.appendChild(a); a.select(); try { document.execCommand('copy'); } catch (e) { _awkE(e); } a.remove();
   }
 
   // ── 3. Profil test ───────────────────────────────────────────────
@@ -151,7 +151,7 @@
     try {
       var p = pid();
       if (p && window.setProfileData) window.setProfileData(p, k, v); else localStorage.setItem(k, v);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
   function aleat(seed) { return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
 
@@ -232,7 +232,7 @@
       }).then(function () {
         majTest();
         toast('Profil test rempli.', 'success', 2500);
-        try { if (window.awakProgVoir) window.awakProgVoir('resume'); else window.switchTab('history'); } catch (e) {}
+        try { if (window.awakProgVoir) window.awakProgVoir('resume'); else window.switchTab('history'); } catch (e) { _awkE(e); }
       });
     });
   }
@@ -240,15 +240,15 @@
     var raw = localStorage.getItem(cleSauv());
     if (!raw) { toast('Aucune donnée test dans ce profil.'); return; }
     confirmer('Retirer les données test et remettre l\'historique et les mesures d\'avant ? Les séances faites depuis restent.', function () {
-      var sauv = {}; try { sauv = JSON.parse(raw) || {}; } catch (e) {}
+      var sauv = {}; try { sauv = JSON.parse(raw) || {}; } catch (e) { _awkE(e); }
       CLES.forEach(function (k) {
         // garder ce qui a été ajouté depuis (non test), retirer les entrées test
-        var cur = []; try { cur = JSON.parse(lire(k) || '[]') || []; } catch (e) {}
+        var cur = []; try { cur = JSON.parse(lire(k) || '[]') || []; } catch (e) { _awkE(e); }
         var garde = cur.filter(function (x) { return x && !x._devTest; });
         ecrire(k, JSON.stringify(garde));
       });
-      var fin = function () { try { localStorage.removeItem(cleSauv()); } catch (e) {} majTest(); toast('Données test retirées.', 'success'); try { if (window.renderWorkoutHistory) window.renderWorkoutHistory('all'); if (window.awakRenderCorpsCard) window.awakRenderCorpsCard(); } catch (e) {} };
-      var ph = []; try { ph = (window.getProgressPhotos ? window.getProgressPhotos() : []).filter(function (p) { return p && /^gdev/.test(p.groupe || ''); }); } catch (e) {}
+      var fin = function () { try { localStorage.removeItem(cleSauv()); } catch (e) { _awkE(e); } majTest(); toast('Données test retirées.', 'success'); try { if (window.renderWorkoutHistory) window.renderWorkoutHistory('all'); if (window.awakRenderCorpsCard) window.awakRenderCorpsCard(); } catch (e) { _awkE(e); } };
+      var ph = []; try { ph = (window.getProgressPhotos ? window.getProgressPhotos() : []).filter(function (p) { return p && /^gdev/.test(p.groupe || ''); }); } catch (e) { _awkE(e); }
       if (!ph.length || typeof window.awakPhotoDBDelete !== 'function') return fin();
       Promise.all(ph.map(function (p) { return window.awakPhotoDBDelete(window._photoPid(), p.id); })).catch(function () {})
         .then(function () { return window.awakLoadProgressPhotos ? window.awakLoadProgressPhotos() : null; }).then(fin);

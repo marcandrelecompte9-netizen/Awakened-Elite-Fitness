@@ -161,7 +161,7 @@
         it._svgIcon = true;
       });
     }
-  } catch (e) {}
+  } catch (e) { _awkE(e); }
 
   window.AwakItemIcon = { svg: svg, type: typeDe, types: Object.keys(P), illustration: illustration };
 })();

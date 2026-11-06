@@ -23,7 +23,7 @@
         catch(e) { return 0; }
     }
     function setGold(v) {
-        try { localStorage.setItem(GOLD_KEY + _profileSuffix(), String(Math.max(0, Math.round(v)))); } catch(e) {}
+        try { localStorage.setItem(GOLD_KEY + _profileSuffix(), String(Math.max(0, Math.round(v)))); } catch(e) { _awkE(e); }
     }
     function addGold(n) { setGold(getGold() + n); return getGold(); }
     function spendGold(n) {
@@ -69,7 +69,7 @@
         catch(e) { return {}; }
     }
     function saveMinerals(m) {
-        try { localStorage.setItem(MINERALS_KEY + _profileSuffix(), JSON.stringify(m)); } catch(e) {}
+        try { localStorage.setItem(MINERALS_KEY + _profileSuffix(), JSON.stringify(m)); } catch(e) { _awkE(e); }
     }
     function addMineral(typeId, qty) {
         const m = getMinerals();
@@ -174,7 +174,7 @@
             if (typeof window.awakGetProspectorSkillBonus === 'function') {
                 bonus += window.awakGetProspectorSkillBonus() || 0;
             }
-        } catch(e) {}
+        } catch(e) { _awkE(e); }
         return bonus;
     }
 
@@ -239,7 +239,7 @@
                 const price = CONSUMABLE_PRICES[c.id] ? Math.round(CONSUMABLE_PRICES[c.id] * _priceCoef() * _palit()) : 0;   // v1537 : selon le rang, comme l'équipement
                 if (price) out.push({ id:c.id, name:c.name, icon:(c.icon || c.emoji || '🧪'), description:c.description, price });
             });
-        } catch(e) {}
+        } catch(e) { _awkE(e); }
         return out;
     }
 
@@ -321,12 +321,12 @@
     // Récupère le stock courant, le régénère si la semaine a changé ou si le rang a augmenté.
     function refreshEquipmentShopIfNeeded() {
         let shop = null;
-        try { shop = JSON.parse(localStorage.getItem(EQUIP_SHOP_KEY + _profileSuffix()) || 'null'); } catch(e) {}
+        try { shop = JSON.parse(localStorage.getItem(EQUIP_SHOP_KEY + _profileSuffix()) || 'null'); } catch(e) { _awkE(e); }
         const week = getWeekKey();
         const rank = _currentRankId();
         if (!shop || shop.week !== week) {
             shop = _generateEquipmentShop(rank);
-            try { localStorage.setItem(EQUIP_SHOP_KEY + _profileSuffix(), JSON.stringify(shop)); } catch(e) {}
+            try { localStorage.setItem(EQUIP_SHOP_KEY + _profileSuffix(), JSON.stringify(shop)); } catch(e) { _awkE(e); }
         }
         return shop;
     }
@@ -350,7 +350,7 @@
         inv.unshift({ itemId: itemId, obtainedAt: new Date().toISOString(), id: Date.now() });
         saveInventory(inv);
         shop.purchased.push(itemId);
-        try { localStorage.setItem(EQUIP_SHOP_KEY + _profileSuffix(), JSON.stringify(shop)); } catch(e) {}
+        try { localStorage.setItem(EQUIP_SHOP_KEY + _profileSuffix(), JSON.stringify(shop)); } catch(e) { _awkE(e); }
         return { ok:true, price: _prix };
     }
 
@@ -378,7 +378,7 @@
         catch(e) { return {}; }
     }
     function saveMasteries(m) {
-        try { localStorage.setItem(MASTERIES_KEY + _profileSuffix(), JSON.stringify(m)); } catch(e) {}
+        try { localStorage.setItem(MASTERIES_KEY + _profileSuffix(), JSON.stringify(m)); } catch(e) { _awkE(e); }
     }
     function getMasteryLevel(id) { return getMasteries()[id] || 0; }
 
@@ -411,7 +411,7 @@
                     return 1 + getMasteryLevel(id) * MASTERY_BONUS_PER_LEVEL;
                 }
             }
-        } catch(e) {}
+        } catch(e) { _awkE(e); }
         return 1;
     }
 

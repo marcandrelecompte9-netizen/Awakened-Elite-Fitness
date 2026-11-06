@@ -1696,7 +1696,7 @@ window.awakAnimBouton = function (anime) {
   return '<button type="button" class="awak-anim-btn" aria-label="' + (anime ? 'Arrêter l\'animation' : 'Animer l\'image') + '" onclick="event.stopPropagation();window.awakBasculerAnim(this)">' + ico + '<span>Animation</span></button>';
 };
 window.awakSetImgAnim = function (on) {
-  try { if (on) localStorage.removeItem('awakImgFixe'); else localStorage.setItem('awakImgFixe', '1'); } catch (e) {}
+  try { if (on) localStorage.removeItem('awakImgFixe'); else localStorage.setItem('awakImgFixe', '1'); } catch (e) { _awkE(e); }
 };
 window.awakBasculerAnim = function (btn) {
   try {
@@ -1713,14 +1713,14 @@ window.awakBasculerAnim = function (btn) {
         + window.awakAnimBouton(false) + '</div>';
     } else {
       html = window.awakAnimHTML(raw, u);
-      if (!html) { try { if (window.showToast) showToast('Animation coupée : le téléphone demande moins de mouvement.', 'info', 3000); } catch (e) {} return; }
+      if (!html) { try { if (window.showToast) showToast('Animation coupée : le téléphone demande moins de mouvement.', 'info', 3000); } catch (e) { _awkE(e); } return; }
     }
     box.outerHTML = html;
-  } catch (e) {}
+  } catch (e) { _awkE(e); }
 };
 window.awakImageV2 = function (src) {
   var f = String(src || '').split('/').pop().split('?')[0];
-  try { f = decodeURIComponent(f); } catch (e) {}
+  try { f = decodeURIComponent(f); } catch (e) { _awkE(e); }
   return EXERCISE_IMAGES_V2.indexOf(f) >= 0;
 };
 (function () {
@@ -1731,7 +1731,7 @@ window.awakImageV2 = function (src) {
     }).join(',') + '{-webkit-clip-path:none!important;clip-path:none!important;filter:none!important;}';
     var st = document.createElement('style'); st.id = 'awakImagesV2'; st.textContent = css;
     (document.head || document.documentElement).appendChild(st);
-  } catch (e) {}
+  } catch (e) { _awkE(e); }
 })();
 
 })();

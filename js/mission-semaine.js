@@ -62,23 +62,23 @@
   // d'histoire les plus récentes, sans reprendre une des 3 dernières semaines.
   function mission() {
     var sem = cleSemaine(), o = null;
-    try { o = JSON.parse(localStorage.getItem(cleChoix()) || 'null'); } catch (e) {}
+    try { o = JSON.parse(localStorage.getItem(cleChoix()) || 'null'); } catch (e) { _awkE(e); }
     if (o && o.sem === sem && o.t) return { t: o.t, d: o.d };
     var recentes = (o && Array.isArray(o.hist)) ? o.hist : [];
     var dispo = disponibles().filter(function (m) { return recentes.indexOf(m.id) < 0; });
     var m = dispo.length ? dispo[dispo.length - 1] : null;
     var choix = m ? { id: m.id, t: m.t, d: m.d } : (function () { var b = missionDeBase(); return { id: 'base:' + b.t, t: b.t, d: b.d }; })();
-    try { localStorage.setItem(cleChoix(), JSON.stringify({ sem: sem, id: choix.id, t: choix.t, d: choix.d, hist: [choix.id].concat(recentes).slice(0, 3) })); } catch (e) {}
+    try { localStorage.setItem(cleChoix(), JSON.stringify({ sem: sem, id: choix.id, t: choix.t, d: choix.d, hist: [choix.id].concat(recentes).slice(0, 3) })); } catch (e) { _awkE(e); }
     return { t: choix.t, d: choix.d };
   }
   function recompense(visee) { return 100 + 60 * Math.max(1, Math.min(7, visee || 3)); }
 
   function etat() {
     var s = null;
-    try { s = window.AwakHomePro && AwakHomePro.semaine ? AwakHomePro.semaine() : null; } catch (e) {}
+    try { s = window.AwakHomePro && AwakHomePro.semaine ? AwakHomePro.semaine() : null; } catch (e) { _awkE(e); }
     if (!s || !s.visee) return null;
     var m = mission(), visee = Math.max(1, s.visee), fait = Math.max(0, s.fait || 0);
-    var paye = false; try { paye = localStorage.getItem(clePaye()) === cleSemaine(); } catch (e) {}
+    var paye = false; try { paye = localStorage.getItem(clePaye()) === cleSemaine(); } catch (e) { _awkE(e); }
     return { titre: m.t, texte: m.d, fait: fait, visee: visee, xp: recompense(visee), finie: fait >= visee, payee: paye };
   }
 
@@ -90,8 +90,8 @@
     if (typeof window.awakGrantLifetimeXP !== 'function') return 0;
     try { localStorage.setItem(clePaye(), cleSemaine()); } catch (x) { return 0; }
     window.awakGrantLifetimeXP(e.xp);
-    try { if (window.AwakHomePro && AwakHomePro.render) setTimeout(AwakHomePro.render, 0); } catch (x) {}   // v1542 : tuile Progression à jour
-    try { if (typeof showToast === 'function') showToast('Mission accomplie : ' + e.titre + ' (+' + e.xp + ' XP)', 'success', 3500); } catch (x) {}
+    try { if (window.AwakHomePro && AwakHomePro.render) setTimeout(AwakHomePro.render, 0); } catch (x) { _awkE(x); }   // v1542 : tuile Progression à jour
+    try { if (typeof showToast === 'function') showToast('Mission accomplie : ' + e.titre + ' (+' + e.xp + ' XP)', 'success', 3500); } catch (x) { _awkE(x); }
     return e.xp;
   }
 

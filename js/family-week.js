@@ -31,7 +31,7 @@
       } catch (e) { return null; }
     },
     lire: function () { try { return JSON.parse(localStorage.getItem(CLE_JOURS) || 'null') || { jours: [], heure: '18:00' }; } catch (e) { return { jours: [], heure: '18:00' }; } },
-    ecrire: function (o) { try { localStorage.setItem(CLE_JOURS, JSON.stringify(o)); } catch (e) {} },
+    ecrire: function (o) { try { localStorage.setItem(CLE_JOURS, JSON.stringify(o)); } catch (e) { _awkE(e); } },
     basculer: function (i) {
       var o = this.lire(); o.jours = o.jours || [];
       var k = o.jours.indexOf(i); if (k >= 0) o.jours.splice(k, 1); else o.jours.push(i);
@@ -57,7 +57,7 @@
     },
     rafraichir: function () {
       var el = document.getElementById('awakFamJours'); if (el) el.outerHTML = carteJours();
-      try { if (typeof window.updateHomeStats === 'function') window.updateHomeStats(); } catch (e) {}
+      try { if (typeof window.updateHomeStats === 'function') window.updateHomeStats(); } catch (e) { _awkE(e); }
     }
   };
   function fmtHeure(h) { if (!h) return ''; var m = /^(\d{1,2}):(\d{2})$/.exec(h); return m ? (+m[1]) + ' h' + (m[2] !== '00' ? ' ' + m[2] : '') : h; }
@@ -88,7 +88,7 @@
   function moi() { try { return typeof window.getCurrentProfileId === 'function' ? window.getCurrentProfileId() : null; } catch (e) { return null; } }
   function profils() { try { return typeof window.getAllProfiles === 'function' ? (window.getAllProfiles() || []) : []; } catch (e) { return []; } }
   function avatar(a, t) {
-    try { if (typeof window.renderAvatar === 'function') return window.renderAvatar(a || '', t); } catch (e) {}
+    try { if (typeof window.renderAvatar === 'function') return window.renderAvatar(a || '', t); } catch (e) { _awkE(e); }
     return '<span style="display:inline-block;width:' + t + 'px;height:' + t + 'px;border-radius:50%;background:rgba(255,255,255,0.08);"></span>';
   }
   function enfantRegarde() { try { return !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) { return false; } }
@@ -275,8 +275,8 @@
     ids.forEach(function (id) { limitationsDe(id).forEach(function (l) { if (lims.indexOf(l) < 0) lims.push(l); }); });
     var sansSauts = seniorPresent(ids);
     return function (ex) {
-      for (var i = 0; i < lims.length; i++) { try { if (lims[i].test(ex)) return true; } catch (e) {} }
-      try { if (window.AwakPain && AwakPain.exerciseHitsPainFor && AwakPain.exerciseHitsPainFor(ex, ids)) return true; } catch (e) {}
+      for (var i = 0; i < lims.length; i++) { try { if (lims[i].test(ex)) return true; } catch (e) { _awkE(e); } }
+      try { if (window.AwakPain && AwakPain.exerciseHitsPainFor && AwakPain.exerciseHitsPainFor(ex, ids)) return true; } catch (e) { _awkE(e); }
       if (sansSauts && impact(ex)) return true;
       return false;
     };
@@ -355,13 +355,13 @@
     try {
       if (window.AwakGroup && typeof AwakGroup.setParticipants === 'function') {
         if (typeof AwakGroup.reset === 'function') AwakGroup.reset();
-        try { localStorage.setItem('awakGroupMode', 'meme'); } catch (e) {}   // v1606 : Bouger ensemble = même séance (sinon les membres n'étaient pas crédités en mode duo)
+        try { localStorage.setItem('awakGroupMode', 'meme'); } catch (e) { _awkE(e); }   // v1606 : Bouger ensemble = même séance (sinon les membres n'étaient pas crédités en mode duo)
         var me = moi();
         AwakGroup.setParticipants(profils().filter(function (p) { return p.id !== me && ids.indexOf(p.id) >= 0; }).map(function (p) {
           return { kind: 'profile', id: p.id, name: p.name || 'Membre', avatar: p.avatar || '' };
         }));
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     if (typeof window.switchTab === 'function') window.switchTab('workouts');
     setTimeout(function () {
       if (typeof window.showWorkoutPreparation === 'function') window.showWorkoutPreparation(w);

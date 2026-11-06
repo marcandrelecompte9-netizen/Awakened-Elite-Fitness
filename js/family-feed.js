@@ -19,7 +19,7 @@
     size = size || 26;
     try {
       if (typeof window.renderAvatar === 'function') return window.renderAvatar(a, size);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return '<span style="font-size:' + Math.round(size * 0.62) + 'px;">' +
            String(a == null ? '\u{1F464}' : a).replace(/[&<>"]/g, function (c) {
              return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }) + '</span>';
@@ -58,7 +58,7 @@
     catch (e) { return {}; }
   }
   function _saveReactions(obj) {
-    try { localStorage.setItem(REACT_KEY, JSON.stringify(obj || {})); } catch (e) {}
+    try { localStorage.setItem(REACT_KEY, JSON.stringify(obj || {})); } catch (e) { _awkE(e); }
   }
 
   // Identifiant stable d'une entrée (pour rattacher les réactions).
@@ -180,6 +180,6 @@
 
   window.AwakFeedReact = function (feedId, emoji) {
     toggleReaction(feedId, emoji);
-    try { if (typeof window.renderFamilyTab === 'function') window.renderFamilyTab(); } catch (e) {}
+    try { if (typeof window.renderFamilyTab === 'function') window.renderFamilyTab(); } catch (e) { _awkE(e); }
   };
 })();

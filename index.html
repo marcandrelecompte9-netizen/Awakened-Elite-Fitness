@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=1621">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1621">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1621">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1621">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1621">
+    <link rel="manifest" href="manifest.json?v=1622">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1622">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1622">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1622">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1622">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -37,14 +37,91 @@
             window._deferredInstallPrompt = null;
         });
     </script>
+    <!-- v1622 : JOURNAL D'ERREURS — avant tout script. Capte les erreurs globales, les promesses
+         rejetées et celles des blocs catch (window._awkE). 50 dernières, dédoublonnées, consultables
+         dans Réglages > Mode développeur. Inline : ne peut pas manquer au chargement. -->
+    <script>
+    (function () {
+        var K = 'awakJournalErreurs', MAX = 50, liste = null, minuteur = null;
+        function charger() {
+            if (liste) return liste;
+            try { liste = JSON.parse(localStorage.getItem(K) || '[]') || []; } catch (x) { liste = []; }
+            return liste;
+        }
+        function sauver() {
+            if (minuteur) return;
+            minuteur = setTimeout(function () {
+                minuteur = null;
+                try { localStorage.setItem(K, JSON.stringify(liste)); } catch (x) {}
+                try { if (window.AwakJournal) AwakJournal.majCompteur(); } catch (x) {}
+            }, 1500);
+        }
+        function version() {
+            try { var s = document.querySelector('script[src*="app.js?v="]'); var m = s && s.getAttribute('src').match(/v=(\d+)/); return m ? m[1] : ''; } catch (x) { return ''; }
+        }
+        function ajouter(msg, pile, source) {
+            try {
+                msg = String(msg || 'Erreur inconnue').slice(0, 300);
+                var lignes = String(pile || '').split('\n').filter(function (l) { return l.trim(); });
+                var lieu = lignes.slice(0, 5).join('\n').slice(0, 700);
+                var cle = msg + '|' + (lignes[1] || lignes[0] || '');
+                var l = charger(), i, maint = Date.now();
+                for (i = 0; i < l.length; i++) if (l[i].c === cle) break;
+                if (i < l.length) { var e = l.splice(i, 1)[0]; e.n = (e.n || 1) + 1; e.d = maint; l.push(e); }
+                else { l.push({ c: cle, m: msg, p: lieu, s: source, n: 1, d0: maint, d: maint, v: version() }); if (l.length > MAX) l.splice(0, l.length - MAX); }
+                sauver();
+            } catch (x) {}
+        }
+        window._awkE = function (e) { if (e) ajouter(e.message || e, e.stack, 'catch'); };
+        window.addEventListener('error', function (ev) {
+            ajouter(ev.message, (ev.error && ev.error.stack) || ((ev.filename || '') + ':' + (ev.lineno || '') + ':' + (ev.colno || '')), 'global');
+        });
+        window.addEventListener('unhandledrejection', function (ev) {
+            var r = ev.reason; ajouter((r && r.message) || String(r), r && r.stack, 'promesse');
+        });
+        function texte() {
+            return charger().slice().reverse().map(function (e) {
+                return '[' + new Date(e.d).toLocaleString('fr-CA') + '] v' + (e.v || '?') + ' · ' + e.s + ' · ×' + e.n + '\n' + e.m + '\n' + (e.p || '');
+            }).join('\n\n');
+        }
+        window.AwakJournal = {
+            liste: function () { return charger().slice(); },
+            texte: texte,
+            majCompteur: function () {
+                var el = document.getElementById('devJournalEtat'); if (!el) return;
+                var n = charger().length;
+                el.textContent = n ? n + ' erreur' + (n > 1 ? 's' : '') + ' différente' + (n > 1 ? 's' : '') + ' enregistrée' + (n > 1 ? 's' : '') : 'Aucune erreur enregistrée';
+            },
+            copier: function () {
+                var t = texte() || 'Journal vide.';
+                var fait = function () { try { showToast('Journal copié : colle-le à Claude.', 'success', 2500); } catch (x) {} };
+                var secours = function () { var a = document.createElement('textarea'); a.value = t; a.style.cssText = 'position:fixed;opacity:0;'; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); } catch (x) {} a.remove(); fait(); };
+                try { navigator.clipboard.writeText(t).then(fait, secours); } catch (x) { secours(); }
+            },
+            voir: function () {
+                var o = document.createElement('div');
+                o.style.cssText = 'position:fixed;inset:0;z-index:99995;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px));';
+                var pre = document.createElement('pre');
+                pre.style.cssText = 'flex:1;overflow:auto;margin:0 0 12px;padding:12px;background:#0b0f17;border:1px solid rgba(34,211,238,0.3);border-radius:12px;color:#cbd5e1;font-size:11px;line-height:1.45;white-space:pre-wrap;word-break:break-word;';
+                pre.textContent = texte() || 'Aucune erreur enregistrée.';
+                var b = document.createElement('button');
+                b.textContent = 'Fermer';
+                b.style.cssText = 'padding:13px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:#e2e8f0;font-weight:800;';
+                b.onclick = function () { o.remove(); };
+                o.appendChild(pre); o.appendChild(b); document.body.appendChild(o);
+            },
+            vider: function () { liste = []; try { localStorage.removeItem(K); } catch (x) {} this.majCompteur(); }
+        };
+    })();
+    </script>
     <!-- v1398 : mode dev « Avancer le temps » — doit précéder tous les scripts -->
-    <script src="js/dev-temps.js?v=1621"></script>
+    <script src="js/dev-temps.js?v=1622"></script>
 
     <!-- Fonts -->
     <!-- v1288 : police Outfit embarquée (fonts/ + css/style.css) : plus besoin d'Internet -->
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=1621">
+    <link rel="stylesheet" href="css/style.css?v=1622">
 </head>
 <body>
 
@@ -201,8 +278,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1621">
-                <img src="images/banner_v3_mobile.webp?v=1621"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1622">
+                <img src="images/banner_v3_mobile.webp?v=1622"
                      alt="Awakened Elite Fitness"
                      onerror="var p=this.closest('picture');if(p&&p.parentElement)p.parentElement.style.display='none';"
                      style="width:100%;height:auto;display:block;" />
@@ -2865,7 +2942,7 @@
                                 <div onclick="awakVersionTap()" style="font-size:2em;flex-shrink:0;cursor:pointer;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;" id="awakVersionIco"></div>
                                 <div style="flex:1;min-width:0;">
                                     <div style="font-weight:800;color:#e2e8f0;font-size:1em;">Awakened</div>
-                                    <div onclick="awakVersionTap()" style="font-size:0.78em;color:#93c5fd;font-weight:700;margin-top:2px;cursor:pointer;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">v0.95.1621 · awakened</div>
+                                    <div onclick="awakVersionTap()" style="font-size:0.78em;color:#93c5fd;font-weight:700;margin-top:2px;cursor:pointer;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">v0.95.1622 · awakened</div>
                                 </div>
                                 <button onclick="showConfirm('Le cache sera nettoyé et la dernière version de l\'app sera rechargée. Tes données ne sont pas touchées.', function(){ forceAppUpdate(); }, null, { title: 'Forcer la mise à jour ?', confirmLabel: 'Mettre à jour', cancelLabel: 'Annuler' })" style="flex-shrink:0;background:rgba(96,168,240,0.1);border:1px solid rgba(96,168,240,0.35);color:#93c5fd;border-radius:10px;padding:8px 12px;font-size:0.72em;font-weight:800;cursor:pointer;">🔄 Mettre à jour</button>
                             </div>
@@ -2915,6 +2992,16 @@
                     <button class="btn" onclick="AwakDev.images()" style="width:100%;margin-top:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:#e2e8f0;font-weight:800;">Images manquantes</button>
                     <button class="btn" id="devTestRemplir" onclick="AwakDev.remplir()" style="width:100%;margin-top:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:#e2e8f0;font-weight:800;">Remplir ce profil (données test)</button>
                     <button class="btn" id="devTestRetirer" onclick="AwakDev.retirer()" hidden style="width:100%;margin-top:8px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.4);color:#fecaca;font-weight:800;">Retirer les données test</button>
+                </div>
+                <!-- v1622 : journal d'erreurs (script inline en tête de page) -->
+                <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">
+                    <div style="font-size:0.7em;letter-spacing:1.5px;color:#22d3ee;font-weight:900;margin-bottom:4px;">JOURNAL D'ERREURS</div>
+                    <div id="devJournalEtat" style="font-size:0.78em;color:#94a3b8;margin-bottom:8px;">Aucune erreur enregistrée</div>
+                    <div style="display:flex;gap:6px;">
+                        <button class="btn" onclick="AwakJournal.voir()" style="flex:1;min-width:0;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.4);color:#a5f3fc;font-weight:800;">Voir</button>
+                        <button class="btn" onclick="AwakJournal.copier()" style="flex:1;min-width:0;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.4);color:#a5f3fc;font-weight:800;">Copier</button>
+                        <button class="btn" onclick="AwakJournal.vider()" style="flex:1;min-width:0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);color:#cbd5e1;font-weight:700;">Vider</button>
+                    </div>
                 </div>
                 <!-- 🌀 Création de Faille en un clic (test) -->
                 <button class="btn" onclick="awakAdminSpawnRift()" style="width:100%; margin-top:8px; background: linear-gradient(135deg,#a855f7,#7e22ce); color:white; font-weight:800;">
@@ -3972,39 +4059,39 @@
     <!-- v1327 : Chart.js chargé à la demande (awakChargerChart dans app.js) -->
 
     <!-- App scripts — order matters -->
-    <script src="js/native.js?v=1621"></script>
-    <script src="js/essai.js?v=1621"></script>
-    <script src="js/exercises.js?v=1621"></script>
-    <script src="js/exercise-names.js?v=1621"></script>
-    <script src="data/items.js?v=1621"></script>
-    <script src="js/item-icons.js?v=1621"></script>
-    <script src="js/skill-tree.js?v=1621"></script>
-    <script src="js/nav-icons.js?v=1621"></script>
-    <script src="js/adventure.js?v=1621"></script>
-    <script src="js/economy.js?v=1621"></script>
-    <script src="js/challenges.js?v=1621"></script>
-    <script src="js/family-boss.js?v=1621"></script>
-    <script src="js/family-network.js?v=1621"></script>
-    <script src="js/family-challenge.js?v=1621"></script>
-    <script src="js/family-goal.js?v=1621"></script>
-    <script src="js/family-feed.js?v=1621"></script>
-    <script src="js/pre-workout-mood.js?v=1621"></script>
-    <script src="js/group-workout.js?v=1621"></script>
-    <script src="js/duo.js?v=1621"></script>
-    <script src="js/youth-safety.js?v=1621"></script>
-    <script src="js/kids-programs.js?v=1621"></script>
-    <script src="js/senior-programs.js?v=1621"></script>
-    <script src="js/adaptive.js?v=1621"></script>
-    <script src="js/pain-mode.js?v=1621"></script>
-    <script src="js/recovery-mode.js?v=1621"></script>
-    <script src="js/exercise-visuals.js?v=1621"></script>
-    <script src="js/strength-standards.js?v=1621"></script>
-    <script src="js/system-cards.js?v=1621"></script>
-    <script src="js/share-card.js?v=1621"></script>
-    <script src="js/story-events.js?v=1621"></script>
-    <script src="js/final-boss.js?v=1621"></script>
-    <script src="js/disciplines.js?v=1621"></script>
-    <script src="js/eveil.js?v=1621"></script>
+    <script src="js/native.js?v=1622"></script>
+    <script src="js/essai.js?v=1622"></script>
+    <script src="js/exercises.js?v=1622"></script>
+    <script src="js/exercise-names.js?v=1622"></script>
+    <script src="data/items.js?v=1622"></script>
+    <script src="js/item-icons.js?v=1622"></script>
+    <script src="js/skill-tree.js?v=1622"></script>
+    <script src="js/nav-icons.js?v=1622"></script>
+    <script src="js/adventure.js?v=1622"></script>
+    <script src="js/economy.js?v=1622"></script>
+    <script src="js/challenges.js?v=1622"></script>
+    <script src="js/family-boss.js?v=1622"></script>
+    <script src="js/family-network.js?v=1622"></script>
+    <script src="js/family-challenge.js?v=1622"></script>
+    <script src="js/family-goal.js?v=1622"></script>
+    <script src="js/family-feed.js?v=1622"></script>
+    <script src="js/pre-workout-mood.js?v=1622"></script>
+    <script src="js/group-workout.js?v=1622"></script>
+    <script src="js/duo.js?v=1622"></script>
+    <script src="js/youth-safety.js?v=1622"></script>
+    <script src="js/kids-programs.js?v=1622"></script>
+    <script src="js/senior-programs.js?v=1622"></script>
+    <script src="js/adaptive.js?v=1622"></script>
+    <script src="js/pain-mode.js?v=1622"></script>
+    <script src="js/recovery-mode.js?v=1622"></script>
+    <script src="js/exercise-visuals.js?v=1622"></script>
+    <script src="js/strength-standards.js?v=1622"></script>
+    <script src="js/system-cards.js?v=1622"></script>
+    <script src="js/share-card.js?v=1622"></script>
+    <script src="js/story-events.js?v=1622"></script>
+    <script src="js/final-boss.js?v=1622"></script>
+    <script src="js/disciplines.js?v=1622"></script>
+    <script src="js/eveil.js?v=1622"></script>
     <script>
     /* 🔄 DÉVERROUILLAGE DE L'ORIENTATION
        Sur Android, l'orientation d'une PWA installée est figée à l'installation
@@ -4026,59 +4113,59 @@
       });
     })();
     </script>
-    <script src="js/app.js?v=1621"></script>
-    <script src="js/calendar-tab.js?v=1621"></script>
-    <script src="js/routine-blocks.js?v=1621"></script>
-    <script src="js/routine-builder.js?v=1621"></script>
-    <script src="js/routine-print.js?v=1621"></script>
-    <script src="js/icons.js?v=1621"></script>
-    <script src="js/no-emoji.js?v=1621"></script>
-    <script src="js/stat-noms.js?v=1621"></script>
-    <script src="js/fenetres.js?v=1621"></script>
-    <script src="js/seuil.js?v=1621"></script>
-    <script src="js/qrcode.js?v=1621"></script>
-    <script src="js/partage-seance.js?v=1621"></script>
-    <script src="js/salle.js?v=1621"></script>
-    <script src="js/sports.js?v=1621"></script>
-    <script src="js/strength-balance.js?v=1621"></script>
-    <script src="js/analyse.js?v=1621"></script>
-    <script src="js/limitations.js?v=1621"></script>
-    <script src="js/custom-exercises.js?v=1621"></script>
-    <script src="js/awakening-tree.js?v=1621"></script>
-    <script src="js/ui-kit.js?v=1621"></script>
-    <script src="js/feature-map.js?v=1621"></script>
-    <script src="js/visite.js?v=1621"></script>
-    <script src="js/weekly-recap.js?v=1621"></script>
-    <script src="js/workout-games.js?v=1621"></script>
-    <script src="js/kids-games.js?v=1621"></script>
-    <script src="js/bilan-4sem.js?v=1621"></script>
-    <script src="js/home-pro.js?v=1621"></script>
-    <script src="js/echelle.js?v=1621"></script>
-    <script src="js/seance-ecran.js?v=1621"></script>
-    <script src="js/regle-mesures.js?v=1621"></script>
-    <script src="js/photos-mesures.js?v=1621"></script>
-    <script src="js/back-button.js?v=1621"></script>
-    <script src="js/gestures.js?v=1621"></script>
-    <script src="js/rift-visuals.js?v=1621"></script>
-    <script src="js/musique.js?v=1621"></script>
-    <script src="js/family-sky.js?v=1621"></script>
-    <script src="js/family-week.js?v=1621"></script>
-    <script src="js/session-ux.js?v=1621"></script>
-    <script src="js/progress-tab.js?v=1621"></script>
-    <script src="js/progres-onglets.js?v=1621"></script>
-    <script src="js/dev-outils.js?v=1621"></script>
-    <script src="js/ressenti.js?v=1621"></script>
-    <script src="js/mission-semaine.js?v=1621"></script>
-    <script src="js/xp-fin.js?v=1621"></script>
-    <script src="js/fin-seance.js?v=1621"></script>
-    <script src="js/import-csv.js?v=1621"></script>
-    <script src="js/reglage-machine.js?v=1621"></script>
-    <script src="js/mon-defi.js?v=1621"></script>
-    <script src="js/health-sync.js?v=1621"></script>
-    <script src="js/regle.js?v=1621"></script>
-    <script src="js/run-gps.js?v=1621"></script>
-    <script src="js/run-coach.js?v=1621"></script>
-    <script src="js/backup.js?v=1621"></script>
+    <script src="js/app.js?v=1622"></script>
+    <script src="js/calendar-tab.js?v=1622"></script>
+    <script src="js/routine-blocks.js?v=1622"></script>
+    <script src="js/routine-builder.js?v=1622"></script>
+    <script src="js/routine-print.js?v=1622"></script>
+    <script src="js/icons.js?v=1622"></script>
+    <script src="js/no-emoji.js?v=1622"></script>
+    <script src="js/stat-noms.js?v=1622"></script>
+    <script src="js/fenetres.js?v=1622"></script>
+    <script src="js/seuil.js?v=1622"></script>
+    <script src="js/qrcode.js?v=1622"></script>
+    <script src="js/partage-seance.js?v=1622"></script>
+    <script src="js/salle.js?v=1622"></script>
+    <script src="js/sports.js?v=1622"></script>
+    <script src="js/strength-balance.js?v=1622"></script>
+    <script src="js/analyse.js?v=1622"></script>
+    <script src="js/limitations.js?v=1622"></script>
+    <script src="js/custom-exercises.js?v=1622"></script>
+    <script src="js/awakening-tree.js?v=1622"></script>
+    <script src="js/ui-kit.js?v=1622"></script>
+    <script src="js/feature-map.js?v=1622"></script>
+    <script src="js/visite.js?v=1622"></script>
+    <script src="js/weekly-recap.js?v=1622"></script>
+    <script src="js/workout-games.js?v=1622"></script>
+    <script src="js/kids-games.js?v=1622"></script>
+    <script src="js/bilan-4sem.js?v=1622"></script>
+    <script src="js/home-pro.js?v=1622"></script>
+    <script src="js/echelle.js?v=1622"></script>
+    <script src="js/seance-ecran.js?v=1622"></script>
+    <script src="js/regle-mesures.js?v=1622"></script>
+    <script src="js/photos-mesures.js?v=1622"></script>
+    <script src="js/back-button.js?v=1622"></script>
+    <script src="js/gestures.js?v=1622"></script>
+    <script src="js/rift-visuals.js?v=1622"></script>
+    <script src="js/musique.js?v=1622"></script>
+    <script src="js/family-sky.js?v=1622"></script>
+    <script src="js/family-week.js?v=1622"></script>
+    <script src="js/session-ux.js?v=1622"></script>
+    <script src="js/progress-tab.js?v=1622"></script>
+    <script src="js/progres-onglets.js?v=1622"></script>
+    <script src="js/dev-outils.js?v=1622"></script>
+    <script src="js/ressenti.js?v=1622"></script>
+    <script src="js/mission-semaine.js?v=1622"></script>
+    <script src="js/xp-fin.js?v=1622"></script>
+    <script src="js/fin-seance.js?v=1622"></script>
+    <script src="js/import-csv.js?v=1622"></script>
+    <script src="js/reglage-machine.js?v=1622"></script>
+    <script src="js/mon-defi.js?v=1622"></script>
+    <script src="js/health-sync.js?v=1622"></script>
+    <script src="js/regle.js?v=1622"></script>
+    <script src="js/run-gps.js?v=1622"></script>
+    <script src="js/run-coach.js?v=1622"></script>
+    <script src="js/backup.js?v=1622"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

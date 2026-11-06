@@ -43,12 +43,12 @@
   // ── utilitaires ──
   function ico(n, t, c) { try { return window.AwakIcon ? AwakIcon.get(n, t || 18, c || CLAIR) : ''; } catch (e) { return ''; } }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  function toast(m, t) { try { if (typeof showToast === 'function') showToast(m, t || 'info', 3000); } catch (e) {} }
+  function toast(m, t) { try { if (typeof showToast === 'function') showToast(m, t || 'info', 3000); } catch (e) { _awkE(e); } }
   function enfant() { try { return !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) { return false; } }
   function cleE() { try { return window._cleProfil ? window._cleProfil(CLE) : CLE; } catch (e) { return CLE; } }
   function cleL() { try { return window._cleProfilLecture ? window._cleProfilLecture(CLE) : CLE; } catch (e) { return CLE; } }
   function lire() { try { var v = JSON.parse(localStorage.getItem(cleL()) || 'null'); return v && v.type ? v : null; } catch (e) { return null; } }
-  function ecrire(d) { try { if (d) localStorage.setItem(cleE(), JSON.stringify(d)); else localStorage.removeItem(cleE()); } catch (e) {} }
+  function ecrire(d) { try { if (d) localStorage.setItem(cleE(), JSON.stringify(d)); else localStorage.removeItem(cleE()); } catch (e) { _awkE(e); } }
   function kg() { try { return localStorage.getItem('fitproUseKg') === 'true'; } catch (e) { return false; } }
   function unite() { return kg() ? 'kg' : 'lb'; }
   function versAff(k) { return kg() ? k : k * 2.20462; }          // kg → unité affichée
@@ -79,7 +79,7 @@
         var est = r === 1 ? w : w * (1 + r / 30);
         if (w > 0 && r > 0 && est > best.kg) best = { kg: est, w: w, r: parseInt(s.reps, 10) || r };
       });
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return best;
   }
   function actuelKg(d) {
@@ -116,14 +116,14 @@
     return SCHEMAS[seancesFaites(d) % SCHEMAS.length];
   }
   function ecarte(ex) {
-    try { if (window.AwakLimitations && AwakLimitations.bloque(ex)) return true; } catch (e) {}
-    try { if (window.AwakPain && AwakPain.exerciseHitsPain && AwakPain.exerciseHitsPain(ex)) return true; } catch (e) {}
+    try { if (window.AwakLimitations && AwakLimitations.bloque(ex)) return true; } catch (e) { _awkE(e); }
+    try { if (window.AwakPain && AwakPain.exerciseHitsPain && AwakPain.exerciseHitsPain(ex)) return true; } catch (e) { _awkE(e); }
     return false;
   }
   function materielOk(ex) {
     try {
       if (typeof awakEquipmentOk === 'function' && typeof getSelectedEquipmentNames === 'function') return awakEquipmentOk(ex, getSelectedEquipmentNames());
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return true;
   }
   function appoints(d, n) {
@@ -225,7 +225,7 @@
   function rendreCourse(d) {
     var C = window.AwakCoachRun, O = (COURSES.filter(function (x) { return x.id === d.obj; })[0]) || COURSES[1];
     var P = C && C.lePlan ? C.lePlan() : null;
-    var pred = null; try { var p = C && C.predictions ? C.predictions() : null; pred = p ? p['p' + d.obj] : null; } catch (e) {}
+    var pred = null; try { var p = C && C.predictions ? C.predictions() : null; pred = p ? p['p' + d.obj] : null; } catch (e) { _awkE(e); }
     var h = '<div style="font-size:1.02em;font-weight:900;color:#fff;">' + esc(O.nom) + ' en ' + esc(hms(d.cible)) + '</div>'
       + '<div style="font-size:0.68em;color:#94a3b8;margin-top:2px;">Allure visée : ' + esc(C && C.allure ? C.allure(d.cible / (O.d / 1000)) : '') + ' /km</div>';
     if (pred) {
@@ -377,7 +377,7 @@
         return '<button data-' + attr + '="' + val + '" style="flex:1;min-width:0;min-height:auto;padding:10px 4px;border-radius:11px;cursor:pointer;font-family:inherit;font-weight:800;font-size:0.76em;'
           + (on ? 'background:rgba(251,191,36,0.14);border:1.5px solid ' + OR + ';color:#fff;' : 'background:rgba(255,255,255,0.03);border:1.5px solid rgba(255,255,255,0.1);color:#94a3b8;') + '">' + txt + '</button>';
       };
-      var pred = null; try { var p = C.predictions(); pred = p ? p['p' + etat.obj] : null; } catch (e) {}
+      var pred = null; try { var p = C.predictions(); pred = p ? p['p' + etat.obj] : null; } catch (e) { _awkE(e); }
       return entete('Défi de course', 'Une distance et le temps que tu vises')
         + '<label style="' + LBL + '">DISTANCE</label><div style="display:flex;gap:6px;">' + COURSES.map(function (x) { return chip('o', x.id, x.nom, etat.obj === x.id); }).join('') + '</div>'
         + '<label style="' + LBL + '">TEMPS VISÉ</label><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">'
@@ -402,7 +402,7 @@
       ov.querySelector('#awakDefiGo').onclick = function () {
         var cible = lireTemps(ov), O = C.OBJ[etat.obj];
         if (cible < 300) { toast('Indique le temps que tu vises.', 'warning'); return; }
-        var pred = null; try { var p = C.predictions(); pred = p ? p['p' + etat.obj] : null; } catch (e) {}
+        var pred = null; try { var p = C.predictions(); pred = p ? p['p' + etat.obj] : null; } catch (e) { _awkE(e); }
         // Repères : record du monde arrondi (marathon ≈ 2 h 01) → au-delà, c'est irréaliste
         var record = { '5': 750, '10': 1570, '21': 3440, '42': 7240 }[etat.obj];
         var palier = 0, msg = '';
@@ -458,7 +458,7 @@
       ecrire(d); ov.remove(); rendre();
     };
   }
-  function voirCourse() { try { if (window.AwakRun && AwakRun.ouvrir) AwakRun.ouvrir(); else if (typeof switchTab === 'function') switchTab('course'); } catch (e) {} }
+  function voirCourse() { try { if (window.AwakRun && AwakRun.ouvrir) AwakRun.ouvrir(); else if (typeof switchTab === 'function') switchTab('course'); } catch (e) { _awkE(e); } }
   function relancerPlan() {
     var d = lire(), C = window.AwakCoachRun; if (!d || !C) return;
     var O = C.OBJ[d.obj]; C.creerPlanCible(d.obj, O.sem[Math.min(1, O.sem.length - 1)], 3, d.cible); rendre();
@@ -469,7 +469,7 @@
   function brancher() {
     if (window.AwakProg && AwakProg.rendre && !AwakProg.rendre._defi) {
       var o = AwakProg.rendre;
-      AwakProg.rendre = function () { var r = o.apply(this, arguments); try { rendre(); } catch (e) {} return r; };
+      AwakProg.rendre = function () { var r = o.apply(this, arguments); try { rendre(); } catch (e) { _awkE(e); } return r; };
       AwakProg.rendre._defi = true;
     }
     rendre();

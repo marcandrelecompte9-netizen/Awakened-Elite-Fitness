@@ -43,7 +43,7 @@
     try {
       var src = window.EXERCISE_IMAGES && window.EXERCISE_IMAGES[cle];
       if (src && !n.en) img = String(src).split('/').pop().replace(/\.[a-z0-9]+$/i, '').replace(/[_\-]+/g, ' ');
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     var t = [cle, n.fr || '', n.en || '', img].join(' ').toLowerCase();
     return t + ' ' + sansAccents(t);
   }
@@ -102,7 +102,7 @@
       var tw = document.createTreeWalker(racine, NodeFilter.SHOW_TEXT, null), n, lot = [];
       while ((n = tw.nextNode())) { if (n.nodeValue && n.nodeValue.length > 2) lot.push(n); }
       lot.forEach(traiter);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
   function demarrer() {
     construire();

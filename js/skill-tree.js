@@ -124,9 +124,9 @@
       localStorage.removeItem('awakSkillRangs');
       localStorage.removeItem('awakSkillRespec');
       setTimeout(function () {
-        try { showToast('Refonte de l\'arbre de compétences : tes points te sont rendus. Redistribue-les dans Compétences.', 'info', 6000); } catch (e) {}
+        try { showToast('Refonte de l\'arbre de compétences : tes points te sont rendus. Redistribue-les dans Compétences.', 'info', 6000); } catch (e) { _awkE(e); }
       }, 1200);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   // ── Réinitialisation (1× / 7 jours) ──
@@ -139,11 +139,11 @@
     var unl = debloques();
     var ids = {}; arbre().forEach(function (s) { ids[s.id] = 1; });
     var actifs = unl.filter(function (id) { return ids[id]; });
-    if (!actifs.length) { try { showToast('Aucune compétence à réinitialiser.', 'info', 2500); } catch (e) {} return; }
+    if (!actifs.length) { try { showToast('Aucune compétence à réinitialiser.', 'info', 2500); } catch (e) { _awkE(e); } return; }
     var p = prochaineReinit();
     if (p > Date.now()) {
       var j = Math.ceil((p - Date.now()) / 86400000);
-      try { showToast('Prochaine réinitialisation dans ' + j + ' jour' + (j > 1 ? 's' : '') + '.', 'info', 3000); } catch (e) {}
+      try { showToast('Prochaine réinitialisation dans ' + j + ' jour' + (j > 1 ? 's' : '') + '.', 'info', 3000); } catch (e) { _awkE(e); }
       return;
     }
     var faire = function () {
@@ -152,7 +152,7 @@
       var rg = rangs(); Object.keys(rg).forEach(function (k) { if (ids[k]) delete rg[k]; });
       localStorage.setItem('awakSkillRangs', JSON.stringify(rg));
       localStorage.setItem('awakSkillRespec', String(Date.now()));
-      try { showToast('Points rendus : ' + gagnes(niveau()) + ' à redistribuer.', 'success', 3000); } catch (e) {}
+      try { showToast('Points rendus : ' + gagnes(niveau()) + ' à redistribuer.', 'success', 3000); } catch (e) { _awkE(e); }
       rafraichir();
     };
     var msg = 'Tous tes points de compétence te seront rendus. Tu pourras les redistribuer tout de suite, mais la prochaine réinitialisation sera possible dans 7 jours.';
@@ -161,22 +161,22 @@
   }
 
   function rafraichir() {
-    try { if (typeof renderGameTab === 'function') renderGameTab(); } catch (e) {}
-    try { if (typeof rpgRafraichirPanneauDetails === 'function') rpgRafraichirPanneauDetails(); } catch (e) {}
+    try { if (typeof renderGameTab === 'function') renderGameTab(); } catch (e) { _awkE(e); }
+    try { if (typeof rpgRafraichirPanneauDetails === 'function') rpgRafraichirPanneauDetails(); } catch (e) { _awkE(e); }
   }
 
   function ameliorer(id) {
     var lv = niveau(), unl = debloques();
     var sk = trouve(id); if (!sk || unl.indexOf(id) < 0) return;
     var r = rang(id, unl), max = rangMax(sk);
-    var t = function (m) { try { showToast(m, 'info', 2800); } catch (x) {} };
+    var t = function (m) { try { showToast(m, 'info', 2800); } catch (x) { _awkE(x); } };
     if (max <= 1) return t('« ' + sk.name + ' » n\'a qu\'un rang.');
     if (r >= max) return t('« ' + sk.name + ' » est au rang maximum.');
     var c = coutRang(r + 1), pts = points(lv, unl);
     if (pts < c) return t('Rang ' + (r + 1) + ' : il te faut ' + c + ' point' + (c > 1 ? 's' : '') + ' (tu en as ' + pts + ').');
     var go = function () {
       var rg = rangs(); rg[id] = r + 1; localStorage.setItem('awakSkillRangs', JSON.stringify(rg));
-      try { showToast(sk.name + ' passe au rang ' + (r + 1) + ' !', 'success', 3000); } catch (e) {}
+      try { showToast(sk.name + ' passe au rang ' + (r + 1) + ' !', 'success', 3000); } catch (e) { _awkE(e); }
       rafraichir();
     };
     var msg = 'Rang ' + (r + 1) + ' sur ' + max + ' : ' + descRang(sk, r + 1) + '. Coût : ' + c + ' point' + (c > 1 ? 's' : '') + ' (il t\'en reste ' + pts + ').';
@@ -190,7 +190,7 @@
     var sk = trouve(id), n = carte()[id];
     if (!sk || !n) return;
     if (e === 'actif' || e === 'ameliorable') return ameliorer(id);
-    var t = function (m) { try { showToast(m, 'info', 2800); } catch (x) {} };
+    var t = function (m) { try { showToast(m, 'info', 2800); } catch (x) { _awkE(x); } };
     if (e === 'prerequis') {
       var par = trouve(n.parent);
       return t('Débloque d\'abord « ' + (par ? par.name : 'la compétence précédente') + ' ».');
@@ -405,13 +405,13 @@
     if (e === 'dispo') { if (typeof rpgUnlockSkill === 'function') rpgUnlockSkill(id); }
     else if (e === 'ameliorable') {
       var r = rang(id), rg = rangs(); rg[id] = r + 1; localStorage.setItem('awakSkillRangs', JSON.stringify(rg));
-      var sk = trouve(id); try { showToast((sk ? sk.name : 'Compétence') + ' passe au rang ' + (r + 1) + ' !', 'success', 2600); } catch (x) {}
+      var sk = trouve(id); try { showToast((sk ? sk.name : 'Compétence') + ' passe au rang ' + (r + 1) + ' !', 'success', 2600); } catch (x) { _awkE(x); }
       rafraichir();
     }
     setTimeout(rendre, 0);
   }
 
-  try { migrer(); } catch (e) {}
+  try { migrer(); } catch (e) { _awkE(e); }
 
   window.AwakArbre = {
     html: html, etat: etat, dispo: dispo, points: points, gagnes: gagnes, rang: rang, rangMax: function (id) { return rangMax(trouve(id)); },
@@ -430,7 +430,7 @@
         var L = onglets().map(function (o) { return o.id; }), i = L.indexOf(VUE.onglet);
         i = Math.max(0, Math.min(L.length - 1, i + (dx < 0 ? 1 : -1)));
         if (L[i] !== VUE.onglet) { VUE.onglet = L[i]; VUE.sel = null; rendre(); }
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     }
   };
 })();

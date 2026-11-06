@@ -18,7 +18,7 @@
     size = size || 26;
     try {
       if (typeof window.renderAvatar === 'function') return window.renderAvatar(a, size);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return '<span style="font-size:' + Math.round(size * 0.62) + 'px;">' +
            String(a == null ? '\u{1F464}' : a).replace(/[&<>"]/g, function (c) {
              return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }) + '</span>';
@@ -128,14 +128,14 @@
   function save(a) { try { localStorage.setItem(CH_KEY, JSON.stringify(a || [])); return true; } catch (e) { return false; } }
 
   function _currentId() {
-    try { if (typeof window.getCurrentProfileId === 'function') return window.getCurrentProfileId(); } catch (e) {}
-    try { return localStorage.getItem('currentProfileId'); } catch (e) {}
+    try { if (typeof window.getCurrentProfileId === 'function') return window.getCurrentProfileId(); } catch (e) { _awkE(e); }
+    try { return localStorage.getItem('currentProfileId'); } catch (e) { _awkE(e); }
     return null;
   }
   function _meta(id) {
     try {
       if (window.AwakFamily && typeof window.AwakFamily._meta === 'function') return window.AwakFamily._meta(id);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return { id: id, name: 'Membre', avatar: '🙂' };
   }
 
@@ -199,7 +199,7 @@
             && window.AwakYouth.isChild();
           if (cibleEnfant || moiEnfant) return false;
         }
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     }
     var list = load();
     // Un seul défi actif à la fois entre deux mêmes profils
@@ -265,7 +265,7 @@
     try {
       if (o) localStorage.setItem(COOP_KEY, JSON.stringify(o));
       else localStorage.removeItem(COOP_KEY);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   // Crée un défi coopératif de 7 jours (un seul à la fois).
@@ -305,7 +305,7 @@
       if (!v[id]) v[id] = {};
       v[id][p] = true;
       localStorage.setItem('awakCoopVu', JSON.stringify(v));
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   };
   // 🏁 Clore un défi coopératif réussi : il restait affiché sans fin.
   window.AwakCoopClore = function () {
@@ -315,7 +315,7 @@
           function () { coopCancel(); if (window.renderFamilyTab) renderFamilyTab(); },
           null, { title: 'Défi terminé', confirmLabel: 'Clore' });
       } else { coopCancel(); if (window.renderFamilyTab) renderFamilyTab(); }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   };
 
   function coopStatus() {
@@ -376,7 +376,7 @@
           }
         }
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     return {
       type: c.type, def: d, cible: c.cible, total: total, pct: pct,
@@ -395,7 +395,7 @@
   // Nettoyer les défis vers des profils supprimés.
   function pruneOrphans() {
     var ids = {};
-    try { (window.getAllProfiles ? window.getAllProfiles() : []).forEach(function (p) { ids[p.id] = true; }); } catch (e) {}
+    try { (window.getAllProfiles ? window.getAllProfiles() : []).forEach(function (p) { ids[p.id] = true; }); } catch (e) { _awkE(e); }
     var list = load();
     var kept = list.filter(function (c) { return ids[c.a] && ids[c.b]; });
     if (kept.length !== list.length) save(kept);
@@ -432,7 +432,7 @@
               }
             }
           }
-        } catch (e) {}
+        } catch (e) { _awkE(e); }
 
         return {
           id: c.id, type: c.type, def: def,
@@ -458,7 +458,7 @@
       }
     });
     var rels = [];
-    try { if (window.AwakFamily && typeof window.AwakFamily.myRelations === 'function') rels = window.AwakFamily.myRelations(); } catch (e) {}
+    try { if (window.AwakFamily && typeof window.AwakFamily.myRelations === 'function') rels = window.AwakFamily.myRelations(); } catch (e) { _awkE(e); }
     return rels.filter(function (r) { return !active[r.member.id]; })
       .map(function (r) { return { member: r.member, relation: r.relation }; });
   }
@@ -583,7 +583,7 @@
           return ['volume', 'sessions', 'duration', 'exercises', 'calories'].indexOf(k) === -1;
         });
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     var typeBtns = offered.map(function (key) {
       var t = CH_TYPES[key];
@@ -624,7 +624,7 @@
     _closeModal();
     var overlay = document.createElement('div');
     // 🧹 Fermer toute autre modale famille avant d'ouvrir celle-ci.
-    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) { _awkE(e); }
     overlay.id = 'awakChallengeModal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
     overlay.onclick = function (e) { if (e.target === overlay) _closeModal(); };
@@ -695,7 +695,7 @@
     // et il restait affiché indéfiniment.
     var annonce = '';
     if (st.atteint) {
-      try { window.AwakCoopMarquerVu(); } catch (e) {}
+      try { window.AwakCoopMarquerVu(); } catch (e) { _awkE(e); }
       annonce = '<div style="text-align:center;padding:14px 12px 12px;margin-bottom:12px;'
         + 'border-radius:14px;background:linear-gradient(160deg,rgba(96,168,240,0.14),rgba(96,168,240,0.03));'
         + 'border:1px solid rgba(96,168,240,0.4);">'
@@ -772,7 +772,7 @@
   };
   window.AwakFamilyChallengeOpen = function () {
     var enf = false;
-    try { enf = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) {}
+    try { enf = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) { _awkE(e); }
     _modale(enf ? 'Défis' : 'Duels', renderCard(), 'awakChallengeModal');
   };
   window.AwakGamesOpen = function () {
@@ -781,23 +781,23 @@
       if (window.AwakGames && typeof window.AwakGames.renderFamilyCard === 'function') {
         html = window.AwakGames.renderFamilyCard();
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     _modale('Jeux à deux', html, 'awakGamesModal');
   };
 
   window.AwakCoopStart = function (type, cible) {
     coopCreate(type, cible || undefined);
     // fermer la modale du hub : le défi devient une carte visible dans l'onglet
-    try { try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
-    document.getElementById('awakCoopModal')?.remove(); } catch (e) {}
-    try { if (typeof renderAdventure === 'function') renderAdventure(); } catch (e) {}
-    try { if (typeof switchTab === 'function') switchTab('family'); } catch (e) {}
+    try { try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) { _awkE(e); }
+    document.getElementById('awakCoopModal')?.remove(); } catch (e) { _awkE(e); }
+    try { if (typeof renderAdventure === 'function') renderAdventure(); } catch (e) { _awkE(e); }
+    try { if (typeof switchTab === 'function') switchTab('family'); } catch (e) { _awkE(e); }
   };
   window.AwakCoopStop = function () {
     coopCancel();
-    try { try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
-    document.getElementById('awakCoopModal')?.remove(); } catch (e) {}
-    try { if (typeof renderAdventure === 'function') renderAdventure(); } catch (e) {}
+    try { try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) { _awkE(e); }
+    document.getElementById('awakCoopModal')?.remove(); } catch (e) { _awkE(e); }
+    try { if (typeof renderAdventure === 'function') renderAdventure(); } catch (e) { _awkE(e); }
   };
 
 })();

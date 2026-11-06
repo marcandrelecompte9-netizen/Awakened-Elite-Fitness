@@ -362,7 +362,7 @@
       dg.style.cssText = 'font-size:' + (c.crit ? '1.05em' : '0.9em') + ';color:' + (c.crit ? '#fbbf24' : '#fff') + ';';
       dg.textContent = (c.crit ? 'CRIT ' : '') + '-' + c.dmg;
       mon.appendChild(dg);
-      setTimeout(function () { try { dg.remove(); } catch (e) {} }, 1400);
+      setTimeout(function () { try { dg.remove(); } catch (e) { _awkE(e); } }, 1400);
     }
   }
 
@@ -499,11 +499,11 @@
     function fermer() {
       if (fini) return; fini = true;
       el.classList.add('sort');
-      setTimeout(function () { el.remove(); try { if (typeof o.apres === 'function') o.apres(); } catch (e) {} }, 450);
+      setTimeout(function () { el.remove(); try { if (typeof o.apres === 'function') o.apres(); } catch (e) { _awkE(e); } }, 450);
     }
     el.addEventListener('click', fermer);
     document.body.appendChild(el);
-    try { if (!calme && navigator.vibrate) setTimeout(function () { navigator.vibrate([70, 50, 140]); }, 550); } catch (e) {}
+    try { if (!calme && navigator.vibrate) setTimeout(function () { navigator.vibrate([70, 50, 140]); }, 550); } catch (e) { _awkE(e); }
     setTimeout(fermer, duree);
     return el;
   }

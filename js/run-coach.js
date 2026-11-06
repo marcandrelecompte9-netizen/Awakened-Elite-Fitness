@@ -39,12 +39,12 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function N() { return window.AwakNative || null; }
   function parler(t) {
-    try { if (N() && N().voix.parler(t)) return; } catch (e) {}
-    try { if (typeof speak === 'function') speak(t, { interrupt: true }); } catch (e) {}
+    try { if (N() && N().voix.parler(t)) return; } catch (e) { _awkE(e); }
+    try { if (typeof speak === 'function') speak(t, { interrupt: true }); } catch (e) { _awkE(e); }
   }
   function vibrer(m) {
-    try { if (N()) { N().vibrer(m); return; } } catch (e) {}
-    try { navigator.vibrate && navigator.vibrate(m); } catch (e) {}
+    try { if (N()) { N().vibrer(m); return; } } catch (e) { _awkE(e); }
+    try { navigator.vibrate && navigator.vibrate(m); } catch (e) { _awkE(e); }
   }
   // Durée lisible à voix haute : « 4 minutes 32 »
   function voixT(s) {
@@ -65,7 +65,7 @@
   function cle(k) { try { return window._cleProfil ? window._cleProfil(k) : k; } catch (e) { return k; } }
   function cleL(k) { try { return window._cleProfilLecture ? window._cleProfilLecture(k) : k; } catch (e) { return k; } }
   function lire(k, def) { try { var v = JSON.parse(localStorage.getItem(cleL(k)) || 'null'); return v == null ? def : v; } catch (e) { return def; } }
-  function ecrire(k, v) { try { localStorage.setItem(cle(k), JSON.stringify(v)); } catch (e) {} }
+  function ecrire(k, v) { try { localStorage.setItem(cle(k), JSON.stringify(v)); } catch (e) { _awkE(e); } }
   function sorties() { var a = lire('awakRuns', []); return Array.isArray(a) ? a : []; }
   function courses() { return sorties().filter(function (s) { return s && s.type === 'course' && s.distance > 0 && s.duree > 0; }); }
   function lundi(ts) { var d = new Date(ts); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.getTime(); }
@@ -839,7 +839,7 @@
         var wp = JSON.parse((typeof getProfileData === 'function' && getCurrentProfileId() ? getProfileData(getCurrentProfileId(), 'weeklyPlan') : null) || 'null');
         var nR = wp && wp.plan ? wp.plan.filter(function (j) { return j.hybride && j.discipline === 'course'; }).length : 0;
         if (nR) cp.par = Math.max(3, nR);
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
       if (predictions()) cp.niv = '60';
     }
     var O = OBJ[cp.obj];
@@ -874,8 +874,8 @@
       if (!cp.niv) return;
       ecrire('awakRunPlan', creerPlan(cp.obj, cp.S, cp.par, 0, cp.niv));
       ov.remove();
-      try { var _tot = cp.S + (BASE_SEM[cp.niv] || 0); if (typeof showToast === 'function') showToast('Plan ' + OBJ[cp.obj].nom + ' créé : ' + _tot + ' semaines', 'success', 2600); } catch (e) {}
-      try { if (typeof window.generateWeeklyPlan === 'function') window.generateWeeklyPlan(); } catch (e) {}
+      try { var _tot = cp.S + (BASE_SEM[cp.niv] || 0); if (typeof showToast === 'function') showToast('Plan ' + OBJ[cp.obj].nom + ' créé : ' + _tot + ' semaines', 'success', 2600); } catch (e) { _awkE(e); }
+      try { if (typeof window.generateWeeklyPlan === 'function') window.generateWeeklyPlan(); } catch (e) { _awkE(e); }
       rafraichirAccueil();
     };
   }
@@ -904,7 +904,7 @@
 
   function arreterPlan(direct) {
     var go = function () {
-      try { localStorage.removeItem(cle('awakRunPlan')); } catch (e) {}
+      try { localStorage.removeItem(cle('awakRunPlan')); } catch (e) { _awkE(e); }
       var v = document.getElementById('awkPlanVoir'); if (v) v.remove();
       rafraichirAccueil();
       if (direct) creerPlanUI();
@@ -932,7 +932,7 @@
 
   function rafraichirAccueil() {
     // v1241 : la carte « Aujourd'hui » dépend du plan → on redessine tout l'onglet
-    if (document.getElementById('awakRunOnglet') && window.AwakRun && AwakRun.rendreOnglet) { try { AwakRun.rendreOnglet(); return; } catch (e) {} }
+    if (document.getElementById('awakRunOnglet') && window.AwakRun && AwakRun.rendreOnglet) { try { AwakRun.rendreOnglet(); return; } catch (e) { _awkE(e); } }
     var h = document.getElementById('awakRunPlanHote');
     if (h) h.innerHTML = rendrePlan();
   }
@@ -945,7 +945,7 @@
       var P = lePlan(); if (!P) return;
       P.faites[b.plan.w + '-' + b.plan.i] = s.id;
       ecrire('awakRunPlan', P);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   // Coach créé au départ : libellé du plan si la sortie vient du plan
@@ -1181,7 +1181,7 @@
 
   // ═══ K. POULS DE LA MONTRE ════════════════════════════════════════
   function fcMaxTheo() {
-    try { var a = +(getUserProfile() || {}).age; if (a > 10 && a < 100) return Math.round(208 - 0.7 * a); } catch (e) {}
+    try { var a = +(getUserProfile() || {}).age; if (a > 10 && a < 100) return Math.round(208 - 0.7 * a); } catch (e) { _awkE(e); }
     return 0;
   }
   var ZONES = [['Z1', 'Récup.', 0.6, '#64748b'], ['Z2', 'Endurance', 0.7, ACC], ['Z3', 'Tempo', 0.8, VIO], ['Z4', 'Seuil', 0.9, OR], ['Z5', 'VMA', 9, ROSE]];
@@ -1210,7 +1210,7 @@
         if (!r) { if (n < 3) setTimeout(function () { essai(n + 1); }, 45000); return; }
         if (r.max > r.fcMax) r.fcMax = r.max;
         l[i].fc = r;
-        try { localStorage.setItem(cle('awakRuns'), JSON.stringify(l.slice(0, 100))); } catch (e) {}
+        try { localStorage.setItem(cle('awakRuns'), JSON.stringify(l.slice(0, 100))); } catch (e) { _awkE(e); }
         var h = document.getElementById('awakRunPouls');
         if (h) h.outerHTML = rendrePouls(l[i]);
       });
@@ -1253,14 +1253,14 @@
     rendreChoix: rendreChoix, config: config, creer: creerAvecPlan, tick: tick, bilan: bilan, rendreBilan: rendreBilan,
     rendreForme: rendreForme, rendrePlan: rendrePlan, apresSortie: apresSortie,
     // v1565 : arbre de progression → sortie préparée (objectif / fractionné)
-    preparer: function (o) { try { Object.keys(o || {}).forEach(function (k) { sel[k] = o[k]; }); sel.plan = null; activiteCourante = 'course'; } catch (e) {} },
+    preparer: function (o) { try { Object.keys(o || {}).forEach(function (k) { sel[k] = o[k]; }); sel.plan = null; activiteCourante = 'course'; } catch (e) { _awkE(e); } },
     creerPlanUI: creerPlanUI, voirPlan: voirPlan, arreterPlan: arreterPlan, marquerFait: marquerFait, lancerPlan: lancerPlan,
     passer: passer, predictions: predictions, vma: vma,
     prefs: prefs, pasAnnonce: pasAnnonce, texteAnnonce: texteAnnonce, reglagesUI: reglagesUI,
     rendreAnalyse: rendreAnalyse, poulsApres: poulsApres, contre: contre, fraicheur: fraicheur,
     rendreAujourdhui: rendreAujourdhui, rendreFormeCompacte: rendreFormeCompacte, feuille: feuille,
     // v1310 : « Mon défi » (onglet Progrès) crée un plan avec un temps visé
-    creerPlanCible: function (obj, S, par, cible) { var P = creerPlan(obj, S, par, cible); if (P) { ecrire('awakRunPlan', P); try { rafraichirAccueil(); } catch (e) {} } return P; },
+    creerPlanCible: function (obj, S, par, cible) { var P = creerPlan(obj, S, par, cible); if (P) { ecrire('awakRunPlan', P); try { rafraichirAccueil(); } catch (e) { _awkE(e); } } return P; },
     lePlan: lePlan, semaineCourante: semaineCourante, OBJ: OBJ, hms: hms, allure: allure,
     // v1400 : pour l'accueil (objectif du jour, « Cette semaine »)
     aujourdhui: function () {

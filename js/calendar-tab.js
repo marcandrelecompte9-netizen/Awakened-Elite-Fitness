@@ -153,7 +153,7 @@
     try {
       if (v === 'auto' || SOURCE_KEYS.indexOf(v) < 0) localStorage.removeItem('awakPlanSource_' + id);
       else localStorage.setItem('awakPlanSource_' + id, v);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
   // Quelles sources ont réellement du contenu (pour griser les choix vides)
   function sourcesDispo(id) {
@@ -192,10 +192,10 @@
     var actif = pref === 'routine' ? null : activePlanFor(id);
     // v1572 : en automatique, le programme Salle démarré compte aussi (avant : seulement si « Programme » était choisi)
     var progAuto = pref === 'auto' ? programmeFor(id) : null;
-    var actifDepuis = null; try { var _ap = readJSON('profile_' + id + '_weeklyPlan', null); if (_ap && _ap.startDate) actifDepuis = Date.parse(_ap.startDate); } catch (e) {}
+    var actifDepuis = null; try { var _ap = readJSON('profile_' + id + '_weeklyPlan', null); if (_ap && _ap.startDate) actifDepuis = Date.parse(_ap.startDate); } catch (e) { _awkE(e); }
 
     // v1407 : jours « en famille » (onglet Famille) → « Bouger ensemble » chez chaque membre
-    var _fam = null; try { _fam = window.AwakFamJours ? window.AwakFamJours.get() : null; } catch (e) {}
+    var _fam = null; try { _fam = window.AwakFamJours ? window.AwakFamJours.get() : null; } catch (e) { _awkE(e); }
     JOURS.forEach(function (d, i) {
       if (_fam && _fam.jours.indexOf(i) >= 0) {
         out[d] = { muscles: ['Corps entier'], label: 'Bouger ensemble', heure: _fam.heure || null, source: 'famille', famille: true };
@@ -284,7 +284,7 @@
         var d = plan[k[i]];
         if (d && d.muscles && d.muscles.length) return true;
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return false;
   }
 
@@ -305,7 +305,7 @@
         var k = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
         if (!isNaN(d.getTime())) set[k] = set[k] || String((w && w.name) || 'Séance').replace(/^[^A-Za-zÀ-ÿ0-9]+/, '') || 'Séance';
       });
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return set;
   }
 
@@ -313,7 +313,7 @@
   function wIdx(date) { return (date.getDay() + 6) % 7; }
 
   function av(a, size) {
-    try { if (typeof window.renderAvatar === 'function') return window.renderAvatar(a, size); } catch (e) {}
+    try { if (typeof window.renderAvatar === 'function') return window.renderAvatar(a, size); } catch (e) { _awkE(e); }
     return '<span style="font-size:' + Math.round(size * 0.6) + 'px;line-height:1;">' + (a || '👤') + '</span>';
   }
 
@@ -333,7 +333,7 @@
     } catch (e) { return {}; }
   }
   function saveEx(id, obj) {
-    try { localStorage.setItem(EX_KEY + id, JSON.stringify(obj || {})); } catch (e) {}
+    try { localStorage.setItem(EX_KEY + id, JSON.stringify(obj || {})); } catch (e) { _awkE(e); }
   }
 
   // Heure effective d'un membre pour une date donnée (null si aucune).
@@ -397,7 +397,7 @@
           out.push({ profil: p, seance: { label: 'Rituel · ' + r.nom, muscles: [r.nom], source: 'rituel', discipline: r.disciplineId },
                      heure: null, exception: false, faite: false, rituel: true });
         });
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
       var s = (plans[p.id] || {})[dayKey];
       if (s && !actifLe(s, new Date(y, m, d))) s = null;   // v1572 : pas avant le début du planning
       if (!s || !s.muscles || !s.muscles.length) {
@@ -1099,12 +1099,12 @@
         var n0 = document.getElementById('awakKioskLock');
         if (n0) n0.textContent = 'Pense à régler la mise en veille de la tablette';
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   };
 
   window.awakCalKioskExit = function () {
     if (kiosk.timer) { clearInterval(kiosk.timer); kiosk.timer = null; }
-    if (kiosk.lock) { try { kiosk.lock.release(); } catch (e) {} kiosk.lock = null; }
+    if (kiosk.lock) { try { kiosk.lock.release(); } catch (e) { _awkE(e); } kiosk.lock = null; }
     var ov = document.getElementById('awakKioskOverlay');
     if (ov) ov.remove();
   };
@@ -1186,7 +1186,7 @@
       var label = s.label || s.muscles.slice(0, 3).join(' · ');
       // v1570 : rituel — simple carte (pas de réglage d'heure), lançable pour le profil actif
       if (e.rituel) {
-        var moi = false; try { moi = window.getCurrentProfileId && window.getCurrentProfileId() === e.profil.id; } catch (x) {}
+        var moi = false; try { moi = window.getCurrentProfileId && window.getCurrentProfileId() === e.profil.id; } catch (x) { _awkE(x); }
         return '<div style="background:rgba(103,232,249,0.04);border:1px solid rgba(103,232,249,0.2);' +
             'border-left:3px solid ' + c.base + ';border-radius:12px;padding:12px 14px;margin-bottom:9px;">' +
             '<div style="display:flex;align-items:center;gap:9px;">' +
@@ -1370,7 +1370,7 @@
         if (val) plan[ctx.dayKey].heure = val;
         else delete plan[ctx.dayKey].heure;
         localStorage.setItem(key, JSON.stringify(plan));
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
       var ex2 = exFor(id);
       delete ex2[ymd];
       saveEx(id, ex2);

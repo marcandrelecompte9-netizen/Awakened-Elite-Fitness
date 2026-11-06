@@ -7,7 +7,7 @@
 
   function cle() { return window._cleProfil ? window._cleProfil('awakReglages') : 'awakReglages'; }
   function lire() { try { return JSON.parse(localStorage.getItem(cle()) || '{}') || {}; } catch (e) { return {}; } }
-  function ecrire(o) { try { localStorage.setItem(cle(), JSON.stringify(o)); } catch (e) {} }
+  function ecrire(o) { try { localStorage.setItem(cle(), JSON.stringify(o)); } catch (e) { _awkE(e); } }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
   function exoCourant() {
@@ -19,7 +19,7 @@
   function surMachine(ex) {
     if (!ex || ex.isRest || ex.isInfo) return false;
     var eq = ex.equipment;
-    try { if (!eq && window.exerciseDatabase) { var d = window.exerciseDatabase.find(function (e) { return e.name === (ex._baseName || ex.name); }); eq = d && d.equipment; } } catch (e) {}
+    try { if (!eq && window.exerciseDatabase) { var d = window.exerciseDatabase.find(function (e) { return e.name === (ex._baseName || ex.name); }); eq = d && d.equipment; } } catch (e) { _awkE(e); }
     var t = (Array.isArray(eq) ? eq.join(' ') : String(eq || '')) + ' ' + (ex.name || '');
     return /machine|poulie|c[aâ]ble|smith|presse|cable/i.test(t);
   }

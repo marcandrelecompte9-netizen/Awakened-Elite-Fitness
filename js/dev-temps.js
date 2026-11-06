@@ -7,7 +7,7 @@
 (function () {
   'use strict';
   var d = 0;
-  try { d = parseInt(localStorage.getItem('awakDevDecalage') || '0', 10) || 0; } catch (e) {}
+  try { d = parseInt(localStorage.getItem('awakDevDecalage') || '0', 10) || 0; } catch (e) { _awkE(e); }
   if (!d) return;
   var R = Date;
   function D(a, b, c, e, f, g, h) {

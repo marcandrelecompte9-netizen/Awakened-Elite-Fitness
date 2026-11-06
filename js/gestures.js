@@ -43,7 +43,7 @@
   var JAMAIS = ['toastContainer', 'mobileNavBar', 'globalRestBanner', 'awakPauseOverlay', 'exerciseView', 'appHeader'];
 
   function enSeance() { return document.body.classList.contains('in-session'); }
-  function vibrer(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} }
+  function vibrer(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { _awkE(e); } }
   function exclu(t) {
     return !!(t && t.closest && t.closest('input, textarea, select, [contenteditable="true"], [data-awak-flip], [data-no-swipe]'));
   }
@@ -76,13 +76,13 @@
     try {
       el.animate([{ transform: 'translateX(' + (sens * 28) + 'px)', opacity: 0.35 },
                   { transform: 'translateX(0)', opacity: 1 }], { duration: 220, easing: 'ease-out' });
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   // ═══ 5. ACTIONS D'UNE ROUTINE (feuille du bas) ══════════════════════
   window.awakRoutineActions = function (idx) {
     var r = null;
-    try { r = (typeof getRoutines === 'function') ? getRoutines()[idx] : null; } catch (e) {}
+    try { r = (typeof getRoutines === 'function') ? getRoutines()[idx] : null; } catch (e) { _awkE(e); }
     if (!r) return;
     var old = document.getElementById('awakRoutineActions'); if (old) old.remove();
     var ico = function (d) {
@@ -119,7 +119,7 @@
           else if (a === 'dup' && typeof duplicateRoutine === 'function') duplicateRoutine(idx);
           else if (a === 'print' && window.AwakRoutinePrint) window.AwakRoutinePrint.ouvrir(idx);
           else if (a === 'del' && typeof deleteRoutine === 'function') deleteRoutine(idx);
-        } catch (e) {}
+        } catch (e) { _awkE(e); }
       };
     });
     document.body.appendChild(ov);
@@ -208,7 +208,7 @@
         f.style.transform = 'translateY(100%)';
         setTimeout(function () {
           var ferme = false;
-          try { if (window.awakFermerFenetre) ferme = window.awakFermerFenetre(geste.fen); } catch (er) {}
+          try { if (window.awakFermerFenetre) ferme = window.awakFermerFenetre(geste.fen); } catch (er) { _awkE(er); }
           if (!ferme || document.body.contains(f)) {
             // pas fermée : on la remet en place
             if (document.body.contains(f)) { f.style.transition = 'transform 0.2s ease-out'; f.style.transform = ''; }
@@ -227,9 +227,9 @@
       if (repos && !geste.cible.closest('button')) {
         try {
           repos.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-60px)', opacity: 0.4 }], { duration: 180, easing: 'ease-in' });
-        } catch (er) {}
+        } catch (er) { _awkE(er); }
         vibrer(12);
-        setTimeout(function () { try { if (typeof skipRestOverlay === 'function') skipRestOverlay(); } catch (er) {} }, 150);
+        setTimeout(function () { try { if (typeof skipRestOverlay === 'function') skipRestOverlay(); } catch (er) { _awkE(er); } }, 150);
         return;
       }
     }
@@ -249,7 +249,7 @@
       try {
         if (sens > 0) { if (typeof skipExercise === 'function') skipExercise(); }
         else if (typeof goToPreviousExercise === 'function') goToPreviousExercise();
-      } catch (er) {}
+      } catch (er) { _awkE(er); }
       vibrer(12);
       return;
     }
@@ -260,7 +260,7 @@
       try {
         if (sens > 0) { if ((onb.querySelector('[onclick="window._premOnbNext()"]') || onb.querySelector('[onclick^="window._premOnbVient"]')) && window._premOnbNext) window._premOnbNext(); }
         else if (window._premOnbPrev) window._premOnbPrev();
-      } catch (er) {}
+      } catch (er) { _awkE(er); }
       return;
     }
     if (geste.fen) return;   // dans une fenêtre : seul le glisser vers le bas compte
@@ -272,7 +272,7 @@
       try {
         carteR.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-18px)' }, { transform: 'translateX(0)' }],
           { duration: 220, easing: 'ease-out' });
-      } catch (er) {}
+      } catch (er) { _awkE(er); }
       window.awakRoutineActions(parseInt(carteR.getAttribute('data-awak-routine'), 10));
       return;
     }
@@ -283,7 +283,7 @@
       try {
         carteH.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-18px)' }, { transform: 'translateX(0)' }],
           { duration: 220, easing: 'ease-out' });
-      } catch (er) {}
+      } catch (er) { _awkE(er); }
       window.awakHistActions(carteH.getAttribute('data-hist'));
       return;
     }
@@ -294,7 +294,7 @@
       try {
         if (sens > 0 && window.awakCalNextMonth) window.awakCalNextMonth();
         else if (sens < 0 && window.awakCalPrevMonth) window.awakCalPrevMonth();
-      } catch (er) {}
+      } catch (er) { _awkE(er); }
       glisserEntree(agenda, sens);
       return;
     }
@@ -307,7 +307,7 @@
       if (pos < 0) continue;
       var suiv = gr[pos + sens];
       if (!suiv) return;
-      try { if (typeof switchTab === 'function') switchTab(suiv); } catch (er) {}
+      try { if (typeof switchTab === 'function') switchTab(suiv); } catch (er) { _awkE(er); }
       var el = document.getElementById(suiv + 'Tab');
       if (el) glisserEntree(el, sens);
       return;
@@ -319,7 +319,7 @@
       while (PRINCIPAUX[j] && !ongletVisible(PRINCIPAUX[j])) j += sens;
       var dest = PRINCIPAUX[j];
       if (!dest) return;
-      try { if (typeof switchTab === 'function') switchTab(dest); } catch (er) {}
+      try { if (typeof switchTab === 'function') switchTab(dest); } catch (er) { _awkE(er); }
       var elp = document.getElementById(dest + 'Tab');
       if (elp) glisserEntree(elp, sens);
     }
@@ -373,7 +373,7 @@
     try {
       if (cible > a.depart) { for (var k = a.depart; k < cible; k++) E.move(k, 1); }
       else { for (var k2 = a.depart; k2 > cible; k2--) E.move(k2, -1); }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     vibrer(10);
   }
 
@@ -381,11 +381,11 @@
   // ═══ 10. ACTIONS D'UNE SÉANCE DE L'HISTORIQUE (feuille du bas) ═══════
   window.awakHistActions = function (idTxt) {
     var e = null;
-    try { e = getWorkoutHistory().find(function (w) { return String(w.id) === String(idTxt); }); } catch (er) {}
+    try { e = getWorkoutHistory().find(function (w) { return String(w.id) === String(idTxt); }); } catch (er) { _awkE(er); }
     if (!e) return;
     var id = e.id;
     var fav = false;
-    try { fav = getFavoriteWorkouts().indexOf(id) > -1; } catch (er) {}
+    try { fav = getFavoriteWorkouts().indexOf(id) > -1; } catch (er) { _awkE(er); }
     var old = document.getElementById('awakHistActions'); if (old) old.remove();
     var ico = function (d) {
       return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
@@ -417,7 +417,7 @@
           if (a === 'replay' && window.replayWorkout) window.replayWorkout(id);
           else if (a === 'fav' && window.toggleFavoriteWorkout) window.toggleFavoriteWorkout(id);
           else if (a === 'del' && window.deleteHistoryWorkout) window.deleteHistoryWorkout(id);
-        } catch (er) {}
+        } catch (er) { _awkE(er); }
       };
     });
     document.body.appendChild(ov);
@@ -440,7 +440,7 @@
     rep = { b: b, n: 0, long: false };
     rep.t1 = setTimeout(function () {
       rep.long = true;
-      var un = function () { try { b.click(); } catch (er) {} rep.n++; if (rep.n % 5 === 0) vibrer(5); };
+      var un = function () { try { b.click(); } catch (er) { _awkE(er); } rep.n++; if (rep.n % 5 === 0) vibrer(5); };
       un();
       rep.t2 = setInterval(function () {
         un();
@@ -473,7 +473,7 @@
       var v = document.querySelector('#exerciseView [onclick="completeCurrentSet()"]');
       if (v && v.offsetParent !== null && !v.disabled) {
         e.preventDefault();
-        try { cadre.animate([{ transform: 'scale(1)' }, { transform: 'scale(0.97)' }, { transform: 'scale(1)' }], { duration: 200 }); } catch (er) {}
+        try { cadre.animate([{ transform: 'scale(1)' }, { transform: 'scale(0.97)' }, { transform: 'scale(1)' }], { duration: 200 }); } catch (er) { _awkE(er); }
         vibrer(20);
         v.click();
       }
@@ -483,7 +483,7 @@
   // ═══ 9b. repos : toucher l'anneau = pause / reprise ═══════════════════
   document.addEventListener('click', function (e) {
     if (e.target.closest && e.target.closest('#restRingWrap')) {
-      try { if (typeof toggleRestPause === 'function') { toggleRestPause(); vibrer(10); } } catch (er) {}
+      try { if (typeof toggleRestPause === 'function') { toggleRestPause(); vibrer(10); } } catch (er) { _awkE(er); }
     }
   });
 })();

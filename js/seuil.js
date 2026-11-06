@@ -24,7 +24,7 @@
   var SERIF = "'Iowan Old Style','Palatino Linotype','Book Antiqua',Palatino,Georgia,serif";
 
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-  function vib(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+  function vib(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) { _awkE(e); } }
   function reduit() { try { return window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
 
   function styles() {
@@ -132,7 +132,7 @@
     // et la ville dessinés ; la faille, ses éclairs et ses débris restent dessinés par-dessus.
     var fondOk = false;
     (function () { var im = new Image(); im.onload = function () { fondOk = true; el.style.backgroundImage = 'url(images/seuil_fond.webp)'; el.style.backgroundSize = 'cover'; el.style.backgroundPosition = 'center'; }; im.src = 'images/seuil_fond.webp'; })();
-    try { el.querySelector('.sl-flash').style.background = 'radial-gradient(ellipse at 50% 50%,rgba(255,255,255,.95),rgba(' + COLC + ',.6) 30%,rgba(' + COL + ',.3) 50%,#000 78%)'; } catch (e) {}
+    try { el.querySelector('.sl-flash').style.background = 'radial-gradient(ellipse at 50% 50%,rgba(255,255,255,.95),rgba(' + COLC + ',.6) 30%,rgba(' + COL + ',.3) 50%,#000 78%)'; } catch (e) { _awkE(e); }
     var T = trace(H), parts = [], debris = [], eclairs = [], ondes = [], ville = [];
     for (var p = 0; p < 90; p++) parts.push({ x: (Math.random() - 0.5) * 2, y: Math.random(), v: 0.0004 + Math.random() * 0.0012, r: Math.random() * 1.4 + 0.2, a: Math.random() });
     for (var d = 0; d < 26; d++) debris.push(nouveauDebris(true));
@@ -313,10 +313,10 @@
         vib([60, 40, 120]);
         st.cible = 1.2; onde(1.5);
         el.classList.add('entre');
-        setTimeout(function () { el.remove(); try { if (o.onEntrer) o.onEntrer(); } catch (e) {} }, 520);
+        setTimeout(function () { el.remove(); try { if (o.onEntrer) o.onEntrer(); } catch (e) { _awkE(e); } }, 520);
       } else {
         el.classList.remove('on');
-        setTimeout(function () { el.remove(); try { if (o.onReculer) o.onReculer(); } catch (e) {} }, 450);
+        setTimeout(function () { el.remove(); try { if (o.onReculer) o.onReculer(); } catch (e) { _awkE(e); } }, 450);
       }
     }
     function passer2() {

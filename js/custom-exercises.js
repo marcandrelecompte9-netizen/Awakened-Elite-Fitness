@@ -54,8 +54,8 @@
   }
 
   function db() {
-    try { if (typeof exerciseDatabase !== 'undefined' && Array.isArray(exerciseDatabase)) return exerciseDatabase; } catch (e) {}
-    try { if (Array.isArray(window.exerciseDatabase)) return window.exerciseDatabase; } catch (e) {}
+    try { if (typeof exerciseDatabase !== 'undefined' && Array.isArray(exerciseDatabase)) return exerciseDatabase; } catch (e) { _awkE(e); }
+    try { if (Array.isArray(window.exerciseDatabase)) return window.exerciseDatabase; } catch (e) { _awkE(e); }
     return [];
   }
 
@@ -112,7 +112,7 @@
           window.EXERCISE_IMAGES = window.EXERCISE_IMAGES || {};
           window.EXERCISE_IMAGES[c.name] = c.image;
         }
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     });
   }
 
@@ -298,7 +298,7 @@
 
     document.body.appendChild(modal);
     var champ = document.getElementById('awakCxNom');
-    if (champ && !form.editId) setTimeout(function () { try { champ.focus(); } catch (e) {} }, 220);
+    if (champ && !form.editId) setTimeout(function () { try { champ.focus(); } catch (e) { _awkE(e); } }, 220);
   }
 
   // Re-rendu en conservant la saisie et la position de défilement
@@ -421,14 +421,14 @@
     // v1578 : renommé → les routines suivent le nouveau nom (sinon l'exercice y devenait inconnu)
     if (form.editId && form.ancienNom && form.ancienNom !== nom) {
       var nb = renommerDansRoutines(form.ancienNom, nom);
-      try { if (window.EXERCISE_IMAGES && window.EXERCISE_IMAGES[form.ancienNom] && !obj.image) delete window.EXERCISE_IMAGES[form.ancienNom]; } catch (e) {}
+      try { if (window.EXERCISE_IMAGES && window.EXERCISE_IMAGES[form.ancienNom] && !obj.image) delete window.EXERCISE_IMAGES[form.ancienNom]; } catch (e) { _awkE(e); }
       if (nb && typeof window.showToast === 'function') setTimeout(function () { window.showToast(nb + ' routine' + (nb > 1 ? 's mises' : ' mise') + ' à jour avec le nouveau nom', 'info', 3000); }, 900);
     }
-    try { if (document.getElementById('exercisesTab') && typeof window.filterExercises === 'function') window.filterExercises(); } catch (e) {}
+    try { if (document.getElementById('exercisesTab') && typeof window.filterExercises === 'function') window.filterExercises(); } catch (e) { _awkE(e); }
     var m = document.getElementById('awakCustomExModal');
     if (m) m.remove();
     // Rafraîchit l'atelier de routine s'il est ouvert
-    try { if (window.AwakBuilder && window.AwakBuilder.refresh) window.AwakBuilder.refresh(false); } catch (e) {}
+    try { if (window.AwakBuilder && window.AwakBuilder.refresh) window.AwakBuilder.refresh(false); } catch (e) { _awkE(e); }
   };
 
   API.supprimer = function (id) {
@@ -436,7 +436,7 @@
     ecrire(liste);
     injecter();
     if (typeof window.showToast === 'function') window.showToast('Exercice supprimé', 'success', 2000);
-    try { if (window.AwakBuilder && window.AwakBuilder.refresh) window.AwakBuilder.refresh(false); } catch (e) {}
+    try { if (window.AwakBuilder && window.AwakBuilder.refresh) window.AwakBuilder.refresh(false); } catch (e) { _awkE(e); }
   };
 
   // v1578 : routines qui utilisent un exercice (parcours de tout l'objet : blocs, supersets…)
@@ -460,7 +460,7 @@
       });
       if (t) n++;
     });
-    if (n && typeof window.saveRoutines === 'function') { try { window.saveRoutines(rs); } catch (e) {} }
+    if (n && typeof window.saveRoutines === 'function') { try { window.saveRoutines(rs); } catch (e) { _awkE(e); } }
     return n;
   }
   API.routinesAvec = routinesAvec;
@@ -471,8 +471,8 @@
     var nb = routinesAvec(e.name);
     var faire = function () {
       API.supprimer(id);
-      try { var md = document.getElementById('exerciseModal'); if (md) md.classList.remove('active'); } catch (er) {}
-      try { if (typeof window.filterExercises === 'function') window.filterExercises(); } catch (er) {}
+      try { var md = document.getElementById('exerciseModal'); if (md) md.classList.remove('active'); } catch (er) { _awkE(er); }
+      try { if (typeof window.filterExercises === 'function') window.filterExercises(); } catch (er) { _awkE(er); }
     };
     var txt = 'Supprimer « ' + e.name + ' » de ton catalogue ?' + (nb
       ? ' Il est utilisé dans ' + nb + ' routine' + (nb > 1 ? 's' : '') + ' : il y restera, mais sans muscle ni matériel connus. Retire-le de ces routines ou remplace-le.'

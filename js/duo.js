@@ -18,9 +18,9 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function ico(n, t, c) { try { return window.AwakIcon ? window.AwakIcon.get(n, t, c) : ''; } catch (e) { return ''; } }
-  function av(a, s) { try { if (typeof window.renderAvatar === 'function') return window.renderAvatar(a, s); } catch (e) {} return ''; }
+  function av(a, s) { try { if (typeof window.renderAvatar === 'function') return window.renderAvatar(a, s); } catch (e) { _awkE(e); } return ''; }
   // v1615 : respecte « Vibreur coupé » (et le vibreur natif de l'app Play Store)
-  function vib(p) { try { if (typeof vibrate === 'function') vibrate(p); else if (localStorage.getItem('fitproVibOff') !== 'true' && navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+  function vib(p) { try { if (typeof vibrate === 'function') vibrate(p); else if (localStorage.getItem('fitproVibOff') !== 'true' && navigator.vibrate) navigator.vibrate(p); } catch (e) { _awkE(e); } }
   function useKg() { try { return localStorage.getItem('fitproUseKg') === 'true'; } catch (e) { return false; } }
   function unite() { return useKg() ? 'kg' : 'lb'; }
   function versKg(v) { return useKg() ? v : v / 2.20462; }
@@ -28,7 +28,7 @@
   function arrondi(v) { return Math.round(v * 2) / 2; }
 
   function lire() { try { var s = JSON.parse(localStorage.getItem(KEY) || 'null'); return (s && s.pid) ? s : null; } catch (e) { return null; } }
-  function ecrire(s) { try { if (s) localStorage.setItem(KEY, JSON.stringify(s)); else localStorage.removeItem(KEY); } catch (e) {} }
+  function ecrire(s) { try { if (s) localStorage.setItem(KEY, JSON.stringify(s)); else localStorage.removeItem(KEY); } catch (e) { _awkE(e); } }
 
   function mode() { try { return localStorage.getItem('awakGroupMode') === 'duo' ? 'duo' : 'meme'; } catch (e) { return 'meme'; } }
   function partenaireGroupe() {
@@ -39,7 +39,7 @@
   }
   // Duo actif = mode « Chacun sa séance » + partenaire présent + séance choisie pour lui
   function solo() { try { return localStorage.getItem('awakDuoSolo') === '1'; } catch (e) { return false; } }
-  function setSolo(v) { try { if (v) localStorage.setItem('awakDuoSolo', '1'); else localStorage.removeItem('awakDuoSolo'); } catch (e) {} }
+  function setSolo(v) { try { if (v) localStorage.setItem('awakDuoSolo', '1'); else localStorage.removeItem('awakDuoSolo'); } catch (e) { _awkE(e); } }
   function seanceSpeciale() {
     try { var w = window.AwakSSBridge && AwakSSBridge.getWorkout(); return !!(w && (w._isRift || w._isHunt || w._famille)); } catch (e) { return false; }
   }
@@ -69,7 +69,7 @@
         return { name: c.name, muscle: c.muscle || '', mode: c.mesure === 'duree' ? 'timer' : undefined, equipment: c.equipment && c.equipment.length ? c.equipment : ['Poids du corps'],
           description: c.description || '', instructions: Array.isArray(c.instructions) ? c.instructions : (c.instructions ? String(c.instructions).split('\n') : []), custom: true, duration: 45 };
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     for (var j = 0; j < db.length; j++) if (db[j].name === nom) return db[j];
     return null;
   }
@@ -142,7 +142,7 @@
       if (ex.length < 4 && typeof generateExercisesForMuscles === 'function') {
         try {
           var pris = ex.map(function (e) { return e.name; });
-          var eq = []; try { eq = (typeof getSelectedEquipmentNames === 'function' ? getSelectedEquipmentNames() : []) || []; } catch (x) {}
+          var eq = []; try { eq = (typeof getSelectedEquipmentNames === 'function' ? getSelectedEquipmentNames() : []) || []; } catch (x) { _awkE(x); }
           (generateExercisesForMuscles(muscles, { count: 10, level: c.level || 'Intermédiaire' }) || []).forEach(function (g) {
             if (ex.length >= 5 || !g || pris.indexOf(g.name) >= 0) return;
             var f = null; for (var k = 0; k < db.length; k++) if (db[k].name === g.name) { f = db[k]; break; }
@@ -151,7 +151,7 @@
             pris.push(f.name);
             ex.push({ name: f.name, _baseName: f.name, muscle: f.muscle, sets: 3, reps: f.reps || 10, mode: (f.mode === 'timer' || f.mode === 'duration') ? 'timer' : 'reps', duration: parseInt(f.duration, 10) || 45, rest: 60 });
           });
-        } catch (x) {}
+        } catch (x) { _awkE(x); }
       }
       ex = ex.slice(0, 8);
       if (!ex.length) return null;
@@ -241,7 +241,7 @@
           if (cs.length) return arrondi(depuisKg(parseFloat(cs[cs.length - 1].weight)));
         }
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return '';
   }
 
@@ -257,7 +257,7 @@
     if (ex.mode !== 'timer') {
       var r = document.getElementById('awakDuoReps'), w = document.getElementById('awakDuoPoids');
       reps = r ? parseInt(r.value, 10) : 0;
-      if (!(reps > 0)) { try { showToast('Entre le nombre de répétitions', 'info', 1800); } catch (e) {} return; }
+      if (!(reps > 0)) { try { showToast('Entre le nombre de répétitions', 'info', 1800); } catch (e) { _awkE(e); } return; }
       var wd = w ? parseFloat(String(w.value).replace(',', '.')) : 0;
       kg = wd > 0 ? Math.round(versKg(wd) * 100) / 100 : 0;
     }
@@ -268,7 +268,7 @@
       s.modeEchauf = false;
       if (!s.debut) s.debut = Date.now();
       s.derniere = Date.now();
-      try { if (window.AwakGroup) AwakGroup.logSet(s.pid, ex._baseName || ex.name, s.echs[i].length, reps, kg, true); } catch (e) {}
+      try { if (window.AwakGroup) AwakGroup.logSet(s.pid, ex._baseName || ex.name, s.echs[i].length, reps, kg, true); } catch (e) { _awkE(e); }
       s.reposFin = Date.now() + 45000; s.alerte = false;
       ecrire(s); rendre(); return;
     }
@@ -278,13 +278,13 @@
     s.effortFin = null; s.effortIdx = null;   // v1602
     if (!s.faits) s.faits = {};
     s.faits[i] = f;
-    try { if (window.AwakGroup) AwakGroup.logSet(s.pid, ex._baseName || ex.name, f.length, reps, kg, false); } catch (e) {}
+    try { if (window.AwakGroup) AwakGroup.logSet(s.pid, ex._baseName || ex.name, f.length, reps, kg, false); } catch (e) { _awkE(e); }
     vib(30);
     var exoFini = f.length >= nbSeries(s, i);
     if (exoFini && i === s.exercises.length - 1) {
       s.fini = true; s.reposFin = null; s.alerte = false;
       ecrire(s);
-      try { showToast('Séance terminée pour ' + s.nom, 'success', 2600); } catch (e) {}
+      try { showToast('Séance terminée pour ' + s.nom, 'success', 2600); } catch (e) { _awkE(e); }
       if (_attente) { var cb = _attente; _attente = null; fermerFeuille(); setTimeout(cb, 300); return; }
     } else {
       var g = groupe(s, i), suivant = null, repos = true;
@@ -319,13 +319,13 @@
     var f = faitsDe(s, i); if (!f.length) return;
     f.pop(); s.faits[i] = f; s.fini = false;
     ecrire(s);
-    try { if (window.AwakGroup && AwakGroup.retirerDerniere) AwakGroup.retirerDerniere(s.pid, s.exercises[i]._baseName || s.exercises[i].name, false); } catch (e) {}
+    try { if (window.AwakGroup && AwakGroup.retirerDerniere) AwakGroup.retirerDerniere(s.pid, s.exercises[i]._baseName || s.exercises[i].name, false); } catch (e) { _awkE(e); }
     rendre();
   }
   function annulerEchauf(i) {
     var s = lire(); if (!s || !s.echs || !s.echs[i] || !s.echs[i].length) return;
     s.echs[i].pop(); ecrire(s);
-    try { if (window.AwakGroup && AwakGroup.retirerDerniere) AwakGroup.retirerDerniere(s.pid, s.exercises[i]._baseName || s.exercises[i].name, true); } catch (e) {}
+    try { if (window.AwakGroup && AwakGroup.retirerDerniere) AwakGroup.retirerDerniere(s.pid, s.exercises[i]._baseName || s.exercises[i].name, true); } catch (e) { _awkE(e); }
     rendre();
   }
   function aller(d) {
@@ -370,12 +370,12 @@
     // v1609 : les échauffements faits sur l'ancien exercice sont retirés (ils restaient
     // affichés mais enregistrés sous l'ancien nom, puis perdus)
     var vieux = ex._baseName || ex.name;
-    ((s.echs && s.echs[i]) || []).forEach(function () { try { AwakGroup.retirerDerniere(s.pid, vieux, true); } catch (x) {} });
+    ((s.echs && s.echs[i]) || []).forEach(function () { try { AwakGroup.retirerDerniere(s.pid, vieux, true); } catch (x) { _awkE(x); } });
     if (s.echs) s.echs[i] = [];
     s.exercises[i] = { ss: ex.ss || null, name: f.name, _baseName: f.name, muscle: f.muscle || ex.muscle, sets: ex.sets, reps: m === 'timer' ? ex.reps : (ex.mode === 'timer' ? (f.reps || 10) : ex.reps),
       mode: m, duration: parseInt(f.duration, 10) || ex.duration || 45, rest: ex.rest };
     ecrire(s); _remp = false; rendre();
-    try { showToast('Remplacé par ' + f.name, 'info', 1800); } catch (e) {}
+    try { showToast('Remplacé par ' + f.name, 'info', 1800); } catch (e) { _awkE(e); }
   }
   function remplacants(s, ex) {
     var db = window.exerciseDatabase || [];
@@ -383,11 +383,11 @@
     var deja = s.exercises.map(function (e) { return e.name; });
     return db.filter(function (e) {
       if (!e || e.type !== 'exercise' || deja.indexOf(e.name) >= 0) return false;
-      try { if (window.awakEstDoublon && awakEstDoublon(e.name)) return false; } catch (x) {}
+      try { if (window.awakEstDoublon && awakEstDoublon(e.name)) return false; } catch (x) { _awkE(x); }
       if (q) return e.name.toLowerCase().indexOf(q) >= 0;
       if (!(e.muscle && e.muscle === ex.muscle)) return false;
       // même lieu que le meneur : seulement le matériel disponible ici
-      var eq = []; try { eq = (typeof getSelectedEquipmentNames === 'function' ? getSelectedEquipmentNames() : []) || []; } catch (x) {}
+      var eq = []; try { eq = (typeof getSelectedEquipmentNames === 'function' ? getSelectedEquipmentNames() : []) || []; } catch (x) { _awkE(x); }
       return !eq.length || (e.equipment || ['Poids du corps']).some(function (m) { return m === 'Poids du corps' || eq.indexOf(m) >= 0; });
     }).filter(function (e) { return !bloque(s, e); }).slice(0, 14);
   }
@@ -397,15 +397,15 @@
     if (!s || !e) return null;
     var pid = s.pid, db = window.exerciseDatabase || [], t = e;
     if (!t.equipment || !t.muscle) { for (var k = 0; k < db.length; k++) if (db[k].name === e.name) { t = Object.assign({}, db[k], e); break; } }
-    try { var l = window.AwakLimitations && AwakLimitations.bloquePour && AwakLimitations.bloquePour(pid, t); if (l) return l; } catch (x) {}
-    try { if (window.AwakPain && AwakPain.exerciseHitsPainFor && AwakPain.exerciseHitsPainFor(t, [pid])) return { titre: 'zone douloureuse' }; } catch (x) {}
-    try { if (window.AwakAdaptive && AwakAdaptive.isReducedMobilityProfile && AwakAdaptive.isReducedMobilityProfile(pid) && AwakAdaptive.isUnsuitable(t)) return { titre: 'mobilité réduite' }; } catch (x) {}
+    try { var l = window.AwakLimitations && AwakLimitations.bloquePour && AwakLimitations.bloquePour(pid, t); if (l) return l; } catch (x) { _awkE(x); }
+    try { if (window.AwakPain && AwakPain.exerciseHitsPainFor && AwakPain.exerciseHitsPainFor(t, [pid])) return { titre: 'zone douloureuse' }; } catch (x) { _awkE(x); }
+    try { if (window.AwakAdaptive && AwakAdaptive.isReducedMobilityProfile && AwakAdaptive.isReducedMobilityProfile(pid) && AwakAdaptive.isUnsuitable(t)) return { titre: 'mobilité réduite' }; } catch (x) { _awkE(x); }
     try {
       var cat = window.AwakYouth && AwakYouth.ageCategoryOf ? AwakYouth.ageCategoryOf(pid) : null;
       var eq = t.equipment || ['Poids du corps'];
       if (cat === 'child' && eq.some(function (m) { return !/^(Poids du corps|Aucun|Tapis de sol)$/i.test(String(m)); })) return { titre: 'âge (poids du corps seulement)' };
       if (cat === 'teen' && eq.some(function (m) { return m === 'Barre' || m === 'Machine'; })) return { titre: 'âge (ni barre ni machine)' };
-    } catch (x) {}
+    } catch (x) { _awkE(x); }
     return null;
   }
   // v1608 : matériel de l'exercice absent du lieu actuel (même lieu que le meneur)
@@ -417,7 +417,7 @@
       for (var k = 0; k < db.length; k++) if (db[k].name === ex.name) { f = db[k]; break; }
       var req = (f && f.equipment) || [];
       for (var i = 0; i < req.length; i++) if (!/^(Poids du corps|Aucun|Tapis|Tapis de sol)$/i.test(req[i]) && eq.indexOf(req[i]) < 0) return String(req[i]).toLowerCase();
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return null;
   }
   function versMoi() { fermerFeuille(); majBarre(); }   // en attente de fin : ne termine PAS la séance
@@ -437,7 +437,7 @@
       if (s && s.effortFin && Date.now() >= s.effortFin) {
         var ie = s.effortIdx;
         vib([120, 80, 120]);
-        try { showToast(s.nom + ' : temps terminé', 'success', 2200); } catch (e) {}
+        try { showToast(s.nom + ' : temps terminé', 'success', 2200); } catch (e) { _awkE(e); }
         valider(ie); s = lire();
       }
       var ef = document.getElementById('awakDuoEffort');
@@ -445,8 +445,8 @@
       if (s && s.reposFin && Date.now() >= s.reposFin) {
         s.reposFin = null; s.alerte = !document.getElementById('awakDuoSheet'); ecrire(s);
         vib([200, 100, 200]);
-        try { showToast(s.nom + ' : repos terminé, à toi !', 'info', 3500); } catch (e) {}
-        try { if (typeof window.awakParler === 'function') window.awakParler(s.nom + ', à toi'); } catch (e) {}
+        try { showToast(s.nom + ' : repos terminé, à toi !', 'info', 3500); } catch (e) { _awkE(e); }
+        try { if (typeof window.awakParler === 'function') window.awakParler(s.nom + ', à toi'); } catch (e) { _awkE(e); }
       }
       majBarre();
       var c = document.getElementById('awakDuoChrono');
@@ -704,7 +704,7 @@
   function fiche() {
     var s = lire(); if (!s) return;
     var n = s.exercises[s.idx] && !s.exercises[s.idx].perso && s.exercises[s.idx].name;
-    try { if (n && typeof window.awakShowExercisePreview === 'function') window.awakShowExercisePreview(n); } catch (e) {}
+    try { if (n && typeof window.awakShowExercisePreview === 'function') window.awakShowExercisePreview(n); } catch (e) { _awkE(e); }
     var m = document.getElementById('exercisePreviewModal'); if (m) m.style.zIndex = '99995';   // au-dessus de sa feuille
   }
   // ── « Prépare-toi » : rappel du duo + « Solo cette fois » ──────────
@@ -751,7 +751,7 @@
       var o = JSON.parse(localStorage.getItem(k) || '{}') || {};
       o[s.mentor] = (o[s.mentor] || 0) + 1;
       localStorage.setItem(k, JSON.stringify(o));
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
   function aDesSeries() { var s = lire(); if (!s) return false; return Object.keys(s.faits || {}).some(function (k) { return (s.faits[k] || []).length; }); }
 
@@ -776,7 +776,7 @@
           { title: 'Ta séance est terminée', confirmLabel: 'Continuer avec ' + s.nom, cancelLabel: 'Tout terminer' });
         return true;
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     go(true);
     return true;
   }

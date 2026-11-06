@@ -21,7 +21,7 @@
     size = size || 26;
     try {
       if (typeof window.renderAvatar === 'function') return window.renderAvatar(a, size);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return '<span style="font-size:' + Math.round(size * 0.62) + 'px;">' +
            String(a == null ? '\u{1F464}' : a).replace(/[&<>"]/g, function (c) {
              return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }) + '</span>';
@@ -46,7 +46,7 @@
 
   // v1495 : illustration du boss (images/Monstres/famille_<id>.webp, dessin en repli)
   function _bossImg(b, px) {
-    try { if (window.AwakRiftVis && window.AwakRiftVis.monstre) return window.AwakRiftVis.monstre(b.name, b.color, px, true); } catch (e) {}
+    try { if (window.AwakRiftVis && window.AwakRiftVis.monstre) return window.AwakRiftVis.monstre(b.name, b.color, px, true); } catch (e) { _awkE(e); }
     return b.emoji;
   }
   window.AwakFamilyBossImg = function (nom, couleur, px) { return _bossImg({ name: nom, color: couleur || '#fbbf24', emoji: '' }, px || 120); };
@@ -103,8 +103,8 @@
   // ── Identité du profil actif ───────────────────────────────────────
   function currentProfile() {
     var id = null, name = 'Joueur', avatar = '🙂';
-    try { if (typeof window.getCurrentProfileId === 'function') id = window.getCurrentProfileId(); } catch (e) {}
-    if (!id) { try { id = localStorage.getItem('currentProfileId'); } catch (e) {} }
+    try { if (typeof window.getCurrentProfileId === 'function') id = window.getCurrentProfileId(); } catch (e) { _awkE(e); }
+    if (!id) { try { id = localStorage.getItem('currentProfileId'); } catch (e) { _awkE(e); } }
     try {
       if (typeof window.getAllProfiles === 'function') {
         var all = window.getAllProfiles() || [];
@@ -112,7 +112,7 @@
           if (all[i].id === id) { name = all[i].name || name; avatar = all[i].avatar || avatar; break; }
         }
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return { id: id || 'solo', name: name, avatar: avatar };
   }
 
@@ -120,7 +120,7 @@
   function profileCount() {
     try {
       if (typeof window.getAllProfiles === 'function') return (window.getAllProfiles() || []).length;
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return 1;
   }
 
@@ -133,7 +133,7 @@
       if (window.AwakYouth && typeof window.AwakYouth.isChildProfile === 'function'
           && window.AwakYouth.isChildProfile(profileId)) return false;
       var current = null;
-      try { if (typeof window.getCurrentProfileId === 'function') current = window.getCurrentProfileId(); } catch (e) {}
+      try { if (typeof window.getCurrentProfileId === 'function') current = window.getCurrentProfileId(); } catch (e) { _awkE(e); }
       var key = (profileId && profileId === current)
         ? 'fitproGameMode'
         : 'profile_' + profileId + '_fitproGameMode';
@@ -145,30 +145,19 @@
     } catch (e) { return false; }
   }
 
-  // Le profil actif est-il lié à `otherId` dans le réseau familial ?
-  function _linkedToMe(otherId) {
-    try {
-      if (window.AwakFamily && typeof window.AwakFamily.relationOf === 'function') {
-        var me = (typeof window.getCurrentProfileId === 'function') ? window.getCurrentProfileId() : null;
-        if (!me) return false;
-        return !!window.AwakFamily.relationOf(me, otherId);
-      }
-    } catch (e) {}
-    return false;
-  }
 
   // Nombre de profils ÉLIGIBLES au boss familial : le profil actif + les
   // profils qui lui sont LIÉS dans la famille ET qui ont le MODE JEU activé.
   // Le boss n'apparaît qu'à partir de 2 éligibles.
   function eligibleCount() {
     var me = null;
-    try { if (typeof window.getCurrentProfileId === 'function') me = window.getCurrentProfileId(); } catch (e) {}
+    try { if (typeof window.getCurrentProfileId === 'function') me = window.getCurrentProfileId(); } catch (e) { _awkE(e); }
     if (!me) return 0;
     var all = [];
-    try { if (typeof window.getAllProfiles === 'function') all = window.getAllProfiles() || []; } catch (e) {}
+    try { if (typeof window.getAllProfiles === 'function') all = window.getAllProfiles() || []; } catch (e) { _awkE(e); }
     // v1540 : membres de la famille (même liste partout) avec le mode jeu
     var fam = {};
-    try { ((typeof window.awkFamilleMembres === 'function') ? window.awkFamilleMembres() : []).forEach(function (p) { fam[p.id] = true; }); } catch (e) {}
+    try { ((typeof window.awkFamilleMembres === 'function') ? window.awkFamilleMembres() : []).forEach(function (p) { fam[p.id] = true; }); } catch (e) { _awkE(e); }
     if (!fam[me]) return 0;
     var n = _gameModeOn(me) ? 1 : 0;
     if (!n) return 0;   // si moi-même je ne joue pas, pas de boss pour moi
@@ -359,7 +348,7 @@
       granted.push(item);
       if (!source.length && fresh.length) source = pool.slice(); // repli doublons
     }
-    try { localStorage.setItem('fitpro_inventory', JSON.stringify(inv)); } catch (e) {}
+    try { localStorage.setItem('fitpro_inventory', JSON.stringify(inv)); } catch (e) { _awkE(e); }
     return granted;
   }
 
@@ -391,7 +380,7 @@
         var cur = parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0', 10) || 0;
         localStorage.setItem('fitproRPGLifetimeXP', String(cur + total));
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     // 🎁 Butin exclusif : 1 item pour tous, 2 pour le top contributeur.
     // fitpro_inventory est ISOLÉE PAR PROFIL (GAME_KEYS) → chacun son butin.
@@ -415,7 +404,7 @@
 window.AwakFamilyBossState = function () {
   try {
     var _pid = null;
-    try { if (typeof window.getCurrentProfileId === 'function') _pid = window.getCurrentProfileId(); } catch (e) {}
+    try { if (typeof window.getCurrentProfileId === 'function') _pid = window.getCurrentProfileId(); } catch (e) { _awkE(e); }
     if (!_gameModeOn(_pid)) return null;
     var st = loadState();
     if (!st || !st.bossId) return null;
@@ -429,7 +418,7 @@ window.AwakFamilyBossState = function () {
     // la fiche ouverte depuis la carte n'expliquait pas ce qu'est un boss
     // familial ni comment on l'affronte.
     var nContrib = 0;
-    try { nContrib = Object.keys(st.contributions || {}).length; } catch (e) {}
+    try { nContrib = Object.keys(st.contributions || {}).length; } catch (e) { _awkE(e); }
     return { id: st.bossId, name: b.name || 'Anomalie familiale',
              desc: b.desc || '', color: b.color || '#fbbf24',
              hp: hp, hpMax: hpMax, pct: Math.round((hp / hpMax) * 100),
@@ -614,7 +603,7 @@ window.AwakFamilyBoss = {
     var itemsTxt = (r.items && r.items.length)
       ? ' · ' + r.items.map(function (i) {
           // v1539 : prévenir si l'objet n'est pas encore équipable
-          var bl = null; try { bl = (typeof window.getEquipBlockReason === 'function') ? window.getEquipBlockReason(i) : null; } catch (e) {}
+          var bl = null; try { bl = (typeof window.getEquipBlockReason === 'function') ? window.getEquipBlockReason(i) : null; } catch (e) { _awkE(e); }
           return i.icon + ' ' + i.name + (bl ? ' (pas encore équipable : ' + bl.label + ')' : '');
         }).join(' + ')
       : '';
@@ -630,15 +619,15 @@ window.AwakFamilyBoss = {
     try {
       var L = JSON.parse(localStorage.getItem('awakFamilyLinks') || '[]');
       if (Array.isArray(L)) localStorage.setItem('awakFamilyLinks', JSON.stringify(L.filter(function (l) { return l && l.from !== pid && l.to !== pid; })));
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     try {
       var C = JSON.parse(localStorage.getItem('awakFamilyChallenges') || '[]');
       if (Array.isArray(C)) localStorage.setItem('awakFamilyChallenges', JSON.stringify(C.filter(function (c) { return c && c.a !== pid && c.b !== pid; })));
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     try {
       var Nd = JSON.parse(localStorage.getItem('awakFamilyNudges') || '[]');
       if (Array.isArray(Nd)) localStorage.setItem('awakFamilyNudges', JSON.stringify(Nd.filter(function (x) { return x && x.to !== pid && x.from !== pid; })));
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     try {
       var R = JSON.parse(localStorage.getItem('awakFamilyReactions') || '{}');
       if (R && typeof R === 'object') {
@@ -648,8 +637,8 @@ window.AwakFamilyBoss = {
         });
         localStorage.setItem('awakFamilyReactions', JSON.stringify(R));
       }
-    } catch (e) {}
-    try { localStorage.removeItem('awakFamVu_' + pid); } catch (e) {}
+    } catch (e) { _awkE(e); }
+    try { localStorage.removeItem('awakFamVu_' + pid); } catch (e) { _awkE(e); }
     try {
       var s = loadState();
       if (s) {
@@ -658,7 +647,7 @@ window.AwakFamilyBoss = {
         if (Array.isArray(s.log)) s.log = s.log.filter(function (x) { return x && x.pid !== pid; });
         saveState(s);
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   };
 
   window.AwakFamilyBossSpawn = function (bossId) {

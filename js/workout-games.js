@@ -182,7 +182,7 @@
           });
         }
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     // 🌳 EXTÉRIEUR — même règle que le générateur principal (helper partagé
     // awakExerciseBlockedByLocation, défini dans app.js). Écarte les exercices
@@ -191,7 +191,7 @@
       if (typeof window.awakExerciseBlockedByLocation === 'function') {
         base = base.filter(function (e) { return !window.awakExerciseBlockedByLocation(e); });
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     // 🩹 DOULEURS — les zones sont désormais propres à chaque profil (v663).
     // Pour un jeu à deux, on écarte les exercices touchant une zone sensible de
@@ -208,7 +208,7 @@
           base = base.filter(function (e) { return !window.AwakPain.exerciseHitsPain(e); });
         }
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     try {
       if (window.AwakAdaptive && typeof window.AwakAdaptive.isReducedMobility === 'function'
@@ -216,7 +216,7 @@
           && typeof window.AwakAdaptive.isUnsuitable === 'function') {
         base = base.filter(function (e) { return !window.AwakAdaptive.isUnsuitable(e); });
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     // v1567 : mêmes refus que les séances (limitations, exercices bannis, mode
     // silencieux, matériel caché) pour le profil actif, + limitations du PARTENAIRE.
@@ -226,17 +226,17 @@
         if (_okR.length) base = _okR;
       }
       if (Array.isArray(idsParticipants) && window.AwakLimitations && Array.isArray(window.AwakLimitations.liste)) {
-        var _moiL = null; try { _moiL = window.getCurrentProfileId ? window.getCurrentProfileId() : null; } catch (x) {}
+        var _moiL = null; try { _moiL = window.getCurrentProfileId ? window.getCurrentProfileId() : null; } catch (x) { _awkE(x); }
         idsParticipants.forEach(function (pid) {
           if (!pid || pid === _moiL) return;
-          var ids = []; try { ids = JSON.parse(localStorage.getItem('awakLimitations_' + pid) || '[]') || []; } catch (x) {}
+          var ids = []; try { ids = JSON.parse(localStorage.getItem('awakLimitations_' + pid) || '[]') || []; } catch (x) { _awkE(x); }
           var tests = window.AwakLimitations.liste.filter(function (l) { return ids.indexOf(l.id) >= 0; });
           if (!tests.length) return;
           var _okP = base.filter(function (e) { return !tests.some(function (l) { try { return l.test(e); } catch (x) { return false; } }); });
           if (_okP.length) base = _okP;
         });
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     // Niveau de l'utilisateur : un débutant ne doit pas tomber sur un exercice
     // avancé. Garde-fou : on n'applique le filtre que s'il reste assez de choix.
@@ -253,7 +253,7 @@
             var raw = (typeof window.getProfileData === 'function') ? window.getProfileData(id, 'userProfile') : null;
             var niv = raw ? (JSON.parse(raw) || {}).level : null;
             if (niv && rang[niv] !== undefined && rang[niv] < mini) mini = rang[niv];
-          } catch (e) {}
+          } catch (e) { _awkE(e); }
         });
         if (opts.invite && rang[opts.invite.niveau] !== undefined && rang[opts.invite.niveau] < mini) mini = rang[opts.invite.niveau];   // v1567
         lvl = Object.keys(rang).filter(function (k) { return rang[k] === mini; })[0] || lvl;
@@ -263,7 +263,7 @@
                  : ['Débutant', 'Intermédiaire'];
       var parNiveau = base.filter(function (e) { return !e.difficulty || permis.indexOf(e.difficulty) !== -1; });
       if (parNiveau.length >= 8) base = parNiveau;
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     try {
       // ⚠️ SÉCURITÉ ENFANT — la restriction s'applique dès qu'UN des participants
@@ -306,7 +306,7 @@
       if (_seniorPresent) {
         base = base.filter(function (e) { return !RX_IMPACT.test(e.name || ''); });
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     for (var i = base.length - 1; i > 0; i--) {
       var j = Math.floor(Math.random() * (i + 1));
@@ -710,7 +710,7 @@
       idx: function (p) { return p.jeu.course ? p.pas % p.exercices.length : Math.floor(p.pas / 2) % p.exercices.length; },
       prepare: function (p) {
         p.joueurs = nomsJoueurs();
-        try { p.duo = duoJoueurs(); } catch (e) {}   // v1568 : niveaux des deux joueurs
+        try { p.duo = duoJoueurs(); } catch (e) { _awkE(e); }   // v1568 : niveaux des deux joueurs
         if (p.jeu.course) p.scores = [0, 0];
       },
       total: function (p) { return p.reglage; },
@@ -892,7 +892,7 @@
         var p = window.getCurrentProfile();
         if (p && p.name) moi = p.name;
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     if (partenaireChoisi && partenaireChoisi.nom) return [moi, partenaireChoisi.nom];
 
     // 1) Participants explicitement choisis pour la séance de groupe
@@ -905,7 +905,7 @@
         }
         if (autre) return [moi, autre];
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     // 2) Un proche lié dans l'onglet Famille
     try {
@@ -916,7 +916,7 @@
           if (m && m.id !== monId && m.name) return [moi, m.name];
         }
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     // 3) Un autre profil de l'appareil
     try {
@@ -926,7 +926,7 @@
           if (ps[k] && ps[k].id !== monId && ps[k].name) return [moi, ps[k].name];
         }
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     return [moi, partenaire];
   }
@@ -940,7 +940,7 @@
   function compteParNiveau() {
     var actuel = 'intermediate';
     try { actuel = (typeof window.getUserProfile === 'function' && (window.getUserProfile() || {}).level) || 'intermediate'; }
-    catch (e) {}
+    catch (e) { _awkE(e); }
     var i = 0;
     NIVEAUX.forEach(function (n, k) { if (n.id === actuel) i = k; });
     if (i >= NIVEAUX.length - 1) return null;          // déjà au palier le plus large
@@ -954,7 +954,7 @@
   // ── RECORDS PERSONNELS ─────────────────────────────────────────────
   function cleRecords() {
     var id = null;
-    try { id = (typeof window.getCurrentProfileId === 'function') ? window.getCurrentProfileId() : null; } catch (e) {}
+    try { id = (typeof window.getCurrentProfileId === 'function') ? window.getCurrentProfileId() : null; } catch (e) { _awkE(e); }
     return id ? ('awakGameRecords_' + id) : 'awakGameRecords';
   }
   function records() {
@@ -966,7 +966,7 @@
     var ancien = r[gameId] || 0;
     if (valeur > ancien) {
       r[gameId] = valeur;
-      try { localStorage.setItem(cleRecords(), JSON.stringify(r)); } catch (e) {}
+      try { localStorage.setItem(cleRecords(), JSON.stringify(r)); } catch (e) { _awkE(e); }
       return true;
     }
     return false;
@@ -992,7 +992,7 @@
       majAffichageChrono();
       if (chrono.restant <= 0) {
         arreterChrono();
-        try { if (navigator.vibrate) navigator.vibrate([120, 60, 120]); } catch (e) {}
+        try { if (navigator.vibrate) navigator.vibrate([120, 60, 120]); } catch (e) { _awkE(e); }
         var el = document.getElementById('awakChrono');
         if (el) { el.textContent = 'Temps !'; el.style.color = '#f87171'; }
         if (typeof surFin === 'function') surFin();
@@ -1036,13 +1036,13 @@
       if (profileId && window.AwakYouth && typeof window.AwakYouth.ageCategoryOf === 'function') {
         age = window.AwakYouth.ageCategoryOf(profileId);
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return { id: profileId, nom: nomRepli || nom, coef: coefNiveau(niveau, age) };
   }
   // Renvoie [{id, nom, coef}, {id, nom, coef}] — le profil ACTIF en premier.
   function duoJoueurs() {
     var monId = null;
-    try { if (typeof window.getCurrentProfileId === 'function') monId = window.getCurrentProfileId(); } catch (e) {}
+    try { if (typeof window.getCurrentProfileId === 'function') monId = window.getCurrentProfileId(); } catch (e) { _awkE(e); }
     var noms = nomsJoueurs();
     if (partenaireChoisi && partenaireChoisi.invite) return [infosJoueur(monId, noms[0]), { id: null, nom: partenaireChoisi.nom, coef: coefNiveau(partenaireChoisi.niveau || 'beginner', partenaireChoisi.age) }];
     if (partenaireChoisi) return [infosJoueur(monId, noms[0]), infosJoueur(partenaireChoisi.id || null, partenaireChoisi.nom)];
@@ -1056,7 +1056,7 @@
         var ps = window.getAllProfiles() || [];
         for (var k = 0; k < ps.length; k++) if (ps[k] && ps[k].id !== monId) { autreId = ps[k].id; break; }
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return [infosJoueur(monId, noms[0]), infosJoueur(autreId, noms[1])];
   }
 
@@ -1092,7 +1092,7 @@
     }
     // XP : une partie a son propre plafond « par séance » (sinon elle partageait
     // celui de la dernière vraie séance). Le plafond du jour reste actif.
-    try { if (typeof window.rpgResetWorkoutXpTracker === 'function') window.rpgResetWorkoutXpTracker(); } catch (e) {}
+    try { if (typeof window.rpgResetWorkoutXpTracker === 'function') window.rpgResetWorkoutXpTracker(); } catch (e) { _awkE(e); }
     partie = { id: gameId, jeu: g, meca: m, reglage: reglage, exercices: ex, poolOpts: _opts, ids: _ids,
                debut: Date.now(), pas: 0, fini: false, journal: [] };
     m.prepare(partie);
@@ -1230,13 +1230,13 @@
     try {
       var sec = x.unite && /seconde/i.test(x.unite);
       window.rpgGainXP(x.nom, sec ? 0 : (x.reps || 0), 0, sec ? (x.reps || 0) : 0);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   // 📒 CARNET : parties par jeu, et bilan en duo contre chaque partenaire.
   function cleCarnet() {
     var id = null;
-    try { id = (typeof window.getCurrentProfileId === 'function') ? window.getCurrentProfileId() : null; } catch (e) {}
+    try { id = (typeof window.getCurrentProfileId === 'function') ? window.getCurrentProfileId() : null; } catch (e) { _awkE(e); }
     return id ? ('awakGameCarnet_' + id) : 'awakGameCarnet';
   }
   function carnet() {
@@ -1255,7 +1255,7 @@
       if (p.scores[0] > p.scores[1]) d.v++; else if (p.scores[0] < p.scores[1]) d.d++; else d.n++;
       p.bilanDuo = { adv: adv, v: d.v, d: d.d, n: d.n };
     }
-    try { localStorage.setItem(cleCarnet(), JSON.stringify(c)); } catch (e) {}
+    try { localStorage.setItem(cleCarnet(), JSON.stringify(c)); } catch (e) { _awkE(e); }
     // ⭐ Paliers de parties (tous jeux confondus) : 1 étoile chacun.
     var tot = partiesTotal(c);
     [10, 25, 50, 100].forEach(function (palier) {
@@ -1287,10 +1287,10 @@
     partie.record = (partie.id === 'deathby') ? majRecord(partie.id, partie.pas) : false;
     // v1566 : arrêtée avant la moitié → répétitions gardées, mais ni victoire, ni
     // partie au carnet, ni étoile, ni badge (Death by : lâcher EST la fin normale).
-    var _tot = 0; try { _tot = partie.meca.total(partie); } catch (e) {}
+    var _tot = 0; try { _tot = partie.meca.total(partie); } catch (e) { _awkE(e); }
     partie.comptee = !partie.arrete || partie.id === 'deathby' || partie.pas >= Math.ceil(_tot / 2);
-    if (partie.journal.length && partie.comptee) { try { noterPartie(partie); } catch (e) {} }
-    try { bingoAuto(); } catch (e) {}
+    if (partie.journal.length && partie.comptee) { try { noterPartie(partie); } catch (e) { _awkE(e); } }
+    try { bingoAuto(); } catch (e) { _awkE(e); }
 
     // 🏅 Badge « À deux c'est mieux » — seuls les jeux marqués duo comptent.
     // On se fie au drapeau du JEU (partie.jeu.duo), pas au nombre de joueurs
@@ -1299,7 +1299,7 @@
       if (partie.comptee && partie.jeu && partie.jeu.duo && typeof window.AwakFamBadgeInc === 'function') {
         window.AwakFamBadgeInc('seancesDuo', 1);
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     var minutes = Math.max(1, Math.round((Date.now() - partie.debut) / 60000));
     // Les tenues et déplacements sont en secondes : ils ne comptent pas comme répétitions.
     var totalReps = partie.journal.reduce(function (s, x) { return s + ((x.unite && /seconde/i.test(x.unite)) || !x.moi ? 0 : (x.reps || 0)); }, 0);   // v1566 : les tiennes
@@ -1322,10 +1322,10 @@
           muscles: []
         }, minutes);
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     // v1567 : la partie aussi chez le PARTENAIRE (profil de l'appareil) : ses
     // répétitions et son résultat. Pas d'XP pour lui (seul le profil actif joue).
-    try { enregistrerPartenaire(minutes); } catch (e) {}
+    try { enregistrerPartenaire(minutes); } catch (e) { _awkE(e); }
     afficherFin(minutes, totalReps);
   }
 
@@ -1351,7 +1351,7 @@
     });
     var exos = Object.keys(noms).map(function (n) {
       var o = noms[n];
-      try { var d = (window.exerciseDatabase || []).filter(function (z) { return z.name === n; })[0]; if (d && d.muscle) o.muscle = d.muscle; } catch (e) {}
+      try { var d = (window.exerciseDatabase || []).filter(function (z) { return z.name === n; })[0]; if (d && d.muscle) o.muscle = d.muscle; } catch (e) { _awkE(e); }
       return o;
     });
     if (exos.length && typeof window.saveGroupWorkoutForProfile === 'function') {
@@ -1367,7 +1367,7 @@
         if (partie.scores[1] > partie.scores[0]) d2.v++; else if (partie.scores[1] < partie.scores[0]) d2.d++; else d2.n++;
       }
       localStorage.setItem(k, JSON.stringify(c));
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   function afficherFin(minutes, totalReps) {
@@ -1421,14 +1421,14 @@
     arreterChrono();
     partie = null;
     var el = document.getElementById('awakGameOverlay'); if (el) el.remove();
-    try { if (typeof window.updateHomeStats === 'function') window.updateHomeStats(); } catch (e) {}
+    try { if (typeof window.updateHomeStats === 'function') window.updateHomeStats(); } catch (e) { _awkE(e); }
   }
 
   function overlay() {
     // 🧹 Un jeu qui démarre ferme les sélecteurs restés ouverts derrière lui.
     // ⚠️ On NE ferme PAS awakGameOverlay lui-même : c'est l'écran du jeu en
     // cours, réutilisé d'un exercice à l'autre.
-    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll('awakGameOverlay'); } catch (e) {}
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll('awakGameOverlay'); } catch (e) { _awkE(e); }
     var host = document.getElementById('awakGameOverlay');
     if (!host) {
       host = document.createElement('div');
@@ -1470,7 +1470,7 @@
   var BINGO_KEY_ANCIEN = 'awakBingoGrille';
   function cleBingo() {
     var id = null;
-    try { id = (typeof window.getCurrentProfileId === 'function') ? window.getCurrentProfileId() : null; } catch (e) {}
+    try { id = (typeof window.getCurrentProfileId === 'function') ? window.getCurrentProfileId() : null; } catch (e) { _awkE(e); }
     return id ? ('awakBingoGrille_' + id) : BINGO_KEY_ANCIEN;
   }
 
@@ -1491,9 +1491,9 @@
 
   function chargerBingo() {
     var g = null, cle = cleBingo();
-    try { g = JSON.parse(localStorage.getItem(cle) || 'null'); } catch (e) {}
+    try { g = JSON.parse(localStorage.getItem(cle) || 'null'); } catch (e) { _awkE(e); }
     if (!g && cle !== BINGO_KEY_ANCIEN) {           // reprise de la grille de la semaine
-      try { g = JSON.parse(localStorage.getItem(BINGO_KEY_ANCIEN) || 'null'); } catch (e) {}
+      try { g = JSON.parse(localStorage.getItem(BINGO_KEY_ANCIEN) || 'null'); } catch (e) { _awkE(e); }
     }
     if (!g || g.semaine !== semaineCourante()) {
       var d = DEFIS.slice(); melange(d);
@@ -1502,7 +1502,7 @@
     sauverBingo(g);
     return g;
   }
-  function sauverBingo(g) { try { localStorage.setItem(cleBingo(), JSON.stringify(g)); } catch (e) {} }
+  function sauverBingo(g) { try { localStorage.setItem(cleBingo(), JSON.stringify(g)); } catch (e) { _awkE(e); } }
 
   // ── 🤖 Cases vérifiées automatiquement (historique de la semaine) ─────
   function debutSemaine() {
@@ -1558,7 +1558,7 @@
     // v1568 : deux défis qui étaient à cocher à la main
     'Battre un record personnel': function () {
       var id = monIdJeu(), deb = debutSemaine(), pr = {};
-      try { pr = JSON.parse(localStorage.getItem('personalRecords_' + id) || '{}') || {}; } catch (e) {}
+      try { pr = JSON.parse(localStorage.getItem('personalRecords_' + id) || '{}') || {}; } catch (e) { _awkE(e); }
       return Object.keys(pr).some(function (k) {
         var r = pr[k] || {};
         return ['weight', 'reps', 'volume', 'time', 'duration'].some(function (t) { return r[t] && r[t].date && Date.parse(r[t].date) >= deb; });
@@ -1578,7 +1578,7 @@
   };
   function bingoAuto() {
     var g = chargerBingo(), H = [];
-    try { H = (typeof window.getWorkoutHistory === 'function') ? (window.getWorkoutHistory() || []) : []; } catch (e) {}
+    try { H = (typeof window.getWorkoutHistory === 'function') ? (window.getWorkoutHistory() || []) : []; } catch (e) { _awkE(e); }
     H = H.map(function (h) { var o = Object.assign({}, h); o._t = Date.parse(h.date || h.completedAt || ''); return o; })
          .filter(function (h) { return !isNaN(h._t); });
     var deb = debutSemaine();
@@ -1586,7 +1586,7 @@
     var change = false;
     g.cases.forEach(function (c) {
       var v = VERIFS[c.t];
-      if (v && !c.fait) { var ok = false; try { ok = !!v(S, H); } catch (e) {} if (ok) { c.fait = true; c.auto = true; change = true; } }
+      if (v && !c.fait) { var ok = false; try { ok = !!v(S, H); } catch (e) { _awkE(e); } if (ok) { c.fait = true; c.auto = true; change = true; } }
     });
     if (change) sauverBingo(g);
     verifierGrille(g);
@@ -1657,21 +1657,21 @@
   function clePartenaire() { var id = monIdJeu(); return id ? 'awakGamePartenaire_' + id : 'awakGamePartenaire'; }
   function autresProfils() {
     var moi = monIdJeu(), L = [];
-    try { (window.getAllProfiles ? window.getAllProfiles() : []).forEach(function (p) { if (p && p.id && p.id !== moi && p.name) L.push({ id: p.id, nom: p.name }); }); } catch (e) {}
+    try { (window.getAllProfiles ? window.getAllProfiles() : []).forEach(function (p) { if (p && p.id && p.id !== moi && p.name) L.push({ id: p.id, nom: p.name }); }); } catch (e) { _awkE(e); }
     return L;
   }
   function partenaireParDefaut() {
     var L = autresProfils(), sauve = null;
-    try { sauve = JSON.parse(localStorage.getItem(clePartenaire()) || 'null'); } catch (e) {}
+    try { sauve = JSON.parse(localStorage.getItem(clePartenaire()) || 'null'); } catch (e) { _awkE(e); }
     if (sauve && sauve.id && L.some(function (x) { return x.id === sauve.id; })) return L.filter(function (x) { return x.id === sauve.id; })[0];
     if (sauve && !sauve.id) return { id: null, nom: sauve.nom || 'Invité', invite: true, niveau: sauve.niveau || 'beginner', age: sauve.age || null };
     return L[0] || { id: null, nom: 'Invité', invite: true };
   }
-  function sauverPartenaire() { try { localStorage.setItem(clePartenaire(), JSON.stringify(partenaireChoisi)); } catch (e) {} }
+  function sauverPartenaire() { try { localStorage.setItem(clePartenaire(), JSON.stringify(partenaireChoisi)); } catch (e) { _awkE(e); } }
   window.AwakGamesPartenaire = function (id) {
     if (id) { var x = autresProfils().filter(function (p) { return p.id === id; })[0]; if (x) partenaireChoisi = { id: x.id, nom: x.nom }; }
     else {
-      var ancien = null; try { ancien = JSON.parse(localStorage.getItem(clePartenaire() + '_invite') || 'null'); } catch (e) {}
+      var ancien = null; try { ancien = JSON.parse(localStorage.getItem(clePartenaire() + '_invite') || 'null'); } catch (e) { _awkE(e); }
       if (typeof ancien === 'string') ancien = { nom: ancien };
       ancien = ancien || {};
       partenaireChoisi = { id: null, nom: ancien.nom || 'Invité', invite: true, niveau: ancien.niveau || 'beginner', age: ancien.age || null };
@@ -1681,7 +1681,7 @@
   };
   function sauverInvite() {
     sauverPartenaire();
-    try { localStorage.setItem(clePartenaire() + '_invite', JSON.stringify({ nom: partenaireChoisi.nom, niveau: partenaireChoisi.niveau, age: partenaireChoisi.age })); } catch (e) {}
+    try { localStorage.setItem(clePartenaire() + '_invite', JSON.stringify({ nom: partenaireChoisi.nom, niveau: partenaireChoisi.niveau, age: partenaireChoisi.age })); } catch (e) { _awkE(e); }
   }
   window.AwakGamesNomInvite = function (v) {
     var nom = String(v || '').trim().slice(0, 20) || 'Invité';
@@ -1788,7 +1788,7 @@
     if (old) old.remove();
     var m = document.createElement('div');
     // 🧹 Fermer toute autre modale famille avant d'ouvrir celle-ci.
-    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) { _awkE(e); }
     m.id = 'awakGamesPicker';
     m.className = 'modal active';
     // ⚠️ position:fixed + align-items:center EXPLICITES : la classe « modal »
@@ -1814,7 +1814,7 @@
   // Parties jouées + étoiles : rappelle ce que les jeux rapportent.
   function bandeauRecompenses() {
     var tot = partiesTotal(), et = 0;
-    try { et = typeof window.awakDefiEtoiles === 'function' ? window.awakDefiEtoiles() : 0; } catch (e) {}
+    try { et = typeof window.awakDefiEtoiles === 'function' ? window.awakDefiEtoiles() : 0; } catch (e) { _awkE(e); }
     var prochain = [10, 25, 50, 100].filter(function (x) { return x > tot; })[0];
     return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:14px;border-radius:12px;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.25);">'
       + ic('etoile', 20, '#fbbf24')
@@ -1869,7 +1869,7 @@
     if (old) old.remove();
     var m = document.createElement('div');
     // 🧹 Fermer toute autre modale famille avant d'ouvrir celle-ci.
-    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) { _awkE(e); }
     m.id = 'awakGamesFamilyPicker';
     m.className = 'modal active';
     // ⚠️ position:fixed + align-items:center EXPLICITES : la classe « modal »
@@ -1918,7 +1918,7 @@
     try {
       if (typeof window.showProfileSetup === 'function') { window.showProfileSetup(); return; }
       if (typeof window.switchTab === 'function') window.switchTab('settings');
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   };
 
   window.AwakGames = {

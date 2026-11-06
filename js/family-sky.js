@@ -75,12 +75,12 @@
   function verifierCompletion(e) {
     if (!e.complete) return;
     var cle = 'awakFamSkyDone', fait = [];
-    try { fait = JSON.parse(localStorage.getItem(cle) || '[]'); } catch (x) {}
+    try { fait = JSON.parse(localStorage.getItem(cle) || '[]'); } catch (x) { _awkE(x); }
     var w = idSemaine();
     if (fait.indexOf(w) >= 0) return;
-    fait.push(w); try { localStorage.setItem(cle, JSON.stringify(fait.slice(-60))); } catch (x) {}
-    try { if (window.AwakFamBadgeInc) AwakFamBadgeInc('cielsComplets', 1); } catch (x) {}
-    try { if (window.showToast) showToast('Constellation complétée : ' + e.fig.nom + ' ! Bravo la famille', 'success', 4500); } catch (x) {}
+    fait.push(w); try { localStorage.setItem(cle, JSON.stringify(fait.slice(-60))); } catch (x) { _awkE(x); }
+    try { if (window.AwakFamBadgeInc) AwakFamBadgeInc('cielsComplets', 1); } catch (x) { _awkE(x); }
+    try { if (window.showToast) showToast('Constellation complétée : ' + e.fig.nom + ' ! Bravo la famille', 'success', 4500); } catch (x) { _awkE(x); }
   }
 
   function figureSVG(e, taille) {
@@ -135,7 +135,7 @@
   function nouveautes() {
     var me = moi(); if (!me) return [];
     var cle = 'awakFamVu_' + me, vu = {};
-    try { vu = JSON.parse(localStorage.getItem(cle) || '{}'); } catch (e) {}
+    try { vu = JSON.parse(localStorage.getItem(cle) || '{}'); } catch (e) { _awkE(e); }
     var out = [], maj = {};
     liens().forEach(function (r) {
       var id = r.member.id, ts = seances(id), dernier = ts.length ? Math.max.apply(null, ts) : 0;
@@ -145,7 +145,7 @@
         out.push({ nom: r.member.name || 'Un membre', n: ts.filter(function (t) { return t > vu[id]; }).length });
       }
     });
-    try { localStorage.setItem(cle, JSON.stringify(maj)); } catch (e) {}
+    try { localStorage.setItem(cle, JSON.stringify(maj)); } catch (e) { _awkE(e); }
     // L'onglet se redessine souvent (défis, compagnons…) : l'annonce est
     // MÉMORISÉE 30 min, sinon le rendu suivant l'effaçait aussitôt.
     var ak = 'awakFamAnnonce_' + me;
@@ -155,12 +155,12 @@
         var sv = JSON.parse(localStorage.getItem(ak) || 'null');
         if (sv && Date.now() - sv.t < 30 * 60000) out = sv.list || [];
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return out;
   }
   window.AwakFamAnnonceVue = function (btn) {
-    try { localStorage.removeItem('awakFamAnnonce_' + moi()); } catch (e) {}
-    try { btn.parentNode.remove(); } catch (e) {}
+    try { localStorage.removeItem('awakFamAnnonce_' + moi()); } catch (e) { _awkE(e); }
+    try { btn.parentNode.remove(); } catch (e) { _awkE(e); }
   };
   function banniereNouveautes(list) {
     if (!list.length) return '';
@@ -181,7 +181,7 @@
   // ── Encouragements reçus : carte bien visible avec le message ──
   function carteEncouragements() {
     var list = [];
-    try { list = (window.AwakFamily && AwakFamily.pendingNudges) ? AwakFamily.pendingNudges() : []; } catch (e) {}
+    try { list = (window.AwakFamily && AwakFamily.pendingNudges) ? AwakFamily.pendingNudges() : []; } catch (e) { _awkE(e); }
     if (!list.length) return '';
     var d = list[list.length - 1];
     var av = (typeof window.renderAvatar === 'function') ? renderAvatar(d.fromAvatar, 40) : '';
@@ -219,18 +219,18 @@
       var g = window.AwakFamilyGoal && AwakFamilyGoal.status ? AwakFamilyGoal.status() : null;
       if (g && g.def) L.push(ligne('cible', ROSE, 'Objectif commun : ' + esc(g.def.label || 'en cours'), (g.total || 0) + ' / ' + (g.target || '?') + ' · ' + (g.pct || 0) + ' %'
           + (g.reward ? '<br><span style="color:#fbbf24;font-weight:700;">' + (g.reached ? 'Gagné : ' : 'À la clé : ') + esc(g.reward) + '</span>' : ''), g.pct || 0, 'AwakFamilyGoalOpen()'));
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     try {
       var c = window.AwakFamilyChallenge && AwakFamilyChallenge.coopStatus ? AwakFamilyChallenge.coopStatus() : null;
       if (c) L.push(ligne('groupe', BLEU, 'Défi d\'équipe : ' + esc((c.def && c.def.label) || 'en cours'), c.total + ' / ' + c.cible + ' · vous contre l\'objectif', c.pct || 0, 'AwakCoopOpen()'));
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     try {
       var d = window.AwakFamilyChallenge && AwakFamilyChallenge.myChallenges ? (AwakFamilyChallenge.myChallenges() || []) : [];
       d.filter(function (x) { return x && !x.ended; }).slice(0, 2).forEach(function (x) {
         L.push(ligne('epee', VIOLET, 'Duel contre ' + esc((x.opponent && x.opponent.name) || 'un membre'),
           'Toi ' + x.myScore + ' – ' + x.oppScore + (x.daysLeft ? ' · ' + x.daysLeft + ' j restants' : ''), null, 'AwakFamilyChallengeOpen()'));
       });
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     var titre = '<div style="font-size:0.56em;letter-spacing:2px;color:#94a3b8;font-weight:900;margin:2px 2px 8px;">EN COURS</div>';
     if (L.length) return titre + L.join('');
     if (enfant || sansInvite) return '';   // v1346 enfant ; v1423 adulte : « Défis » est déjà dans la barre du ciel
@@ -244,7 +244,7 @@
 
   // ── Mon étoile : résumé de ma semaine ──
   window.AwakConstMoi = function () {
-    try { if (window.AwakFamCloseAll) AwakFamCloseAll(); } catch (e) {}
+    try { if (window.AwakFamCloseAll) AwakFamCloseAll(); } catch (e) { _awkE(e); }
     document.getElementById('awakConstMoi')?.remove();
     var e = etatSemaine(), me = e.membres[0];
     var d7 = Date.now() - 7 * 86400000, n7 = seances(moi()).filter(function (t) { return t >= d7; }).length;

@@ -65,7 +65,7 @@
   }
   function chargerPerso() {
     return idbTx('readonly', function (st) { return st.getAll(); }).then(function (tout) {
-      PERSO.forEach(function (m) { try { URL.revokeObjectURL(m.url); } catch (e) {} });
+      PERSO.forEach(function (m) { try { URL.revokeObjectURL(m.url); } catch (e) { _awkE(e); } });
       PERSO = (tout || []).sort(function (a, b) { return (a.ajout || 0) - (b.ajout || 0); }).map(function (x) {
         return { fichier: 'perso:' + x.id, id: x.id, titre: x.titre, type: 'perso', taille: x.taille || 0, url: URL.createObjectURL(x.blob) };
       });
@@ -75,7 +75,7 @@
   function ajouterPerso(fichiers) {
     var liste = Array.prototype.slice.call(fichiers || []).filter(function (f) { return /^audio\//.test(f.type) || /\.(mp3|m4a|aac|wav|ogg|flac|opus)$/i.test(f.name); });
     if (!liste.length) return Promise.resolve(0);
-    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { _awkE(e); }
     return idbTx('readwrite', function (st) {
       liste.forEach(function (f, i) {
         st.put({ id: Date.now().toString(36) + i + Math.random().toString(36).slice(2, 6), titre: f.name.replace(/\.[^.]+$/, '').replace(/[_]+/g, ' ').trim() || 'Morceau', blob: f, taille: f.size, ajout: Date.now() + i });
@@ -90,11 +90,11 @@
 
   function reglages() {
     var r = {};
-    try { r = JSON.parse(localStorage.getItem(CLE) || '{}') || {}; } catch (e) {}
+    try { r = JSON.parse(localStorage.getItem(CLE) || '{}') || {}; } catch (e) { _awkE(e); }
     var o = {}; for (var k in DEF) o[k] = (k in r) ? r[k] : DEF[k];
     return o;
   }
-  function sauver(r) { try { localStorage.setItem(CLE, JSON.stringify(r)); } catch (e) {} }
+  function sauver(r) { try { localStorage.setItem(CLE, JSON.stringify(r)); } catch (e) { _awkE(e); } }
   function modeJeu() { try { return typeof window.rpgEnabled === 'function' ? window.rpgEnabled() : localStorage.getItem('fitproGameMode') === '1'; } catch (e) { return false; } }
 
   // Morceaux retenus par le filtre (les morceaux « jeu » exigent le mode jeu)
@@ -158,7 +158,7 @@
     var go = function () {
       a.src = 'audio/' + BOUCLES[etape] + extBoucle();
       a.loop = true; a.volume = 0; actif = true;
-      var p = null; try { p = a.play(); } catch (e) {}
+      var p = null; try { p = a.play(); } catch (e) { _awkE(e); }
       var ok = function () { fonduVers(volCible(), 1500); majMedia(); majBarre(); };
       if (p && p.then) p.then(ok).catch(function () { actif = false; majBarre(); }); else ok();
     };
@@ -175,7 +175,7 @@
     if (audio) return audio;
     audio = new Audio();
     audio.preload = 'auto';
-    try { audio.setAttribute('playsinline', ''); } catch (e) {}
+    try { audio.setAttribute('playsinline', ''); } catch (e) { _awkE(e); }
     audio.addEventListener('ended', function () {
       // v1517 : combat final — après « Je n'abandonne pas », la boucle de l'étape en cours
       if (enFinal()) { jouerBoucle(phaseFinale() >= 3 ? 'climax' : 'milieu', 0); return; }
@@ -207,7 +207,7 @@
     var de = a.volume, t0 = Date.now();
     fondu = setInterval(function () {
       var k = Math.min(1, (Date.now() - t0) / ms);
-      try { a.volume = Math.max(0, Math.min(1, de + (v - de) * k)); } catch (e) {}
+      try { a.volume = Math.max(0, Math.min(1, de + (v - de) * k)); } catch (e) { _awkE(e); }
       if (k >= 1) { clearInterval(fondu); fondu = null; if (apres) apres(); }
     }, 50);
   }
@@ -222,7 +222,7 @@
     a.volume = 0;
     actif = true;
     var p = null;
-    try { p = a.play(); } catch (e) {}
+    try { p = a.play(); } catch (e) { _awkE(e); }
     var ok = function () { fonduVers(volCible(), 1200); majMedia(); majBarre(); };
     if (p && typeof p.then === 'function') p.then(ok).catch(function () { actif = false; majBarre(); });
     else ok();
@@ -238,7 +238,7 @@
     }
     jouerIndex(pos < 0 ? 0 : pos);
   }
-  function pause() { if (!audio) return; actif = false; fonduVers(0, 400, function () { try { audio.pause(); } catch (e) {} }); }
+  function pause() { if (!audio) return; actif = false; fonduVers(0, 400, function () { try { audio.pause(); } catch (e) { _awkE(e); } }); }
   function basculer() { if (audio && !audio.paused) pause(); else lecture(); }
   function suivante() { if (enFinal()) return; jouerIndex(pos + 1); }
   function precedente() {
@@ -249,7 +249,7 @@
   function arreter() {
     actif = false;
     if (!audio || audio.paused) { majBarre(); return; }
-    fonduVers(0, 1500, function () { try { audio.pause(); } catch (e) {} majBarre(); });
+    fonduVers(0, 1500, function () { try { audio.pause(); } catch (e) { _awkE(e); } majBarre(); });
   }
 
   // ── Media Session : commandes sur l'écran verrouillé / casque ──
@@ -264,7 +264,7 @@
       navigator.mediaSession.setActionHandler('pause', pause);
       navigator.mediaSession.setActionHandler('nexttrack', suivante);
       navigator.mediaSession.setActionHandler('previoustrack', precedente);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   // ── Icônes ──
@@ -393,13 +393,13 @@
         preparerFile(); if (file[0] && SPECIAUX.indexOf(file[0].type) >= 0) jouerIndex(0);
       }, 1200);
     } else {
-      var fs = false; try { fs = typeof window.awakFailleEnCours === 'function' && window.awakFailleEnCours(true); } catch (e) {}
+      var fs = false; try { fs = typeof window.awakFailleEnCours === 'function' && window.awakFailleEnCours(true); } catch (e) { _awkE(e); }
       if (audio && !audio.paused && fs) { surveillerFaille(); return; }
       arreter();
     }
   }
   function brancher() {
-    try { new MutationObserver(surSeance).observe(document.body, { attributes: true, attributeFilter: ['class'] }); } catch (e) {}
+    try { new MutationObserver(surSeance).observe(document.body, { attributes: true, attributeFilter: ['class'] }); } catch (e) { _awkE(e); }
     surSeance();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', brancher); else brancher();
@@ -493,9 +493,9 @@
       if (e.target.getAttribute('data-mus') !== 'fichier') return;
       var n = e.target.files ? e.target.files.length : 0;
       ajouterPerso(e.target.files).then(function (k) {
-        try { if (typeof window.showToast === 'function') window.showToast(k ? k + ' morceau' + (k > 1 ? 'x ajoutés' : ' ajouté') : (n ? 'Ces fichiers ne sont pas de l\'audio' : 'Aucun fichier'), k ? 'success' : 'warning', 2500); } catch (x) {}
+        try { if (typeof window.showToast === 'function') window.showToast(k ? k + ' morceau' + (k > 1 ? 'x ajoutés' : ' ajouté') : (n ? 'Ces fichiers ne sont pas de l\'audio' : 'Aucun fichier'), k ? 'success' : 'warning', 2500); } catch (x) { _awkE(x); }
         var r = reglages(); if (k && !r.perso) { r.perso = true; sauver(r); rendreReglages(); }
-      }).catch(function () { try { window.showToast && window.showToast('Impossible d\'enregistrer ces fichiers (espace plein ?)', 'error', 3000); } catch (x) {} });
+      }).catch(function () { try { window.showToast && window.showToast('Impossible d\'enregistrer ces fichiers (espace plein ?)', 'error', 3000); } catch (x) { _awkE(x); } });
       e.target.value = '';
     });
     h.addEventListener('click', function (e) {
@@ -546,11 +546,11 @@
     });
     rendreReglages();
     // Rafraîchir quand le bloc redevient visible (mode jeu changé entre-temps…)
-    try { new IntersectionObserver(function (es) { if (es.some(function (x) { return x.isIntersecting; })) rendreReglages(); }).observe(h); } catch (e) {}
+    try { new IntersectionObserver(function (es) { if (es.some(function (x) { return x.isIntersecting; })) rendreReglages(); }).observe(h); } catch (e) { _awkE(e); }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', brancherReglages); else brancherReglages();
 
-  try { if (window.indexedDB) chargerPerso(); } catch (e) {}
+  try { if (window.indexedDB) chargerPerso(); } catch (e) { _awkE(e); }
 
   // v1479 : moment épique (climax du combat final) → la musique monte
   function intensifier() {

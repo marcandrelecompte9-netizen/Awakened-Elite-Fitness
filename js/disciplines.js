@@ -1000,7 +1000,7 @@
       try {
         var g = generateYogaSession({ durationMin: c[0], focus: c[1], intensity: c[2] });
         YOGA_SESSIONS.push({ id: 'cours' + c[0], name: c[3] /* v1564 : la carte affiche la vraie durée (« 45 min » en durait ~51) */, level: 'Tous niveaux', rest: 5, minLevel: 1, goal: true, exercises: g.exercises });
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     });
     YOGA_CUSTOM = garde;
   })();
@@ -1026,7 +1026,7 @@
         var dispo = global.getSelectedEquipmentNames() || [];
         L = L.filter(function (s) { return !s.materiel || dispo.indexOf(s.materiel) !== -1; });
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return L;
   }
   function getDisciplineSession(disciplineId, sessionId) {
@@ -1227,16 +1227,16 @@
           _ajoutes++;
         });
       });
-      if (_ajoutes) { try { console.log('[disciplines] ' + _ajoutes + ' exercices ajoutés à la bibliothèque'); } catch (e) {} }
+      if (_ajoutes) { try { console.log('[disciplines] ' + _ajoutes + ' exercices ajoutés à la bibliothèque'); } catch (e) { _awkE(e); } }
       // 🏋️ Base MUSCULATION SEULE — sans les exercices de discipline.
       // Les générateurs de séance muscu doivent piocher ici : sinon une séance
       // classique peut contenir du yoga, de la boxe ou de la barre, puisque ces
       // exercices portent eux aussi type:'exercise'.
       try {
         global.exerciseDatabaseMuscu = global.exerciseDatabase.filter(function (e) { return e && !e.discipline; });
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     }
-  } catch (e) {}
+  } catch (e) { _awkE(e); }
 
   global.generateYogaSession = generateYogaSession;
   global.DISCIPLINE_GUIDES = DISCIPLINE_GUIDES;

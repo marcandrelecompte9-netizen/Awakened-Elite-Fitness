@@ -110,7 +110,7 @@ if (typeof window.awakJourLocal !== 'function') window.awakJourLocal = function 
       var s = uiBottomSheet({ id: 'weeklyRecapOverlay', icon: (window.AwakIcon && AwakIcon.get('calendrier', 28, '#22d3ee')) || '', title: label, subtitle: 'Ce que ton effort a construit.', accent: '#22d3ee', center: true });
       s.body.innerHTML = html + uiCloseButton('weeklyRecapOverlay');
       s.mount();
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
   window.showWeeklyRecap = showWeeklyRecap;
 
@@ -130,7 +130,7 @@ if (typeof window.awakJourLocal !== 'function') window.awakJourLocal = function 
       if (!hasSessions) { localStorage.setItem('awakRecapShown', key); return; }
       localStorage.setItem('awakRecapShown', key);
       showWeeklyRecap();
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
   if (document.readyState === 'complete') setTimeout(_autoRecap, 1800);
   else window.addEventListener('load', function () { setTimeout(_autoRecap, 1800); });

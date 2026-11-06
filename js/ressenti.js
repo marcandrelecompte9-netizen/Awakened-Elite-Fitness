@@ -19,7 +19,7 @@
   function recent() { var r = lire(); return r && Date.now() - r.t < 10 * 86400000 ? r.val : null; }
 
   function noter(val) {
-    try { localStorage.setItem(cle(), JSON.stringify({ val: val, t: Date.now() })); } catch (e) {}
+    try { localStorage.setItem(cle(), JSON.stringify({ val: val, t: Date.now() })); } catch (e) { _awkE(e); }
     // Sur la dernière séance de l'historique
     try {
       var pid = window.getCurrentProfileId && window.getCurrentProfileId();
@@ -30,7 +30,7 @@
         if (pid && window.setProfileData) window.setProfileData(pid, 'workoutHistory', JSON.stringify(h));
         else localStorage.setItem('workoutHistory', JSON.stringify(h));
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   function carte() {

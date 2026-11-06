@@ -20,14 +20,14 @@
   function lire() {
     try { var v = localStorage.getItem(cleLec()); return v ? JSON.parse(v) : null; } catch (e) { return null; }
   }
-  function ecrire(o) { try { localStorage.setItem(cleEcr(), JSON.stringify(o)); } catch (e) {} }
+  function ecrire(o) { try { localStorage.setItem(cleEcr(), JSON.stringify(o)); } catch (e) { _awkE(e); } }
   function vu(id) { var o = lire(); return !!(o && o[id]); }
   function marquer(id) { var o = lire() || {}; o[id] = 1; ecrire(o); }
 
   // ── Aides pour trouver les cibles ────────────────────────────
   function $(sel, racine) { try { return (racine || document).querySelector(sel); } catch (e) { return null; } }
   // v1393 : onglet Progrès en sous-onglets — montrer le bon avant de pointer
-  function pg(g) { try { if (window.AwakProgOnglets) window.AwakProgOnglets.aller(g); } catch (e) {} }
+  function pg(g) { try { if (window.AwakProgOnglets) window.AwakProgOnglets.aller(g); } catch (e) { _awkE(e); } }
   function parTexte(racine, sel, rx) {
     racine = typeof racine === 'string' ? document.getElementById(racine) : racine;
     if (!racine) return null;
@@ -261,7 +261,7 @@
     if (affiche('preparationView') || affiche('completionView')) return false;
     // v1300 : le Parcours de l'Éveil va être proposé (fin d'inscription) : on attend
     // qu'il soit proposé, accepté ou refusé, puis on montre l'accueil tel qu'il est.
-    try { if (localStorage.getItem(window._cleProfil ? window._cleProfil('awakEveilPlusTard') : 'awakEveilPlusTard') === '1') return false; } catch (e) {}
+    try { if (localStorage.getItem(window._cleProfil ? window._cleProfil('awakEveilPlusTard') : 'awakEveilPlusTard') === '1') return false; } catch (e) { _awkE(e); }
     if (document.querySelector('.modal.active')) return false;
     // v1335 : offre ou questionnaire de l'Éveil à l'écran → on attend
     if (document.getElementById('eveilOfferModal') || document.getElementById('eveilQuizModal')) return false;
@@ -297,7 +297,7 @@
       if ((st.workouts || 0) > 0) {
         var o = { _anciens: 1 }; Object.keys(VISITES).forEach(function (k) { o[k] = 1; }); ecrire(o);
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   // ── Affichage ────────────────────────────────────────────────
@@ -310,7 +310,7 @@
 
   function cleVisite(onglet) {
     if (onglet !== 'program' || enfant()) return onglet;   // l'enfant a une seule vue : ses aventures
-    var v = ''; try { v = typeof window.getProgramTabView === 'function' ? window.getProgramTabView() : ''; } catch (e) {}
+    var v = ''; try { v = typeof window.getProgramTabView === 'function' ? window.getProgramTabView() : ''; } catch (e) { _awkE(e); }
     return v === 'discipline' ? 'program_sports' : (v === 'salle' ? 'program_salle' : 'program');
   }
   function tenter(onglet) {
@@ -333,7 +333,7 @@
     // limitations…) : la visite sautait, puis revenait au changement d'onglet.
     if (!profilPret() || !ecranLibre()) { if (essais++ < 600) planifier(onglet, 1500); return; }
     if (window.AwakCine && window.AwakCine.defer(function () { planifier(onglet, 400); })) return;
-    var etapes = V[cle].filter(function (e) { var el = null; try { el = e.c(); } catch (x) {} return visible(el); });
+    var etapes = V[cle].filter(function (e) { var el = null; try { el = e.c(); } catch (x) { _awkE(x); } return visible(el); });
     if (!etapes.length) return;                         // rien à montrer : on réessaiera à la prochaine visite
     essais = 0;
     montrer(cle, etapes);
@@ -382,7 +382,7 @@
       marquer(onglet);
       window.removeEventListener('resize', placer);
       window.removeEventListener('scroll', placer, true);
-      try { ov.remove(); } catch (e) {}
+      try { ov.remove(); } catch (e) { _awkE(e); }
       enCours = null;
     }
     function cible() { try { return etapes[i].c(); } catch (e) { return null; } }
@@ -413,7 +413,7 @@
             (dernier ? 'Compris' : 'Suivant ›') + '</button>' +
         '</div>';
       var el = cible();
-      try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (x) {}
+      try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (x) { _awkE(x); }
       placer();
       setTimeout(placer, 380);
     }

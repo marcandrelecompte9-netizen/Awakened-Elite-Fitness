@@ -24,8 +24,8 @@
   function nom(n) { try { return typeof window.awakNom === 'function' ? window.awakNom(n) : n; } catch (e) { return n; } }
   function db(n) { var L = window.exerciseDatabase || []; for (var i = 0; i < L.length; i++) if (L[i] && L[i].name === n) return L[i]; return null; }
   function moi() {
-    try { var p = typeof getCurrentProfile === 'function' ? getCurrentProfile() : null; if (p && p.name) return p.name; } catch (e) {}
-    try { var u = typeof getUserProfile === 'function' ? getUserProfile() : null; if (u && u.name) return u.name; } catch (e) {}
+    try { var p = typeof getCurrentProfile === 'function' ? getCurrentProfile() : null; if (p && p.name) return p.name; } catch (e) { _awkE(e); }
+    try { var u = typeof getUserProfile === 'function' ? getUserProfile() : null; if (u && u.name) return u.name; } catch (e) { _awkE(e); }
     return '';
   }
 
@@ -149,7 +149,7 @@
   // ── Recevoir : scanner (si le téléphone sait lire les QR) ou coller ──
   var _cam = null;
   function arreterCamera() {
-    if (_cam) { try { _cam.flux.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {} clearInterval(_cam.timer); _cam = null; }
+    if (_cam) { try { _cam.flux.getTracks().forEach(function (t) { t.stop(); }); } catch (e) { _awkE(e); } clearInterval(_cam.timer); _cam = null; }
   }
   function recevoir() {
     var scanOk = ('BarcodeDetector' in window) && navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
@@ -216,7 +216,7 @@
   function commencer() {
     if (!_recue) return;
     fermer();
-    try { if (typeof switchTab === 'function') switchTab('workouts'); } catch (e) {}
+    try { if (typeof switchTab === 'function') switchTab('workouts'); } catch (e) { _awkE(e); }
     var w = JSON.parse(JSON.stringify(_recue));
     if (typeof window.showWorkoutPreparation === 'function') window.showWorkoutPreparation(w);
   }
@@ -238,9 +238,9 @@
       });
       L.push({ id: 'r' + Date.now(), name: nomR, exercises: exR, createdAt: new Date().toISOString(), partageDe: _recue._partageDe || '' });
       localStorage.setItem(k, JSON.stringify(L));
-      if (typeof window.renderRoutinesList === 'function') { try { window.renderRoutinesList(); } catch (e) {} }
+      if (typeof window.renderRoutinesList === 'function') { try { window.renderRoutinesList(); } catch (e) { _awkE(e); } }
       if (typeof window.showToast === 'function') window.showToast('Ajoutée à tes routines : ' + nomR, 'success', 3000);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     fermer();
   }
 
@@ -250,7 +250,7 @@
     var i = h.indexOf(CLE);
     if (i < 0) return;
     var code = h.slice(i + CLE.length);
-    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { _awkE(e); }
     setTimeout(function () { importer(code); }, 1800);
   }
 

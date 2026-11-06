@@ -46,7 +46,7 @@
   function _get() {
     try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch (e) { return null; }
   }
-  function _save(j) { try { localStorage.setItem(LS_KEY, JSON.stringify(j)); } catch (e) {} }
+  function _save(j) { try { localStorage.setItem(LS_KEY, JSON.stringify(j)); } catch (e) { _awkE(e); } }
   function _todayKey() {
     var d = new Date();
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -135,7 +135,7 @@
       if (_mineur()) {
         return _buildQuestsChild();
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     var q = [];
     // 1. Sommeil — toujours en premier : c'est le multiplicateur de tout le reste.
     var lateOrTired = (a.dodo === 'apres24' || a.dodo === '23-24' || a.reveil === 'fatigue');
@@ -217,7 +217,7 @@
       if (_mineur()) {
         return LESSONS_CHILD;
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return LESSONS;
   }
 
@@ -282,11 +282,11 @@
       var occupe = ['awakGameGuideOverlay', 'awakEpicIntroOverlay', '_premOnbOverlay', 'storyOverlay'].some(function (i) { return !!document.getElementById(i); })
         || (global.AwakCine && global.AwakCine.anyOpen && global.AwakCine.anyOpen());
       if (occupe && _offreEssais++ < 240) { setTimeout(eveilMaybeOffer, 700); return; }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     localStorage.setItem('awakEveilOffered', '1');
     // v1399/v1400 : proposé aux Débutants seulement (« Nouveau dans l'entraînement ? »).
     // Il reste accessible dans les Réglages.
-    try { var up = typeof global.getUserProfile === 'function' ? (global.getUserProfile() || {}) : {}; if (up.level && up.level !== 'beginner') return; if ((up.aime || []).indexOf('boxe') >= 0) return; } catch (e) {}   // v1400 : Débutants seulement · v1403 : pas si Boxe cochée (sa semaine de boxe a son propre plan)
+    try { var up = typeof global.getUserProfile === 'function' ? (global.getUserProfile() || {}) : {}; if (up.level && up.level !== 'beginner') return; if ((up.aime || []).indexOf('boxe') >= 0) return; } catch (e) { _awkE(e); }   // v1400 : Débutants seulement · v1403 : pas si Boxe cochée (sa semaine de boxe a son propre plan)
     var ov = document.createElement('div');
     ov.id = 'eveilOfferModal';
     ov.style.cssText = 'position:fixed;inset:0;background:rgba(4,6,12,0.88);backdrop-filter:blur(6px);z-index:10050;display:flex;align-items:center;justify-content:center;padding:20px;';
@@ -311,7 +311,7 @@
       if (_mineur()) {
         return QUESTIONS_CHILD;
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     if (mode === 'suite') return QUESTIONS.filter(function (q) { return ESSENTIELLES.indexOf(q.id) < 0; });
     return QUESTIONS.filter(function (q) { return ESSENTIELLES.indexOf(q.id) >= 0; });
   }
@@ -465,15 +465,15 @@
     try {
       var L = global.AwakLimitations && global.AwakLimitations.liste;
       for (var i = 0; L && i < L.length; i++) if (L[i].id === 'impact') return !!L[i].test(ex);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return /(saut|jump|jumping|high knees|burpee|mountain)/i.test(ex.name || '');
   }
   var _optsAdapt = { sansSauts: false };
   function _ecarte(ex) {
     var t = Object.assign({}, ex, { position: _positionDe(ex) });
     if (_optsAdapt.sansSauts && _impact(t)) return true;
-    try { if (global.AwakLimitations && global.AwakLimitations.bloque(t)) return true; } catch (e) {}
-    try { if (global.AwakPain && global.AwakPain.exerciseHitsPain && global.AwakPain.exerciseHitsPain(t)) return true; } catch (e) {}
+    try { if (global.AwakLimitations && global.AwakLimitations.bloque(t)) return true; } catch (e) { _awkE(e); }
+    try { if (global.AwakPain && global.AwakPain.exerciseHitsPain && global.AwakPain.exerciseHitsPain(t)) return true; } catch (e) { _awkE(e); }
     return false;
   }
   // Exercices de remplacement : poids du corps, sans matériel caché dans le nom.
@@ -579,7 +579,7 @@
     // 🥱 Fatigué aujourd'hui → séance adoucie de 15 % (adhérence > perfection)
     if (_todayMood(j) === 'tired') expMult *= 0.85;
     // v1399 : ressenti de la dernière séance (« Comment c'était ? », ressenti.js)
-    try { var rs = global.AwakRessenti && global.AwakRessenti.recent(); if (rs === 'facile') expMult *= 1.1; else if (rs === 'dur') expMult *= 0.85; } catch (e) {}
+    try { var rs = global.AwakRessenti && global.AwakRessenti.recent(); if (rs === 'facile') expMult *= 1.1; else if (rs === 'dur') expMult *= 0.85; } catch (e) { _awkE(e); }
     var exercises = [];
     var nSeries = _seriesSemaine(wk, j);
     // Prise de muscle / force : 3 passages dès la semaine 2 (au lieu de la 3)
@@ -893,7 +893,7 @@
     if (!hote) return;
     var j = _get();
     var kid = false;
-    try { kid = !!(global.AwakYouth && global.AwakYouth.isChild && global.AwakYouth.isChild()); } catch (e) {}
+    try { kid = !!(global.AwakYouth && global.AwakYouth.isChild && global.AwakYouth.isChild()); } catch (e) { _awkE(e); }
     var btn = function (action, txt, principal) {
       return '<button onclick="' + action + '" style="width:100%;min-height:auto;padding:12px;border-radius:12px;cursor:pointer;font-size:0.86em;font-weight:800;margin-top:8px;'
         + (principal ? 'background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;'
@@ -919,7 +919,7 @@
     }
     hote.innerHTML = html;
   }
-  function _majReglages() { try { eveilRendreReglages(); } catch (e) {} }
+  function _majReglages() { try { eveilRendreReglages(); } catch (e) { _awkE(e); } }
   global.awakEveilConfirmRestart = function () {
     var go = function () { var j = _get(); if (j) { j.active = false; _save(j); } eveilStartQuestionnaire(); };
     if (typeof global.showConfirm === 'function') {
@@ -936,7 +936,7 @@
   global.awakEveilAujourdhui = function () {
     var j = _get(); if (!j || !j.active || eveilDone(j)) return null;
     var wk = eveilWeek(j), spec = SESSIONS[wk] || {};
-    var d = 0; try { d = _dureeSeance(j); } catch (e) {}
+    var d = 0; try { d = _dureeSeance(j); } catch (e) { _awkE(e); }
     return { seance: _isWorkDay(j), faite: !!(j.sessionsDone || {})[_todayKey()], jour: eveilDayNum(j), semaine: wk,
       titre: 'Éveil · ' + (spec.title || 'Séance du jour'), duree: d, parSemaine: (j.workDays || []).length || 3 };
   };

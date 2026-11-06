@@ -19,7 +19,7 @@
     size = size || 26;
     try {
       if (typeof window.renderAvatar === 'function') return window.renderAvatar(a, size);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return '<span style="font-size:' + Math.round(size * 0.62) + 'px;">' +
            String(a == null ? '\u{1F464}' : a).replace(/[&<>"]/g, function (c) {
              return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }) + '</span>';
@@ -62,12 +62,12 @@
 
   // ── Profils ────────────────────────────────────────────────────────
   function allProfiles() {
-    try { if (typeof window.getAllProfiles === 'function') return window.getAllProfiles() || []; } catch (e) {}
+    try { if (typeof window.getAllProfiles === 'function') return window.getAllProfiles() || []; } catch (e) { _awkE(e); }
     return [];
   }
   function currentId() {
-    try { if (typeof window.getCurrentProfileId === 'function') return window.getCurrentProfileId(); } catch (e) {}
-    try { return localStorage.getItem('currentProfileId'); } catch (e) {}
+    try { if (typeof window.getCurrentProfileId === 'function') return window.getCurrentProfileId(); } catch (e) { _awkE(e); }
+    try { return localStorage.getItem('currentProfileId'); } catch (e) { _awkE(e); }
     return null;
   }
   function meta(id) {
@@ -252,7 +252,7 @@
         var t = w && w.date ? Date.parse(w.date) : (w && w.id ? w.id : 0);
         if (t >= debut) { seances++; jours[new Date(t).toDateString()] = true; }
       });
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return { seances: seances, joursActifs: Object.keys(jours).length };
   }
 
@@ -297,8 +297,8 @@
 
     // État de chaque brique (null si rien en cours)
     var goal = null, coop = null;
-    try { if (window.AwakFamilyGoal && window.AwakFamilyGoal.status) goal = window.AwakFamilyGoal.status(); } catch (e) {}
-    try { if (window.AwakFamilyChallenge && window.AwakFamilyChallenge.coopStatus) coop = window.AwakFamilyChallenge.coopStatus(); } catch (e) {}
+    try { if (window.AwakFamilyGoal && window.AwakFamilyGoal.status) goal = window.AwakFamilyGoal.status(); } catch (e) { _awkE(e); }
+    try { if (window.AwakFamilyChallenge && window.AwakFamilyChallenge.coopStatus) coop = window.AwakFamilyChallenge.coopStatus(); } catch (e) { _awkE(e); }
 
     function bloc(couleur, surtitre, titre, desc, etat, action, libelle) {
       return '<div style="background:rgba(255,255,255,0.025);border:1px solid ' + couleur + '33;'
@@ -343,7 +343,7 @@
 
     // 3. Duel — compétitif : jamais proposé à un profil enfant (comme le menu d'étoile)
     var _enfD = false;
-    try { _enfD = !!(window.AwakYouth && window.AwakYouth.isChild && window.AwakYouth.isChild()); } catch (e) {}
+    try { _enfD = !!(window.AwakYouth && window.AwakYouth.isChild && window.AwakYouth.isChild()); } catch (e) { _awkE(e); }
     // v1256 : pour un enfant, un défi d'assiduité (le plus de jours actifs).
     if (!_enfD) html += bloc('#a78bfa', 'DUEL',
       'Défier un membre',
@@ -387,7 +387,7 @@
     try {
       if (st && st.def && st.def.label) return st.def.label;
       if (st && st.type) return st.type;
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return 'Objectif';
   }
 
@@ -431,7 +431,7 @@
     catch (e) { return {}; }
   }
   function _famStatsSave(o) {
-    try { localStorage.setItem(FB_KEY, JSON.stringify(o || {})); } catch (e) {}
+    try { localStorage.setItem(FB_KEY, JSON.stringify(o || {})); } catch (e) { _awkE(e); }
   }
 
   // Incrémente un compteur et signale les badges NOUVELLEMENT obtenus.
@@ -448,7 +448,7 @@
           if (typeof window.showToast === 'function') {
             window.showToast('Badge de famille débloqué : ' + b.nom + ' !', 'success', 4000);
           }
-        } catch (e) {}
+        } catch (e) { _awkE(e); }
       }
     });
     return st[cle];
@@ -464,7 +464,7 @@
       loadLinks().forEach(function (l) { if (l) { _ids[l.from] = true; _ids[l.to] = true; } });
       _n = Math.max(0, Object.keys(_ids).length - 1);
       if (_n > (st.membresLies || 0)) { st.membresLies = _n; _famStatsSave(st); }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return FAM_BADGES.map(function (b) {
       var v = st[b.cle] || 0;
       return { id: b.id, emoji: b.emoji, nom: b.nom, desc: b.desc,
@@ -474,7 +474,7 @@
 
   // 🏅 Carte des badges, ouverte depuis l'icône de la Constellation.
   window.AwakFamBadgesOpen = function () {
-    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) { _awkE(e); }
     document.getElementById('awakFamBadges')?.remove();
     var b = window.AwakFamBadges();
     var n = b.filter(function (x) { return x.obtenu; }).length;
@@ -526,7 +526,7 @@
   // qu'elle portait l'ajout de membre et le journal. On la déplace ici pour
   // que la constellation soit le seul point d'entrée de l'onglet.
   window.AwakFamilyManage = function () {
-    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) { _awkE(e); }
     document.getElementById('awakFamilyManage')?.remove();
     var ov = document.createElement('div');
     ov.id = 'awakFamilyManage';
@@ -537,7 +537,7 @@
     try {
       contenu = (window.AwakFamily && typeof window.AwakFamily.renderCard === 'function')
         ? window.AwakFamily.renderCard() : '';
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     ov.innerHTML =
       '<div style="width:100%;max-width:460px;margin:auto;">'
     +   '<div style="width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 14px;"></div>'
@@ -553,7 +553,7 @@
 
   // 📖 Journal familial en modale (même raison).
   window.AwakFamilyFeedOpen = function () {
-    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) { _awkE(e); }
     document.getElementById('awakFamilyFeed')?.remove();
     var ov = document.createElement('div');
     ov.id = 'awakFamilyFeed';
@@ -564,7 +564,7 @@
     try {
       contenu = (window.AwakFamilyFeed && typeof window.AwakFamilyFeed.render === 'function')
         ? window.AwakFamilyFeed.render() : '';
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     ov.innerHTML =
       '<div style="width:100%;max-width:460px;margin:auto;background:linear-gradient(160deg,#12101a,#0b0b0f);'
     +   'border:1px solid rgba(236,72,153,0.22);border-radius:20px;padding:18px;">'
@@ -593,11 +593,11 @@
     try {
       enf = !!(window.AwakYouth && typeof window.AwakYouth.isChild === 'function'
                && window.AwakYouth.isChild());
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     var cibleEnf = false;
-    try { cibleEnf = !!(window.AwakYouth && typeof AwakYouth.isChildProfile === 'function' && AwakYouth.isChildProfile(memberId)); } catch (e) {}
+    try { cibleEnf = !!(window.AwakYouth && typeof AwakYouth.isChildProfile === 'function' && AwakYouth.isChildProfile(memberId)); } catch (e) { _awkE(e); }
 
-    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) { _awkE(e); }
     document.getElementById('awakConstMenu')?.remove();
     var ov = document.createElement('div');
     ov.id = 'awakConstMenu';
@@ -672,7 +672,7 @@
   };
 
   window.AwakConstAction = function (quoi, memberId) {
-    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) { _awkE(e); }
     document.getElementById('awakConstMenu')?.remove();
     try {
       if (quoi === 'nudge' && typeof window.AwakFamilyNudge === 'function') {
@@ -696,7 +696,7 @@
       } else if (quoi === 'edit' && typeof window.AwakFamilyEdit === 'function') {
         window.AwakFamilyEdit(memberId);
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   };
 
   // ✦ LA CONSTELLATION DES ANCRES
@@ -726,7 +726,7 @@
     try {
         estEnfant = !!(window.AwakYouth && typeof window.AwakYouth.isChild === 'function'
                        && window.AwakYouth.isChild());
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     // ⚠️ Un joueur SEUL doit voir sa constellation : son étoile brille déjà,
     // et le ciel vide donne envie d'y ajouter quelqu'un. Renvoyer '' faisait
     // que la refonte semblait n'avoir jamais été appliquée.
@@ -759,7 +759,7 @@
     try {
       var _pm = (window.getAllProfiles ? window.getAllProfiles() : []).find(function (p) { return p && p.id === moi; });
       moiSrc = (_pm && typeof window.awakPortraitSrc === 'function') ? window.awakPortraitSrc(_pm.avatar) : '';
-    } catch (x) {}
+    } catch (x) { _awkE(x); }
     var moiR = moiSrc ? Math.max(moiE.r, 19) : moiE.r;
     var moiVisage = moiSrc ? '<clipPath id="cstPtMoi"><circle cx="150" cy="150" r="18"/></clipPath>'
       + '<image href="' + moiSrc + '" x="125" y="130" width="50" height="50" clip-path="url(#cstPtMoi)" preserveAspectRatio="xMidYMid slice"/>'
@@ -792,7 +792,7 @@
       var dur = (3 + (i % 4) * 0.7).toFixed(1);
       var haut = Math.sin(a) < -0.5;
       // v1349 : membre avec un PORTRAIT → son visage dans l'étoile (cerclé de la couleur d'activité)
-      var srcP = ''; try { srcP = (typeof window.awakPortraitSrc === 'function') ? window.awakPortraitSrc(m.avatar) : ''; } catch (x) {}
+      var srcP = ''; try { srcP = (typeof window.awakPortraitSrc === 'function') ? window.awakPortraitSrc(m.avatar) : ''; } catch (x) { _awkE(x); }
       var rr = srcP ? Math.max(e.r, 16) : e.r;
       var visage = srcP ? '<clipPath id="cstPt' + i + '"><circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="15"/></clipPath>'
         + '<image href="' + srcP + '" x="' + (x - 21).toFixed(1) + '" y="' + (y - 17).toFixed(1) + '" width="42" height="42" clip-path="url(#cstPt' + i + ')" preserveAspectRatio="xMidYMid slice" opacity="' + (m.seances ? 1 : 0.6) + '"/>'
@@ -842,7 +842,7 @@
             + 'Objectif ' + g.pct + ' %</text></g>';
         }
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     return '<div style="position:relative;border-radius:18px;overflow:hidden;'
       +   'background:#07070b;'
@@ -915,7 +915,7 @@
                 enf = (window.getAllProfiles ? window.getAllProfiles() : [])
                   .some(function (p) { return p && window.AwakYouth.isChildProfile(p.id); });
               }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             if (!enf) return '';
             return '<div onclick="AwakKidsOpen()" style="cursor:pointer;margin:0 12px 10px;'
               + 'padding:11px 13px;border-radius:13px;display:flex;align-items:center;gap:10px;'
@@ -1057,7 +1057,7 @@
   // donc un enfant non « lié » ne comptait ni pour le ciel, ni l'objectif, ni le boss.
   function familleMembres() {
     var all = [];
-    try { all = (typeof window.getAllProfiles === 'function') ? (window.getAllProfiles() || []) : []; } catch (e) {}
+    try { all = (typeof window.getAllProfiles === 'function') ? (window.getAllProfiles() || []) : []; } catch (e) { _awkE(e); }
     return all.filter(function (p) { return p && p.id; });
   }
   window.awkFamilleMembres = familleMembres;
@@ -1113,7 +1113,7 @@
               try {
                   _enf = !!(window.AwakYouth && typeof window.AwakYouth.isChild === 'function'
                             && window.AwakYouth.isChild());
-              } catch (e) {}
+              } catch (e) { _awkE(e); }
               if (!ws.seances) return '<div style="font-size:0.68em;color:#8391a7;margin-top:2px;">Pas encore de séance cette semaine</div>';
               if (_enf) return '<div style="font-size:0.68em;color:#4ade80;margin-top:2px;">🏋️ A bougé cette semaine</div>';
               return '<div style="font-size:0.68em;color:#94a3b8;margin-top:2px;">'
@@ -1162,7 +1162,7 @@
           var _st = window.AwakFamilyGoal.status();
           if (_st && typeof _st.pct === 'number') _pct = Math.round(_st.pct);
         }
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
       var _bits = ['🏋️ ' + _seances + ' séance' + (_seances > 1 ? 's' : ''),
                    '🔥 ' + Object.keys(_joursActifs).length + ' jour' + (Object.keys(_joursActifs).length > 1 ? 's' : '') + ' actif' + (Object.keys(_joursActifs).length > 1 ? 's' : '')];
       if (_pct !== null) _bits.push('🎯 ' + _pct + ' % de l\'objectif');
@@ -1218,7 +1218,7 @@
 
     var overlay = document.createElement('div');
     // 🧹 Fermer toute autre modale famille avant d'ouvrir celle-ci.
-    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) { _awkE(e); }
     overlay.id = 'awakFamilyModal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
     overlay.onclick = function (e) { if (e.target === overlay) overlay.remove(); };
@@ -1308,7 +1308,7 @@
     var m = meta(memberId);
     var choix = nudgeChoix(rel ? rel.type : 'autre', m.name);
 
-    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) { _awkE(e); }
     var old = document.getElementById('awakNudgePick');
     if (old) old.remove();
 
@@ -1385,7 +1385,7 @@
         localStorage.setItem('awakNudgeBadgeJour', JSON.stringify(_faits));
         if (typeof window.AwakFamBadgeInc === 'function') window.AwakFamBadgeInc('encouragements', 1);
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
 
     // 📬 Déposer l'encouragement dans la boîte du destinataire : les profils
     // partagent le même appareil, il le verra en prenant la main.
@@ -1393,7 +1393,7 @@
 
     var overlay = document.createElement('div');
     // 🧹 Fermer toute autre modale famille avant d'ouvrir celle-ci.
-    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) { _awkE(e); }
     overlay.id = 'awakNudgeModal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
     overlay.onclick = function (e) { if (e.target === overlay) overlay.remove(); };
@@ -1419,7 +1419,7 @@
     catch (e) { return []; }
   }
   function _saveNudges(arr) {
-    try { localStorage.setItem(NUDGE_KEY, JSON.stringify((arr || []).slice(-60))); } catch (e) {}
+    try { localStorage.setItem(NUDGE_KEY, JSON.stringify((arr || []).slice(-60))); } catch (e) { _awkE(e); }
   }
 
   // Dépose un encouragement pour `toId`. Retourne false si impossible.
@@ -1491,7 +1491,7 @@
 
     var overlay = document.createElement('div');
     // 🧹 Fermer toute autre modale famille avant d'ouvrir celle-ci.
-    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) {}
+    try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) { _awkE(e); }
     overlay.id = 'awakInboxModal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
     overlay.onclick = function (e) { if (e.target === overlay) _closeInbox(); };

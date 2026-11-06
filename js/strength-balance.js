@@ -195,7 +195,7 @@
     try {
       if (typeof window.getExercisePerformances === 'function') return window.getExercisePerformances() || {};
       if (typeof getExercisePerformances === 'function') return getExercisePerformances() || {};
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return {};
   }
 
@@ -426,9 +426,9 @@
     try {
       var fin = new Date(Date.now() + 28 * 86400000);
       localStorage.setItem(focusKey(), JSON.stringify({ muscles: muscles.slice(0, 3), le: new Date().toISOString(), jusqu: fin.toISOString() }));
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
-  function arreterFocus() { try { localStorage.removeItem(focusKey()); } catch (e) {} }
+  function arreterFocus() { try { localStorage.removeItem(focusKey()); } catch (e) { _awkE(e); } }
 
   // Remet les muscles en retard en tête d'une liste de muscles prêts
   function prioriserMuscles(liste) {
@@ -692,7 +692,7 @@
     var corps = a.suffisant ? vueComplete(a) : vueInsuffisante(a);
     var old = document.getElementById('awakBalanceModal');
     var scroll = 0;
-    if (old) { try { scroll = old.querySelector('.awak-bal-corps').scrollTop; } catch (e) {} old.remove(); }
+    if (old) { try { scroll = old.querySelector('.awak-bal-corps').scrollTop; } catch (e) { _awkE(e); } old.remove(); }
     var ov = document.createElement('div');
     ov.id = 'awakBalanceModal';
     // Les noms affichés sont déjà traduits (awakNom) : pas de 2ᵉ passage
@@ -713,7 +713,7 @@
       + '<div class="awak-bal-corps" style="flex:1;overflow-y:auto;padding:15px 16px 20px;-webkit-overflow-scrolling:touch;">' + corps + '</div>'
       + '</div>';
     document.body.appendChild(ov);
-    if (scroll) { try { ov.querySelector('.awak-bal-corps').scrollTop = scroll; } catch (e) {} }
+    if (scroll) { try { ov.querySelector('.awak-bal-corps').scrollTop = scroll; } catch (e) { _awkE(e); } }
   }
 
   window.AwakBalance = {
@@ -724,7 +724,7 @@
       var a = analyser();
       if (!a.suffisant || !a.retards.length) return;
       activerFocus(a.retards.map(function (g) { return g.muscle; }));
-      try { if (typeof window.showToast === 'function') window.showToast('Rattrapage activé pour 4 semaines', 'success', 2600); } catch (e) {}
+      try { if (typeof window.showToast === 'function') window.showToast('Rattrapage activé pour 4 semaines', 'success', 2600); } catch (e) { _awkE(e); }
       ouvrir();
     },
     arreter: function () { arreterFocus(); ouvrir(); }

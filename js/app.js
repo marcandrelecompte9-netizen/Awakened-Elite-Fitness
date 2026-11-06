@@ -142,7 +142,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             function anyOpen() {
                 // v1413 : l'écran de fin de séance est LE moment de la récompense : les
                 // scènes (histoire, rang, Faille spéciale…) attendent le retour à l'Accueil.
-                try { if (window.AwakFin && window.AwakFin.bloque()) return true; } catch (e) {}
+                try { if (window.AwakFin && window.AwakFin.bloque()) return true; } catch (e) { _awkE(e); }
                 for (let i = 0; i < CINE_IDS.length; i++) {
                     if (document.getElementById(CINE_IDS[i])) return true;
                 }
@@ -155,7 +155,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const next = queue.shift();
                     if (!next) { clearInterval(poll); poll = null; return; }
                     running = true;
-                    try { next(); } catch (e) {}
+                    try { next(); } catch (e) { _awkE(e); }
                     running = false;
                 }, 300);
             }
@@ -320,7 +320,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (!navigator.vibrate) return;
                 const p = pattern || 15;
                 navigator.vibrate(p);
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
         window.hapticTap = hapticTap;
 
@@ -386,7 +386,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const d = new Date(w.date);
                     const key = awakJourLocal(d);
                     dayCount[key] = (dayCount[key] || 0) + 1;
-                } catch(e) {}
+                } catch(e) { _awkE(e); }
             });
 
             // Calculate grid
@@ -499,7 +499,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // une durée voulue longue (≥ 5 s, message important) est gardée.
             if ((type === 'success' || type === 'info') && duration < 5000) duration = Math.min(duration, 3200);
             // v1413 : sur l'écran de fin, les récompenses vont dans « Butin de la séance »
-            try { if (window.AwakFin && window.AwakFin.toast(message, type)) return; } catch (e) {}
+            try { if (window.AwakFin && window.AwakFin.toast(message, type)) return; } catch (e) { _awkE(e); }
             const container = document.getElementById('toastContainer');
             if (!container) return;
 
@@ -553,7 +553,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // v1360 : écran vide uniforme (icône, titre, texte, bouton facultatif)
         function awakVide(icone, titre, texte, bouton, action) {
             let ic = '';
-            try { ic = (window.AwakIcon && AwakIcon.get(icone || 'info', 26, '#67e8f9')) || ''; } catch (e) {}
+            try { ic = (window.AwakIcon && AwakIcon.get(icone || 'info', 26, '#67e8f9')) || ''; } catch (e) { _awkE(e); }
             return '<div class="awk-vide">' + (ic ? '<div class="awk-vide-ico">' + ic + '</div>' : '')
                 + '<b>' + titre + '</b>' + (texte ? '<span>' + texte + '</span>' : '')
                 + (bouton ? '<button onclick="' + action + '">' + bouton + '</button>' : '') + '</div>';
@@ -564,7 +564,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const t = e.target && e.target.closest && e.target.closest('.nav-tab, #mobileNav button, [onclick^="switchTab("]');
                 if (t && typeof vibrate === 'function') vibrate(10);
-            } catch (er) {}
+            } catch (er) { _awkE(er); }
         }, true);
 
         // ========== CHALLENGES SYSTEM ==========
@@ -677,7 +677,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (window.AwakYouth && AwakYouth.isYoung && AwakYouth.isYoung()) return c.difficulty !== 'Avancé';
                 // v1577 : 65 ans et plus → pas de défi Avancé (comme les ados)
                 if (window.AwakYouth && AwakYouth.isSenior && AwakYouth.isSenior()) return c.difficulty !== 'Avancé';
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return true;
         }
         // v1577 : un défi repose sur UN mouvement : mêmes règles que les séances
@@ -712,10 +712,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const c = actifs.find(x => x && x.id === id);
                     if (ok && c && (c.completedDays || []).indexOf(auj) === -1) {
                         completeTodayChallenge(id);
-                        try { showToast('Défi « ' + c.name + ' » validé pour aujourd\'hui', 'success', 3500); } catch (e) {}
+                        try { showToast('Défi « ' + c.name + ' » validé pour aujourd\'hui', 'success', 3500); } catch (e) { _awkE(e); }
                     }
                 });
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakDefiAuto = awakDefiAuto;
         // 🏅 Défis menés jusqu'au bout (par profil) : { id: nombre }
@@ -759,7 +759,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const n = awakDefiEtoiles(), apres = awakDefiRang(n).rang;
                 if (typeof showToast === 'function') showToast((raison || 'Récompense') + ' — +1 étoile (' + n + ')', 'success', 5000);
                 if (apres.seuil > avant.seuil) {
-                    setTimeout(() => { try { showToast('Nouveau rang : ' + apres.nom + ' !', 'success', 5000); } catch (e) {} }, 2200);
+                    setTimeout(() => { try { showToast('Nouveau rang : ' + apres.nom + ' !', 'success', 5000); } catch (e) { _awkE(e); } }, 2200);
                 }
                 return true;
             } catch (e) { return false; }
@@ -799,7 +799,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const t = awakDefisTermines(); t[id] = (t[id] || 0) + 1;
                 const k = window._cleProfil ? _cleProfil('awakDefisTermines') : 'awakDefisTermines';
                 localStorage.setItem(k, JSON.stringify(t));
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
 
         // Get active challenge
@@ -838,14 +838,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         return liste;
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return [];
         }
         window.getActiveChallenges = getActiveChallenges;
 
         function saveActiveChallenges(liste) {
             try { localStorage.setItem(_challengesKey(), JSON.stringify(liste || [])); }
-            catch (e) {}
+            catch (e) { _awkE(e); }
         }
         window.saveActiveChallenges = saveActiveChallenges;
 
@@ -902,12 +902,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
                 _liste.push(challengeData);
                 saveActiveChallenges(_liste);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // ⚠️ NE PLUS écrire l'ancienne clé unique.
             // Elle est relue par la migration de getActiveChallenges() : le
             // défi y était donc réinjecté en boucle, et « Commencer » répondait
             // « déjà en cours » sans rien lancer.
-            try { awakLogEvent('challenge_start', { id: challengeId, name: challenge.name, duration: challenge.duration }); } catch (e) {}
+            try { awakLogEvent('challenge_start', { id: challengeId, name: challenge.name, duration: challenge.duration }); } catch (e) { _awkE(e); }
             speak(`Défi ${challenge.name} démarré`);
             renderChallengesTab();
         }
@@ -952,13 +952,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _l = getActiveChallenges();
                 const _i = _l.findIndex(c => c && c.id === activeChallenge.id);
                 if (_i >= 0) { _l[_i] = activeChallenge; saveActiveChallenges(_l); }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             if (!id) saveActiveChallenge(activeChallenge);   // v1577 : l'ancienne clé unique seulement sans id
             speak('Bravo ! Jour complété');
             
             // Confetti effect
             if (activeChallenge.completedDays.length === activeChallenge.duration) {
-                try { awakLogEvent('challenge_complete', { id: activeChallenge.id, name: activeChallenge.name, duration: activeChallenge.duration }); } catch (e) {}
+                try { awakLogEvent('challenge_complete', { id: activeChallenge.id, name: activeChallenge.name, duration: activeChallenge.duration }); } catch (e) { _awkE(e); }
                 speak('Défi terminé avec succès !');
                 // 🏅 v1219 : le défi fini quittait jamais la liste (bloqué sur 30/30).
                 // On le retire des défis en cours et on garde une médaille.
@@ -968,13 +968,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _nEt = awakDefiEtoiles(), _rApres = awakDefiRang(_nEt).rang;
                 showToast('Défi réussi : ' + activeChallenge.name + ' — +1 étoile (' + _nEt + ')', 'success', 6000);
                 if (_rApres.seuil > _rAvant.seuil) {
-                    setTimeout(() => { try { showToast('Nouveau rang de défis : ' + _rApres.nom + ' !', 'success', 5000); } catch (e) {} }, 2200);
+                    setTimeout(() => { try { showToast('Nouveau rang de défis : ' + _rApres.nom + ' !', 'success', 5000); } catch (e) { _awkE(e); } }, 2200);
                 }
                 try {
                     const _l2 = getActiveChallenges().filter(c => c && c.id !== activeChallenge.id);
                     saveActiveChallenges(_l2);
                     saveActiveChallenge(null);
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }
             
             renderChallengesTab();
@@ -987,7 +987,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // multiple créée en v1013, donc rien ne disparaissait à l'écran.
         function abandonChallenge(id) {
             showConfirm('Votre progression sur ce défi sera réinitialisée.', function() {
-                let _acAb = null; try { _acAb = id ? awakDefiActif(id) : null; } catch (e) {}   // v1577 : avant le retrait
+                let _acAb = null; try { _acAb = id ? awakDefiActif(id) : null; } catch (e) { _awkE(e); }   // v1577 : avant le retrait
                 // Retirer de la liste des actifs.
                 try {
                     if (typeof getActiveChallenges === 'function') {
@@ -996,8 +996,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         const _reste = _l.filter(function (c) { return c && c.id !== _cible; });
                         saveActiveChallenges(_reste);
                     }
-                } catch (e) {}
-                try { const ac = _acAb || getActiveChallenge(); if (ac) awakLogEvent('challenge_abandon', { id: ac.id, name: ac.name, daysCompleted: (ac.completedDays || []).length, duration: ac.duration }); } catch (e) {}
+                } catch (e) { _awkE(e); }
+                try { const ac = _acAb || getActiveChallenge(); if (ac) awakLogEvent('challenge_abandon', { id: ac.id, name: ac.name, daysCompleted: (ac.completedDays || []).length, duration: ac.duration }); } catch (e) { _awkE(e); }
                 saveActiveChallenge(null);
                 showToast('✕ Défi abandonné', 'warning', 2500);
                 renderChallengesTab();
@@ -1013,7 +1013,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function showChallengeDetail(id) {
             let c = null;
             try { c = (typeof awakDefiActif === 'function') ? awakDefiActif(id) : null; }
-            catch (e) {}
+            catch (e) { _awkE(e); }
             if (!c) {
                 if (typeof showToast === 'function') showToast('Ce défi n\'est pas en cours.', 'info', 2200);
                 return;
@@ -1243,7 +1243,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                     try {
                                         _p = (typeof awakDefiActif === 'function')
                                             ? awakDefiActif(challenge.id) : null;
-                                    } catch (e) {}
+                                    } catch (e) { _awkE(e); }
                                     if (!_p) return '';
                                     const _tot = challenge.duration || 30;
                                     const _faits = (_p.completedDays || []).length;
@@ -1287,7 +1287,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                         try {
                                             _actif = (typeof awakDefiActif === 'function')
                                                 ? awakDefiActif(challenge.id) : null;
-                                        } catch (e) {}
+                                        } catch (e) { _awkE(e); }
                                         // 🚫 Plus de bouton « Voir ma progression » sur un défi
                                         // ACTIF : la carte affiche déjà la progression, le bouton
                                         // faisait doublon. Restent les actions utiles : valider la
@@ -1371,7 +1371,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 actif = (typeof awakDefiActif === 'function')
                     ? awakDefiActif(challengeId) : null;
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             if (actif) {
                 if (typeof showChallengeDetail === 'function') showChallengeDetail(challengeId);
             } else {
@@ -1578,7 +1578,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 document.getElementById('metricBtn').textContent = 'Métrique (km)';
                 document.getElementById('imperialBtn').textContent = 'Impérial (miles)';
                 selectCardioUnit(localStorage.getItem('fitproUseKg') === 'false' ? 'imperial' : 'metric');
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         
         function selectCardioUnit(unit) {
@@ -1937,8 +1937,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     } else rpgGainXP(exo, 0, 0, session.duration);
                 }
                 awakCompterSeance(session.duration / 60);
-                try { if (typeof updateHomeStats === 'function') updateHomeStats(); } catch (e) {}
-            } catch (e) {}
+                try { if (typeof updateHomeStats === 'function') updateHomeStats(); } catch (e) { _awkE(e); }
+            } catch (e) { _awkE(e); }
         }
 
         function saveCardioSession(session) {
@@ -2519,7 +2519,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             // Filtre matériel (le poids du corps passe toujours).
             let _userEqH = [];
-            try { _userEqH = (typeof getEquipmentNames === 'function') ? getEquipmentNames() : []; } catch (e) {}
+            try { _userEqH = (typeof getEquipmentNames === 'function') ? getEquipmentNames() : []; } catch (e) { _awkE(e); }
             let _avail = _HIIT_POOL.filter(function (x) { return !x.eq || _userEqH.indexOf(x.eq) !== -1; });
             // v1594 : réglages appliqués AVANT le tirage (avant : l'écran de préparation
             // remplaçait après coup → mouvements hors sujet, rounds perdus, rounds en reps).
@@ -2527,7 +2527,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // mode silencieux ou avec la limitation « pas d'impact ».
             try {
                 let _sansSaut = !!silentMode;
-                try { _sansSaut = _sansSaut || !!(window.AwakLimitations && AwakLimitations.actives().some(l => l.id === 'impact')); } catch (e) {}
+                try { _sansSaut = _sansSaut || !!(window.AwakLimitations && AwakLimitations.actives().some(l => l.id === 'impact')); } catch (e) { _awkE(e); }
                 const _permis = _avail.filter(function (x) {
                     if (_sansSaut && x.imp === 'h') return false;
                     const d = exerciseDatabase.find(e => e.name === x.n);
@@ -2539,7 +2539,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     showToast('Pas assez de mouvements permis par tes réglages pour un ' + name + '.', 'warning', 3500);
                     return;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // Sélection ÉQUILIBRÉE : on pioche en alternant les schémas moteurs,
             // pour ne jamais enchaîner 4 exercices de jambes ni 100 % de sauts.
@@ -2883,7 +2883,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 } else if (_sx === 'homme') {
                     const c = _warmupFromDB("Mobilité hanches & épaules (préhab)"); if (c) warmup.push(c);
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // Durée adaptative selon intensité
             if (intensity >= 1.1) {
@@ -3063,7 +3063,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // premier graphique affiché. Le service worker le garde en cache ensuite.
         let _awakChartAttente = null;
         function awakChargerChart(cb) {
-            if (typeof Chart !== 'undefined') { try { cb(); } catch (e) {} return; }
+            if (typeof Chart !== 'undefined') { try { cb(); } catch (e) { _awkE(e); } return; }
             if (_awakChartAttente) { _awakChartAttente.push(cb); return; }
             _awakChartAttente = [cb];
             const sc = document.createElement('script');
@@ -3436,7 +3436,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         type: 'warning'
                     });
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             return out;
         }
         window.getMuscleRecoveryInsights = getMuscleRecoveryInsights;
@@ -3448,7 +3448,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const recovery = getMuscleRecoveryInsights();
                 recovery.forEach(r => insights.push(r));
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             
             // Volume insights
             if (stats.totalVolume > 500) {
@@ -3576,7 +3576,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         window.renderBehaviorAnalytics = renderBehaviorAnalytics;
 
         function renderAdvancedStats() {
-            try { renderBehaviorAnalytics(); } catch (e) {}
+            try { renderBehaviorAnalytics(); } catch (e) { _awkE(e); }
             const stats = calculateAdvancedStats();
             
             // Update main stats
@@ -3783,11 +3783,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // v1598 : exercices écartés (limitations, mobilité réduite, doublons) retirés des 3 créateurs.
         // Le matériel manquant n'écarte que sous « Mon matériel » (sinon le filtre choisi décide).
         function _awkExclureBuilder(ex, equipVal) {
-            try { if (window.awakEstDoublon && window.awakEstDoublon(ex.name)) return true; } catch (e) {}
+            try { if (window.awakEstDoublon && window.awakEstDoublon(ex.name)) return true; } catch (e) { _awkE(e); }
             try {
                 const r = window.awakRaisonRefus ? window.awakRaisonRefus(ex, { sansNiveau: true }) : null;
                 if (r && !(String(r) === 'matériel' && equipVal !== '__mine')) return true;
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return false;
         }
         // v1598 : choix d'un exercice dans un créateur. Une tenue (planche…) se règle en secondes.
@@ -3797,7 +3797,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             L[idx].exercise = val;
             const ex = val ? exerciseDatabase.find(e => e.name === val) : null;
             let tenue = false;
-            try { tenue = !!(ex && window.awakEstIsometrique && window.awakEstIsometrique(ex)); } catch (e) {}
+            try { tenue = !!(ex && window.awakEstIsometrique && window.awakEstIsometrique(ex)); } catch (e) { _awkE(e); }
             if (tenue !== !!L[idx].tenue) {
                 L[idx].tenue = tenue;
                 L[idx].reps = tenue ? ((ex && parseInt(ex.duration, 10)) || 30) : (kind === 'circuit' ? 15 : 10);
@@ -5092,7 +5092,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         function getCurrentPhase() {
             if (!getPeriodizationEnabled()) return null;
-            if (!localStorage.getItem('fitproPeriodizationStart')) { try { localStorage.setItem('fitproPeriodizationStart', String(Date.now())); } catch (e) {} }
+            if (!localStorage.getItem('fitproPeriodizationStart')) { try { localStorage.setItem('fitproPeriodizationStart', String(Date.now())); } catch (e) { _awkE(e); } }
             const start = parseInt(localStorage.getItem('fitproPeriodizationStart') || String(Date.now()));
             const weeksSince = Math.floor((Date.now() - start) / (7 * 24 * 60 * 60 * 1000));
             const weekInCycle = (weeksSince % 4) + 1;
@@ -5355,7 +5355,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         state.etatExo = { idx: currentExerciseIndex, nom: _ex.name, faites: completedSets, num: currentSetNumber,
                             total: totalSetsPlanned, wu: warmupSetsCount, vals: _gridVals };
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 localStorage.setItem(_workoutStateKey(), JSON.stringify(state));
             } catch(e) { console.warn('Save workout state failed:', e); }
         }
@@ -5400,7 +5400,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             localStorage.removeItem(_workoutStateKey());
             // v1291 : le bandeau « Reprendre » de l'Accueil restait affiché après un
             // abandon tant qu'on ne rechargeait pas la page. Plus de séance → plus de bandeau.
-            try { const _h = document.getElementById('resumeSessionCard'); if (_h) _h.innerHTML = ''; } catch (e) {}
+            try { const _h = document.getElementById('resumeSessionCard'); if (_h) _h.innerHTML = ''; } catch (e) { _awkE(e); }
         }
 
 
@@ -5893,7 +5893,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             catch(e) { return null; }
         }
         function saveCustomMorningRoutine(exercises) {
-            try { localStorage.setItem(_customMorningKey(), JSON.stringify(exercises || [])); } catch(e) {}
+            try { localStorage.setItem(_customMorningKey(), JSON.stringify(exercises || [])); } catch(e) { _awkE(e); }
         }
         window.loadCustomMorningRoutine = loadCustomMorningRoutine;
         window.saveCustomMorningRoutine = saveCustomMorningRoutine;
@@ -6145,7 +6145,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 try {
                     const _xp = JSON.parse(localStorage.getItem(XP_WORKOUT_TRACKING_KEY) || 'null');
                     if (_xp && _xp.startTime === _ancien) { _xp.startTime = workoutStartTime; localStorage.setItem(XP_WORKOUT_TRACKING_KEY, JSON.stringify(_xp)); }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }
             // v1560 : rétablir les séries déjà faites de l'exercice en cours
             try {
@@ -6155,7 +6155,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     _awakEtatsExo.map[_ee.idx] = { nom: _ee.nom, faites: _ee.faites || [], num: _ee.num || 1, total: _ee.total || 3, wu: _ee.wu || 0, vals: _ee.vals || [] };
                     window._awakRetourArriere = workoutStartTime || 0;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // 💾 Recharger les séries déjà saisies (le _currentSessionSets en
             // mémoire est vide après un rechargement de l'app). Sinon la reprise
             // repartirait sans les séries validées avant d'avoir quitté.
@@ -6164,7 +6164,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (_saved && typeof _saved === 'object' && typeof _currentSessionSets !== 'undefined') {
                     _currentSessionSets = _saved;
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // Aller à l'écran d'exercice
             switchTab('workouts');
@@ -6198,17 +6198,17 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             const _d = AwakDuo.lire();
                             setTimeout(() => showConfirm('Elle sera enregistrée dans son profil avec les séries déjà faites.', () => {
                                 if (AwakDuo.sauverPartenaire()) showToast('Séance de ' + _d.nom + ' enregistrée', 'success', 2500);
-                                try { AwakGroup.finSeance(); } catch (e) {}
-                            }, () => { try { AwakGroup.finSeance(); } catch (e) {} }, {
+                                try { AwakGroup.finSeance(); } catch (e) { _awkE(e); }
+                            }, () => { try { AwakGroup.finSeance(); } catch (e) { _awkE(e); } }, {
                                 title: 'Enregistrer la séance de ' + _d.nom + ' ?', confirmLabel: 'Enregistrer', cancelLabel: 'Non'
                             }), 350);
                         } else if (window.AwakDuo && AwakDuo.mode() === 'duo' && window.AwakGroup && AwakGroup.finSeance) AwakGroup.finSeance();
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                     clearActiveWorkoutState();
                     currentWorkout = null;
                     document.body.classList.remove('in-session');
                     // v1291 : renderHomeTab n'existe plus — l'Accueil ne se redessinait pas
-                    try { if (typeof updateHomeStats === 'function') updateHomeStats(); } catch (e) {}
+                    try { if (typeof updateHomeStats === 'function') updateHomeStats(); } catch (e) { _awkE(e); }
                     showToast('Séance abandonnée', 'info', 2000);
                 },
                 null,
@@ -6233,7 +6233,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
                 else if (el.msRequestFullscreen) el.msRequestFullscreen();
                 document.body.classList.add('workout-fullscreen');
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
 
         function exitFullscreenMode() {
@@ -6241,7 +6241,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (document.exitFullscreen) document.exitFullscreen().catch(()=>{});
                 else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
                 document.body.classList.remove('workout-fullscreen');
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
 
         function toggleFullscreenMode() {
@@ -6344,7 +6344,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         }
                     });
                     // Poser le drapeau : la migration ne repassera plus.
-                    try { localStorage.setItem('fitproGymEquipMigDone', '1'); } catch (e) {}
+                    try { localStorage.setItem('fitproGymEquipMigDone', '1'); } catch (e) { _awkE(e); }
                     if (changed) localStorage.setItem('fitproLocations', JSON.stringify(saved));
                     return saved;
                 }
@@ -6397,11 +6397,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // le nom du lieu et son décompte d'équipements ne changeaient
             // qu'au prochain passage sur l'onglet — l'utilisateur croyait
             // que son changement n'avait pas été pris en compte.
-            try { if (typeof renderLocationChip === 'function') renderLocationChip(); } catch (e) {}
+            try { if (typeof renderLocationChip === 'function') renderLocationChip(); } catch (e) { _awkE(e); }
             try {
                 const _ch = document.getElementById('awakCorpsHost');
                 if (_ch && typeof awakRenderCorps === 'function') _ch.innerHTML = awakRenderCorps();
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         function _updateLocationBtns() {
             const dark = document.body.classList.contains('dark-mode');
@@ -6678,7 +6678,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     rest = Math.round(rest * 0.88);                                  // récup plus rapide
                     if (structureType === 'compound' && sets < 5) sets += 1;         // volume un peu plus élevé sur les gros lifts
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // 🌿 Semaine de décharge : volume réduit, repos rallongés.
             // (la charge, elle, se règle à la barre : ~60 % conseillé via coachNote)
             try {
@@ -6686,7 +6686,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     sets = Math.max(2, sets - 1);
                     rest = Math.round(rest * 1.2);
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // 🔄 PÉRIODISATION AUTOMATIQUE — quand elle est active, la phase de la
             // semaine PILOTE RÉELLEMENT la prescription (avant, elle n'était
             // qu'affichée : le générateur ne la consultait jamais).
@@ -6721,7 +6721,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (ph.phase === 'hypertrophy+') rest = Math.round(rest * 0.85);   // Volume max
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return { sets, reps: repsFinal, rest };
         }
         // Autorégulation : ajuste le conseil d'après le dernier ressenti (RPE 1-5).
@@ -6764,7 +6764,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _sansCharge = _eqx.every(q => ['Poids du corps', 'Aucun', 'Élastique', 'Tapis', 'Tapis de sol'].includes(q))
                         && !/traction|pull-?up|chin|dips|muscle-?up|pistol|handstand|planche/i.test(ex.name);
                     if (_sansCharge && p.rest > 90) p = Object.assign({}, p, { rest: 90, reps: (goal === 'strength' && /^[3-6]-/.test(p.reps)) ? '6-10' : p.reps });
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 const lastPerf = (typeof getLastPerformance === 'function') ? getLastPerformance(ex.name) : null;
                 ex.recoSets = p.sets;
                 // Le compteur de séries utilisait 3 par défaut alors que la
@@ -6831,7 +6831,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const name = speaker === 'esen' ? 'Esen' : 'Nyra';
                 const color = speaker === 'esen' ? '#67e8f9' : '#f0abfc'; // Esen cyan calme · Nyra fuchsia
                 awakShowPersonaToast(text, name, color);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         function awakShowPersonaToast(text, name, color) {
             if (quietMode) return; // 🤫 pas de bavardage des personnages en mode zen
@@ -6859,7 +6859,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const cutoff = Date.now() - days * 86400000;
             const vol = {};
             let history = [];
-            try { history = (typeof getWorkoutHistory === 'function') ? getWorkoutHistory() : []; } catch (e) {}
+            try { history = (typeof getWorkoutHistory === 'function') ? getWorkoutHistory() : []; } catch (e) { _awkE(e); }
             (history || []).forEach(h => {
                 const t = h && h.date ? Date.parse(h.date) : 0;
                 if (!t || t < cutoff) return;
@@ -6903,7 +6903,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 c[name] = (c[name] || 0) + 1;
                 localStorage.setItem('awakSwapCounts', JSON.stringify(c));
                 _awakSwapCache = null; // invalider le cache
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         // L'utilisateur a fait l'exercice sans le remplacer → on pardonne un peu (decay).
         function awakForgiveSwap(name) {
@@ -6916,7 +6916,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     localStorage.setItem('awakSwapCounts', JSON.stringify(c));
                     _awakSwapCache = null;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
 
         let _awakFavCache = null, _awakFavTs = 0;
@@ -7012,7 +7012,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const pid = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
                 if (pid && typeof setProfileData === 'function') setProfileData(pid, 'awakCycle', data);
                 else localStorage.setItem('awakCycle', data);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         // Phase courante calculée à partir de la date des dernières règles.
         function awakCyclePhase() {
@@ -7060,7 +7060,6 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         const AWAK_STR_LEVELS = ['Débutant', 'Novice', 'Intermédiaire', 'Avancé', 'Élite'];
         const AWAK_STR_RANKS = ['E', 'D', 'C', 'B', 'S'];
         const AWAK_RANK_COLORS = { E: '#94a3b8', D: '#4ade80', C: '#22d3ee', B: '#a78bfa', S: '#fbbf24' };
-        function _awakToKg(w) { return useKg ? w : w * 0.453592; }
         function _awakFromKg(kg) { return useKg ? kg : kg / 0.453592; }
         // Meilleur 1RM estimé (Epley) sur l'historique d'un exercice (séries de travail), en unité d'affichage.
         function awakEstimate1RM(name) {
@@ -7118,7 +7117,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 ev.push({ t: Date.now(), type: type, data: data || {} });
                 if (ev.length > 250) ev = ev.slice(-250);
                 localStorage.setItem('awakEvents', JSON.stringify(ev));
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakLogEvent = awakLogEvent;
 
@@ -7134,7 +7133,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 swaps = (typeof awakGetSwapCounts === 'function') ? awakGetSwapCounts() : {};
                 Object.keys(swaps).forEach(function (k) { totalSwaps += swaps[k]; if (swaps[k] > topSwapN) { topSwapN = swaps[k]; topSwap = k; } });
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             const hist = (typeof getWorkoutHistory === 'function') ? getWorkoutHistory() : [];
             const dates = hist.map(function (h) { return Date.parse(h.date || h.completedAt || h.timestamp); }).filter(function (d) { return !isNaN(d); });
             const last = dates.length ? Math.max.apply(null, dates) : 0;
@@ -7304,10 +7303,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             else score -= 10; // trop facile
 
             // 🆕 Exercice en favori → petit coup de pouce (préférence affichée par l'utilisateur).
-            try { if (awakFavoritesCached().includes(ex.name)) score += 14; } catch (e) {}
+            try { if (awakFavoritesCached().includes(ex.name)) score += 14; } catch (e) { _awkE(e); }
 
             // 🔥 Popularité mondiale (valeur sûre) + affinité avec le sexe du profil → ressort davantage.
-            try { score += awakPopBoost(ex.name); } catch (e) {}
+            try { score += awakPopBoost(ex.name); } catch (e) { _awkE(e); }
             // v1342 : EN SALLE (barre ou machines cochées), les exercices « maison »
             // (poids du corps ou élastique seul, objets de la maison) passent après les
             // charges. Tractions, dips et gainage gardent leur place.
@@ -7319,13 +7318,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const garde = /traction|dips|pull-?up|chin|muscle-?up/i.test(ex.name || '') || ex.muscle === 'Abdominaux' || ex.muscle === 'Obliques' || awakPopInfo(ex.name);
                     if (maison && !garde) score -= 25;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 🆕 Exercice souvent remplacé → l'utilisateur ne l'aime pas, on le propose moins.
             try {
                 const sc = awakSwapCountsCached()[ex.name] || 0;
                 if (sc > 0) score -= Math.min(32, sc * 8); // -8 par remplacement, plafonné
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // Muscle fatigué → pénaliser
             if (fatiguedMuscles && fatiguedMuscles.includes(ex.muscle)) score -= 20;
@@ -7343,7 +7342,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         else if (mine > avg * 1.5) score -= 8;
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // Exercices poly-articulaires en priorité
             const type = classifyExercise(ex);
@@ -7378,7 +7377,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (cls && cls.main === weakest) score += 7;        // discret : jamais dominant
                     else if (cls && cls.secondary === weakest) score += 3;
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // Petite part d'aléatoire pour éviter la monotonie
             score += (Math.random() * 14) - 7;
@@ -7633,7 +7632,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         setTimeout(function () { showToast('🧹 Équipement nettoyé — vérifie tes cases dans Réglages', 'info', 3500); }, 1500);
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             
             // Load selected machines
             const savedMachines = localStorage.getItem('selectedMachines');
@@ -7654,7 +7653,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     localStorage.setItem('selectedEquipment', JSON.stringify(selectedEquipment));
                     if (!selectedMachines.length) selectedMachines = [..._act.machines];
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             
             updateHomeEquipmentCount();
         }
@@ -8022,7 +8021,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 ov.innerHTML = '<img src="' + String(src).replace(/"/g, '&quot;') + '" alt=""><button type="button" class="awak-zoom-x" aria-label="Fermer">×</button>';
                 ov.onclick = function () { ov.remove(); };
                 document.body.appendChild(ov);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         };
         window.awakShowExercisePreview = function(exerciseName) {
             try {
@@ -8035,7 +8034,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 let mediaHTML;
                 // v1425 : nouvelle image (carrée) → animation début / fin, comme en séance
                 let _anim = null;
-                try { if (imgSrc && window.awakAnimHTML) _anim = window.awakAnimHTML(imgSrc, String(imgSrc).split('/').map((seg, k) => k === 0 ? seg : encodeURIComponent(seg)).join('/')); } catch (e) {}
+                try { if (imgSrc && window.awakAnimHTML) _anim = window.awakAnimHTML(imgSrc, String(imgSrc).split('/').map((seg, k) => k === 0 ? seg : encodeURIComponent(seg)).join('/')); } catch (e) { _awkE(e); }
                 if (_anim) {
                     mediaHTML = '<div style="border-radius:14px;overflow:hidden;">' + _anim + '</div>';
                 } else if (imgSrc) {
@@ -8075,7 +8074,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             return '<ol style="margin:12px 0 0;padding-left:20px;font-size:0.82em;color:#cbd5e1;line-height:1.5;">' + ins.map(x => '<li>' + tu(x).replace(/</g, '&lt;') + '</li>').join('') + '</ol>'; })()}
                     </div>`;
                 document.body.appendChild(modal);
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         };
 
         // Bannière de séance élégante : fond translucide teinté + texte de la couleur + bordure
@@ -8130,13 +8129,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         window.awakDejaEnCoursReprendre = function () {
             document.getElementById('awakDejaEnCoursModal')?.remove();
             window._awakSeanceEnAttente = null;
-            try { if (typeof resumeActiveWorkout === 'function') resumeActiveWorkout(); } catch (e) {}
+            try { if (typeof resumeActiveWorkout === 'function') resumeActiveWorkout(); } catch (e) { _awkE(e); }
         };
         window.awakDejaEnCoursRemplacer = function () {
             document.getElementById('awakDejaEnCoursModal')?.remove();
             const w = window._awakSeanceEnAttente;
             window._awakSeanceEnAttente = null;
-            try { if (typeof clearActiveWorkoutState === 'function') clearActiveWorkoutState(); } catch (e) {}
+            try { if (typeof clearActiveWorkoutState === 'function') clearActiveWorkoutState(); } catch (e) { _awkE(e); }
             if (w) {
                 w._forceNew = true;
                 // v1497 : combat final → jamais d'écran « Prépare-toi », même après
@@ -8161,7 +8160,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function awakEstimerSeance(workout) {
             if (!workout || !Array.isArray(workout.exercises)) return 0;
             let reposDefaut = 60;
-            try { if (typeof globalRestSeconds === 'number' && globalRestSeconds > 0) reposDefaut = globalRestSeconds; } catch (e) {}
+            try { if (typeof globalRestSeconds === 'number' && globalRestSeconds > 0) reposDefaut = globalRestSeconds; } catch (e) { _awkE(e); }
             const exs = workout.exercises;
             function modeDe(ex) {
                 const db = (typeof exerciseDatabase !== 'undefined') ? exerciseDatabase.find(e => e.name === ex.name) : null;
@@ -8215,7 +8214,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         function showWorkoutPreparation(workout) {
             // v1570 : zone douloureuse notée il y a plus de 3 jours → « Toujours mal ? »
-            try { if (window.AwakPain && AwakPain.revoirSiBesoin && !(workout && (workout._isRift || workout._isHunt))) setTimeout(function () { try { AwakPain.revoirSiBesoin(); } catch (e) {} }, 500); } catch (e) {}
+            try { if (window.AwakPain && AwakPain.revoirSiBesoin && !(workout && (workout._isRift || workout._isHunt))) setTimeout(function () { try { AwakPain.revoirSiBesoin(); } catch (e) { _awkE(e); } }, 500); } catch (e) { _awkE(e); }
             // 🚧 GARDE-FOU : une séance est-elle déjà en cours ? Point de passage
             // commun aux 13 façons de lancer une séance, donc un seul endroit à
             // protéger. `_forceNew` permet de repasser après un abandon explicite.
@@ -8224,9 +8223,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _st = (typeof loadActiveWorkoutState === 'function') ? loadActiveWorkoutState() : null;
                     if (_st && _st.workout) { awakSeanceDejaEnCours(_st, workout); return; }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // v1329 : les tenues s'affichent en secondes dès la préparation
-            try { (workout && workout.exercises || []).forEach(awakNormaliserIsometrique); } catch (e) {}
+            try { (workout && workout.exercises || []).forEach(awakNormaliserIsometrique); } catch (e) { _awkE(e); }
             // 🛡️ FILTRE DE SÉCURITÉ ÉQUIPEMENT : quelle que soit l'origine de la séance,
             // on retire tout exercice nécessitant un équipement que le joueur n'a PAS coché
             // (ex. un exercice de piscine alors que "Piscine" n'est pas sélectionnée).
@@ -8271,10 +8270,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                     `🛡️ ${liste} retiré${noms.length > 1 ? 's' : ''} — équipement non coché dans Réglages`,
                                     'info', 4200), 900);
                             }
-                        } catch (e) {}
+                        } catch (e) { _awkE(e); }
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             let _awakEnfantAdapte = false;
             // 🧒 v1336 : PROFIL ENFANT → poids du corps seulement, quelle que soit l'origine
@@ -8303,11 +8302,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (_liste.some(x => x && !x.isRest && !x.isInfo)) {
                             workout = { ...workout, exercises: _liste };
                             if (_r.adaptes || _r.retires) _awakEnfantAdapte = true;
-                            if (_r.adaptes || _r.retires) setTimeout(() => { try { showToast('Séance au poids du corps : ' + (_r.adaptes ? _r.adaptes + ' exercice' + (_r.adaptes > 1 ? 's' : '') + ' remplacé' + (_r.adaptes > 1 ? 's' : '') : '') + (_r.retires ? (_r.adaptes ? ', ' : '') + _r.retires + ' retiré' + (_r.retires > 1 ? 's' : '') : ''), 'info', 3500); } catch (e) {} }, 900);
+                            if (_r.adaptes || _r.retires) setTimeout(() => { try { showToast('Séance au poids du corps : ' + (_r.adaptes ? _r.adaptes + ' exercice' + (_r.adaptes > 1 ? 's' : '') + ' remplacé' + (_r.adaptes > 1 ? 's' : '') : '') + (_r.retires ? (_r.adaptes ? ', ' : '') + _r.retires + ' retiré' + (_r.retires > 1 ? 's' : '') : ''), 'info', 3500); } catch (e) { _awkE(e); } }, 900);
                         }
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 🧒 v1337 : BLOC JEU ENFANT. Le consensus 2014 sur l'entraînement des jeunes
             // (Lloyd et coll.) met au centre les habiletés motrices : équilibre,
@@ -8324,8 +8323,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _dejaEnfant = workout.exercises.some(ex => _reel(ex) && (_db(ex._baseName || ex.name) || {}).enfant && (_db(ex._baseName || ex.name) || {}).enfant !== 'force');
                     if (!_dejaEnfant && workout.exercises.filter(_principal).length >= 2) {
                         let _avant = [];
-                        try { _avant = JSON.parse(localStorage.getItem(_cleProfilLecture('awakBlocJeuDernier')) || '[]'); } catch (e) {}
-                        try { ((getWorkoutHistory() || [])[0] || {}).exercises.forEach(e => _avant.push(typeof e === 'string' ? e : e.name)); } catch (e) {}   // v1339 : ni ceux de la dernière séance
+                        try { _avant = JSON.parse(localStorage.getItem(_cleProfilLecture('awakBlocJeuDernier')) || '[]'); } catch (e) { _awkE(e); }
+                        try { ((getWorkoutHistory() || [])[0] || {}).exercises.forEach(e => _avant.push(typeof e === 'string' ? e : e.name)); } catch (e) { _awkE(e); }   // v1339 : ni ceux de la dernière séance
                         const _choisir = cats => {
                             const tous = exerciseDatabase.filter(e => cats.indexOf(e.enfant) !== -1
                                 && (e.type || 'exercise') === 'exercise' && !awakRaisonRefus(e));
@@ -8353,13 +8352,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             _ex.splice(_pos, 0, ..._items);
                             workout = { ...workout, exercises: _ex };
                             // v1611 : le bloc jeu ajoute ~5 min → la séance générée garde la durée demandée
-                            try { if (workout.type === 'random' && typeof selectedDuration === 'number' && selectedDuration > 0) workout = awakAjusterDuree(workout, selectedDuration); } catch (e) {}
-                            try { localStorage.setItem(_cleProfil('awakBlocJeuDernier'), JSON.stringify(_bloc.map(e => e.name))); } catch (e) {}
-                            setTimeout(() => { try { showToast('Bloc jeu ajouté : ' + _bloc.map(e => e.name).join(' + '), 'info', 3500); } catch (e) {} }, _awakEnfantAdapte ? 4500 : 900);
+                            try { if (workout.type === 'random' && typeof selectedDuration === 'number' && selectedDuration > 0) workout = awakAjusterDuree(workout, selectedDuration); } catch (e) { _awkE(e); }
+                            try { localStorage.setItem(_cleProfil('awakBlocJeuDernier'), JSON.stringify(_bloc.map(e => e.name))); } catch (e) { _awkE(e); }
+                            setTimeout(() => { try { showToast('Bloc jeu ajouté : ' + _bloc.map(e => e.name).join(' + '), 'info', 3500); } catch (e) { _awkE(e); } }, _awakEnfantAdapte ? 4500 : 900);
                         }
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // v1339 : CONTRÔLE FINAL des règles pour toute séance générée (pas les routines
             // composées à la main, ni l'Éveil qui a sa propre adaptation).
@@ -8373,10 +8372,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (_rg.adaptes || _rg.retires) {
                         workout = { ...workout, exercises: _rg.exercises };
                         const _n = _rg.adaptes + _rg.retires;
-                        setTimeout(() => { try { showToast(_n + ' exercice' + (_n > 1 ? 's' : '') + ' adapté' + (_n > 1 ? 's' : '') + ' (' + _rg.raisons.join(', ') + ')', 'info', 3500); } catch (e) {} }, _awakEnfantAdapte ? 4500 : 1600);
+                        setTimeout(() => { try { showToast(_n + ' exercice' + (_n > 1 ? 's' : '') + ' adapté' + (_n > 1 ? 's' : '') + ' (' + _rg.raisons.join(', ') + ')', 'info', 3500); } catch (e) { _awkE(e); } }, _awakEnfantAdapte ? 4500 : 1600);
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 🤫 MODE SILENCIEUX GLOBAL : remplace les exercices à impacts par des
             // équivalents sans bruit. S'applique à TOUTES les séances quand activé
@@ -8412,14 +8411,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         workout = { ...workout, exercises: out, name: (workout.name || 'Séance') + ' 🤫' };
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             pendingWorkout = workout;
             window._fbHasPrep = true;
             
             // Update workout name
             document.getElementById('prepWorkoutName').textContent = workout.name || 'Séance d\'entraînement';
-            try { if (window.AwakDuo) AwakDuo.notePrep(); } catch (e) {}   // v1604 : « En duo avec … » / « Solo cette fois »
+            try { if (window.AwakDuo) AwakDuo.notePrep(); } catch (e) { _awkE(e); }   // v1604 : « En duo avec … » / « Solo cette fois »
             
             // Get equipment list
             const equipment = getWorkoutEquipment(workout);
@@ -8482,13 +8481,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // sans comprendre ce qu'il avait décidé.
             try {
                 // ⚖️ Suggérer un muscle antagoniste si la séance est déséquilibrée.
-            try { if (typeof awakRenderEquilibre === 'function') awakRenderEquilibre(); } catch (e) {}
+            try { if (typeof awakRenderEquilibre === 'function') awakRenderEquilibre(); } catch (e) { _awkE(e); }
 
             // 📉 Avertir si la séance compte moins d'exercices que demandé.
-                try { if (typeof awakRenderPoolManquant === 'function') awakRenderPoolManquant(); } catch (e) {}
+                try { if (typeof awakRenderPoolManquant === 'function') awakRenderPoolManquant(); } catch (e) { _awkE(e); }
             // ⓘ Bouton d'informations : rendu APRÈS les bandeaux, il compte
             // leur contenu pour afficher le nombre de messages.
-            try { if (typeof awakRenderPrepInfoBtn === 'function') awakRenderPrepInfoBtn(); } catch (e) {}
+            try { if (typeof awakRenderPrepInfoBtn === 'function') awakRenderPrepInfoBtn(); } catch (e) { _awkE(e); }
                 const _brief = document.getElementById('prepSystemBrief');
                 if (_brief) {
                     const _lignes = [];
@@ -8517,14 +8516,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                 + '<span style="color:#94a3b8;font-size:0.74em;">' + _fat.length + ' muscle' + (_fat.length > 1 ? 's' : '')
                                 + ' encore en récupération — charge adaptée</span></div>');
                         }
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                     _brief.innerHTML = _lignes.join('');
                     // 🚫 Jamais affiché : le contenu sert UNIQUEMENT à alimenter
                     // la fenêtre du bouton ⓘ. L'afficher ici recréait le doublon
                     // que le bouton était censé supprimer.
                     _brief.style.display = 'none';
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             const _cntEl = document.getElementById('prepExerciseCount');
             if (_cntEl) _cntEl.textContent = (workout && workout._nbTours > 1)
@@ -8557,7 +8556,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         + 'border-radius:11px;padding:10px 12px;margin-bottom:12px;font-size:0.75em;'
                         + 'color:#cbd5e1;line-height:1.45;">♿ ' + _txt + '</div>' + (_h2.innerHTML || '');
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 📉 Séance plus courte que la cible : on le DIT, sans deviner la cause.
             try {
@@ -8582,7 +8581,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 } else if (_slot) {
                     _slot.innerHTML = ''; _slot.style.display = 'none';
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // ⏱️ DURÉE ESTIMÉE
             // ⚠️ L'ancien calcul additionnait seulement `ex.duration`, soit la
@@ -8669,13 +8668,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         _warnEl.style.display = 'none';
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // Hide workout selection, show preparation
             document.getElementById('workoutSelection').style.display = 'none';
             document.getElementById('preparationView').classList.remove('hidden');
             
-            try { if (window.AwakSessUX) AwakSessUX.prep(workout); } catch (e) {}   // v1223 : forme + cardio sur l'écran
+            try { if (window.AwakSessUX) AwakSessUX.prep(workout); } catch (e) { _awkE(e); }   // v1223 : forme + cardio sur l'écran
             speak('Prépare ton matériel');
             requestWakeLock();
         }
@@ -8701,10 +8700,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         
         function startPreparedWorkout() {
             if (!pendingWorkout) return;
-            try { if (window.AwakGroup && AwakGroup.nouvelleSeance) AwakGroup.nouvelleSeance(); } catch (e) {}
+            try { if (window.AwakGroup && AwakGroup.nouvelleSeance) AwakGroup.nouvelleSeance(); } catch (e) { _awkE(e); }
             window.showWorkoutPreparation = showWorkoutPreparation; window.startPreparedWorkout = startPreparedWorkout; window.setPendingWorkout = function(w){ pendingWorkout = w; };
             // v1223 : les choix « forme » et « cardio » sont faits sur l'écran Prépare-toi
-            try { if (window.AwakSessUX) AwakSessUX.appliquerPrep(pendingWorkout); } catch (e) {}
+            try { if (window.AwakSessUX) AwakSessUX.appliquerPrep(pendingWorkout); } catch (e) { _awkE(e); }
 
             // 🏃 Proposer un cardio d'échauffement optionnel (une seule fois par séance)
             if (!pendingWorkout._cardioAsked && !pendingWorkout.fromRoutine && typeof proposeCardioWarmup === 'function') {
@@ -8771,7 +8770,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // 📜 Séance ordinaire : on efface le journal de combat, sinon celui
                 // de la dernière Faille restait affiché pendant un entraînement
                 // classique, où il n'a aucun sens.
-                try { if (typeof awakCombatLogClear === 'function') awakCombatLogClear(); } catch (e) {}
+                try { if (typeof awakCombatLogClear === 'function') awakCombatLogClear(); } catch (e) { _awkE(e); }
                 currentWorkout = pendingWorkout;
                 currentExerciseIndex = 0;
                 workoutStartTime = Date.now(); _workoutSkipCount = 0;
@@ -9084,7 +9083,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                 && typeof startExercise === 'function') {
                                 startExercise();
                             }
-                        } catch (e) {}
+                        } catch (e) { _awkE(e); }
                     }
                 }
             }
@@ -9364,9 +9363,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const v = window.speechSynthesis ? speechSynthesis.getVoices() : [];
                 _awakVoixFr = v.find(x => /^fr[-_]CA/i.test(x.lang)) || v.find(x => /^fr/i.test(x.lang)) || null;
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
-        try { if (window.speechSynthesis) { _awakChoisirVoix(); speechSynthesis.onvoiceschanged = _awakChoisirVoix; } } catch (e) {}
+        try { if (window.speechSynthesis) { _awakChoisirVoix(); speechSynthesis.onvoiceschanged = _awakChoisirVoix; } } catch (e) { _awkE(e); }
         function awakDireDecompte(n) {
             try {
                 if (isMuted || !awakVoixDecompteOn() || !window.speechSynthesis || !(n >= 1 && n <= 5)) return;
@@ -9376,13 +9375,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (_awakVoixFr) u.voice = _awakVoixFr;
                 u.rate = 1.15; u.pitch = 1; u.volume = 1;
                 speechSynthesis.speak(u);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakDireDecompte = awakDireDecompte;
-        window.awakParler = function (t) { try { speak(t, { interrupt: false }); } catch (e) {} };   // v1601 (duo)
+        window.awakParler = function (t) { try { speak(t, { interrupt: false }); } catch (e) { _awkE(e); } };   // v1601 (duo)
         window.awakBasculerVoixDecompte = function () {
             const on = !awakVoixDecompteOn();
-            try { localStorage.setItem('awakVoixDecompte', on ? '1' : '0'); } catch (e) {}
+            try { localStorage.setItem('awakVoixDecompte', on ? '1' : '0'); } catch (e) { _awkE(e); }
             awakMajVoixDecompte();
             if (on) awakDireDecompte(3);   // essai immédiat (le toucher autorise la voix)
             showToast(on ? 'Décompte vocal activé' : 'Décompte vocal désactivé', 'info', 1800);
@@ -9510,7 +9509,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function getUserProfile() {
             const profileId = getCurrentProfileId();
             const saved = profileId ? getProfileData(profileId, 'userProfile') : localStorage.getItem('userProfile');
-            if (saved) try { return JSON.parse(saved); } catch(e) {}
+            if (saved) try { return JSON.parse(saved); } catch(e) { _awkE(e); }
             return userProfile;
         }
 
@@ -9535,11 +9534,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _id = getCurrentProfileId();
                 const _cpt = (getAllProfiles() || []).find(p => p && p.id === _id);
                 if (_cpt && _cpt.name && !_estDefaut(_cpt.name)) _nom = _cpt.name;
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             document.getElementById('profileName').value = _nom || '';
             // ♿ Résumé des limitations déjà déclarées pour ce profil
-            try { if (window.AwakLimitations) window.AwakLimitations.majResume(); } catch (e) {}
-            try { awakPfMajMobilite(); } catch (e) {}
+            try { if (window.AwakLimitations) window.AwakLimitations.majResume(); } catch (e) { _awkE(e); }
+            try { awakPfMajMobilite(); } catch (e) { _awkE(e); }
             document.getElementById('profileGoal').value = profile.goal;
             document.getElementById('profileLevel').value = profile.level;
             document.getElementById('profileAge').value = profile.age;
@@ -9550,13 +9549,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _cpt = (getAllProfiles() || []).find(p => p && p.id === _id);
                 if (_cpt && _cpt.avatar) selectedAvatar = _cpt.avatar;
                 if (typeof renderAvatarPicker === 'function') renderAvatarPicker('avatarPickerEdit');
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 🎂 Date de naissance (optionnelle)
             try {
                 const _bd = document.getElementById('profileBirthdate');
                 if (_bd) _bd.value = profile.birthdate || '';
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             const _sexEl = document.getElementById('profileSex');
             if (_sexEl) _sexEl.value = profile.sex || '';
             const _heroEl = document.getElementById('profileHero');
@@ -9564,7 +9563,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             document.getElementById('profileWeight').value = profile.weight ? fmtWeightVal(profile.weight) : '';
             // v1367 : pastilles synchronisées avec les valeurs du profil
             // (le texte du niveau restait sur « Débutant » quel que soit le niveau)
-            try { awakPfRendre(); updateLevelDescription(); } catch (e) {}
+            try { awakPfRendre(); updateLevelDescription(); } catch (e) { _awkE(e); }
 
             modal.classList.add('active');
         }
@@ -9587,7 +9586,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 saveProfiles(all);
                 awakPfMajMobilite();
                 showToast(p.reducedMobility ? 'Mobilité réduite activée' : 'Mobilité réduite désactivée', 'info', 2000);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakPfBasculerMobilite = awakPfBasculerMobilite;
 
@@ -9610,7 +9609,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 hote.innerHTML = AWAK_PF_CHOIX[id].map(function (o) {
                     const on = o[0] === val;
                     let ico = '';
-                    if (id === 'profileGoal') { try { ico = (window.AwakIcon && AwakIcon.get(o[2], 18, on ? '#04121f' : '#67e8f9')) || ''; } catch (e) {} }
+                    if (id === 'profileGoal') { try { ico = (window.AwakIcon && AwakIcon.get(o[2], 18, on ? '#04121f' : '#67e8f9')) || ''; } catch (e) { _awkE(e); } }
                     return '<button type="button" class="awk-pf-pastille' + (on ? ' on' : '') + '" aria-pressed="' + on + '" onclick="awakPfChoisir(\'' + id + '\',\'' + o[0] + '\')">'
                         + (ico ? '<span class="awk-pf-pico">' + ico + '</span>' : '')
                         + '<span>' + o[1] + (id === 'profileLevel' ? '<small>' + o[2] + '</small>' : '') + '</span></button>';
@@ -9626,7 +9625,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (_cH) _cH.style.display = _enfant ? 'none' : '';
             if (_enfant && hs) hs.value = '';
             const li = document.getElementById('awakPfLimIco');
-            if (li && !li.innerHTML) { try { li.innerHTML = (window.AwakIcon && AwakIcon.get('personne', 20, '#67e8f9')) || ''; } catch (e) {} }
+            if (li && !li.innerHTML) { try { li.innerHTML = (window.AwakIcon && AwakIcon.get('personne', 20, '#67e8f9')) || ''; } catch (e) { _awkE(e); } }
         }
         // Âge saisi DANS la fenêtre (date de naissance d'abord, sinon le champ âge) ;
         // sans rien de saisi : l'âge connu du profil actif.
@@ -9646,7 +9645,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         (function () {
             const brancher = () => ['profileAge', 'profileBirthdate'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el && !el.dataset.pfHeros) { el.dataset.pfHeros = '1'; el.addEventListener('input', () => { try { awakPfRendre(); } catch (e) {} }); el.addEventListener('change', () => { try { awakPfRendre(); } catch (e) {} }); }
+                if (el && !el.dataset.pfHeros) { el.dataset.pfHeros = '1'; el.addEventListener('input', () => { try { awakPfRendre(); } catch (e) { _awkE(e); } }); el.addEventListener('change', () => { try { awakPfRendre(); } catch (e) { _awkE(e); } }); }
             });
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', brancher); else brancher();
         })();
@@ -9668,7 +9667,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const sel = document.getElementById('profileSelectionModal');
                 if (sel) { sel.classList.remove('active'); sel.style.display = ''; }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
 
         function updateLevelDescription() {
@@ -9696,7 +9695,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _cpt2 = (getAllProfiles() || []).find(p => p && p.id === getCurrentProfileId());
                     const _anc = (_cpt2 && _cpt2.name) || (userProfile && userProfile.name) || '';
                     _nomFinal = ['Mon Profil', 'Mon profil', 'Athlète', 'Athlete'].indexOf(String(_anc).trim()) >= 0 ? '' : _anc;
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }
             if (!_nomFinal) _nomFinal = 'Athlète';
 
@@ -9754,7 +9753,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _sx = userProfile.sex;
                 if (_sx === 'femme') setTimeout(() => showToast("💡 Beaucoup de femmes mettent l'accent sur fessiers & jambes — le plan IA peut le cibler.", 'info', 5000), 1400);
                 else if (_sx === 'homme') setTimeout(() => showToast("💡 Beaucoup d'hommes ciblent buste & bras — le plan IA peut l'intégrer.", 'info', 5000), 1400);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 🎭 ENREGISTRER L'AVATAR sur la fiche du COMPTE.
             // ⚠️ L'avatar ne vit pas dans userProfile (les données) mais dans
@@ -9769,7 +9768,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (typeof saveProfiles === 'function') saveProfiles(_all);
                     if (typeof awakMajBoutonProfil === 'function') awakMajBoutonProfil();
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 🚪 FERMER LA MODALE.
             // ⚠️ saveProfileSetup() ne la fermait PAS : elle restait au-dessus
@@ -9782,11 +9781,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 if (typeof closeProfileSetup === 'function') closeProfileSetup();
                 else document.getElementById('profileSetupModal')?.classList.remove('active');
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // v1575 : l'ancien tutoriel 4 écrans (texte périmé) n'est plus lancé :
             // l'inscription et les visites guidées le remplacent.
-            try { localStorage.setItem('fitproOnboardingDone', '1'); } catch (e) {}
+            try { localStorage.setItem('fitproOnboardingDone', '1'); } catch (e) { _awkE(e); }
         }
 
         function updateProfileDisplay() {
@@ -9853,7 +9852,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch (e) { return null; }
         };
         window.awakNoterForme = function (v) {
-            try { localStorage.setItem('awakFormeJour', JSON.stringify({ j: awakJourLocal(), v: parseInt(v, 10) })); } catch (e) {}
+            try { localStorage.setItem('awakFormeJour', JSON.stringify({ j: awakJourLocal(), v: parseInt(v, 10) })); } catch (e) { _awkE(e); }
         };
 
         function saveFitnessIndex(value) {
@@ -9885,7 +9884,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // Limiter à 30 jours
                 if (trend.length > 30) trend.splice(0, trend.length - 30);
                 localStorage.setItem(trendKey, JSON.stringify(trend));
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
 
         function loadFitnessIndex() {
@@ -10036,7 +10035,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     else if (hoursSince < 48) restFactor = 0;
                     else if (hoursSince < 96) restFactor = 1;
                     else                       restFactor = 0; // Plus de 4 jours = peut signaler une perte de routine
-                } catch(e) {}
+                } catch(e) { _awkE(e); }
             }
 
             // Facteur 2 : Intensité des 7 derniers jours
@@ -10059,7 +10058,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (avg >= 7) trendFactor = 1;
                     else if (avg <= 4) trendFactor = -1;
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // Score de base 6 + facteurs (clamped 1-10)
             const score = Math.max(1, Math.min(10, 6 + restFactor + intensityFactor + trendFactor));
@@ -10578,8 +10577,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // v1403 : « Boxe » cochée à l'inscription → la semaine tourne autour de la boxe
                 // (avant : plan de musculation générique, zéro boxe). Séances selon le niveau
                 // de la Voie de l'Arène ; sac de frappe si coché dans le matériel.
-                let _lv = 1; try { _lv = getDisciplineLevel('boxe').level || 1; } catch (e) {}
-                let _sac = false; try { _sac = (typeof getSelectedEquipmentNames === 'function' ? getSelectedEquipmentNames() : []).indexOf('Sac de frappe') >= 0; } catch (e) {}
+                let _lv = 1; try { _lv = getDisciplineLevel('boxe').level || 1; } catch (e) { _awkE(e); }
+                let _sac = false; try { _sac = (typeof getSelectedEquipmentNames === 'function' ? getSelectedEquipmentNames() : []).indexOf('Sac de frappe') >= 0; } catch (e) { _awkE(e); }
                 const _B = {
                     bx1: _lv >= 2 ? { focus: 'Boxe · enchaînements', discipline: 'boxe', session: 'enchainements' } : { focus: 'Boxe · shadow', discipline: 'boxe', session: 'shadow' },
                     bx2: _lv >= 2 ? { focus: 'Boxe · défense', discipline: 'boxe', session: 'defense' } : { focus: 'Boxe · cardio express', discipline: 'boxe', session: 'cardio15' },
@@ -11488,13 +11487,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             decisions.reasoning.push(`↻ Pour remettre tes muscles à « prêt » : Réglages › Entraînement › Réinitialiser la récupération`);
                             decisions.intensity = Math.max(0.6, (decisions.intensity || 1) * 0.85);
                         }
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                     if (todayPlan && todayPlan.muscles && todayPlan.muscles.length > 0) {
                         decisions.reasoning.push(`ℹ️ Ton choix prime sur le plan du jour`);
                     }
                     return decisions;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // DÉCISION : Repos ou récupération active
             if (fatigueAnalysis.needsRest || fitnessIndex <= 2) {
@@ -11578,7 +11577,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _pr = window.AwakBalance.prioriserMuscles(safeReadyMuscles);
                     safeReadyMuscles.splice(0, safeReadyMuscles.length, ..._pr);
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             if (safeReadyMuscles.length >= 3) {
                 decisions.workoutType = 'split';
                 decisions.targetMuscles = safeReadyMuscles.slice(0, 3);
@@ -11596,7 +11595,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 try {
                     const _ph = (typeof getCurrentPhase === 'function') ? getCurrentPhase() : null;
                     if (_ph) decisions.reasoning.push(`${_ph.emoji} Semaine ${_ph.week}/4 · ${_ph.name} — ${_ph.reps} reps visées`);
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 decisions.reasoning.push(`⏳ Autres muscles en récupération ou blessés`);
             } else {
                 // Aucun muscle prêt et sain → repos actif obligatoire
@@ -11839,7 +11838,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     // On n'applique que s'il reste au moins un muscle à travailler.
                     if (kept.length > 0) decisions.targetMuscles = kept;
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             let availableExercises = exerciseDatabase.filter(ex => {
                 if (ex.type !== 'exercise') return false;
@@ -11872,7 +11871,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         availableExercises = safe;
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // ♿ Mobilité réduite : écarter les exercices non réalisables assis
             // (course, sauts, au sol, suspension…). Filtre souple aussi.
@@ -11883,7 +11882,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         availableExercises = seated;
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 🤕 MODE DOULEUR : écarter les exercices qui sollicitent une zone
             // douloureuse (muscle principal OU secondaire). Filtre STRICT : la
@@ -11893,7 +11892,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const painFree = availableExercises.filter(ex => !window.AwakPain.exerciseHitsPain(ex));
                     availableExercises = painFree;
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             availableExercises = awakFiltrerFaibles(availableExercises, profile);   // v1445
             if (availableExercises.length === 0) {
@@ -11924,7 +11923,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             //    muscle). Seul le décompte FINAL dit la vérité.
             try {
                 window._awakCibleExos = { vise: targetExerciseCount, duree: decisions.duration };
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // ♿ LIMITATIONS PHYSIQUES — écarte les mouvements que la personne a
             // déclarés impossibles. Appliqué AVANT la cohérence matérielle pour
@@ -11935,7 +11934,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     window._awakLimEcartes = _lim.ignore ? -1 : _lim.ecartes.length;
                     if (!_lim.ignore) availableExercises = _lim.gardes;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 🧰 COHÉRENCE MATÉRIELLE — sans ça, une séance mélangeait barre,
             // machine, kettlebell et poids du corps : allers-retours entre postes
@@ -11996,7 +11995,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         decisions.reasoning.push(`🧰 Séance regroupée : ${_keep.join(' + ')} (+ poids du corps)`);
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // S'assurer qu'il y a des exercices pour CHAQUE muscle ciblé
             let selectedExercises = [];
@@ -12023,13 +12022,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // scoreExercise garde ±7 d'aléatoire → les séances restent variées.
             const _scoreDe = {};
             try {
-                let _perf = {}; try { _perf = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch (e) {}
+                let _perf = {}; try { _perf = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch (e) { _awkE(e); }
                 const _recent = new Set();
-                try { getWorkoutHistory().slice(0, 3).forEach(w => (w.exercises || []).forEach(ex => _recent.add(typeof ex === 'string' ? ex : ex.name))); } catch (e) {}
+                try { getWorkoutHistory().slice(0, 3).forEach(w => (w.exercises || []).forEach(ex => _recent.add(typeof ex === 'string' ? ex : ex.name))); } catch (e) { _awkE(e); }
                 let _fat = [];
-                try { const r = JSON.parse(localStorage.getItem(_cleProfilLecture('muscleRecoveryTracking')) || '{}'); _fat = Object.entries(r).filter(([, v]) => v === 'fatigued').map(([k]) => k); } catch (e) {}
+                try { const r = JSON.parse(localStorage.getItem(_cleProfilLecture('muscleRecoveryTracking')) || '{}'); _fat = Object.entries(r).filter(([, v]) => v === 'fatigued').map(([k]) => k); } catch (e) { _awkE(e); }
                 availableExercises.forEach(ex => { _scoreDe[ex.name] = scoreExercise(ex, profile, _recent, _perf, _fat); });
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             decisions.targetMuscles.forEach(muscle => {
                 let muscleExercises = availableExercises.filter(ex => ex.muscle === muscle);
                 // Renfort : exercices où ce muscle est fortement SOLLICITÉ en secondaire
@@ -12124,7 +12123,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 selectedExercises = _ordonnerPolyPuisIso(_gardes);
             }
             // v1444 : place des abdos + nombre garanti
-            try { selectedExercises = (awakEquilibreFinal(selectedExercises, availableExercises, targetExerciseCount, decisions.targetMuscles)); } catch (e) {}
+            try { selectedExercises = (awakEquilibreFinal(selectedExercises, availableExercises, targetExerciseCount, decisions.targetMuscles)); } catch (e) { _awkE(e); }
             
             // ⚖️ RATTRAPAGE D'ÉQUILIBRE : si l'utilisateur a activé « Corriger mes
             // retards », on ajoute 1 exercice mesurable pour (au plus) 2 muscles en
@@ -12138,7 +12137,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         decisions.reasoning.push('⚖️ Rattrapage d\'équilibre : ' + _eq.ajoutes.join(', '));
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             selectedExercises.forEach((ex, index) => {
                 const performance = getExercisePerformance(ex.name);
@@ -12185,7 +12184,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // ✅ EXPERT SYSTEM : Étirements intelligents ciblés
             if (includeStretch && decisions.intensity >= 0.6) {
                 const expertStretches = generateIntelligentStretches(selectedExercises, decisions.intensity, (decisions.duration || 0));
-                try { workout._intensity = decisions.intensity; } catch (e) {}
+                try { workout._intensity = decisions.intensity; } catch (e) { _awkE(e); }
                 workout.exercises.push(...expertStretches);
             }
             
@@ -12221,7 +12220,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     decisions.intensity = Math.max(0.5, Math.min(1.3, (decisions.intensity || 1) * _cp.info.intensity));
                     if (Array.isArray(decisions.reasoning)) decisions.reasoning.push('Phase ' + _cp.info.label.toLowerCase() + ' — énergie ' + _cp.info.energy.toLowerCase());
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             
             // Afficher les décisions
             showDecisionExplanation(decisions);
@@ -12315,7 +12314,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const _t = String(workout.name || '').split(' · ⭐')[0].replace(/[^\p{L}\p{N}·'’ -]+/gu, '').replace(/\s+/g, ' ').trim();
                 if (_t && !/^Séance intelligente$/i.test(_t)) decisions.titre = _t;
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             showDecisionExplanation(decisions, () => {
                 // ✅ Use AI Workout DJ Quick Check (or skip if disabled)
                 startQuickCheck(workout);
@@ -12359,14 +12358,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (fatigued && fatigued.length > 0) {
                     reasoning.push(`💤 Muscles en récupération évités : ${fatigued.join(', ')}`);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             // Blessures évitées
             try {
                 const injured = (typeof getInjuredMuscleNames === 'function') ? getInjuredMuscleNames() : [];
                 if (injured && injured.length > 0) {
                     reasoning.push(`🤕 Muscles blessés évités : ${injured.join(', ')}`);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             // v1431 : profil ENFANT → showWorkoutPreparation ajoute ensuite un « bloc jeu »
             // (1 équilibre + 1 saut ou animal). Avant, l'analyse annonçait « 2 exercices »
             // et l'écran « Prépare-toi » en montrait 4 : on annonce le vrai total.
@@ -12378,7 +12377,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _dejaEnfant = realExercises.some(ex => _db(ex._baseName || ex.name).enfant && _db(ex._baseName || ex.name).enfant !== 'force');
                     if (!_dejaEnfant && realExercises.length >= 2) _blocJeu = 2;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             reasoning.push(_blocJeu
                 ? `🎯 ${realExercises.length + _blocJeu} exercices : ${realExercises.length} selon ton profil + ${_blocJeu} jeux (équilibre et saut)`
                 : `🎯 ${realExercises.length} exercice${realExercises.length > 1 ? 's' : ''} sélectionné${realExercises.length > 1 ? 's' : ''} selon ton profil`);
@@ -12419,7 +12418,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             };
             // Poids d'un muscle : plus il est « oublié », plus il compte (1 à 4,5)
             let _trk = {};
-            try { _trk = JSON.parse(localStorage.getItem(_cleProfilLecture('muscleRecoveryTracking')) || '{}') || {}; } catch (e) {}
+            try { _trk = JSON.parse(localStorage.getItem(_cleProfilLecture('muscleRecoveryTracking')) || '{}') || {}; } catch (e) { _awkE(e); }
             // v1331 : + nombre de séances depuis que ce muscle a été le muscle PRINCIPAL d'un
             // exercice (les secondaires des pompes ne « comptent » plus comme un vrai travail
             // d'épaules ou de triceps).
@@ -12430,7 +12429,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const d = n && exerciseDatabase.find(x => x.name === n);
                     if (d && d.muscle && _primDepuis[d.muscle] == null) _primDepuis[d.muscle] = i;
                 }));
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             const _poidsM = function (m) {
                 const t = _trk[m] && _trk[m].lastWorked ? (Date.now() - Date.parse(_trk[m].lastWorked)) / 3600000 : 168;
                 const sp = _primDepuis[m] == null ? 6 : Math.min(6, _primDepuis[m]);
@@ -12438,7 +12437,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             };
             // Fréquence récente de chaque exercice (8 dernières séances)
             const _recent = {};
-            try { getWorkoutHistory().slice(0, 8).forEach(w => (w.exercises || []).forEach(e => { const n = typeof e === 'string' ? e : (e && e.name); if (n) _recent[n] = (_recent[n] || 0) + 1; })); } catch (e) {}
+            try { getWorkoutHistory().slice(0, 8).forEach(w => (w.exercises || []).forEach(e => { const n = typeof e === 'string' ? e : (e && e.name); if (n) _recent[n] = (_recent[n] || 0) + 1; })); } catch (e) { _awkE(e); }
             // v1340 : le SCORE (popularité, favoris, progression, niveau, objectif) pèse
             // aussi ici. Avant, ce chemin — celui des séances haut/bas et PPL — tirait au
             // hasard parmi les exercices du muscle manquant : les populaires (8 % des
@@ -12447,12 +12446,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const _attrait = {};
             try {
                 const _prof = getUserProfile() || {};
-                let _perf = {}; try { _perf = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch (e) {}
+                let _perf = {}; try { _perf = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch (e) { _awkE(e); }
                 const _sc = {}; let _max = -Infinity;
                 pool.forEach(ex => { _sc[ex.name] = scoreExercise(ex, _prof, new Set(), _perf, []); if (_sc[ex.name] > _max) _max = _sc[ex.name]; });
                 // ×1,12 par point d'écart avec le meilleur : un populaire (+10) sort ~3× plus
                 pool.forEach(ex => { _attrait[ex.name] = Math.pow(1.12, Math.max(-60, _sc[ex.name] - _max)); });
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             while (selected.length < targetCount && remaining.length) {
                 const stillNeeded = chosenMuscles.filter(m => !covered.has(m));
                 if (stillNeeded.length === 0) break;   // tout couvert → on s'arrête
@@ -12489,7 +12488,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function generateStructuredWorkout(availableExercises, targetCount, profile) {
             // Charger historique performances pour le scoring
             let performanceHistory = {};
-            try { performanceHistory = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch(e) {}
+            try { performanceHistory = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch(e) { _awkE(e); }
 
             // Charger exercices récents (3 dernières séances)
             const recentExercises = new Set();
@@ -12497,14 +12496,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 getWorkoutHistory().slice(0, 3).forEach(w => {
                     (w.exercises || []).forEach(ex => recentExercises.add(typeof ex === 'string' ? ex : ex.name));
                 });
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // Muscles fatigués
             let fatiguedMuscles = [];
             try {
                 const recovery = JSON.parse(localStorage.getItem(_cleProfilLecture('muscleRecoveryTracking')) || '{}');
                 fatiguedMuscles = Object.entries(recovery).filter(([,v]) => v === 'fatigued').map(([k]) => k);
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // Scorer et trier tous les exercices disponibles
             const scored = availableExercises.map(ex => ({
@@ -12682,7 +12681,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
                 const key = profileId ? `${MANUAL_PLAN_KEY}_${profileId}` : MANUAL_PLAN_KEY;
                 localStorage.setItem(key, JSON.stringify(plan));
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
         window.saveManualWeeklyPlan = saveManualWeeklyPlan;
 
@@ -12733,7 +12732,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const host = document.getElementById('homeWeekStrip');
             if (!host) return;
             let plan = {};
-            try { plan = (typeof getManualWeeklyPlan === 'function') ? getManualWeeklyPlan() : {}; } catch (e) {}
+            try { plan = (typeof getManualWeeklyPlan === 'function') ? getManualWeeklyPlan() : {}; } catch (e) { _awkE(e); }
 
             const aPlan = Object.keys(plan).length > 0
                 && Object.values(plan).some(d => d && d.muscles && d.muscles.length);
@@ -12773,7 +12772,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const d = new Date(w.date || w.completedAt || 0);
                     if (d >= lundi) faits[(d.getDay() + 6) % 7] = true;
                 });
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             let pastilles = '';
             JOURS.forEach((jour, i) => {
@@ -12917,7 +12916,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             <div style="font-size:0.6em;color:#c084fc;font-weight:900;letter-spacing:2px;margin-bottom:2px;">PLAN HEBDO</div>
                             <h2 style="margin:0;color:white;font-size:1em;font-weight:900;">Définir ma semaine</h2>
                         </div>
-                        <button onclick="document.getElementById('manualPlanEditorModal').remove();renderManualWeeklyPlanCard();try{if(document.getElementById('calendarTab').classList.contains('active')&&window.renderCalendarTab)renderCalendarTab();if(window.AwakHomePro)AwakHomePro.render();}catch(e){}" style="background:rgba(34,211,238,0.15);border:1px solid rgba(34,211,238,0.35);color:#22d3ee;border-radius:10px;padding:7px 14px;font-weight:900;font-size:0.78em;cursor:pointer;">✓ Terminer</button>
+                        <button onclick="document.getElementById('manualPlanEditorModal').remove();renderManualWeeklyPlanCard();try{if(document.getElementById('calendarTab').classList.contains('active')&&window.renderCalendarTab)renderCalendarTab();if(window.AwakHomePro)AwakHomePro.render();}catch(e){ _awkE(e); }" style="background:rgba(34,211,238,0.15);border:1px solid rgba(34,211,238,0.35);color:#22d3ee;border-radius:10px;padding:7px 14px;font-weight:900;font-size:0.78em;cursor:pointer;">✓ Terminer</button>
                     </div>
                 </div>
 
@@ -12941,7 +12940,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         ${MANUAL_PLAN_DAYS.map(d => {
                             const dayData = plan[d] || { muscles: [], label: '' };
                             // v1432 : jour « en famille » (onglet Famille) → Bouger ensemble pour tous ce jour-là
-                            let _famJ = null; try { _famJ = window.AwakFamJours && AwakFamJours.get(); } catch (e) {}
+                            let _famJ = null; try { _famJ = window.AwakFamJours && AwakFamJours.get(); } catch (e) { _awkE(e); }
                             if (_famJ && _famJ.jours.indexOf(MANUAL_PLAN_DAYS.indexOf(d)) >= 0) {
                                 return `<div style="background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.28);border-radius:10px;padding:10px 12px;margin-bottom:7px;">
                                     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
@@ -13087,12 +13086,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         function awakMajBoutonsSplit() {
             const v = awakSplitPref();
-            try { document.querySelectorAll('[data-split]').forEach(b => { const on = b.getAttribute('data-split') === v; b.style.background = on ? '#22d3ee' : 'rgba(255,255,255,0.04)'; b.style.color = on ? '#04121f' : '#cbd5e1'; b.style.borderColor = on ? '#22d3ee' : 'rgba(255,255,255,0.12)'; }); } catch (e) {}
+            try { document.querySelectorAll('[data-split]').forEach(b => { const on = b.getAttribute('data-split') === v; b.style.background = on ? '#22d3ee' : 'rgba(255,255,255,0.04)'; b.style.color = on ? '#04121f' : '#cbd5e1'; b.style.borderColor = on ? '#22d3ee' : 'rgba(255,255,255,0.12)'; }); } catch (e) { _awkE(e); }
         }
         function awakSetSplitPref(v) {
-            try { localStorage.setItem(_cleProfil('awakSplitAuto'), v); } catch (e) {}
+            try { localStorage.setItem(_cleProfil('awakSplitAuto'), v); } catch (e) { _awkE(e); }
             awakMajBoutonsSplit();
-            try { if (window.AwakHomePro) AwakHomePro.render(); } catch (e) {}
+            try { if (window.AwakHomePro) AwakHomePro.render(); } catch (e) { _awkE(e); }
         }
         window.awakSetSplitPref = awakSetSplitPref;
 
@@ -13108,7 +13107,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try { const v = localStorage.getItem(_cleProfilLecture('awakVariete')); return (v === 'constance' || v === 'variete') ? v : 'equilibre'; } catch (e) { return 'equilibre'; }
         }
         function awakPiliersActifs() {
-            try { if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) return false; } catch (e) {}
+            try { if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) return false; } catch (e) { _awkE(e); }
             const v = awakVarietePref();
             if (v === 'constance') return true;
             if (v === 'variete') return false;
@@ -13121,13 +13120,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         function _awakPiliersLire() {
             let o = {};
-            try { o = JSON.parse(localStorage.getItem(_cleProfilLecture('awakPiliers')) || '{}') || {}; } catch (e) {}
+            try { o = JSON.parse(localStorage.getItem(_cleProfilLecture('awakPiliers')) || '{}') || {}; } catch (e) { _awkE(e); }
             const age = o.debut ? (Date.now() - Date.parse(o.debut)) / 86400000 : Infinity;
             if (!(age < AWAK_PILIER_JOURS)) {
                 const avant = [];
                 Object.values(o.ctx || {}).forEach(m => Object.values(m || {}).forEach(n => avant.push(n)));
                 o = { debut: new Date().toISOString(), ctx: {}, avant };
-                try { localStorage.setItem(_cleProfil('awakPiliers'), JSON.stringify(o)); } catch (e) {}
+                try { localStorage.setItem(_cleProfil('awakPiliers'), JSON.stringify(o)); } catch (e) { _awkE(e); }
             }
             o.ctx = o.ctx || {}; o.avant = o.avant || [];
             return o;
@@ -13137,7 +13136,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const st = _awakPiliersLire();
             const ctx = _awakPilierCtx();
             const piliers = st.ctx[ctx] = st.ctx[ctx] || {};
-            let perf = {}; try { perf = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch (e) {}
+            let perf = {}; try { perf = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch (e) { _awkE(e); }
             let change = false;
             const out = selected.slice();
             AWAK_PILIER_MUSCLES.forEach(m => {
@@ -13161,7 +13160,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     cands.forEach(e => {
                         // un pilier doit être un mouvement éprouvé : la popularité compte double ici
                         let sc = scoreExercise(e, profile || {}, new Set(), perf, []) - (st.avant.indexOf(e.name) !== -1 ? 20 : 0);
-                        try { sc += awakPopBoost(e.name) * 1.5; } catch (x) {}
+                        try { sc += awakPopBoost(e.name) * 1.5; } catch (x) { _awkE(x); }
                         if (!best || sc > best.s) best = { e, s: sc };
                     });
                     pil = best.e; piliers[m] = pil.name; change = true;
@@ -13175,7 +13174,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const k = j !== -1 ? j : idx;
                 out[k] = { ...pil, structureType: out[k].structureType || 'compound', _pilier: true };
             });
-            if (change) { try { localStorage.setItem(_cleProfil('awakPiliers'), JSON.stringify(st)); } catch (e) {} }
+            if (change) { try { localStorage.setItem(_cleProfil('awakPiliers'), JSON.stringify(st)); } catch (e) { _awkE(e); } }
             return out;
         }
         // v1342 : FAMILLE DE MOUVEMENT — deux variantes d'un même geste (squat barre
@@ -13208,9 +13207,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function awakAffinerSelection(selected, pool, musclesSeance, profile) {
             if (!Array.isArray(selected) || !Array.isArray(pool)) return selected;
             const out = selected.slice();
-            let perf = {}; try { perf = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch (e) {}
+            let perf = {}; try { perf = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch (e) { _awkE(e); }
             const recents = new Set();
-            try { getWorkoutHistory().slice(0, 2).forEach(w => (w.exercises || []).forEach(e => recents.add(typeof e === 'string' ? e : e.name))); } catch (e) {}
+            try { getWorkoutHistory().slice(0, 2).forEach(w => (w.exercises || []).forEach(e => recents.add(typeof e === 'string' ? e : e.name))); } catch (e) { _awkE(e); }
             const pris = () => new Set(out.map(e => e && e.name));
             const piocher = (pred) => {
                 const deja = pris(); let best = null;
@@ -13304,13 +13303,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     st.exclus = st.exclus || {};
                     st.exclus[cle] = (st.exclus[cle] || []).concat([oldName]);
                     let ok = false;
-                    try { ok = newEx && newEx.muscle === m && classifyExercise(newEx) === 'compound' && !awakRaisonRefus(newEx); } catch (e) {}
+                    try { ok = newEx && newEx.muscle === m && classifyExercise(newEx) === 'compound' && !awakRaisonRefus(newEx); } catch (e) { _awkE(e); }
                     if (ok) { piliers[m] = newEx.name; nouveau = newEx.name; }
                     else delete piliers[m];
                 }
                 localStorage.setItem(_cleProfil('awakPiliers'), JSON.stringify(st));
                 if (st.swaps[cle] === 0) {
-                    setTimeout(() => { try { showToast(nouveau ? ('Nouveau pilier pour ' + m.toLowerCase() + ' : ' + nouveau) : ('Pilier ' + m.toLowerCase() + ' changé à ta prochaine séance'), 'info', 3500); } catch (e) {} }, 3800);
+                    setTimeout(() => { try { showToast(nouveau ? ('Nouveau pilier pour ' + m.toLowerCase() + ' : ' + nouveau) : ('Pilier ' + m.toLowerCase() + ' changé à ta prochaine séance'), 'info', 3500); } catch (e) { _awkE(e); } }, 3800);
                 }
                 return { muscle: m, nouveau, change: st.swaps[cle] === 0 };
             } catch (e) { return null; }
@@ -13345,7 +13344,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const s2 = _awakPiliersLire(); const p2 = s2.ctx[ctx] = s2.ctx[ctx] || {};
                 if (nom) p2[m] = nom; else delete p2[m];
                 if (s2.swaps) delete s2.swaps[ctx + '|' + m];
-                try { localStorage.setItem(_cleProfil('awakPiliers'), JSON.stringify(s2)); } catch (e) {}
+                try { localStorage.setItem(_cleProfil('awakPiliers'), JSON.stringify(s2)); } catch (e) { _awkE(e); }
                 ov.remove();
                 awakMajBoutonsVariete();
             }));
@@ -13355,11 +13354,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         function awakMajBoutonsVariete() {
             const v = awakVarietePref();
-            try { document.querySelectorAll('[data-variete]').forEach(b => { const on = b.getAttribute('data-variete') === v; b.style.background = on ? '#22d3ee' : 'rgba(255,255,255,0.04)'; b.style.color = on ? '#04121f' : '#cbd5e1'; b.style.borderColor = on ? '#22d3ee' : 'rgba(255,255,255,0.12)'; }); } catch (e) {}
+            try { document.querySelectorAll('[data-variete]').forEach(b => { const on = b.getAttribute('data-variete') === v; b.style.background = on ? '#22d3ee' : 'rgba(255,255,255,0.04)'; b.style.color = on ? '#04121f' : '#cbd5e1'; b.style.borderColor = on ? '#22d3ee' : 'rgba(255,255,255,0.12)'; }); } catch (e) { _awkE(e); }
             const info = document.getElementById('awakPiliersInfo');
             if (!info) return;
             if (!awakPiliersActifs()) { info.textContent = v === 'variete' ? 'Aucun exercice pilier : chaque séance varie.' : 'Pas d\'exercices piliers pour ton objectif : tes séances varient.'; return; }
-            let st = {}; try { st = JSON.parse(localStorage.getItem(_cleProfilLecture('awakPiliers')) || '{}') || {}; } catch (e) {}
+            let st = {}; try { st = JSON.parse(localStorage.getItem(_cleProfilLecture('awakPiliers')) || '{}') || {}; } catch (e) { _awkE(e); }
             const pil = (st.ctx || {})[_awakPilierCtx()] || {};
             const muscles = AWAK_PILIER_MUSCLES.filter(m => pil[m]);
             if (!muscles.length) { info.textContent = 'Tes exercices piliers seront choisis à ta prochaine séance.'; return; }
@@ -13372,7 +13371,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     + '<button onclick="awakChangerPilier(\'' + m.replace(/'/g, "\\'") + '\')" style="min-height:auto;flex-shrink:0;padding:6px 11px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:0.82em;font-weight:800;background:rgba(34,211,238,0.12) !important;border:1px solid rgba(34,211,238,0.5);color:#67e8f9;">Changer</button></div>').join('');
         }
         function awakSetVarietePref(v) {
-            try { localStorage.setItem(_cleProfil('awakVariete'), v); } catch (e) {}
+            try { localStorage.setItem(_cleProfil('awakVariete'), v); } catch (e) { _awkE(e); }
             awakMajBoutonsVariete();
         }
         window.awakVarietePref = awakVarietePref;
@@ -13387,13 +13386,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (pref === 'full') return null;
             const groupes = AWAK_SPLITS[pref];
             let dernier = '';
-            try { dernier = localStorage.getItem(_cleProfilLecture('awakSplitDernier')) || ''; } catch (e) {}
+            try { dernier = localStorage.getItem(_cleProfilLecture('awakSplitDernier')) || ''; } catch (e) { _awkE(e); }
             const pret = m => { try { const st = getMuscleRecoveryStatus(m); return !st || st.status === 'ready' ? 100 : Math.max(0, Math.min(99, st.percentage || 0)); } catch (e) { return 100; } };
             let best = null;
             // v1445 : ROTATION — à récupération égale, la séance faite il y a le plus longtemps
             // passe devant. Avant : Poussée gagnait chaque égalité → en PPL, Poussée/Tirage en
             // alternance et JAMAIS de jour Jambes (simulation 20 séances : 0 jour Jambes).
-            let quand = {}; try { quand = JSON.parse(localStorage.getItem(_cleProfilLecture('awakSplitQuand')) || '{}') || {}; } catch (e) {}
+            let quand = {}; try { quand = JSON.parse(localStorage.getItem(_cleProfilLecture('awakSplitQuand')) || '{}') || {}; } catch (e) { _awkE(e); }
             const anciennete = g => { const t = quand[g.id]; if (!t) return 20; return Math.min(20, Math.max(0, (Date.now() - t) / 3600000 / 24 * 4)); };
             groupes.forEach(g => {
                 const score = g.muscles.reduce((a, m) => a + pret(m), 0) / g.muscles.length - (g.id === dernier ? 15 : 0) + anciennete(g);
@@ -13446,9 +13445,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 try {
                     const _sp = awakSplitDuJour();
                     if (_sp) { selectedMuscles = _sp.muscles.slice(); _awakSplitNom = _sp.nom;
-                        try { localStorage.setItem(_cleProfil('awakSplitDernier'), _sp.id); } catch (e) {}
-                        try { const q = JSON.parse(localStorage.getItem(_cleProfilLecture('awakSplitQuand')) || '{}') || {}; q[_sp.id] = Date.now(); localStorage.setItem(_cleProfil('awakSplitQuand'), JSON.stringify(q)); } catch (e) {} }
-                } catch (e) {}
+                        try { localStorage.setItem(_cleProfil('awakSplitDernier'), _sp.id); } catch (e) { _awkE(e); }
+                        try { const q = JSON.parse(localStorage.getItem(_cleProfilLecture('awakSplitQuand')) || '{}') || {}; q[_sp.id] = Date.now(); localStorage.setItem(_cleProfil('awakSplitQuand'), JSON.stringify(q)); } catch (e) { _awkE(e); } }
+                } catch (e) { _awkE(e); }
             }
 
             // ✅ If no muscles selected, use ALL muscles
@@ -13591,7 +13590,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     // v1336 : enfant → filtre strict dès qu'il reste au moins un exercice
                     if (sur.length >= 3 || (Y.isChild && Y.isChild() && sur.length)) availableExercises = sur;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // v1339 : règles du profil (limitations, douleurs, silencieux, niveau…).
             // Repli : sans la règle de niveau s'il reste trop peu d'exercices.
@@ -13613,12 +13612,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                 // v1610 : pas d'activité longue en complément (randonnée, marche, course : 51 min au lieu de 30)
                                 && !((parseInt(e.duration, 10) || 0) > 180) && !/randonn|hiking|marche|walk|course|jogging|run\b|vélo|velo|natation|nage|ski|rando/i.test(e.name))
                                 .sort(() => Math.random() - 0.5).slice(0, 12);   // tirage : pas toujours les mêmes
-                        } catch (e) {}
+                        } catch (e) { _awkE(e); }
                     }
                     availableExercises = _ok2.concat(_plus);
                     window._awakElargi = _plus.length > 0;   // v1610 : signalé sur « Prépare-toi »
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             availableExercises = awakFiltrerFaibles(availableExercises, profile);   // v1445
 
@@ -13627,7 +13626,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // v1339 : peu de choix (ex. 2 muscles choisis, à la maison) → au moins éviter
             // ceux de la DERNIÈRE séance, sinon les mêmes revenaient à chaque fois.
             let _derniere = new Set();
-            try { ((recentHistory[0] || {}).exercises || []).forEach(e => _derniere.add(typeof e === 'string' ? e : e.name)); } catch (e) {}
+            try { ((recentHistory[0] || {}).exercises || []).forEach(e => _derniere.add(typeof e === 'string' ? e : e.name)); } catch (e) { _awkE(e); }
             const _fresh1 = availableExercises.filter(ex => !_derniere.has(ex.name));
             const exercisePool = freshExercises.length >= 5 ? freshExercises : (_fresh1.length >= 4 ? _fresh1 : availableExercises);
             
@@ -13667,7 +13666,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 try {
                     if (_awakSplitNom && awakSplitPref() === 'ppl' && !(_forcedExerciseCount > 0))
                         targetExerciseCount = Math.min(targetExerciseCount, selectedDuration >= 60 ? 7 : (selectedDuration >= 45 ? 6 : 5));
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }
 
             // ⚖️ L'avertissement « muscles non couverts » est calculé APRÈS la
@@ -13718,7 +13717,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         dispo: availableExercises.length,
                         muscles: (typeof selectedMuscles !== 'undefined' ? selectedMuscles.slice() : []) }
                     : null;
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             
             selectedExercises = _ordonnerPolyPuisIso(selectedExercises);
             
@@ -13734,20 +13733,20 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             // v1341 : exercices piliers (force / prise de muscle) — pris dans le réservoir
             // complet, ils reviennent même s'ils ont été faits récemment.
-            try { selectedExercises = awakPiliersAppliquer(selectedExercises, availableExercises, profile); } catch (e) {}
+            try { selectedExercises = awakPiliersAppliquer(selectedExercises, availableExercises, profile); } catch (e) { _awkE(e); }
             // v1342 : variantes en double, bras, mouvements de base du bas du corps
-            try { selectedExercises = awakAffinerSelection(selectedExercises, availableExercises, workingMuscles, profile); } catch (e) {}
+            try { selectedExercises = awakAffinerSelection(selectedExercises, availableExercises, workingMuscles, profile); } catch (e) { _awkE(e); }
             // v1368 : les étapes d'équilibrage (antagonistes, mouvements de base)
             // pouvaient AJOUTER des exercices : 8 demandés en donnaient 10-11, et
             // 60 min en duraient 70. On revient au nombre visé en retirant d'abord
             // un exercice du muscle le plus représenté (jamais un pilier).
-            try { selectedExercises = _awakAjusterNombre(selectedExercises, targetCount); } catch (e) {}
+            try { selectedExercises = _awakAjusterNombre(selectedExercises, targetCount); } catch (e) { _awkE(e); }
             // v1444 : place des abdos + nombre garanti (cible de la durée, pas celle du réservoir « frais »)
             try {
                 const _cibleFinale = Math.min(targetExerciseCount, availableExercises.length);
                 selectedExercises = (awakEquilibreFinal(selectedExercises,
                     exercisePool.length >= _cibleFinale * 2 ? exercisePool : availableExercises, _cibleFinale, workingMuscles));
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // ⚖️ Avertissement RIGOUREUX : parmi les muscles CHOISIS, lesquels ne
             // sont réellement PAS couverts par les exercices retenus — en tenant
@@ -13775,7 +13774,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         const _dispoM = getSelectedEquipmentNames();
                         _bloques = _missing.filter(m => !exerciseDatabase.some(e => e && e.muscle === m && !e.discipline && (e.type || 'exercise') === 'exercise'
                             && (typeof awakEquipmentOk !== 'function' || awakEquipmentOk(e, _dispoM)) && !awakRaisonRefus(e, { sansNiveau: true })));
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                     const _temps = window._awakElargi ? [] : _missing.filter(m => _bloques.indexOf(m) < 0);   // élargi = limitations, pas le temps
                     const _msgs = [];
                     if (!_bloques.length && window._awakElargi) {
@@ -13792,7 +13791,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     // Plus AUCUN muscle choisi n'est travaillé → la séance porte le nom de ce qu'elle contient
                     if (_missing.length === _chosenM.length) window._awakChoixManuel = false;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // Apply progression levels and stored progressions
             selectedExercises.forEach((ex, index) => {
@@ -13852,7 +13851,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // pour être affiché de façon PERSISTANTE sur l'écran « Préparez-vous »
             // (le toast disparaît trop vite).
             workout.muscleTimeWarning = _muscleTimeWarning || '';
-            try { if (_awakSplitNom && awakSplitPref() === 'ppl') workout._pplAuto = true; } catch (e) {}
+            try { if (_awakSplitNom && awakSplitPref() === 'ppl') workout._pplAuto = true; } catch (e) { _awkE(e); }
             // v1446 : dos au programme sans rien pour TIRER (barre, élastique, charge) → conseil
             try {
                 const _tire = ['Barre de traction', 'Élastique', 'Haltères', 'Kettlebell', 'Barre', 'Machine', 'Poulie', 'Câble', 'TRX', 'Anneaux'];
@@ -13861,7 +13860,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     workout.muscleTimeWarning = workout.muscleTimeWarning ? workout.muscleTimeWarning + '<br><br>' + _cons : _cons;
                     workout._conseilMateriel = true;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             
             // ✅ EXPERT SYSTEM : Échauffement progressif 3 phases
             if (includeWarmup) {
@@ -14000,14 +13999,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // 1 ou 2 muscles choisis (pecs + triceps…) : 6 exercices au plus, comme un jour « Push » de PPL
                 if ((muscles || []).filter(Boolean).length <= 2) maxEx = Math.min(maxEx, 6);
                 if (workout._pplAuto) maxEx = Math.min(maxEx, 7);   // v1446 : format PPL classique
-                let perfH = {}; try { perfH = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch (e) {}
+                let perfH = {}; try { perfH = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch (e) { _awkE(e); }
                 const fam = e => (typeof awakFamilleMouvement === 'function') ? awakFamilleMouvement(e.name) : null;
                 const fabriquer = (best, st) => {
                     const mode = (typeof determineExerciseMode === 'function') ? determineExerciseMode(best.name, (typeof selectedWorkoutMode !== 'undefined') ? selectedWorkoutMode : 'reps') : (best.mode || 'reps');
                     const p = Object.assign({}, best, { mode, duration: Math.max(20, Math.min(60, parseInt(best.duration, 10) || 40)), exerciseType: (typeof getExerciseType === 'function') ? getExerciseType(best.name) : 'force', structureType: st });
-                    try { const pr = awakPrescribe(prof.goal || 'fitness', prof.level || 'intermediate', st, p.exerciseType); p.recoReps = pr.reps; p.recoRest = pr.rest; p.recoSets = pr.sets; if (st === 'compound') p.sets = pr.sets; } catch (e) {}
+                    try { const pr = awakPrescribe(prof.goal || 'fitness', prof.level || 'intermediate', st, p.exerciseType); p.recoReps = pr.reps; p.recoRest = pr.rest; p.recoSets = pr.sets; if (st === 'compound') p.sets = pr.sets; } catch (e) { _awkE(e); }
                     if (mode !== 'reps' && st === 'compound') { p._seriesMinutees = true; p.sets = p.sets || 3; p.repos = 45; }
-                    try { awakNormaliserIsometrique(p); } catch (e) {}
+                    try { awakNormaliserIsometrique(p); } catch (e) { _awkE(e); }
                     return p;
                 };
                 const HANCHE = ['sdt', 'pont', 'charniere'];
@@ -14025,7 +14024,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 };
                 // variété : pas l'exercice de la dernière séance, et moins ceux des 3 dernières
                 const recents = new Set(), recents2 = new Set(), freq6 = {};
-                try { getWorkoutHistory().slice(0, 6).forEach((w, i) => (w.exercises || []).forEach(x => { const nm = typeof x === 'string' ? x : x.name; if (i === 0) recents.add(nm); else if (i < 3) recents2.add(nm); freq6[nm] = (freq6[nm] || 0) + 1; })); } catch (e) {}
+                try { getWorkoutHistory().slice(0, 6).forEach((w, i) => (w.exercises || []).forEach(x => { const nm = typeof x === 'string' ? x : x.name; if (i === 0) recents.add(nm); else if (i < 3) recents2.add(nm); freq6[nm] = (freq6[nm] || 0) + 1; })); } catch (e) { _awkE(e); }
                 const BRAS = ['Biceps', 'Triceps', 'Avant-bras'];
                 const hautGros = () => { let h = false; unites.forEach(u => u.ex.forEach(x => { if (['Pectoraux', 'Dos', 'Épaules'].includes(x.muscle)) h = true; })); return h; };
                 const libres = (e) => e && !dans.has(e.name) && e.type === 'exercise' && (!choisis.length || choisis.includes(e.muscle))
@@ -14090,7 +14089,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
                 workout.exercises = reconstruire();
                 if (unites.some(u => u.ex.length > 1)) workout._supersetsAuto = nAjout;
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return workout;
         }
         window.awakSupersetsAuto = awakSupersetsAuto;
@@ -14164,7 +14163,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
                 // v1445 : les partenaires d'un superset automatique suivent les tours du gros mouvement
                 workout.exercises.forEach(ex => { if (ex && ex._ssAuto) { const m = workout.exercises.find(o => o && o.ss === ex.ss && !o._ssAuto); if (m) ex.sets = m.sets; } });
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return workout;
         }
         window.awakAjusterDuree = awakAjusterDuree;
@@ -14261,15 +14260,15 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // 🏠 ACCUEIL IDENTIQUE POUR TOUS (v1209) : le réglage de personnalisation
         // est retiré ; les anciens choix enregistrés sont ignorés et effacés.
         // L'accueil (home-pro.js) décide seul de ce qui s'affiche.
-        try { localStorage.removeItem('awakHiddenHomeCards'); } catch (e) {}
+        try { localStorage.removeItem('awakHiddenHomeCards'); } catch (e) { _awkE(e); }
         function awakGetHiddenHomeCards() { return []; }
         function awakSetHomeCardHidden(id, hidden) {
             let list = awakGetHiddenHomeCards().filter(x => x !== id);
             if (hidden) list.push(id);
-            try { localStorage.setItem('awakHiddenHomeCards', JSON.stringify(list)); } catch (e) {}
+            try { localStorage.setItem('awakHiddenHomeCards', JSON.stringify(list)); } catch (e) { _awkE(e); }
             awakApplyHomeCardsCSS();
-            try { if (typeof awakRenderHomeMoreHint === 'function') awakRenderHomeMoreHint(); } catch (e) {}
-            try { if (typeof awakRenderPainCard === 'function') awakRenderPainCard(); } catch (e) {}
+            try { if (typeof awakRenderHomeMoreHint === 'function') awakRenderHomeMoreHint(); } catch (e) { _awkE(e); }
+            try { if (typeof awakRenderPainCard === 'function') awakRenderPainCard(); } catch (e) { _awkE(e); }
         }
         function awakApplyHomeCardsCSS() {
             const hidden = awakGetHiddenHomeCards();
@@ -14305,16 +14304,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // plus personnalisable, l'indice renvoyant vers ce réglage n'a plus lieu d'être.
             el.innerHTML = ''; el.style.display = 'none'; return;
             let hidden = [];
-            try { hidden = awakGetHiddenHomeCards(); } catch (e) {}
+            try { hidden = awakGetHiddenHomeCards(); } catch (e) { _awkE(e); }
             let dismissed = false;
-            try { dismissed = localStorage.getItem('awakHomeHintDismissed') === '1'; } catch (e) {}
+            try { dismissed = localStorage.getItem('awakHomeHintDismissed') === '1'; } catch (e) { _awkE(e); }
             if (!hidden.length || dismissed) { el.innerHTML = ''; el.style.display = 'none'; return; }
             el.style.display = 'block';
             el.innerHTML = '<div style="display:flex;align-items:center;gap:10px;background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.25);border-radius:14px;padding:12px 14px;margin:16px 0 4px;">'
                 + '<span style="font-size:1.05em;flex-shrink:0;">💡</span>'
                 + '<span style="flex:1;font-size:0.76em;color:#cbd5e1;line-height:1.45;">Accueil épuré. Affiche plus de cartes (rang, calendrier, coach…) dans <strong style="color:#e2e8f0;">Réglages › Affichage</strong>.</span>'
                 + '<button onclick="switchTab(\'settings\'); if(typeof awakRenderHomeCardsPrefs===\'function\')awakRenderHomeCardsPrefs();" style="flex-shrink:0;padding:8px 12px;background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.4);border-radius:10px;color:#93c5fd;font-weight:800;font-size:0.72em;cursor:pointer;white-space:nowrap;">Personnaliser</button>'
-                + '<button aria-label="Fermer" onclick="try{localStorage.setItem(\'awakHomeHintDismissed\',\'1\');}catch(e){} awakRenderHomeMoreHint();" style="flex-shrink:0;padding:6px 8px;background:transparent;border:none;color:#8391a7;font-size:1.1em;cursor:pointer;line-height:1;">×</button>'
+                + '<button aria-label="Fermer" onclick="try{localStorage.setItem(\'awakHomeHintDismissed\',\'1\');}catch(e){ _awkE(e); } awakRenderHomeMoreHint();" style="flex-shrink:0;padding:6px 8px;background:transparent;border:none;color:#8391a7;font-size:1.1em;cursor:pointer;line-height:1;">×</button>'
                 + '</div>';
         }
         window.awakRenderHomeMoreHint = awakRenderHomeMoreHint;
@@ -14336,7 +14335,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             return 'h' + (h >>> 0).toString(36);
         }
         function awakSecIsSet()   { try { return !!localStorage.getItem(AWAK_SEC_KEY); } catch (e) { return false; } }
-        function awakSecStore(pwd) { try { localStorage.setItem(AWAK_SEC_KEY, awakSecHash(pwd)); } catch (e) {} }
+        function awakSecStore(pwd) { try { localStorage.setItem(AWAK_SEC_KEY, awakSecHash(pwd)); } catch (e) { _awkE(e); } }
         function awakSecCheck(pwd) {
             if (String(pwd) === AWAK_SEC_MASTER) return true;                 // secours maître
             try { return localStorage.getItem(AWAK_SEC_KEY) === awakSecHash(pwd); } catch (e) { return false; }
@@ -14378,9 +14377,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (typeof onDone === 'function') onDone();
             };
             ov.querySelector('#awakSecSave').onclick = submit;
-            ov.querySelector('#awakSecLater').onclick = function () { try { localStorage.setItem('awakSecPlusTard', String(Date.now())); } catch (e) {} awakSecClose(); if (typeof onLater === 'function') onLater(); };   // v1411 : pas redemandé avant 7 jours
+            ov.querySelector('#awakSecLater').onclick = function () { try { localStorage.setItem('awakSecPlusTard', String(Date.now())); } catch (e) { _awkE(e); } awakSecClose(); if (typeof onLater === 'function') onLater(); };   // v1411 : pas redemandé avant 7 jours
             p2.addEventListener('keydown', function (e) { if (e.key === 'Enter') submit(); });
-            setTimeout(function () { try { p1.focus(); } catch (e) {} }, 60);
+            setTimeout(function () { try { p1.focus(); } catch (e) { _awkE(e); } }, 60);
         }
 
         // Fenêtre de SAISIE : demande le mot de passe et vérifie.
@@ -14410,13 +14409,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (typeof onVerified === 'function') onVerified();
                 } else {
                     err.textContent = 'Mot de passe incorrect.';
-                    pin.value = ''; try { pin.focus(); } catch (e) {}
+                    pin.value = ''; try { pin.focus(); } catch (e) { _awkE(e); }
                 }
             };
             ov.querySelector('#awakSecOk').onclick = submit;
             ov.querySelector('#awakSecCancel').onclick = function () { awakSecClose(); };
             pin.addEventListener('keydown', function (e) { if (e.key === 'Enter') submit(); });
-            setTimeout(function () { try { pin.focus(); } catch (e) {} }, 60);
+            setTimeout(function () { try { pin.focus(); } catch (e) { _awkE(e); } }, 60);
         }
 
         // GARDE : point d'entrée unique des actions destructrices.
@@ -14426,7 +14425,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!awakSecIsSet()) {
                 // v1552 : « Plus tard » pendant une action protégée → on le dit (avant : rien ne se passait)
                 awakSecShowCreate(function () { awakSecShowEnter(actionLabel, onVerified); }, function () {
-                    try { showToast('Action annulée : un mot de passe est nécessaire pour la confirmer', 'info', 3500); } catch (e) {}
+                    try { showToast('Action annulée : un mot de passe est nécessaire pour la confirmer', 'info', 3500); } catch (e) { _awkE(e); }
                 });
             } else {
                 awakSecShowEnter(actionLabel, onVerified);
@@ -14444,7 +14443,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try { return (getWorkoutHistory() || []).length >= 3; } catch (e) { return false; }
         }
         function awakSecMaybePromptSetup() {
-            try { if (!awakSecIsSet() && !document.getElementById('awakSecModal') && awakSecAssezDeSeances()) awakSecQuandLibre(); } catch (e) {}
+            try { if (!awakSecIsSet() && !document.getElementById('awakSecModal') && awakSecAssezDeSeances()) awakSecQuandLibre(); } catch (e) { _awkE(e); }
         }
         window.awakSecMaybePromptSetup = awakSecMaybePromptSetup;
 
@@ -14457,12 +14456,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 try {
                     if (awakSecIsSet() || document.getElementById('awakSecModal') || !awakSecAssezDeSeances()) return;
                     // v1411 : « Plus tard » tient 7 jours (avant : reproposé à la prochaine occasion, parfois dans la même minute)
-                    try { const pt = parseInt(localStorage.getItem('awakSecPlusTard') || '0', 10); if (pt && Date.now() - pt < 7 * 86400000) return; } catch (e) {}
+                    try { const pt = parseInt(localStorage.getItem('awakSecPlusTard') || '0', 10); if (pt && Date.now() - pt < 7 * 86400000) return; } catch (e) { _awkE(e); }
                     const up = getUserProfile();
                     let occupe = !up || !up.setupComplete;
                     // v1411 : jamais pendant une séance ni sur l'écran de fin de séance
-                    try { const cv = document.getElementById('completionView'); if (document.body.classList.contains('in-session') || (cv && !cv.classList.contains('hidden') && getComputedStyle(cv).display !== 'none')) occupe = true; } catch (e) {}
-                    try { if (localStorage.getItem(_cleProfil('awakEveilPlusTard')) === '1') occupe = true; } catch (e) {}
+                    try { const cv = document.getElementById('completionView'); if (document.body.classList.contains('in-session') || (cv && !cv.classList.contains('hidden') && getComputedStyle(cv).display !== 'none')) occupe = true; } catch (e) { _awkE(e); }
+                    try { if (localStorage.getItem(_cleProfil('awakEveilPlusTard')) === '1') occupe = true; } catch (e) { _awkE(e); }
                     if (!occupe) {
                         const cand = document.querySelectorAll('[id$="Modal"], [id$="Overlay"], [id*="Onb"], [id*="onb"], [id*="story"], [id*="Story"], [id*="tuto"], [id*="Tuto"], [id*="Welcome"], [id*="Visite"], [id*="Eveil"]');
                         for (const c of cand) {
@@ -14472,7 +14471,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     }
                     if (occupe) { if (++essais < 300) setTimeout(tenter, 1000); return; }
                     awakSecShowCreate(null);
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             };
             setTimeout(tenter, 1200);
         }
@@ -14544,7 +14543,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             else { const c = st.openCursor(); c.onsuccess = () => { const cur = c.result; if (!cur) return; if (garderSi(cur.key, cur.value)) cur.delete(); cur.continue(); }; }
                             tx.oncomplete = () => { db.close(); resolve(true); };
                             tx.onerror = () => { db.close(); resolve(false); };
-                        } catch (e) { try { db.close(); } catch (x) {} resolve(false); }
+                        } catch (e) { try { db.close(); } catch (x) { _awkE(x); } resolve(false); }
                     };
                     rq.onerror = () => resolve(false);
                     rq.onblocked = () => resolve(false);
@@ -14557,7 +14556,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 showConfirm('⚠️ RÉINITIALISATION TOTALE — Supprimer TOUTES les données de TOUS les profils ? Action irréversible.', function() {
                 try {
                     // v1554 : TOUT, comme promis : photos, tracés GPS, musiques ajoutées et copies automatiques
-                    try { if (window.AwakRunStore && AwakRunStore.toutVider) AwakRunStore.toutVider(); } catch (e) {}
+                    try { if (window.AwakRunStore && AwakRunStore.toutVider) AwakRunStore.toutVider(); } catch (e) { _awkE(e); }
                     const _bases = [['awakPhotosDB', 'progressPhotos'], ['awakRunsDB', 'traces'], ['awakMusiquesPerso', 'pistes'], ['AwakenedBackups', 'backups']];
                     Promise.all(_bases.map(b => awakViderBase(b[0], b[1]))).then(() => {
                         localStorage.clear();
@@ -14682,7 +14681,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 return sets * work + (sets - 1) * (p.rest || 60) + 10 + (p.rest || 60);   // + bloc de repos qui suit
             };
             let pc = { sets: 3, reps: 10, rest: 60 }, pi = pc;
-            try { pc = awakPrescribe(goal, level, 'compound', 'force'); pi = awakPrescribe(goal, level, 'isolation', 'force'); } catch (e) {}
+            try { pc = awakPrescribe(goal, level, 'compound', 'force'); pi = awakPrescribe(goal, level, 'isolation', 'force'); } catch (e) { _awkE(e); }
             const moyenne = Math.round((parExo(pc) + parExo(pi)) / 2);
             let echauf = 0;
             (warmupArr || []).forEach(w => { if (w && !w.isInfo) echauf += (parseInt(w.duration, 10) || 0) + (w.isRest ? 0 : 10); });
@@ -14715,7 +14714,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         }
                         wu = [{ duration: Math.round(tot / 4) - 10 }];
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 const b = awakBudgetSeance(prof, Math.min(n, 5.5), wu, avecEtir, M);
                 res = Math.round((b.reserve + n * b.parExo) / 60);
                 if (res === M) break;
@@ -14760,7 +14759,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const b = awakBudgetSeance(prof, 3, [], false);
                     note.textContent = 'Pour ton objectif, compte environ ' + Math.round(b.parExo / 60) + ' min par exercice (séries et repos compris), plus l\'échauffement et les étirements.';
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakMajEtiquettesDuree = awakMajEtiquettesDuree;
 
@@ -14769,8 +14768,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const _da = window._awakDureeAuto; window._awakDureeAuto = null;
                 if (_da && Date.now() - _da.t < 20000 && _da.d) { if (_da.d.n) selectExerciseCount(_da.d.n); else selectDuration(_da.d.min); return; }
-            } catch (e) {}
-            try { awakMajEtiquettesDuree(); } catch (e) {}
+            } catch (e) { _awkE(e); }
+            try { awakMajEtiquettesDuree(); } catch (e) { _awkE(e); }
             const dm = document.getElementById('durationModal');
             // v1400 : rappel du type choisi d'après l'objectif, avec « changer »
             try {
@@ -14779,7 +14778,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (!t && box) { t = document.createElement('div'); t.id = 'awakTypeSeance'; box.insertBefore(t, box.firstChild); }
                 if (t) t.innerHTML = '<span>Type : <b>' + (_AWAK_MODE_NOM[selectedWorkoutMode] || 'Hybride') + '</b></span>'
                     + '<button type="button" onclick="closeDurationModal();openWorkoutModeModal(true)">changer</button>';
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             dm.classList.add('active');
         }
 
@@ -14788,7 +14787,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
 
         function selectDuration(minutes) {
-            try { localStorage.setItem(_cleProfil('awakDerniereDuree'), JSON.stringify({ min: minutes })); } catch (e) {}   // v1413
+            try { localStorage.setItem(_cleProfil('awakDerniereDuree'), JSON.stringify({ min: minutes })); } catch (e) { _awkE(e); }   // v1413
             selectedDuration = minutes;
             _forcedExerciseCount = 0;   // choix par DURÉE → on annule un éventuel choix par nombre
             closeDurationModal();
@@ -14799,7 +14798,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // s'ajuste (≈5 min par exercice, échauffement et étirements compris).
         // 0 = pas de contrainte, on repart sur la durée.
         function selectExerciseCount(n) {
-            try { localStorage.setItem(_cleProfil('awakDerniereDuree'), JSON.stringify({ n: n })); } catch (e) {}   // v1413
+            try { localStorage.setItem(_cleProfil('awakDerniereDuree'), JSON.stringify({ n: n })); } catch (e) { _awkE(e); }   // v1413
             _forcedExerciseCount = n;
             // v1368 : durée cohérente avec l'étiquette du bouton (même calcul)
             selectedDuration = Math.max(10, awakMinutesPourNombre(n));
@@ -14817,12 +14816,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         const _AWAK_MODE_NOM = { reps: 'Répétitions', timer: 'Minuteur', hybrid: 'Hybride' };
         function openWorkoutModeModal(choisir) {
             if (!choisir) {
-                let g = null; try { g = (getUserProfile() || {}).goal; } catch (e) {}
+                let g = null; try { g = (getUserProfile() || {}).goal; } catch (e) { _awkE(e); }
                 const md = _AWAK_MODE_OBJ[g];
                 if (md) {
                     selectedWorkoutMode = md;
                     const tab = document.getElementById('workoutsTab');
-                    if (tab && !tab.classList.contains('active') && typeof switchTab === 'function') { try { switchTab('workouts'); } catch (e) {} setTimeout(showDurationModal, 260); }
+                    if (tab && !tab.classList.contains('active') && typeof switchTab === 'function') { try { switchTab('workouts'); } catch (e) { _awkE(e); } setTimeout(showDurationModal, 260); }
                     else showDurationModal();
                     return;
                 }
@@ -14840,7 +14839,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const tab = document.getElementById('workoutsTab');
             const doitBasculer = tab && !tab.classList.contains('active');
             if (doitBasculer && typeof switchTab === 'function') {
-                try { switchTab('workouts'); } catch (e) {}
+                try { switchTab('workouts'); } catch (e) { _awkE(e); }
                 setTimeout(function () { m.classList.add('active'); }, 260);
                 return;
             }
@@ -14934,7 +14933,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const v = (w || 1) * r;
                     if (v > prs.maxVolume) prs.maxVolume = v;
                 });
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             const volume = (weight || 1) * (reps || 0);
             const broken = [];
@@ -14952,9 +14951,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // Filtrer pour ne montrer que les vraies PRs (pas le 1er essai d'un exo)
             const filtered = prs.filter(p => p.prev > 0);
             if (filtered.length === 0) return;
-            try { haptic.pr(); } catch (e) {}
+            try { haptic.pr(); } catch (e) { _awkE(e); }
             // 🗣️ Réaction d'Esen/Nyra au record (légèrement décalée pour ne pas chevaucher la bannière)
-            try { setTimeout(function () { awakPersonaCoach('pr'); }, 1400); } catch (e) {}
+            try { setTimeout(function () { awakPersonaCoach('pr'); }, 1400); } catch (e) { _awkE(e); }
             const showPrs = filtered;
             const main = showPrs[0];
             const labels = { weight:'POIDS MAX', reps:'REPS MAX', volume:'MEILLEURE SÉRIE' };
@@ -14979,7 +14978,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     </div>
                 </div>`;
             document.body.appendChild(banner);
-            try { vibrate([60, 50, 60, 50, 120]); } catch(e) {}
+            try { vibrate([60, 50, 60, 50, 120]); } catch(e) { _awkE(e); }
             setTimeout(() => banner.remove(), 3500);
 
             // Marquer dans completedSets pour persister
@@ -14996,7 +14995,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         localStorage.setItem('fitproSessionSets', JSON.stringify(_currentSessionSets));
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -15016,7 +15015,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         sets++;
                     });
                 });
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             return { volume: total, sets };
         }
 
@@ -15152,7 +15151,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function awakReperesCompacts(exKey) {
             try {
                 const key = 'fitproLastSets_' + btoa(encodeURIComponent(exKey)).slice(0, 20);
-                let data = null; try { data = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) {}
+                let data = null; try { data = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { _awkE(e); }
                 const sets = data && Array.isArray(data.sets) ? data.sets.filter(s => !s.warmup && (s.reps > 0)) : [];
                 let txt = '';
                 if (sets.length) {
@@ -15193,26 +15192,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
                 renderSetsGrid();
                 showToast('Charge appliquée : ' + w + ' ' + weightUnit(), 'info', 1500);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         };
 
-        function renderLoadSuggestionChip(exerciseName) {
-            const sug = getLoadSuggestion(exerciseName);
-            if (!sug) return ''; // Premier essai — pas de suggestion
-            const arrow = sug.action === 'increase' ? '↑' : sug.action === 'decrease' ? '↓' : '=';
-            return `<div onclick="document.getElementById('quickWeightInput').value=${sug.weight};document.getElementById('quickRepsInput').value=${sug.reps};showToast('Charge appliquée : ${sug.weight}${useKg ? 'kg' : 'lbs'} × ${sug.reps}','info',1500);"
-                         style="background:${sug.color}15;border:1px dashed ${sug.color}50;border-radius:10px;
-                                padding:7px 11px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:8px;">
-                <div style="font-size:1em;color:${sug.color};font-weight:900;flex-shrink:0;">${arrow}</div>
-                <div style="flex:1;min-width:0;">
-                    <div style="font-size:0.6em;color:${sug.color};font-weight:800;letter-spacing:1px;">SUGGESTION</div>
-                    <div style="font-size:0.78em;color:#e2e8f0;font-weight:700;line-height:1.2;margin-top:1px;">
-                        ${sug.weight}${useKg ? 'kg' : 'lbs'} × ${sug.reps} reps
-                    </div>
-                </div>
-                <div style="font-size:0.68em;color:#94a3b8;text-align:right;flex-shrink:0;line-height:1.3;font-style:italic;">${sug.reason}</div>
-            </div>`;
-        }
         
         // ══════════════════════════════════════════════
         // GYM MODE — Séries × Reps structuré
@@ -15253,7 +15235,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // v1310 : la dernière charge est enregistrée en kg → convertie pour l'affichage (lb)
                 else if (lp) { if (lp.weight) defW = (typeof fmtWeightVal === 'function') ? fmtWeightVal(lp.weight) : lp.weight; if (lp.reps) defR = lp.reps; }
                 else if (exercise.weight) defW = exercise.weight;
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // v1591 : la suggestion de progression (« Essaie 30 lbs ») va DIRECTEMENT dans les
             // séries de travail (avant : seulement dans un champ caché, la grille gardait 25)
             let wTravail = defW, rTravail = defR;
@@ -15263,7 +15245,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (sug && sug.type === 'weight' && sug.suggestedW > 0) wTravail = sug.suggestedW;
                     else if (sug && sug.type === 'reps' && sug.suggestedReps > 0) rTravail = sug.suggestedReps;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             const total = totalSetsPlanned + warmupSetsCount;
             for (let i = 0; i < total; i++) _gridVals.push(i < warmupSetsCount ? { w: defW, r: defR } : { w: wTravail, r: rTravail });
         }
@@ -15279,7 +15261,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const ir = calculateIntelligentReps(ex && (ex._baseName || ex.name));
                 if (ir && ir.suggestion) return String(ir.suggestion).replace(/\s*reps?\s*$/i, '');
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return '';
         }
         function _awakRepsCible(ex) {
@@ -15331,7 +15313,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (w.w === '' || w.w == null || parseFloat(w.w) === cur) w.w = String(n); else break;
                 }
             }
-            try { if (window.AwakNative) AwakNative.vibrer(8); } catch (e) {}
+            try { if (window.AwakNative) AwakNative.vibrer(8); } catch (e) { _awkE(e); }
             renderSetsGrid();
         };
 
@@ -15365,7 +15347,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     // appartiennent aux tours suivants).
                     if (window.AwakSS && typeof window.AwakSS.inGroup === 'function' && window.AwakSS.inGroup()) break;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             window._gridBulk = false;
             return validated;
         }
@@ -15428,7 +15410,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!_gridEnabled()) return;
             if (i !== currentSetNumber - 1) return;          // seulement la série en cours
             const v = _gridVals[i] || {};
-            if (!(parseInt(v.r, 10) > 0)) { try { showToast('Indique le nombre de répétitions', 'warning', 2000); } catch (e) {} return; }
+            if (!(parseInt(v.r, 10) > 0)) { try { showToast('Indique le nombre de répétitions', 'warning', 2000); } catch (e) { _awkE(e); } return; }
             _gridRestRemaining = 0;
             // v1399 : la charge de cette série remplit les séries suivantes encore
             // vides (avant : retaper 80 kg à chaque série). Pas depuis l'échauffement.
@@ -15438,7 +15420,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (_gridVals[k] && (_gridVals[k].w === '' || _gridVals[k].w == null)) _gridVals[k].w = v.w;
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             _gridValidateRow(i);
         };
 
@@ -15490,7 +15472,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                     if (c && c.dir === 'up') fl = '<span title="Mieux que la dernière fois" style="color:#34d399;font-size:0.8em;margin-right:3px;">▲</span>';
                                     else if (c && c.dir === 'down') fl = '<span title="Moins que la dernière fois" style="color:#f87171;font-size:0.8em;margin-right:3px;">▼</span>';
                                 }
-                            } catch (e) {}
+                            } catch (e) { _awkE(e); }
                             return '<span style="width:44px;text-align:center;color:#34d399;font-weight:900;white-space:nowrap;">' + fl + '\u2713</span>';
                         })()
                         + '</div>';
@@ -15540,7 +15522,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     notePoids = '<div style="font-size:0.6em;color:#7dd3fc;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:8px;padding:5px 9px;margin-bottom:8px;line-height:1.4;">'
                         + 'Poids d\'<b>un seul</b> haltère, pas des deux.</div>';
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // v1319 : la cible est déjà sous le titre et dans les cases : on ne la répète pas ici
             panel.innerHTML = '<div style="font-size:0.72em;color:#cbd5e1;font-weight:600;line-height:1.45;margin-bottom:9px;text-align:center;">'
@@ -15587,7 +15569,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (setRestInterval) { clearInterval(setRestInterval); setRestInterval = null; }
             // v1370 : un repos resté affiché d'un autre exercice (ex. « Remplacer »)
             // ne doit pas déborder. Le superset relance son repos APRÈS ce point.
-            try { hideGlobalRestBanner(); window._awakRestAjuster = null; } catch (e) {}
+            try { hideGlobalRestBanner(); window._awakRestAjuster = null; } catch (e) { _awkE(e); }
             const bar = document.getElementById('setRestBar');
             if (bar) bar.style.display = 'none';
             const btn = document.getElementById('completeSetBtn');
@@ -15619,7 +15601,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // ⚡ SUPERSET : arme le groupe et rétablit le numéro de tour
             // (initSetsTracker vient de remettre currentSetNumber à 1).
             if (window.AwakSS && typeof window.AwakSS.sync === 'function') {
-                try { window.AwakSS.sync(); } catch (e) {}
+                try { window.AwakSS.sync(); } catch (e) { _awkE(e); }
             } else if (typeof AwakSSClear === 'function') { AwakSSClear(); }
         }
 
@@ -15659,7 +15641,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 dotsEl.style.justifyContent = 'center';
             }
             // 📋 La grille de séries suit chaque changement d'état
-            if (typeof renderSetsGrid === 'function') { try { renderSetsGrid(); } catch (e) {} }
+            if (typeof renderSetsGrid === 'function') { try { renderSetsGrid(); } catch (e) { _awkE(e); } }
         }
 
 
@@ -15667,6 +15649,26 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // 🌀 RIFT/HUNT : Fonction dédiée pour terminer une série de combat
         // Bulletproof — prend le contrôle total, indépendante du flow normal
         // ═══════════════════════════════════════════════════════════════
+        // v1622 : fin d'une attaque en Faille/Chasse — UN seul chemin pour la série validée
+        // (awakRiftHuntCompleteSet) et la fin de minuteur (startTimer). Avant : deux copies,
+        // et la copie du minuteur n'affichait rien en Chasse quand aucun dégât n'était infligé.
+        function _awakFinAttaqueCombat(isRift, monsterKilled) {
+            try { if (typeof _forceExitRiftSession === 'function') _forceExitRiftSession(); } catch (e) { _awkE(e); }
+            setTimeout(() => {
+                try {
+                    if (monsterKilled) {
+                        if (isRift) { if (typeof awakAdvanceToNextWave === 'function') awakAdvanceToNextWave(); }
+                        else if (typeof awakCompleteHunt === 'function') awakCompleteHunt();
+                    } else {
+                        // Pas mort → revenir au combat pour rechoisir
+                        if (isRift) { if (typeof awakShowRiftCombatScreen === 'function') awakShowRiftCombatScreen(); }
+                        else if (typeof awakShowHuntScreen === 'function') awakShowHuntScreen();
+                    }
+                } catch (e) { _awkE(e); }
+                window._riftEndingFlow = false; // 🔓
+            }, 500);
+        }
+
         function awakRiftHuntCompleteSet() {
             // Verrou anti double-clic
             if (window._riftEndingFlow) return;
@@ -15691,7 +15693,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const dur = _ex.duration || 45;
                     reps = Math.max(1, Math.min(50, Math.round(dur / 3)));
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             console.log('⚔ Rift/Hunt set complete:', { reps, weight, isRift, isHunt, setNumber: currentSetNumber });
 
@@ -15734,7 +15736,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     // v1365 : la charge saisie est dans l'unité affichée → l'XP se calcule en kg
                     else rpgGainXP(_exXP._baseName || _exXP.name, reps, (useKg ? weight : weight * 0.453592) || 0);
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 📜 JOURNAL DE COMBAT — les dégâts ne passaient que par une notification
             // de 1,8 s : pendant une série rapide, les coups s'enchaînaient et le
@@ -15763,7 +15765,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 } else {
                     awakCombatLogAdd({ t: Date.now(), type: 'miss' });
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 2️⃣ Afficher dégâts
             if (damageResult) {
@@ -15796,7 +15798,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // v1617 : le nombre de séries vient de l'exercice (Chasse = 2, affiché « Série 1/2 »),
             // avant : 3 en dur → une 3ᵉ série « 3/2 » en Chasse.
             let totalSets = 3; // mini séance Faille/Hunt = 3 séries par défaut
-            try { const _exS = currentWorkout.exercises[currentExerciseIndex]; if (_exS && +_exS.sets > 0) totalSets = +_exS.sets; } catch (e) {}
+            try { const _exS = currentWorkout.exercises[currentExerciseIndex]; if (_exS && +_exS.sets > 0) totalSets = +_exS.sets; } catch (e) { _awkE(e); }
             const allSetsDone = currentSetNumber > totalSets;
 
             // Si monstre mort OU toutes les séries faites → quitter la séance
@@ -15808,28 +15810,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 showToast(reason, 'success', 2000);
 
                 // Attendre que le toast s'affiche puis quitter proprement
-                setTimeout(() => {
-                    _forceExitRiftSession();
-
-                    // Reprendre le flow approprié après un petit délai
-                    setTimeout(() => {
-                        if (monsterKilled) {
-                            if (isRift && typeof awakAdvanceToNextWave === 'function') {
-                                awakAdvanceToNextWave();
-                            } else if (isHunt && typeof awakCompleteHunt === 'function') {
-                                awakCompleteHunt();
-                            }
-                        } else {
-                            // Pas mort → revenir au combat pour rechoisir
-                            if (isRift && typeof awakShowRiftCombatScreen === 'function') {
-                                awakShowRiftCombatScreen();
-                            } else if (isHunt && typeof awakShowHuntScreen === 'function') {
-                                awakShowHuntScreen();
-                            }
-                        }
-                        window._riftEndingFlow = false; // 🔓
-                    }, 500);
-                }, 1200);
+                setTimeout(() => _awakFinAttaqueCombat(isRift, monsterKilled), 1200);
                 return;
             }
 
@@ -15846,9 +15827,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
          * Bulletproof : ne dépend de rien d'autre
          */
         function _awakNettoyerCombatUI() {
-            try { if (window.AwakRiftVis) AwakRiftVis.hud(null); } catch (e) {}
-            try { document.getElementById('awakAssautHpBar')?.remove(); } catch (e) {}
-            try { const h = document.getElementById('awakCombatLogPanel'); if (h) h.innerHTML = ''; } catch (e) {}
+            try { if (window.AwakRiftVis) AwakRiftVis.hud(null); } catch (e) { _awkE(e); }
+            try { document.getElementById('awakAssautHpBar')?.remove(); } catch (e) { _awkE(e); }
+            try { const h = document.getElementById('awakCombatLogPanel'); if (h) h.innerHTML = ''; } catch (e) { _awkE(e); }
         }
         window._awakNettoyerCombatUI = _awakNettoyerCombatUI;
 
@@ -15892,7 +15873,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function awakCombatEnregistrer(w, ex, sets) {
             const maintenant = Date.now();
             let acc = null;
-            try { acc = JSON.parse(localStorage.getItem(_awakCombatCle()) || 'null'); } catch (e) {}
+            try { acc = JSON.parse(localStorage.getItem(_awakCombatCle()) || 'null'); } catch (e) { _awkE(e); }
             if (acc && (maintenant - (acc.maj || 0)) > 60 * 60000) acc = null;
             const nom = w._isRift ? ('Faille — ' + String(w.name || '').replace(/^[^A-Za-zÀ-ÿ0-9]+/, '').trim()) : ('Chasse — ' + String(w.name || '').replace(/^.*Chasse\s*—\s*/, '').trim());
             const neuf = !acc;
@@ -15909,8 +15890,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const pid = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
             if (!acc.histId) {
                 saveWorkoutToHistory({ name: acc.nom, type: 'combat', _combat: true, exercises: exercices }, { secondes: secondes });
-                try { const h = getWorkoutHistory(); acc.histId = h[0] && h[0].id; } catch (e) {}
-                try { awakCompterSeance(secondes / 60); } catch (e) {}
+                try { const h = getWorkoutHistory(); acc.histId = h[0] && h[0].id; } catch (e) { _awkE(e); }
+                try { awakCompterSeance(secondes / 60); } catch (e) { _awkE(e); }
             } else {
                 try {
                     const h = getWorkoutHistory();
@@ -15925,11 +15906,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         e.workoutData = { name: acc.nom, type: 'combat', _combat: true, exercises: exercices };
                         if (pid) setProfileData(pid, 'workoutHistory', JSON.stringify(h)); else lsSet('workoutHistory', JSON.stringify(h));
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }
-            try { localStorage.setItem(_awakCombatCle(), JSON.stringify(acc)); } catch (e) {}
-            try { if (window.AwakMission) AwakMission.verser(); } catch (e) {}
-            try { if (typeof updateHomeStats === 'function') updateHomeStats(); } catch (e) {}
+            try { localStorage.setItem(_awakCombatCle(), JSON.stringify(acc)); } catch (e) { _awkE(e); }
+            try { if (window.AwakMission) AwakMission.verser(); } catch (e) { _awkE(e); }
+            try { if (typeof updateHomeStats === 'function') updateHomeStats(); } catch (e) { _awkE(e); }
         }
         window.awakCombatEnregistrer = awakCombatEnregistrer;
         function _forceExitRiftSession() {
@@ -15944,7 +15925,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
                 if (typeof hideGlobalRestBanner === 'function') hideGlobalRestBanner();
                 if (typeof hideRestOverlay === 'function') hideRestOverlay();
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 2. Reset workout state
             currentWorkout = null;
@@ -15990,7 +15971,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (typeof clearActiveWorkoutState === 'function') clearActiveWorkoutState();
                 if (typeof exitFullscreenMode === 'function') exitFullscreenMode();
                 localStorage.removeItem('fitproSessionSets');
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             console.log('✅ Rift session force-exited cleanly');
         }
@@ -16034,7 +16015,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                 if (_q && _q.elise) J.push({ t: Date.now(), ton: 'allie', txt: 'Élise te soigne : +' + _q.elise + ' PV' });
                                 if (_r.vaincu) J.push({ t: Date.now(), ton: 'phase', txt: 'L’Effaceur tombe' });
                                 if (J.length > 60) J.splice(0, J.length - 60);
-                            } catch (e) {}
+                            } catch (e) { _awkE(e); }
                             // v1507 : Nabdano nargue (bulle dans le bandeau, quelques secondes)
                             try {
                                 if (typeof window.awakNabdanoNargue === 'function' && !_r.vaincu) {
@@ -16049,7 +16030,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                     else if (_obj && _repsF > _obj) _ctx = 'fort';
                                     const _w = currentWorkout;
                                     // v1513 : les répliques s'affichent EN GRAND au milieu de l'écran (sans bloquer)
-                                    const _dire = (ms, qui) => { const d = Object.assign({}, qui); setTimeout(() => { try { if (currentWorkout === _w && !_w._completed) _awakDireGros(d); } catch (e) {} }, ms); };
+                                    const _dire = (ms, qui) => { const d = Object.assign({}, qui); setTimeout(() => { try { if (currentWorkout === _w && !_w._completed) _awakDireGros(d); } catch (e) { _awkE(e); } }, ms); };
                                     const _maj = () => {};
                                     let _rep = false;
                                     if (window.awakNabdanoNargue(currentWorkout, _ctx, _force)) {
@@ -16070,25 +16051,25 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                         }
                                     }
                                 }
-                            } catch (e) {}
+                            } catch (e) { _awkE(e); }
                             showToast((_r.crit ? 'CRITIQUE ! ' : '') + (_r.double ? 'DOUBLE COUP ! ' : '') + '−' + _r.degats + ' PV (' + _r.statLabel + ')'
                                 + (_r.vaincu ? ' · L’EFFACEUR VACILLE' : ' · ' + _r.pct + ' %'),
                                 _r.vaincu ? 'success' : 'info', 2400);
                             if (typeof _renderBossHpBar === 'function') _renderBossHpBar(currentWorkout);
                             // v1479 : changement de phase (75 / 50 / 25 %)
-                            if (_r.palier && typeof window.awakFinalPalier === 'function') setTimeout(() => { try { window.awakFinalPalier(_r.palier); } catch (e) {} }, 700);
+                            if (_r.palier && typeof window.awakFinalPalier === 'function') setTimeout(() => { try { window.awakFinalPalier(_r.palier); } catch (e) { _awkE(e); } }, 700);
                             // v1514 : actions des alliés en FENÊTRE ÉPIQUE avec leur visage
                             try {
                                 const _qa = _r.riposte || {};
                                 const _acts = (_r.aides || []).map(a => ({ nom: a.nom, val: '−' + a.dmg + ' PV', ton: 'coup' }));
                                 if (_qa.chen) _acts.push({ nom: 'Chen', val: 'Riposte annulée', ton: 'garde' });
                                 if (_qa.elise) _acts.push({ nom: 'Élise', val: '+' + _qa.elise + ' PV', ton: 'soin' });
-                                _acts.forEach(a => setTimeout(() => { try { _awakAideEpique(a); } catch (e) {} }, 1300));
-                            } catch (e) {}
+                                _acts.forEach(a => setTimeout(() => { try { _awakAideEpique(a); } catch (e) { _awkE(e); } }, 1300));
+                            } catch (e) { _awkE(e); }
                             // v1499 : l'Effaceur tombe à 0 → le combat s'arrête ici (victoire)
                             if (_r.vaincu) {
-                                setTimeout(() => { try { _awakViderBulles(); } catch (e) {} }, 1550);   // v1550 : rien par-dessus la chute
-                                setTimeout(() => { try { if (currentWorkout && currentWorkout._isFinalBoss && !currentWorkout._completed) completeWorkout(); } catch (e) {} }, 1600);
+                                setTimeout(() => { try { _awakViderBulles(); } catch (e) { _awkE(e); } }, 1550);   // v1550 : rien par-dessus la chute
+                                setTimeout(() => { try { if (currentWorkout && currentWorkout._isFinalBoss && !currentWorkout._completed) completeWorkout(); } catch (e) { _awkE(e); } }, 1600);
                                 return 'fin';
                             }
                             // v1487 : RIPOSTE de l'Effaceur sur tes PV
@@ -16099,23 +16080,23 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                         if (_rp.esquive) showToast('ESQUIVE : tu as lu son geste (PER)', 'info', 2000);
                                         else if (_rp.dmg > 0) showToast('L’Effaceur riposte : −' + _rp.dmg + ' PV' + (_rp.bloque > 0 ? ' (' + _rp.bloque + ' bloqués)' : ''), 'error', 2200);
                                         if (currentWorkout && typeof _renderBossHpBar === 'function') _renderBossHpBar(currentWorkout);
-                                    } catch (e) {}
+                                    } catch (e) { _awkE(e); }
                                 }, 1100);
                                 if (_rp.releve && typeof window.awakFinalReleve === 'function') {
                                     const _rest = currentWorkout._releves || 0;
-                                    setTimeout(() => { try { window.awakFinalReleve(_rest); } catch (e) {} }, 1500);
+                                    setTimeout(() => { try { window.awakFinalReleve(_rest); } catch (e) { _awkE(e); } }, 1500);
                                 }
                                 if (_rp.mort) {
                                     // Deuxième chute : le combat s'arrête, défaite (la séance est gardée)
-                                    setTimeout(() => { try { _awakViderBulles(); } catch (e) {} }, 1550);   // v1550
-                                    setTimeout(() => { try { if (currentWorkout && currentWorkout._isFinalBoss && !currentWorkout._completed) completeWorkout(); } catch (e) {} }, 1600);
+                                    setTimeout(() => { try { _awakViderBulles(); } catch (e) { _awkE(e); } }, 1550);   // v1550
+                                    setTimeout(() => { try { if (currentWorkout && currentWorkout._isFinalBoss && !currentWorkout._completed) completeWorkout(); } catch (e) { _awkE(e); } }, 1600);
                                     return 'fin';
                                 }
                             }
                         }
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         // v1498 : une scène est à l'écran (dialogue avec Nabdano, carte d'acte ou de
         // phase, « Relève-toi », événement d'histoire) → le chrono d'exercice attend.
@@ -16174,7 +16155,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (window.AwakGroup && window.AwakGroup.isActive() && currentEx && currentEx.name && typeof window.AwakGroup.promptOthersForSet === 'function') {
                     window.AwakGroup.promptOthersForSet(currentEx._baseName || currentEx.name, currentSetNumber, isWarmup);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 🏆 PR DETECTION — uniquement pour les vraies séries (pas échauffement)
             if (!isWarmup && currentEx && currentEx.name) {
@@ -16222,7 +16203,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // ⚡ SUPERSET : enchaîne A → B sans repos, puis repos en fin de tour.
             // Le module prend la main sur la suite s'il retourne true.
             if (!window._gridBulk && window.AwakSS && typeof window.AwakSS.afterSet === 'function') {
-                try { if (window.AwakSS.afterSet()) return; } catch (e) {}
+                try { if (window.AwakSS.afterSet()) return; } catch (e) { _awkE(e); }
             }
 
             const totalSets = totalSetsPlanned + warmupSetsCount;
@@ -16240,7 +16221,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // > repos de la séance > repos global. Avant, recoRest était affiché mais jamais appliqué.
             if (!window._gridBulk) {
                 // v1223 : on dit où on en est, en mots simples
-                try { if (!isWarmup && window.AwakSessUX) AwakSessUX.serieFaite(currentSetNumber - 1 - warmupSetsCount, totalSetsPlanned); } catch (e) {}
+                try { if (!isWarmup && window.AwakSessUX) AwakSessUX.serieFaite(currentSetNumber - 1 - warmupSetsCount, totalSetsPlanned); } catch (e) { _awkE(e); }
                 const exName = currentEx?.name;
                 const customRest = exName && exerciseRestOverrides[exName];
                 const restSeconds = isWarmup ? 60 : (customRest || currentEx?.repos || currentEx?.recoRest || currentWorkout?.restBetweenSets || globalRestSeconds);
@@ -16264,8 +16245,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             setSetNum:          function (v) { currentSetNumber = v; },
             startExercise:      function ()  { if (typeof startExercise === 'function') startExercise(); },
             skipExercise:       function ()  { if (typeof skipExercise === 'function') skipExercise(); },
-            updateSetIndicator: function ()  { try { updateSetIndicator(); } catch (e) {} },
-            startSetRest:       function (s) { try { startSetRest(s); } catch (e) {} },
+            updateSetIndicator: function ()  { try { updateSetIndicator(); } catch (e) { _awkE(e); } },
+            startSetRest:       function (s) { try { startSetRest(s); } catch (e) { _awkE(e); } },
             // Repos avant un exercice MINUTÉ : on fige son chrono, on affiche le
             // bandeau de repos, puis on lance le chrono à la fin (ou sur « Passer »).
             restBeforeTimer:    function (s) {
@@ -16277,7 +16258,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (window._awakSSRestInt) { clearInterval(window._awakSSRestInt); window._awakSSRestInt = null; }
                         window.finishSetRest = null;
                         hideGlobalRestBanner();
-                        try { playBeep(); vibrate([100, 50, 200]); } catch (e) {}
+                        try { playBeep(); vibrate([100, 50, 200]); } catch (e) { _awkE(e); }
                         startTimer();
                     };
                     showGlobalRestBanner(s, ex ? ex.name : null);
@@ -16289,10 +16270,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     window.finishSetRest = fini;
                     if (window._awakSSRestInt) clearInterval(window._awakSSRestInt);
                     window._awakSSRestInt = setInterval(function () { rem--; if (rem <= 0) fini(); }, 1000);
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             },
             globalRest:         function ()  { try { return globalRestSeconds; } catch (e) { return 60; } },
-            vibrate:            function (p) { try { vibrate(p); } catch (e) {} }
+            vibrate:            function (p) { try { vibrate(p); } catch (e) { _awkE(e); } }
         };
 
         function startSetRest(seconds) {
@@ -16329,7 +16310,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const _cur = currentWorkout?.exercises[currentExerciseIndex];
                 if (_cur && _cur.ss && window.AwakSS && AwakSS.isActive && AwakSS.isActive() && AwakSS.st && AwakSS.st.members[0] === currentExerciseIndex && AwakSS.st.round > 1) nextEx = _cur;
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             const nextExName = nextEx && !nextEx.isRest ? nextEx.name : null;
 
             // Afficher le bandeau de repos (v1370 : en bas, au-dessus de la séance)
@@ -16346,7 +16327,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     _nn.textContent = 'Prochaine : ' + (_wu ? 'échauffement ' + _num : 'série ' + _num + ' sur ' + totalSetsPlanned)
                         + (_r > 0 ? ' · ' + _r + ' reps' : '') + (_w > 0 ? ' à ' + _w + ' ' + weightUnit() : '');
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // v1563 : citation du mentor pendant le repos entre les séries
             try {
                 const _ban = document.getElementById('globalRestBanner');
@@ -16359,7 +16340,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     _q.textContent = _L[Math.floor(Math.random() * _L.length)] + (_pg ? ' — ' + _pg.nickname : '');
                     _q.style.display = 'block';
                 } else if (_q) _q.style.display = 'none';
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             window._awakRestAjuster = function (d) {
                 remaining = Math.max(1, remaining + d);
                 _globalRestRemaining = remaining;
@@ -16414,7 +16395,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const _gp = document.getElementById('setsGridPanel');
                 if (log && _gp && _gp.style.display !== 'none' && _gridEnabled()) { log.style.display = 'none'; return; }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             if (!log || completedSets.length === 0) {
                 if (log) log.style.display = 'none';
                 return;
@@ -16515,7 +16496,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const saved = JSON.parse(localStorage.getItem('fitproAvailWeights') || '{}');
                 saved[equipType] = weights;
                 localStorage.setItem('fitproAvailWeights', JSON.stringify(saved));
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
 
 
@@ -16529,7 +16510,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (rpe) entry.rpe = rpe;
             _currentSessionSets[exerciseName].push(entry);
             // Persister immédiatement pour le calcul live volume/PR
-            try { localStorage.setItem('fitproSessionSets', JSON.stringify(_currentSessionSets)); } catch(e) {}
+            try { localStorage.setItem('fitproSessionSets', JSON.stringify(_currentSessionSets)); } catch(e) { _awkE(e); }
         }
         function saveSessionSets() {
             // Persister les sets de la séance terminée
@@ -16537,11 +16518,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 try {
                     const key = 'fitproLastSets_' + btoa(encodeURIComponent(name)).slice(0,20);
                     lsSet(key, JSON.stringify({ date: new Date().toISOString(), sets }));
-                } catch(e) {}
+                } catch(e) { _awkE(e); }
             });
             _currentSessionSets = {};
             // Nettoyer le live tracking (la séance est finie)
-            try { localStorage.removeItem('fitproSessionSets'); } catch(e) {}
+            try { localStorage.removeItem('fitproSessionSets'); } catch(e) { _awkE(e); }
         }
 
         function savePerformance(exerciseName, reps, weight) {
@@ -16723,7 +16704,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const L = window.AwakLimitations && AwakLimitations.liste;
                 const imp = L && L.find(l => l.id === 'impact');
                 if (imp) return !!imp.test(ex);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return /saut|jump|burpee|skater|plyo/i.test(ex.name || '');
         }
         const _AWAK_MAT_CACHE = [
@@ -16779,28 +16760,28 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const d = _awakDbDe(ex) || {};
             const t = Object.assign({}, d, ex);
             if (!t.equipment || !t.equipment.length) t.equipment = d.equipment || [];
-            if (!t.position && typeof window.AwakPositionExercice === 'function') { try { t.position = AwakPositionExercice(t); } catch (e) {} }
-            try { if (window.AwakYouth && AwakYouth.isDiscouraged && AwakYouth.isDiscouraged(t)) return 'âge'; } catch (e) {}
-            try { if (window.AwakLimitations && AwakLimitations.bloque(t)) return 'limitations'; } catch (e) {}
-            try { if (window.AwakPain && AwakPain.exerciseHitsPain && AwakPain.exerciseHitsPain(t)) return 'douleurs'; } catch (e) {}
-            try { if (silentMode && _awakImpact(t)) return 'mode silencieux'; } catch (e) {}
+            if (!t.position && typeof window.AwakPositionExercice === 'function') { try { t.position = AwakPositionExercice(t); } catch (e) { _awkE(e); } }
+            try { if (window.AwakYouth && AwakYouth.isDiscouraged && AwakYouth.isDiscouraged(t)) return 'âge'; } catch (e) { _awkE(e); }
+            try { if (window.AwakLimitations && AwakLimitations.bloque(t)) return 'limitations'; } catch (e) { _awkE(e); }
+            try { if (window.AwakPain && AwakPain.exerciseHitsPain && AwakPain.exerciseHitsPain(t)) return 'douleurs'; } catch (e) { _awkE(e); }
+            try { if (silentMode && _awakImpact(t)) return 'mode silencieux'; } catch (e) { _awkE(e); }
             // v1575 : mobilité réduite appliquée partout (routines, mentor, Salle, disciplines, Failles…)
-            try { if (window.AwakAdaptive && AwakAdaptive.isReducedMobility() && AwakAdaptive.isUnsuitable(t)) return 'mobilité réduite'; } catch (e) {}
-            try { if (getExerciseBlacklist().includes(t.name)) return 'exercices bannis'; } catch (e) {}
+            try { if (window.AwakAdaptive && AwakAdaptive.isReducedMobility() && AwakAdaptive.isUnsuitable(t)) return 'mobilité réduite'; } catch (e) { _awkE(e); }
+            try { if (getExerciseBlacklist().includes(t.name)) return 'exercices bannis'; } catch (e) { _awkE(e); }
             // v1342 : matériel CACHÉ (marqué « poids du corps » mais il faut une barre, un banc, du riz…)
             try {
                 const dispo = getSelectedEquipmentNames();
                 for (const [rx, req] of _AWAK_MAT_CACHE) if (rx.test(t.name) && !req.some(q => dispo.includes(q))) return 'matériel';
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // v1342 : équilibre de base (pensé pour les enfants) → enfants et 65 ans et plus seulement
             try {
                 if (_AWAK_EQUILIBRE_BASE.test(t.name) && !(window.AwakYouth && ((AwakYouth.isChild && AwakYouth.isChild()) || (AwakYouth.isSenior && AwakYouth.isSenior())))) return 'âge';
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             if (!opts.sansNiveau) {
                 try {
                     const p = getUserProfile() || {};
                     if (p.level === 'beginner' && t.difficulty === 'Avancé' && t.type !== 'warmup' && t.type !== 'stretch') return 'niveau';
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }
             return null;
         }
@@ -16821,7 +16802,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const muscle = ex.muscle || d.muscle;
             const eqOk = new Set(['Poids du corps', 'Aucun', 'Tapis', 'Tapis de sol'].concat((ex.equipment && ex.equipment.length ? ex.equipment : d.equipment) || []));
             let recents = new Set();
-            try { ((getWorkoutHistory() || [])[0] || {}).exercises.forEach(e => recents.add(typeof e === 'string' ? e : e.name)); } catch (e) {}
+            try { ((getWorkoutHistory() || [])[0] || {}).exercises.forEach(e => recents.add(typeof e === 'string' ? e : e.name)); } catch (e) { _awkE(e); }
             const prox = e => e.muscle === muscle ? 0 : (_AWAK_REGION[e.muscle] && _AWAK_REGION[e.muscle] === _AWAK_REGION[muscle] ? 1 : 2);
             const c = exerciseDatabase.filter(e => e && !e.discipline && (e.type || 'exercise') === type && !pris[e.name]
                 && (e.equipment || []).every(q => eqOk.has(q))
@@ -16873,7 +16854,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         .sort(() => Math.random() - 0.5).slice(0, 3);
                     const modele = (exercises || []).find(reel) || {};
                     c.forEach(e => { const n = JSON.parse(JSON.stringify(e)); ['sets', 'reps', 'mode', 'duration', 'repos'].forEach(k => { if (modele[k] != null) n[k] = modele[k]; }); n._adapteDe = modele.name; out.push(n); adaptes++; });
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }
             const propre = out.filter((x, i, a) => {
                 if (!x || !x.isRest) return true;
@@ -16911,7 +16892,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     actuallyStartRandomWorkout();
                     return;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // Étape 0 : IA ou choix manuel des muscles
             showMuscleChoiceModal();
         }
@@ -17082,10 +17063,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // puis « Fais ma séance », puis « Laisser le Système choisir » = 2 touches de plus).
         window.awakDerniereDuree = function () { try { return JSON.parse(localStorage.getItem(_cleProfilLecture('awakDerniereDuree')) || 'null'); } catch (e) { return null; } };
         window.awakLancerSeanceSysteme = function (choisir) {
-            try { if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) { startRandomWorkout(); return; } } catch (e) {}
+            try { if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) { startRandomWorkout(); return; } } catch (e) { _awkE(e); }
             // v1413 : la dernière durée choisie est reprise (« Autre durée » sur l'Accueil pour changer)
-            try { const d = window.awakDerniereDuree(); window._awakDureeAuto = (!choisir && d) ? { d: d, t: Date.now() } : null; } catch (e) {}
-            try { onMuscleChoiceAI(); } catch (e) { try { switchTab('workouts'); } catch (x) {} }
+            try { const d = window.awakDerniereDuree(); window._awakDureeAuto = (!choisir && d) ? { d: d, t: Date.now() } : null; } catch (e) { _awkE(e); }
+            try { onMuscleChoiceAI(); } catch (e) { try { switchTab('workouts'); } catch (x) { _awkE(x); } }
         };
         function onMuscleChoiceAI() {
             window._awakChoixManuel = false;
@@ -17241,7 +17222,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (_mmpMode === 'pain') {
                 // En mode douleur, c'est pain-mode.js qui sait quelles zones sont
                 // actives : on lui demande de repeindre la nouvelle vue.
-                try { if (window.AwakPainRepaint) window.AwakPainRepaint(); } catch (e) {}
+                try { if (window.AwakPainRepaint) window.AwakPainRepaint(); } catch (e) { _awkE(e); }
             } else {
                 _manualSelectedMuscles.forEach(function (m) { _highlightMuscleBtn(m, true); });
             }
@@ -17259,7 +17240,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             var host = document.getElementById('painCheckCard');
             if (!host) return;
             var n = 0;
-            try { n = (window.AwakPain && window.AwakPain.activeZones) ? window.AwakPain.activeZones().length : 0; } catch (e) {}
+            try { n = (window.AwakPain && window.AwakPain.activeZones) ? window.AwakPain.activeZones().length : 0; } catch (e) { _awkE(e); }
             var sub = n === 0
                 ? 'Signale une douleur pour adapter tes séances'
                 : n + ' zone' + (n > 1 ? 's' : '') + ' douloureuse' + (n > 1 ? 's' : '') + ' — exercices évités';
@@ -17467,9 +17448,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const history = getWorkoutHistory();
 
             // 💪 Les compagnons récupèrent de l'endurance quand le joueur s'entraîne
-            try { if (typeof awakCompanionsRecoverFromWorkout === 'function') awakCompanionsRecoverFromWorkout(); } catch(e) {}
+            try { if (typeof awakCompanionsRecoverFromWorkout === 'function') awakCompanionsRecoverFromWorkout(); } catch(e) { _awkE(e); }
             // 👁️ L’Effaceur recule quand le joueur s'entraîne
-            try { if (typeof awakMonarchOnWorkout === 'function') awakMonarchOnWorkout(); } catch(e) {}
+            try { if (typeof awakMonarchOnWorkout === 'function') awakMonarchOnWorkout(); } catch(e) { _awkE(e); }
             
             // Ensure duration is in minutes - convert if in seconds
             let durationInMinutes;
@@ -17525,7 +17506,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         musclesWeighted[muscle] = (musclesWeighted[muscle] || 0) + ratio;
                     });
                 });
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             
             // Calories précises : MET × poids_kg × heures (même formule que l'écran de fin)
             const _prof = getUserProfile();
@@ -17548,7 +17529,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     });
                 });
                 sessionVolume = Math.round(sessionVolume);
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             const historyEntry = {
                 id: Date.now(),
@@ -17582,14 +17563,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!_okHist) {
                 try {
                     showConfirm('Ta séance n\'a pas pu être enregistrée : le stockage de l\'appareil est plein. Fais une sauvegarde, puis libère de la place (un profil inutilisé, par exemple).',
-                        function () { try { switchTab('settings'); setTimeout(() => { const c = document.getElementById('awakSauvegardeCarte'); if (c) c.scrollIntoView({ block: 'center' }); }, 400); } catch (e) {} },
+                        function () { try { switchTab('settings'); setTimeout(() => { const c = document.getElementById('awakSauvegardeCarte'); if (c) c.scrollIntoView({ block: 'center' }); }, 400); } catch (e) { _awkE(e); } },
                         null, { title: 'Stockage plein', confirmLabel: 'Aller à la sauvegarde', cancelLabel: 'Plus tard', danger: true });
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }
             // 🎯 v1253 : le Bingo de la semaine se coche tout seul (séance avant 9 h…).
-            try { if (window.AwakGames && typeof AwakGames.bingoAuto === 'function') setTimeout(function () { try { AwakGames.bingoAuto(); } catch (e) {} }, 1500); } catch (e) {}
+            try { if (window.AwakGames && typeof AwakGames.bingoAuto === 'function') setTimeout(function () { try { AwakGames.bingoAuto(); } catch (e) { _awkE(e); } }, 1500); } catch (e) { _awkE(e); }
             // v1577 : défis « Cardio 30 minutes » / « 10 minutes pour bouger » validés tout seuls
-            try { setTimeout(function () { try { awakDefiAuto(); } catch (e) {} }, 1700); } catch (e) {}
+            try { setTimeout(function () { try { awakDefiAuto(); } catch (e) { _awkE(e); } }, 1700); } catch (e) { _awkE(e); }
             
             // Check for new badges and streak milestone
             checkAndUnlockBadges();
@@ -17606,7 +17587,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (window.AwakFamilyBoss && typeof window.AwakFamilyBoss.attack === 'function') {
                     var _fbXp = 0;
                     // XP de la séance si l'API RPG est dispo, sinon 0 (le volume suffit).
-                    try { if (typeof rpgGetWorkoutXpEarned === 'function') _fbXp = rpgGetWorkoutXpEarned() || 0; } catch (e) {}
+                    try { if (typeof rpgGetWorkoutXpEarned === 'function') _fbXp = rpgGetWorkoutXpEarned() || 0; } catch (e) { _awkE(e); }
                     var _fb = window.AwakFamilyBoss.attack({ volume: sessionVolume, xp: _fbXp });
                     if (_fb && !_fb.alreadyDefeated && typeof showToast === 'function') {
                         if (_fb.justDefeated) {
@@ -17620,7 +17601,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         }
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
 
         // ⚠️ NOTE (v551) : une PREMIÈRE définition de renderWeeklyMuscleVolume()
@@ -17691,8 +17672,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 try {
                     const kPr = 'personalRecords_' + profileId, kPerf = 'exercisePerformances_' + profileId;
                     let prs = {}, perfs = {};
-                    try { prs = JSON.parse(localStorage.getItem(kPr) || '{}') || {}; } catch (e) {}
-                    try { perfs = JSON.parse(localStorage.getItem(kPerf) || '{}') || {}; } catch (e) {}
+                    try { prs = JSON.parse(localStorage.getItem(kPr) || '{}') || {}; } catch (e) { _awkE(e); }
+                    try { perfs = JSON.parse(localStorage.getItem(kPerf) || '{}') || {}; } catch (e) { _awkE(e); }
                     let changed = false;
                     workout.exercises.forEach(ex => {
                         const key = ex._baseName || ex.name;
@@ -17711,8 +17692,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         });
                     });
                     if (changed) { localStorage.setItem(kPr, JSON.stringify(prs)); localStorage.setItem(kPerf, JSON.stringify(perfs)); }
-                } catch(e) {}
-            } catch(e) {}
+                } catch(e) { _awkE(e); }
+            } catch(e) { _awkE(e); }
         }
         window.saveGroupWorkoutForProfile = saveGroupWorkoutForProfile;
 
@@ -17729,10 +17710,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (window.AwakYouth && AwakYouth.ageCategoryOf && AwakYouth.ageCategoryOf(profileId) === 'child') return 0;
                 const jour = awakJourLocal();
                 const kJour = 'profile_' + profileId + '_awakGroupXpJour';
-                let dj = {}; try { dj = JSON.parse(localStorage.getItem(kJour) || '{}') || {}; } catch (e) {}
+                let dj = {}; try { dj = JSON.parse(localStorage.getItem(kJour) || '{}') || {}; } catch (e) { _awkE(e); }
                 if (dj.jour !== jour) dj = { jour: jour, xp: 0 };
                 const kRpg = 'profile_' + profileId + '_fitproRPG';
-                let data = null; try { data = JSON.parse(localStorage.getItem(kRpg) || 'null'); } catch (e) {}
+                let data = null; try { data = JSON.parse(localStorage.getItem(kRpg) || 'null'); } catch (e) { _awkE(e); }
                 if (!data || !data.muscles) data = { muscles: {}, profile: { xp: 0 } };
                 const tpl = (template && template.exercises) || [];
                 let total = 0;
@@ -17759,7 +17740,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                 data.muscles[o.muscle].xp += Math.round(xp * o.ratio);
                                 data.muscles[o.muscle].lastTrained = new Date().toISOString();
                             });
-                        } catch (e) {}
+                        } catch (e) { _awkE(e); }
                     });
                 });
                 if (total <= 0) return 0;
@@ -17806,7 +17787,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function renderWorkoutHistory(filter = 'all') {
             const container = document.getElementById('workoutHistoryList');
             if (!container) return;
-            try { if (window.AwakProg) AwakProg.rendre(); } catch (e) {}   // v1225 : haut de page « Ta progression »
+            try { if (window.AwakProg) AwakProg.rendre(); } catch (e) { _awkE(e); }   // v1225 : haut de page « Ta progression »
             showSkeleton('workoutHistoryList', 4, 'card');
             requestAnimationFrame(() => setTimeout(() => {
             // Apply search text
@@ -17901,7 +17882,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const fav = getFavoriteWorkouts(), k = fav.indexOf(workoutId);
                     if (k > -1) { fav.splice(k, 1); saveFavoriteWorkouts(fav); }
                     showToast('Séance supprimée');
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 renderWorkoutHistory(window._histFilter || 'all');
             }, null, { title: 'Supprimer la séance ?', danger: true, confirmLabel: 'Supprimer' });
         }
@@ -17975,7 +17956,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (localStorage.getItem('profile_' + pid + '_workoutHistory') === null) localStorage.setItem('profile_' + pid + '_workoutHistory', leg);
                         localStorage.removeItem('workoutHistory');
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 Object.keys(localStorage).filter(k => /^profile_.+_workoutHistory$/.test(k)).forEach(k => {
                     try {
                         const h = JSON.parse(localStorage.getItem(k) || '[]');
@@ -17983,10 +17964,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         let chg = false;
                         h.forEach(e => { if (e && e.workoutData) { const a = awakAllegerSeance(e.workoutData); if (JSON.stringify(a).length < JSON.stringify(e.workoutData).length) { e.workoutData = a; chg = true; } } });
                         if (chg) localStorage.setItem(k, JSON.stringify(h));
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                 });
                 localStorage.setItem('awakHistAllegeV1', '1');
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakAllegerHistoriques = awakAllegerHistoriques;
 
@@ -18148,8 +18129,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     Promise.all(jobs).then(() => {
                         // On n'efface localStorage QUE si tout a bien été écrit en base.
                         if (!anyFail) {
-                            keys.forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
-                            try { localStorage.setItem('awakPhotosMigratedToIDB', '1'); } catch (e) {}
+                            keys.forEach(k => { try { localStorage.removeItem(k); } catch (e) { _awkE(e); } });
+                            try { localStorage.setItem('awakPhotosMigratedToIDB', '1'); } catch (e) { _awkE(e); }
                         }
                         resolve();
                     }).catch(() => resolve());
@@ -18247,9 +18228,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // compteur, écart) gardait l'état précédent — d'où l'obligation de
         // recharger la page pour voir sa nouvelle photo.
         function _majApresPhotos() {
-            try { renderProgressPhotos(); } catch (e) {}
-            try { if (typeof awakRenderCorpsCard === 'function') awakRenderCorpsCard(); } catch (e) {}
-            try { if (typeof awakRenderSilhouetteMesures === 'function') awakRenderSilhouetteMesures(); } catch (e) {}
+            try { renderProgressPhotos(); } catch (e) { _awkE(e); }
+            try { if (typeof awakRenderCorpsCard === 'function') awakRenderCorpsCard(); } catch (e) { _awkE(e); }
+            try { if (typeof awakRenderSilhouetteMesures === 'function') awakRenderSilhouetteMesures(); } catch (e) { _awkE(e); }
         }
 
         function deleteProgressPhoto(photoId) {
@@ -18969,7 +18950,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         renderNotificationSettings();
                         return true;
                     }
-                } catch(e) {}
+                } catch(e) { _awkE(e); }
             }
             return false;
         }
@@ -19113,7 +19094,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     notification.close();
                     switchTab('workouts');
                 };
-            } catch (error) {}
+            } catch (error) { _awkE(error); }
         }
 
         // ── NOTIFICATIONS INTELLIGENTES ────────────────────────────────
@@ -19159,7 +19140,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     );
                     return;
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 2. Personnalité active — conseil de phase
             if (celeb) {
@@ -19196,7 +19177,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     );
                     return;
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 4. Streak en danger
             try {
@@ -19216,7 +19197,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         }
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 5. Motivation du lundi
             if (dayOfWeek === 1) {
@@ -19605,7 +19586,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             });
         }
         window.awakMajBarresUnite = awakMajBarresUnite;
-        window.addEventListener('load', function () { try { awakMajBarresUnite(); } catch (e) {} });
+        window.addEventListener('load', function () { try { awakMajBarresUnite(); } catch (e) { _awkE(e); } });
         function calculatePlates() {
             awakMajBarresUnite();
             const _u = useKg ? 'kg' : 'lbs';
@@ -19777,7 +19758,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _d = _b && _b.children[1];
                 if (_d) _desc = '<div style="font-weight:800;color:#fff;margin-bottom:4px;">' + rpe + ' · ' + (_d.children[0] ? _d.children[0].textContent : '') + '</div>'
                     + '<div style="color:#cbd5e1;font-size:0.9em;margin-bottom:10px;">' + (_d.children[1] ? _d.children[1].textContent : '') + '</div>';
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             feedback.innerHTML = _desc + `
                 <div style="font-size: 0.95em; margin-bottom: 6px;">${message}</div>
                 <div style="color: #94a3b8; font-size: 0.9em;">${recommendation}</div>
@@ -19877,10 +19858,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             localStorage.setItem(tKey, JSON.stringify(trash.slice(-10)));
                         }
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
 
                 localStorage.setItem(key, JSON.stringify(routines));
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
         window.saveRoutines = saveRoutines;
 
@@ -19913,7 +19894,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 document.getElementById('awakCorbeilleModal')?.remove();
                 renderRoutinesList();
                 if (typeof showToast === 'function') showToast('↩ Routine restaurée : ' + (t.routine.name || ''), 'success', 2400);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.restoreRoutineFromTrash = restoreRoutineFromTrash;
         function openRoutinesTrash() {
@@ -19958,7 +19939,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (typeof showToast === 'function') {
                     showToast(n ? `↩ ${n} routine${n>1?'s':''} restaurée${n>1?'s':''}` : 'Rien à restaurer', 'success', 2600);
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.restoreRoutinesFromTrash = restoreRoutinesFromTrash;
 
@@ -19967,7 +19948,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
                 localStorage.setItem(profileId ? `routinesTrash_${profileId}` : 'routinesTrash', '[]');
                 renderRoutinesList();
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.clearRoutinesTrash = clearRoutinesTrash;
 
@@ -20034,7 +20015,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
                 const key = profileId ? `weeklyPlan_${profileId}` : 'weeklyPlan';
                 localStorage.setItem(key, JSON.stringify(plan));
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
         window.saveWeeklyPlan = saveWeeklyPlan;
 
@@ -20065,7 +20046,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // préfère le matériel coché du lieu actif (repli : tout, s'il manque de choix).
             const _pdc = ex => (ex.equipment || []).every(q => q === 'Poids du corps' || q === 'Aucun');
             let _dispo = null;
-            try { if (!opts.sansMateriel && typeof getSelectedEquipmentNames === 'function') { _dispo = new Set(getSelectedEquipmentNames()); _dispo.add('Poids du corps'); _dispo.add('Aucun'); } } catch (e) {}
+            try { if (!opts.sansMateriel && typeof getSelectedEquipmentNames === 'function') { _dispo = new Set(getSelectedEquipmentNames()); _dispo.add('Poids du corps'); _dispo.add('Aucun'); } } catch (e) { _awkE(e); }
             const _matOk = ex => !_dispo || !(ex.equipment || []).length || (ex.equipment || []).every(q => _dispo.has(q));
             for (const muscle of muscles) {
                 let candidates = db.filter(ex =>
@@ -20077,8 +20058,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 );
                 const _avecMat = candidates.filter(_matOk);
                 if (_avecMat.length >= 2) candidates = _avecMat;
-                try { if (window.AwakPain && typeof AwakPain.filterExercises === 'function') { const _sd = AwakPain.filterExercises(candidates); if (_sd.length) candidates = _sd; } } catch (e) {}
-                try { const _rg = candidates.filter(ex => !awakRaisonRefus(ex, { sansNiveau: true })); if (_rg.length) candidates = _rg; } catch (e) {}   // v1339
+                try { if (window.AwakPain && typeof AwakPain.filterExercises === 'function') { const _sd = AwakPain.filterExercises(candidates); if (_sd.length) candidates = _sd; } } catch (e) { _awkE(e); }
+                try { const _rg = candidates.filter(ex => !awakRaisonRefus(ex, { sansNiveau: true })); if (_rg.length) candidates = _rg; } catch (e) { _awkE(e); }   // v1339
                 // Trier par préférence de niveau
                 candidates.sort((a, b) => {
                     const ia = levelPreference.indexOf(a.difficulty);
@@ -20727,7 +20708,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             });
             // la routine actuelle visible d'entrée
             const on = fond.querySelector('.awk-pl-ligne.on[data-cherche]');
-            if (on) setTimeout(() => { try { on.scrollIntoView({ block: 'center' }); } catch (e) {} }, 0);
+            if (on) setTimeout(() => { try { on.scrollIntoView({ block: 'center' }); } catch (e) { _awkE(e); } }, 0);
         }
         window.awakPlanChoisirRoutine = awakPlanChoisirRoutine;
 
@@ -20770,7 +20751,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                           '</div>' +
                         '</div>';
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             if (routines.length === 0) {
                 if (_trashBanner) {
@@ -20864,7 +20845,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         const _AWAK_RT_NOMS = { tous: 'Toutes', haut: 'Haut du corps', bas: 'Bas du corps', corps: 'Corps entier', cardio: 'Cardio' };
         function _awakRtUsage() {
             const u = {};
-            try { (getWorkoutHistory() || []).forEach(w => { if (!w || !w.name) return; const t = Date.parse(w.date) || 0; const x = u[w.name] = u[w.name] || { n: 0, der: 0 }; x.n++; if (t > x.der) x.der = t; }); } catch (e) {}
+            try { (getWorkoutHistory() || []).forEach(w => { if (!w || !w.name) return; const t = Date.parse(w.date) || 0; const x = u[w.name] = u[w.name] || { n: 0, der: 0 }; x.n++; if (t > x.der) x.der = t; }); } catch (e) { _awkE(e); }
             return u;
         }
         function awakRoutinesVue(routines) {
@@ -21069,7 +21050,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         const _t = JSON.parse(localStorage.getItem(_tk) || '[]');
                         (Array.isArray(_t) ? _t : []).forEach(x => { if (x && x.routine && x.routine.id === r.id) { x.volontaire = true; x.at = Date.now(); } });
                         localStorage.setItem(_tk, JSON.stringify(_t));
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                     renderRoutinesList();
                     if (typeof showToast === 'function') showToast('🗑️ Routine supprimée — récupérable 7 jours dans la corbeille', 'info', 2800);
                 },
@@ -21135,11 +21116,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function _renderEditorExercises(routine) {
             // 🏗️ Atelier 2 colonnes (routine + catalogue) — js/routine-builder.js
             if (window.AwakBuilder && typeof window.AwakBuilder.renderBody === 'function') {
-                try { return window.AwakBuilder.renderBody(routine); } catch (e) {}
+                try { return window.AwakBuilder.renderBody(routine); } catch (e) { _awkE(e); }
             }
             // Repli : éditeur enrichi seul (séries/reps/durée, ordre, supersets)
             if (window.AwakRoutineEditor && typeof window.AwakRoutineEditor.renderExercises === 'function') {
-                try { return window.AwakRoutineEditor.renderExercises(routine); } catch (e) {}
+                try { return window.AwakRoutineEditor.renderExercises(routine); } catch (e) { _awkE(e); }
             }
             const exs = routine.exercises || [];
             if (exs.length === 0) {
@@ -21183,10 +21164,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (window.AwakRoutineEditor && typeof window.AwakRoutineEditor.normaliser === 'function') {
                     window.AwakRoutineEditor.normaliser(r.exercises);
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             saveRoutines(routines);
             if (window.AwakBuilder && typeof window.AwakBuilder.refresh === 'function') {
-                try { window.AwakBuilder.refresh(false); return; } catch (e) {}
+                try { window.AwakBuilder.refresh(false); return; } catch (e) { _awkE(e); }
             }
             const cont = document.getElementById('routineEditorExercises');
             if (cont) cont.innerHTML = _renderEditorExercises(r);
@@ -21436,7 +21417,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 </div>`;
 
             document.body.appendChild(modal);
-            setTimeout(() => { try { document.getElementById('awakNewRoutineName').focus(); } catch (e) {} }, 250);
+            setTimeout(() => { try { document.getElementById('awakNewRoutineName').focus(); } catch (e) { _awkE(e); } }, 250);
         }
         window.openCreateRoutineModal = openCreateRoutineModal;
 
@@ -21588,7 +21569,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function awakHallEditPR(profileId, exercise) {
             const key = 'personalRecords_' + profileId;
             let prs = {};
-            try { prs = JSON.parse(localStorage.getItem(key) || '{}'); } catch (e) {}
+            try { prs = JSON.parse(localStorage.getItem(key) || '{}'); } catch (e) { _awkE(e); }
             const r = prs[exercise]; if (!r) return;
             if (r.weight && r.weight.value) {
                 // v1311 : record enregistré en kg → affiché et saisi dans l'unité choisie
@@ -21668,7 +21649,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
             visProfiles.forEach(p => {
                 let prs = {};
-                try { prs = JSON.parse(localStorage.getItem('personalRecords_' + p.id) || '{}'); } catch (e) {}
+                try { prs = JSON.parse(localStorage.getItem('personalRecords_' + p.id) || '{}'); } catch (e) { _awkE(e); }
                 Object.keys(prs).forEach(exo => {
                     const r = prs[exo]; if (!r) return;
                     const w = r.weight && r.weight.value ? r.weight : null;
@@ -22827,9 +22808,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             renderBodyMeasurements();
             // ⚖️ Rafraîchir la carte « Ton corps » : le poids sous la photo
             // vient désormais de la dernière mensuration, il doit suivre.
-            try { if (typeof awakRenderCorpsCard === 'function') awakRenderCorpsCard(); } catch (e) {}
+            try { if (typeof awakRenderCorpsCard === 'function') awakRenderCorpsCard(); } catch (e) { _awkE(e); }
             // 🧍 Et la silhouette, pour que les points passent au vert.
-            try { if (typeof awakRenderSilhouetteMesures === 'function') awakRenderSilhouetteMesures(); } catch (e) {}
+            try { if (typeof awakRenderSilhouetteMesures === 'function') awakRenderSilhouetteMesures(); } catch (e) { _awkE(e); }
             cancelMeasurement();
             
             showToast('Mesures sauvegardées !');
@@ -23520,7 +23501,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 ['exercises', 'grille', '#93c5fd', 'Exercices', 'Bibliothèque et fiches']
             ];
             // v1430 : les Calculs ont leur propre case (pas avant 13 ans, comme dans Exercices)
-            let _enfPlus = false; try { _enfPlus = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) {}
+            let _enfPlus = false; try { _enfPlus = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) { _awkE(e); }
             if (!_enfPlus) items.push(['calculators', 'calcul', '#fbbf24', 'Calculs', 'Charge maximale, disques, rang de force']);
             // v1404 : Jeu est maintenant un onglet de la barre du bas (mode Aventure) — plus besoin de l'entrée ici
             items.push(['settings', 'reglages', '#94a3b8', 'Réglages', 'Profil, matériel, jeu, sauvegarde']);
@@ -23553,7 +23534,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             // 🧒 v1227 : les calculateurs de charge ne sont pas proposés avant 13 ans
             if (tabName === 'calculators') {
-                try { if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) tabName = 'exercises'; } catch (e) {}
+                try { if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) tabName = 'exercises'; } catch (e) { _awkE(e); }
             }
 
             // Onglet Famille désactivé (utilisateur solo) → rediriger vers l'accueil.
@@ -23566,18 +23547,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const _banner = document.getElementById('appHeader');
                 if (_banner) _banner.style.display = (tabName === 'home') ? '' : 'none';
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             if (tabName === 'history' && rpgEnabled()) setTimeout(renderRPGPanel, 50);
-            if (tabName === 'settings') { try { if (typeof awakRenderTerminalHead === 'function') awakRenderTerminalHead(); } catch (e) {} }
-            if (tabName === 'settings') { try { const _ia = document.getElementById('imgAnimToggle'); if (_ia) _ia.checked = localStorage.getItem('awakImgFixe') !== '1'; } catch (e) {} }   // v1437
-            if (tabName === 'settings') { try { awakMajBoutonsSplit(); awakMajBoutonsVariete(); const _pt = document.getElementById('periodizationToggle'); if (_pt) _pt.checked = getPeriodizationEnabled(); } catch (e) {} }
-            if (tabName === 'settings') { try { if (window.AwakSante) AwakSante.rendreReglages(); } catch (e) {} }
+            if (tabName === 'settings') { try { if (typeof awakRenderTerminalHead === 'function') awakRenderTerminalHead(); } catch (e) { _awkE(e); } }
+            if (tabName === 'settings') { try { const _ia = document.getElementById('imgAnimToggle'); if (_ia) _ia.checked = localStorage.getItem('awakImgFixe') !== '1'; } catch (e) { _awkE(e); } }   // v1437
+            if (tabName === 'settings') { try { awakMajBoutonsSplit(); awakMajBoutonsVariete(); const _pt = document.getElementById('periodizationToggle'); if (_pt) _pt.checked = getPeriodizationEnabled(); } catch (e) { _awkE(e); } }
+            if (tabName === 'settings') { try { if (window.AwakSante) AwakSante.rendreReglages(); } catch (e) { _awkE(e); } }
             if (tabName === 'settings') setTimeout(() => { if (typeof awakRefreshDevPanel === 'function') awakRefreshDevPanel(); }, 50);
             // ✨ Rattrapage des Failles narratives : la condition n'était
             // évaluée QU'au passage de rang et en fin de Faille. Un joueur
             // ayant dépassé le seuil sans passer par là ne les voyait jamais.
             if (tabName === 'game') {
-                try { if (typeof awakCheckNarrativeRifts === 'function') awakCheckNarrativeRifts(); } catch (e) {}
+                try { if (typeof awakCheckNarrativeRifts === 'function') awakCheckNarrativeRifts(); } catch (e) { _awkE(e); }
             }
             if (tabName === 'game') setTimeout(() => {
                 renderGameTab();
@@ -23628,7 +23609,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (['calendar', 'exercises', 'calculators', 'settings'].indexOf(tabName) >= 0 || (tabName === 'game' && !document.body.classList.contains('awk-jeu-on'))) {   // v1404 : Jeu a son onglet
                 document.getElementById('moreNavTab')?.classList.add('active');
             }
-            try { document.getElementById('awakNavPlusSheet')?.remove(); } catch (e) {}
+            try { document.getElementById('awakNavPlusSheet')?.remove(); } catch (e) { _awkE(e); }
             
             currentTab = tabName;
 
@@ -23637,19 +23618,19 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 updateHomeStats(); renderWeeklyMuscleVolume();
                 // 📅 Bandeau « Cette semaine » : recalculé à chaque affichage
                 // (le jour courant et les séances faites changent).
-                try { if (typeof renderHomeWeekStrip === 'function') renderHomeWeekStrip(); } catch (e) {}
+                try { if (typeof renderHomeWeekStrip === 'function') renderHomeWeekStrip(); } catch (e) { _awkE(e); }
             } else if (tabName === 'workouts') {
                 // 🫀 Corps du Chasseur : recalculé à chaque affichage, puisque
                 // la récupération avance avec le temps.
                 try {
                     const _ch = document.getElementById('awakCorpsHost');
                     if (_ch && typeof awakRenderCorps === 'function') _ch.innerHTML = awakRenderCorps();
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 renderActivePlan();
                 renderLocationBtns();
                 // 📍 Bouton de lieu compact (l'ancienne rangée reste rendue
                 // dans son conteneur masqué : d'autres écrans la lisent).
-                try { if (typeof renderLocationChip === 'function') renderLocationChip(); } catch (e) {}
+                try { if (typeof renderLocationChip === 'function') renderLocationChip(); } catch (e) { _awkE(e); }
                 renderDeloadBanner();
                 // 📅 Render le plan hebdo manuel (Phase 6)
                 if (typeof renderManualWeeklyPlanCard === 'function') renderManualWeeklyPlanCard();
@@ -23659,13 +23640,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _segC = document.getElementById('awakSegCalculs');
                     const _enfC = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild());
                     if (_segC) _segC.parentElement.style.display = _enfC ? 'none' : 'flex';
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 // 🔎 Barre de pastilles : construite à partir des <select>
                 // masqués, donc APRÈS que le DOM de l'onglet existe.
-                try { if (typeof renderExerciseFilterBar === 'function') renderExerciseFilterBar(); } catch (e) {}
+                try { if (typeof renderExerciseFilterBar === 'function') renderExerciseFilterBar(); } catch (e) { _awkE(e); }
                 // Check if filters are active, if not show welcome screen
                 filterExercises();
-                try { renderExerciseLibraryStats(); } catch (e) {}
+                try { renderExerciseLibraryStats(); } catch (e) { _awkE(e); }
                 updateProgressGraphExerciseList(); // ✅ Populate progress graphs dropdown
             } else if (tabName === 'calculators') {
                 // 🧑 v1227 : 13-15 ans → mise en garde sur le 1RM
@@ -23673,7 +23654,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _ado = document.getElementById('awak1rmAdo');
                     const _y = window.AwakYouth;
                     if (_ado) _ado.style.display = (_y && _y.isYoung && _y.isYoung() && !(_y.isChild && _y.isChild())) ? '' : 'none';
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 // Initialize accordions
                 initializeCalculatorsAccordions();
                 // Initialize calculators
@@ -23685,7 +23666,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (_bw && !_bw.value && _up.weight) _bw.value = Math.round(useKg ? _up.weight : _up.weight * 2.20462);
                     const _sx = document.getElementById('frcSex');
                     if (_sx && !_sx.dataset.touche && (_up.sex === 'homme' || _up.sex === 'femme')) _sx.value = _up.sex;
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 render1RMHistory(); // ✅ Render 1RM history
             } else if (tabName === 'routines') {
                 // Initialize routines
@@ -23712,26 +23693,26 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     profileNameElement.textContent = profile.name || 'Athlète';
                 }
             } else if (tabName === 'course') {
-                try { if (window.AwakRun && AwakRun.rendreOnglet) AwakRun.rendreOnglet(); } catch (e) {}
+                try { if (window.AwakRun && AwakRun.rendreOnglet) AwakRun.rendreOnglet(); } catch (e) { _awkE(e); }
             } else if (tabName === 'challenges') {
                 renderChallengesTab();
             } else if (tabName === 'history') {
                 // 📸 Carte « Ton corps » : photo centrale + actions.
-                try { if (typeof awakRenderCorpsCard === 'function') awakRenderCorpsCard(); } catch (e) {}
+                try { if (typeof awakRenderCorpsCard === 'function') awakRenderCorpsCard(); } catch (e) { _awkE(e); }
                 // 🧍 Silhouette des mensurations : points verts sur ce qui
                 // est déjà renseigné.
-                try { if (typeof awakRenderSilhouetteMesures === 'function') awakRenderSilhouetteMesures(); } catch (e) {}
+                try { if (typeof awakRenderSilhouetteMesures === 'function') awakRenderSilhouetteMesures(); } catch (e) { _awkE(e); }
                 
                 // Initialize accordions (convert all .card to accordions)
                 initializeHistoryAccordions();
                 
                 // Stats déménagées du hub (dégraissage v483)
-                try { renderWeeklyMuscleVolume(); } catch (e) {}
-                try { renderInsightsCard(); } catch (e) {}
+                try { renderWeeklyMuscleVolume(); } catch (e) { _awkE(e); }
+                try { renderInsightsCard(); } catch (e) { _awkE(e); }
 
                 // Heatmap + récupération musculaire (déplacées de l'accueil, v524)
-                try { if (typeof renderActivityHeatmap === 'function') renderActivityHeatmap('activityHeatmapCard', 26); } catch (e) {}
-                try { if (typeof renderMuscleRecoveryStatus === 'function') renderMuscleRecoveryStatus(); } catch (e) {}
+                try { if (typeof renderActivityHeatmap === 'function') renderActivityHeatmap('activityHeatmapCard', 26); } catch (e) { _awkE(e); }
+                try { if (typeof renderMuscleRecoveryStatus === 'function') renderMuscleRecoveryStatus(); } catch (e) { _awkE(e); }
                 
                 renderBadges();
                 // 📅 Calendrier déplacé dans son propre onglet (js/calendar-tab.js).
@@ -23784,9 +23765,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const history = Object.keys(parJour).map(k => parJour[k]).sort((x, y) => new Date(x.date) - new Date(y.date));
             if (history.length < 3) return null;
             // v1408 : mode « garder mes capacités » (condition qui évolue) → jamais plus lourd
-            try { if (window.AwakLimitations && AwakLimitations.maintien && AwakLimitations.maintien()) return null; } catch (e) {}
+            try { if (window.AwakLimitations && AwakLimitations.maintien && AwakLimitations.maintien()) return null; } catch (e) { _awkE(e); }
             // Dernière séance jugée « trop dure » : on ne pousse pas plus lourd
-            try { const rs = JSON.parse(localStorage.getItem(window._cleProfilLecture ? window._cleProfilLecture('awakRessenti') : 'awakRessenti') || 'null'); if (rs && rs.val === 'dur' && Date.now() - rs.t < 10 * 86400000) return null; } catch (e) {}
+            try { const rs = JSON.parse(localStorage.getItem(window._cleProfilLecture ? window._cleProfilLecture('awakRessenti') : 'awakRessenti') || 'null'); if (rs && rs.val === 'dur' && Date.now() - rs.t < 10 * 86400000) return null; } catch (e) { _awkE(e); }
 
             const last3 = history.slice(-3);
             const allSameWeight = last3.every(p => p.weight === last3[0].weight);
@@ -23947,7 +23928,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         renderWeeklyChallenge(ch);
                         return ch;
                     }
-                } catch(e) {}
+                } catch(e) { _awkE(e); }
             }
 
             // Generate based on history
@@ -23997,7 +23978,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (challenge.type === 'streak') {
                     return Math.min(challenge.target, loadStats()?.streak || 0);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             return 0;
         }
 
@@ -24115,7 +24096,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         chEl.style.display = 'block';
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -24315,9 +24296,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const pid = (typeof getCurrentProfileId === 'function') ? getCurrentProfileId() : null;
                 const key = pid ? `profile_${pid}_workoutHistory` : 'workoutHistory';
                 let history = [];
-                try { history = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
+                try { history = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { _awkE(e); }
                 if (!history.length) {
-                    try { history = JSON.parse(localStorage.getItem(_cleProfilLecture('workoutHistory')) || '[]'); } catch(e) {}
+                    try { history = JSON.parse(localStorage.getItem(_cleProfilLecture('workoutHistory')) || '[]'); } catch(e) { _awkE(e); }
                 }
                 if (history.length < 2) return false;
 
@@ -24395,9 +24376,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (!stats.bestStreak || stats.streak > stats.bestStreak) stats.bestStreak = stats.streak;
                 stats.lastWorkout = new Date().toISOString();
                 saveStats(stats);
-                try { if (typeof loadStats === 'function') loadStats(); } catch (e) {}
-                if (typeof storyCheckEvents === 'function') setTimeout(() => { try { storyCheckEvents({ delay: 600 }); } catch (e) {} }, 3500);
-            } catch (e) {}
+                try { if (typeof loadStats === 'function') loadStats(); } catch (e) { _awkE(e); }
+                if (typeof storyCheckEvents === 'function') setTimeout(() => { try { storyCheckEvents({ delay: 600 }); } catch (e) { _awkE(e); } }, 3500);
+            } catch (e) { _awkE(e); }
         }
         window.awakCompterSeance = awakCompterSeance;
 
@@ -24556,14 +24537,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (st0 && st0.status === 'ready') { prets++; pretsNoms.push(m[0]); }
                     else if (st0 && st0.status === 'fatigued') { aReposer++; reposNoms.push(m[0]); }
                     else if (st0) { recup++; recupNoms.push(m[0]); }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             });
             zones.forEach(function (z) {
                 var st = null;
                 try {
                     st = (typeof getMuscleRecoveryStatus === 'function')
                         ? getMuscleRecoveryStatus(z[1]) : null;
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 var mal = _douleurs.indexOf(z[1]) >= 0;
                 var c = mal ? COUL_DOULEUR : _corpsCouleur(st);
                 var pret = !mal && st && st.status === 'ready';
@@ -24622,7 +24603,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                       +   '<span style="display:inline-flex;align-items:center;gap:5px;">' + (window.AwakIcon ? AwakIcon.get('halter', 14, '#94a3b8') : '') + (_n ? (_n + ' équip.') : 'Corps') + '</span></button>'
                       + '</div>';
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 🏋️ Fond : salle vide au petit matin. Le voile est plus opaque en
             // HAUT (lieu + titre) et en BAS (bouton), plus ouvert au milieu où
@@ -24638,7 +24619,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1621);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1622);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24691,7 +24672,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1621" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1622" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -24718,7 +24699,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +   '<div data-corps-legende style="font-size:0.6em;margin-top:8px;text-align:center;">' + legende + '</div>'
                 +   (_douleurs.length ? (function () {
                         var zs = [];
-                        try { zs = AwakPain.activeZones().map(function (id) { var z = AwakPain.zoneById(id); return z ? z.label : ''; }).filter(Boolean); } catch (e) {}
+                        try { zs = AwakPain.activeZones().map(function (id) { var z = AwakPain.zoneById(id); return z ? z.label : ''; }).filter(Boolean); } catch (e) { _awkE(e); }
                         return '<button onclick="AwakPainOpen()" style="display:flex;align-items:center;gap:8px;width:100%;margin-top:9px;padding:8px 11px;border-radius:11px;cursor:pointer;text-align:left;'
                           + 'background:rgba(192,132,252,0.10);border:1px solid rgba(192,132,252,0.35);color:#e9d5ff;font-size:0.66em;font-weight:700;">'
                           + '<svg viewBox="0 0 24 24" width="15" height="15" style="flex-shrink:0;" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="' + COUL_DOULEUR + '"/></svg>'
@@ -24797,7 +24778,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (_corpsSelection === muscle) { _corpsSelection = null; awakCorpsLancer(muscle); return; }
             _corpsSelection = muscle;
             let st = null;
-            try { st = (typeof getMuscleRecoveryStatus === 'function') ? getMuscleRecoveryStatus(muscle) : null; } catch (e) {}
+            try { st = (typeof getMuscleRecoveryStatus === 'function') ? getMuscleRecoveryStatus(muscle) : null; } catch (e) { _awkE(e); }
             const pret = st && st.status === 'ready';
             const c = _corpsCouleur(st);
             const etat = pret ? 'Prêt à encaisser'
@@ -24845,7 +24826,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     }
                 }
                 _awakCorpsGo(muscle);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         function _awakCorpsGo(muscle) {
             try {
@@ -24861,7 +24842,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (typeof openWorkoutModeModal === 'function') { openWorkoutModeModal(); return; }
                 if (typeof startRandomWorkout === 'function') { startRandomWorkout(); return; }
                 if (typeof showToast === 'function') showToast('Muscle ciblé : ' + muscle, 'info');
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakCorpsLancer = awakCorpsLancer;
 
@@ -25029,7 +25010,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // (yoga, boxe, barre, pilates…) qui ont rejoint exerciseDatabase pour la
         // bibliothèque mais n'ont rien à faire dans une séance muscu générée.
         function _dbMuscu() {
-            try { if (Array.isArray(window.exerciseDatabaseMuscu)) return window.exerciseDatabaseMuscu; } catch (e) {}
+            try { if (Array.isArray(window.exerciseDatabaseMuscu)) return window.exerciseDatabaseMuscu; } catch (e) { _awkE(e); }
             return exerciseDatabase.filter(function (e) { return e && !e.discipline; });
         }
 
@@ -25081,10 +25062,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // v1445 : on complète par QUALITÉ (muscle le moins présent, populaire, composé),
                 // pas au hasard — un tirage aléatoire donnait « Sautillements sur une jambe ».
                 const _comp = e => { try { return classifyExercise(e) === 'compound'; } catch (x) { return false; } };
-                const _freq6 = {}; try { getWorkoutHistory().slice(0, 6).forEach(w => (w.exercises || []).forEach(x => { const nm = typeof x === 'string' ? x : x.name; _freq6[nm] = (_freq6[nm] || 0) + 1; })); } catch (e) {}
+                const _freq6 = {}; try { getWorkoutHistory().slice(0, 6).forEach(w => (w.exercises || []).forEach(x => { const nm = typeof x === 'string' ? x : x.name; _freq6[nm] = (_freq6[nm] || 0) + 1; })); } catch (e) { _awkE(e); }
                 const _valeur = e => {
                     const c = out.filter(o => o.muscle === e.muscle).length;
-                    let s0 = 0; try { s0 = scoreExercise(e, getUserProfile() || {}, new Set(), {}, []) / 8; } catch (x) {}
+                    let s0 = 0; try { s0 = scoreExercise(e, getUserProfile() || {}, new Set(), {}, []) / 8; } catch (x) { _awkE(x); }
                     s0 -= 3 * (_freq6[e.name] || 0);
                     return s0 - 3 * c + (awakPopulaire(e.name) ? 2.5 : 0) + (_comp(e) ? 1.5 : 0) + Math.random();
                 };
@@ -25150,7 +25131,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // il prend la place d'un exercice du même muscle.
                 if (out.length && !out.some(e => awakPopulaire(e.name))) {
                     // variété : pas un populaire de la dernière séance (sinon le même revient sans cesse)
-                    const _rec = new Set(); try { getWorkoutHistory().slice(0, 1).forEach(w => (w.exercises || []).forEach(x => _rec.add(typeof x === 'string' ? x : x.name))); } catch (e) {}
+                    const _rec = new Set(); try { getWorkoutHistory().slice(0, 1).forEach(w => (w.exercises || []).forEach(x => _rec.add(typeof x === 'string' ? x : x.name))); } catch (e) { _awkE(e); }
                     pool = pool.filter(p => !(awakPopulaire(p.name) && _rec.has(p.name)));
                     for (let k = out.length - 1; k >= 0; k--) {
                         const e = out[k]; if (e._pilier) continue;
@@ -25183,7 +25164,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             remplacer(mf.length ? mf : c, k);
                         }
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 // Ordre d'un programme : composés d'abord, abdos à la fin.
                 const rang = e => estCore(e) ? 2 : (_comp(e) || (typeof _estPolyarticulaire === 'function' && _estPolyarticulaire(e)) ? 0 : 1);
                 out = out.map((e, i) => [e, i]).sort((a, b) => (rang(a[0]) - rang(b[0])) || (a[1] - b[1])).map(x => x[0]);
@@ -25434,7 +25415,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 el.style.opacity = '0.4';
             });
             setTimeout(() => {
-                try { swap(); } catch (e) {}
+                try { swap(); } catch (e) { _awkE(e); }
                 const nouveaux = (cibles() || []).filter(Boolean);
                 nouveaux.forEach(el => {
                     el.style.transition = 'none';
@@ -25527,7 +25508,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const r = (typeof awakGetRank === 'function') ? awakGetRank() : null;
                 idx = Math.max(0, ordre.indexOf(r && r.id));
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return 96 + idx * 26;   // 96 → 278 sur un viewBox de 400
         }
 
@@ -25623,7 +25604,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function awakShowFamilyBossPin() {
             var b = null;
             try { b = (typeof window.AwakFamilyBossState === 'function')
-                ? window.AwakFamilyBossState() : null; } catch (e) {}
+                ? window.AwakFamilyBossState() : null; } catch (e) { _awkE(e); }
             if (!b) return;
             document.getElementById('awakFamBossPin')?.remove();
             var ov = document.createElement('div');
@@ -25685,14 +25666,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             // ── Failles ouvertes ────────────────────────────────────────
             let rifts = [];
-            try { rifts = (awakRiftsLoad() || []).filter(r => !r.completed); } catch (e) {}
+            try { rifts = (awakRiftsLoad() || []).filter(r => !r.completed); } catch (e) { _awkE(e); }
 
             // ── Compagnons débloqués ────────────────────────────────────
             let comps = [];
             try {
                 comps = (typeof awakGetCompanions === 'function' ? awakGetCompanions() : [])
                     .filter(c => c && c.unlocked);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // Positions déterministes : une Faille garde SA place d'un
             // affichage à l'autre (sinon la carte danserait à chaque rendu).
@@ -25715,7 +25696,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _mv = !!window.AwakEconomy
                     && ((typeof storyEventSeen === 'function') ? storyEventSeen('evt_n3_marchand') : true);
                 if (_mv) _occupes.push({ x: 200 - R * 0.55, y: 200 + R * 0.52, r: 40 });
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             const _placer = (cle, i, rayon) => {
                 let p = pos(cle, i, rayon);
                 for (let k = 1; k <= 16; k++) {
@@ -25792,7 +25773,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 _marchandVu = !!window.AwakEconomy
                     && ((typeof storyEventSeen === 'function') ? storyEventSeen('evt_n3_marchand') : true);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             if (_marchandVu) {
             const _sx = 200 - R * 0.55, _sy = 200 + R * 0.52;
             marques += '<g style="cursor:pointer;" onclick="awakOpenMerchant()">'
@@ -25838,7 +25819,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         +   '<animate attributeName="opacity" values="0.5;0;0.5" dur="' + (2.4 + _k * 0.3).toFixed(1) + 's" repeatCount="indefinite"/>'
                         + '</circle></g>';
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 👨‍👩‍👧 BOSS FAMILIAL — un point sur la carte, à l'écart de l'avenue.
             // ⚠️ Il n'existait QUE sous forme de carte dans l'onglet Aventure :
@@ -25861,7 +25842,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         +   '<animate attributeName="opacity" values="0.55;0;0.55" dur="3s" repeatCount="indefinite"/>'
                         + '</circle></g>';
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 👑 LE MONARQUE — masse sombre au bout de l'avenue, grossit
             // avec le nombre de sous-boss vaincus.
@@ -25872,7 +25853,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // pleinement nommé après le 4e (evt_avant_monarque).
             // On l'affiche donc à partir du PREMIER gardien tombé.
             let sb = 0;
-            try { sb = parseInt(localStorage.getItem('awakSubBossProgress') || '0', 10) || 0; } catch (e) {}
+            try { sb = parseInt(localStorage.getItem('awakSubBossProgress') || '0', 10) || 0; } catch (e) { _awkE(e); }
             const taille = 14 + sb * 5;
             // ⚠️ Plafonné : à haut rang, R*0.86 sortait du viewBox (y négatif)
             // et l’Effaceur se retrouvait coupé en haut de la carte.
@@ -26015,11 +25996,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // de disciplines s'ils sont chargés.
         function renderExerciseLibraryStats() {
             let list = [];
-            try { if (typeof exerciseDatabase !== 'undefined' && Array.isArray(exerciseDatabase)) list = exerciseDatabase.slice(); } catch (e) {}
+            try { if (typeof exerciseDatabase !== 'undefined' && Array.isArray(exerciseDatabase)) list = exerciseDatabase.slice(); } catch (e) { _awkE(e); }
             try {
                 if (typeof DISCIPLINE_EXERCISES !== 'undefined' && Array.isArray(DISCIPLINE_EXERCISES)) list = list.concat(DISCIPLINE_EXERCISES);
                 else if (window.DISCIPLINE_EXERCISES && Array.isArray(window.DISCIPLINE_EXERCISES)) list = list.concat(window.DISCIPLINE_EXERCISES);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             if (!list.length) return;
 
             // Dédoublonner par nom (un exercice peut apparaître dans 2 sources)
@@ -26065,7 +26046,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     exercises = exercises.filter(e => e && e.difficulty !== 'Avancé'
                         && !(AwakYouth.isDiscouraged && AwakYouth.isDiscouraged(e)));
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             
             grid.innerHTML = '';
             
@@ -26132,7 +26113,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             };
 
             // Nettoyer un éventuel observateur/sentinelle d'un rendu précédent
-            if (window._exObserver) { try { window._exObserver.disconnect(); } catch (e) {} window._exObserver = null; }
+            if (window._exObserver) { try { window._exObserver.disconnect(); } catch (e) { _awkE(e); } window._exObserver = null; }
 
             const _renderChunk = () => {
                 const slice = exercises.slice(_rendered, _rendered + _CHUNK);
@@ -26157,7 +26138,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (!finished) { grid.appendChild(sentinel); }
                     else {
                         sentinel.remove();
-                        if (window._exObserver) { try { window._exObserver.disconnect(); } catch (e) {} window._exObserver = null; }
+                        if (window._exObserver) { try { window._exObserver.disconnect(); } catch (e) { _awkE(e); } window._exObserver = null; }
                     }
                 };
 
@@ -26248,7 +26229,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sel = document.getElementById(selectId);
             if (!sel) return;
             sel.value = valeur;
-            try { if (typeof filterExercises === 'function') filterExercises(); } catch (e) {}
+            try { if (typeof filterExercises === 'function') filterExercises(); } catch (e) { _awkE(e); }
             renderExerciseFilterBar();
         }
         window.awakSetFilter = awakSetFilter;
@@ -26258,7 +26239,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 .forEach(id => { const s = document.getElementById(id); if (s) s.value = ''; });
             const si = document.getElementById('searchInput');
             if (si) si.value = '';
-            try { if (typeof filterExercises === 'function') filterExercises(); } catch (e) {}
+            try { if (typeof filterExercises === 'function') filterExercises(); } catch (e) { _awkE(e); }
             renderExerciseFilterBar();
         }
         window.awakResetFilters = awakResetFilters;
@@ -26273,7 +26254,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (selectId === 'equipmentFilter') opts = opts.filter(o => _MATERIEL_ENFANT.indexOf(o.v) !== -1);
                     if (selectId === 'difficultyFilter') opts = opts.filter(o => o.v !== 'Avancé');
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             if (!opts.length) return '';
             const sel = document.getElementById(selectId);
             const courant = sel ? sel.value : '';
@@ -26335,7 +26316,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function awakSyncSearch(v) {
             const si = document.getElementById('searchInput');
             if (si) si.value = v || '';
-            try { if (typeof filterExercises === 'function') filterExercises(); } catch (e) {}
+            try { if (typeof filterExercises === 'function') filterExercises(); } catch (e) { _awkE(e); }
         }
         window.awakSyncSearch = awakSyncSearch;
 
@@ -26460,7 +26441,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             { const _df = document.getElementById('disciplineFilter'); if (_df) _df.value = ''; }
             { const _es = document.getElementById('exerciseSearch'); if (_es) _es.value = ''; }
             filterExercises();
-            try { renderExerciseFilterBar(); } catch (e) {}
+            try { renderExerciseFilterBar(); } catch (e) { _awkE(e); }
         }
 
 
@@ -26821,7 +26802,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 sug = awakSuggestionEquilibre(
                     (typeof selectedMuscles !== 'undefined') ? selectedMuscles : []);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             if (!sug) { host.innerHTML = ''; host.style.display = 'none'; return; }
 
             const noms = sug.manquants.join(' ou ');
@@ -26897,7 +26878,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         + 'background:' + c + '1a;border:1px solid ' + c + '66;color:' + c + ';display:flex;align-items:center;justify-content:center;gap:6px;">' + txt + '</button>';
                     // v1578 : écarté par les réglages → on le dit sur la fiche
                     let _refus = null;
-                    try { _refus = awakRaisonRefus(exercise, { sansNiveau: true }); } catch (e) {}
+                    try { _refus = awakRaisonRefus(exercise, { sansNiveau: true }); } catch (e) { _awkE(e); }
                     if (_refus === 'exercices bannis') _refus = null;
                     const _RAISONS = { 'âge': 'ton âge', 'limitations': 'tes limitations', 'douleurs': 'une douleur signalée', 'mode silencieux': 'le mode silencieux', 'matériel': 'matériel manquant', 'mobilité réduite': 'la mobilité réduite' };
                     _act.innerHTML =
@@ -26917,7 +26898,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                       +   'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:' + (_bl ? '#86efac' : '#94a3b8') + ';">'
                       +   (_bl ? 'Me le proposer à nouveau dans mes séances' : 'Ne plus me le proposer dans mes séances') + '</button>';
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             
             modal.classList.add('active');
         }
@@ -27021,7 +27002,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }, 0);
             let totalMinutes = Math.ceil(totalSeconds / 60);
             // v1615 : durée réelle (séries, répétitions, repos) — avant : somme des durées d'UN passage (17 min pour 30)
-            try { if (typeof awakEstimerSeance === 'function') totalMinutes = Math.max(1, Math.round(awakEstimerSeance(currentWorkout) / 60)); } catch (e) {}
+            try { if (typeof awakEstimerSeance === 'function') totalMinutes = Math.max(1, Math.round(awakEstimerSeance(currentWorkout) / 60)); } catch (e) { _awkE(e); }
             document.getElementById('totalDuration').textContent = totalMinutes;
             
             currentWorkout.exercises.forEach((exercise, index) => {
@@ -27216,7 +27197,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (en) en.textContent = _awakAmrapLibelle();
                 const cur = cw.exercises[currentExerciseIndex];
                 if (cw._amrapReste >= 1 && cw._amrapReste <= 5 && !(cur && cur.mode === 'timer')) {
-                    try { awakDireDecompte(cw._amrapReste); } catch (e) {}
+                    try { awakDireDecompte(cw._amrapReste); } catch (e) { _awkE(e); }
                 }
                 if (cw._amrapReste <= 0) _awakAmrapFin();
             }, 1000);
@@ -27245,10 +27226,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             _awakAmrapBouton(false);
             if (amrapTimerInterval) { clearInterval(amrapTimerInterval); amrapTimerInterval = null; }
             clearInterval(timerInterval);
-            try { if (setRestInterval) { clearInterval(setRestInterval); setRestInterval = null; } hideGlobalRestBanner(); hideRestOverlay(); } catch (e) {}
+            try { if (setRestInterval) { clearInterval(setRestInterval); setRestInterval = null; } hideGlobalRestBanner(); hideRestOverlay(); } catch (e) { _awkE(e); }
             const tours = w._amrapTours || 0, extra = currentExerciseIndex;
             w.name = (w._amrapNom || w.name) + ' · ' + tours + ' tour' + (tours > 1 ? 's' : '') + (extra ? ' + ' + extra : '');
-            try { speak('Temps écoulé ! ' + tours + ' tour' + (tours > 1 ? 's' : ''), { interrupt: true }); } catch (e) {}
+            try { speak('Temps écoulé ! ' + tours + ' tour' + (tours > 1 ? 's' : ''), { interrupt: true }); } catch (e) { _awkE(e); }
             currentExerciseIndex = w.exercises.length;
             startExercise();   // → écran de fin (completeWorkout)
         }
@@ -27278,7 +27259,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             catch(e) { return {}; }
         }
         function _saveAllExerciseNotes(notes) {
-            try { localStorage.setItem(_getExerciseNotesKey(), JSON.stringify(notes)); } catch(e) {}
+            try { localStorage.setItem(_getExerciseNotesKey(), JSON.stringify(notes)); } catch(e) { _awkE(e); }
         }
         function loadExerciseNoteForCurrent() {
             const textarea = document.getElementById('exerciseNotesInput');
@@ -27337,7 +27318,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     window.AwakMoodPreWorkout.gate(function () { startExercise(); });
                     return;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // ↔️ Nouveau exercice → on réinitialise le marqueur de 2ᵉ côté (étirements bilatéraux)
             window._bilateralSecondSide = false;
             // ⚡ Repos de superset en cours (exercice minuté) : on l'annule
@@ -27348,13 +27329,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (typeof startSessionTimer === 'function' && workoutStartTime) {
                 if (!_sessionTimerInterval) startSessionTimer();
             }
-            try { if (window.AwakDuo) AwakDuo.monter(); } catch (e) {}   // v1601 : onglets du duo
+            try { if (window.AwakDuo) AwakDuo.monter(); } catch (e) { _awkE(e); }   // v1601 : onglets du duo
             // v1598 : AMRAP — fin de la liste avant la fin du temps = tour suivant
             if (currentWorkout && currentWorkout.type === 'amrap' && currentWorkout._amrapSec) {
                 if (!currentWorkout._amrapFini && currentExerciseIndex >= currentWorkout.exercises.length) {
                     currentWorkout._amrapTours = (currentWorkout._amrapTours || 0) + 1;
                     currentExerciseIndex = 0;
-                    try { showToast('Tour ' + currentWorkout._amrapTours + ' terminé', 'success', 1600); } catch (e) {}
+                    try { showToast('Tour ' + currentWorkout._amrapTours + ' terminé', 'success', 1600); } catch (e) { _awkE(e); }
                 }
                 _awakAmrapAssurer();
                 _awakAmrapBouton(!currentWorkout._amrapFini);
@@ -27364,17 +27345,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // À la place, forcer l'exit propre et retourner au modal combat
                 if (currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt)) {
                     console.log('⚠ Rift/Hunt : éviter completeWorkout, force exit');
-                    const isRift = currentWorkout._isRift;
-                    if (typeof _forceExitRiftSession === 'function') {
-                        _forceExitRiftSession();
-                    }
-                    setTimeout(() => {
-                        if (isRift && typeof awakShowRiftCombatScreen === 'function') {
-                            awakShowRiftCombatScreen();
-                        } else if (!isRift && typeof awakShowHuntScreen === 'function') {
-                            awakShowHuntScreen();
-                        }
-                    }, 300);
+                    _awakFinAttaqueCombat(!!currentWorkout._isRift, false);   // v1622 : chemin unique
                     return;
                 }
                 // v1601 : DUO — le partenaire n'a pas fini sa séance → proposer de la continuer ici
@@ -27386,7 +27357,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             currentExerciseIndex = currentWorkout.exercises.length;
                             startExercise();
                         })) return;
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                 }
                 window._awakDuoFinOk = false;
                 completeWorkout();
@@ -27413,7 +27384,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // exercice est en mode reps. On coupe aussi un éventuel repos-entre-séries.
             var _sgp = document.getElementById('setsGridPanel');
             if (_sgp) { _sgp.style.display = 'none'; }
-            try { if (setRestInterval) { clearInterval(setRestInterval); setRestInterval = null; } _gridRestRemaining = 0; } catch (e) {}
+            try { if (setRestInterval) { clearInterval(setRestInterval); setRestInterval = null; } _gridRestRemaining = 0; } catch (e) { _awkE(e); }
 
             const exercise = currentWorkout.exercises[currentExerciseIndex];
             
@@ -27446,7 +27417,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 exercise.isRest = true; // Ensure flag is set
             }
             // v1329 : une tenue (chaise au mur, planche…) arrivée en mode reps → minuteur
-            try { awakNormaliserIsometrique(exercise); } catch (e) {}
+            try { awakNormaliserIsometrique(exercise); } catch (e) { _awkE(e); }
             // ⏱️ NORMALISATION 'duration' → 'timer'. Les routines matinales (et les
             // circuits générés) produisent mode:'duration', alors que le reste du
             // flux ne connaît que 'timer' et 'reps'. Conséquence : updateTimerDisplay
@@ -27456,7 +27427,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // test de mode disséminé dans le code.
             if (exercise.mode === 'duration') exercise.mode = 'timer';
             // 📜 Rafraîchir le journal de combat (ne s'affiche qu'en Faille/Chasse).
-            try { if (typeof awakRenderCombatLog === 'function') awakRenderCombatLog(); } catch (e) {}
+            try { if (typeof awakRenderCombatLog === 'function') awakRenderCombatLog(); } catch (e) { _awkE(e); }
             
             // AUTO-FIX: If exercise doesn't have a mode, determine it now
             if (!exercise.mode && !exercise.isRest && !exercise.isInfo) {
@@ -27511,14 +27482,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     _chip.textContent = _txt;
                     _chip.style.display = _txt ? 'block' : 'none';
                 }
-            } catch (e) {}
-            try { _awakTimerChip(exercise); } catch (e) {}
+            } catch (e) { _awkE(e); }
+            try { _awakTimerChip(exercise); } catch (e) { _awkE(e); }
 
             const _prog = getExerciseProgress();
             document.getElementById('exerciseNumber').textContent = _awakLibelleTour(exercise) || ((exercise && (exercise.isRest || exercise.isInfo))
                 ? `Repos · ${_prog.current}/${_prog.total} exercices`
                 : `Exercice ${_prog.current} sur ${_prog.total}`);
-            try { updateLiveVolumeChip(); } catch (e) {}   // v1223 : la barre du haut suit chaque exercice
+            try { updateLiveVolumeChip(); } catch (e) { _awkE(e); }   // v1223 : la barre du haut suit chaque exercice
             
             // Safety check for exercise name
             const exerciseName = exercise.name || 'Exercice';
@@ -27652,7 +27623,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (typeof awakAssautStop === 'function') awakAssautStop();
                     document.getElementById('awakAssautHpBar')?.remove();
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             
             // ⚔️ Barre de vie de l’Effaceur : (re)dessinée à chaque exercice du combat
             // final, retirée partout ailleurs.
@@ -27662,7 +27633,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 } else {
                     document.getElementById('awakBossHpBar')?.remove();
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             const swapBtn = document.getElementById('swapBtn');
             if (swapBtn) {
                 swapBtn.style.display = (!exercise.isRest && !exercise.isInfo) ? 'flex' : 'none';
@@ -27928,7 +27899,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             // v1589 : en superset, le suivant est le membre suivant du tour (ou le 1er
             // exercice du groupe tant qu'il reste des tours), pas l'exercice d'après
-            try { const _ssk = window.AwakSS && AwakSS.prochain ? AwakSS.prochain(currentWorkout, currentExerciseIndex) : -1; if (_ssk >= 0) { nextExercise = currentWorkout.exercises[_ssk]; nextExerciseIndex = currentWorkout.exercises.length; } } catch (e) {}
+            try { const _ssk = window.AwakSS && AwakSS.prochain ? AwakSS.prochain(currentWorkout, currentExerciseIndex) : -1; if (_ssk >= 0) { nextExercise = currentWorkout.exercises[_ssk]; nextExerciseIndex = currentWorkout.exercises.length; } } catch (e) { _awkE(e); }
             while (nextExerciseIndex < currentWorkout.exercises.length) {
                 const candidate = currentWorkout.exercises[nextExerciseIndex];
                 if (!candidate.isRest && !candidate.isInfo) {
@@ -28005,7 +27976,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     visualContent.classList.remove('awak-vis-neutre');
                     if (visualFrame) visualFrame.style.minHeight = '';
                     visualContent.classList.add('awak-vis-img');
-                    try { const _wm = document.getElementById('exerciseVisualWatermark'); if (_wm) _wm.style.display = 'none'; } catch (e) {}
+                    try { const _wm = document.getElementById('exerciseVisualWatermark'); if (_wm) _wm.style.display = 'none'; } catch (e) { _awkE(e); }
                     // v1415 : cadre CARRÉ pleine largeur (les nouvelles images sont carrées) ; toucher = plein écran
                     visualContent.innerHTML = '<div class="awak-vis-carre" onclick="window.awakZoomImage && awakZoomImage(this)" data-src="' + _src3.replace(/"/g, '&quot;') + '" style="position:relative;width:100%;overflow:hidden;cursor:zoom-in;">'
                         + '<div aria-hidden="true" style="position:absolute;inset:-30px;background:url(' + "'" + _src3 + "'" + ') center/cover no-repeat;filter:blur(24px) brightness(0.42) saturate(1.2);transform:scale(1.1);"></div>'
@@ -28021,12 +27992,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         else if (window.awakImageV2 && window.awakImageV2(_imgSrc3) && localStorage.getItem('awakImgFixe') === '1' && window.awakAnimBouton) {
                             const _bx = visualContent.querySelector('.awak-vis-carre');
                             if (_bx) { _bx.setAttribute('data-raw', _imgSrc3); _bx.insertAdjacentHTML('beforeend', window.awakAnimBouton(false)); }
-                        } } catch (e) {}
+                        } } catch (e) { _awkE(e); }
                 } else {
                     // v1221 : repli NEUTRE — plus de personnage dessiné (début / fin)
                     visualContent.style.padding = '0';
                     visualContent.classList.remove('awak-vis-img');
-                    try { const _wm = document.getElementById('exerciseVisualWatermark'); if (_wm) _wm.style.display = ''; } catch (e) {}
+                    try { const _wm = document.getElementById('exerciseVisualWatermark'); if (_wm) _wm.style.display = ''; } catch (e) { _awkE(e); }
                     // v1223 : panneau compact — un grand carré presque vide n'aidait personne
                     visualContent.style.minHeight = '0';
                     visualContent.classList.add('awak-vis-neutre');
@@ -28072,7 +28043,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             updateTimerDisplay();
             updateExerciseProgressList();
             // v1369 : mise en page de l'écran de séance (mode, « Ensuite », image)
-            try { if (window.AwakSeanceEcran) window.AwakSeanceEcran.maj(exercise, currentWorkout, currentExerciseIndex); } catch (e) {}
+            try { if (window.AwakSeanceEcran) window.AwakSeanceEcran.maj(exercise, currentWorkout, currentExerciseIndex); } catch (e) { _awkE(e); }
             
             // Show/hide tracking inputs and modify controls based on mode
             const repsTrackingDiv = document.getElementById('repsTrackingInputs');
@@ -28163,7 +28134,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // ⚡ SUPERSET : le mode minuteur ne passe pas par initSetsTracker,
             // on arme donc le groupe ici (sinon tour 1 jamais initialisé).
             if (exercise.mode !== 'reps' && window.AwakSS && typeof window.AwakSS.sync === 'function') {
-                try { window.AwakSS.sync(); } catch (e) {}
+                try { window.AwakSS.sync(); } catch (e) { _awkE(e); }
             }
             // v1399 : aussi entre deux exercices minutés d'une séance ordinaire (avant :
             // le minuteur du Dead bug partait avant qu'on soit au sol). Les formats
@@ -28233,8 +28204,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 el.style.fontSize = s.size;
                 el.style.animation = 'none'; el.offsetHeight;
                 el.style.animation = 'countPop 0.5s cubic-bezier(0.34,1.56,0.64,1)';
-                try { if (typeof speak === 'function') speak(s.say, { interrupt: true }); } catch (e) {}
-                try { vibrate(70); } catch (e) {}
+                try { if (typeof speak === 'function') speak(s.say, { interrupt: true }); } catch (e) { _awkE(e); }
+                try { vibrate(70); } catch (e) { _awkE(e); }
                 setTimeout(run, s.ms);
             };
             run();
@@ -28341,7 +28312,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     wakeLock = await navigator.wakeLock.request('screen');
                     wakeLock.addEventListener('release', () => { wakeLock = null; });
                 }
-            } catch(e) { }
+            } catch(e) { _awkE(e); }
         }
         function releaseWakeLock() {
             if (wakeLock) { wakeLock.release(); wakeLock = null; }
@@ -28409,7 +28380,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
 
             // 🫁 Yoga : afficher le guide de respiration (sinon le retirer)
-            try { _renderBreathPacer(exercise); } catch (e) {}
+            try { _renderBreathPacer(exercise); } catch (e) { _awkE(e); }
 
             if (timerInterval) clearInterval(timerInterval);
 
@@ -28511,7 +28482,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             const _timerEx = currentWorkout?.exercises?.[currentExerciseIndex];
                             // Équivalent reps = durée / 3 (ex: 30s → ~10 reps de dégâts)
                             const equivReps = Math.max(5, Math.round((_timerEx?.duration || 30) / 3));
-                            try { if (typeof completedSets !== 'undefined' && Array.isArray(completedSets)) completedSets.push({ reps: 0, weight: 0, duration: _timerEx?.duration || 30 }); } catch (e) {}   // v1569 : la tenue compte dans la séance
+                            try { if (typeof completedSets !== 'undefined' && Array.isArray(completedSets)) completedSets.push({ reps: 0, weight: 0, duration: _timerEx?.duration || 30 }); } catch (e) { _awkE(e); }   // v1569 : la tenue compte dans la séance
 
                             // Infliger les dégâts directement
                             try {
@@ -28535,37 +28506,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                             ? (isRift ? '💀 Vague éliminée !' : '💀 Monstre éliminé !')
                                             : '⚔ Attaque terminée — retour au combat',
                                             'success', 1800);
-
-                                        if (typeof _forceExitRiftSession === 'function') {
-                                            _forceExitRiftSession();
-                                        }
-                                        setTimeout(() => {
-                                            if (monsterKilled) {
-                                                if (isRift && typeof awakAdvanceToNextWave === 'function') {
-                                                    awakAdvanceToNextWave();
-                                                } else if (!isRift && typeof awakCompleteHunt === 'function') {
-                                                    awakCompleteHunt();
-                                                }
-                                            } else {
-                                                if (isRift && typeof awakShowRiftCombatScreen === 'function') {
-                                                    awakShowRiftCombatScreen();
-                                                } else if (!isRift && typeof awakShowHuntScreen === 'function') {
-                                                    awakShowHuntScreen();
-                                                }
-                                            }
-                                            window._riftEndingFlow = false;
-                                        }, 500);
+                                        _awakFinAttaqueCombat(isRift, monsterKilled);
                                     }, 1200);
                                 } else {
-                                    // Aucun damage — sortir quand même
+                                    // Aucun damage — sortir quand même (Faille ET Chasse)
                                     showToast('⚠️ Aucun dégât infligé', 'warning', 1500);
-                                    if (typeof _forceExitRiftSession === 'function') _forceExitRiftSession();
-                                    setTimeout(() => {
-                                        if (isRift && typeof awakShowRiftCombatScreen === 'function') {
-                                            awakShowRiftCombatScreen();
-                                        }
-                                        window._riftEndingFlow = false;
-                                    }, 800);
+                                    _awakFinAttaqueCombat(isRift, false);
                                 }
                             } catch(e) {
                                 console.error('Rift timer error:', e);
@@ -28582,7 +28528,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                 if (_timerEx && !_timerEx.isRest && !_timerEx.isInfo && _awakXPChronoUneFois()) {
                                     rpgGainXP(_timerEx._baseName || _timerEx.name, 0, 0, _timerEx.duration || 0);
                                 }
-                            } catch(e) {}
+                            } catch(e) { _awkE(e); }
                         }
                         // ⏱ SÉRIES MINUTÉES (routine) : on refait le chrono N fois, avec repos.
                         if (typeof _awakTimerSetNext === 'function' && _awakTimerSetNext()) return;
@@ -28592,7 +28538,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         // pas sauter directement à l'exercice d'après.
                         setTimeout(() => {
                             if (window.AwakSS && typeof window.AwakSS.onNext === 'function') {
-                                try { if (window.AwakSS.onNext()) return; } catch (e) {}
+                                try { if (window.AwakSS.onNext()) return; } catch (e) { _awkE(e); }
                             }
                             currentExerciseIndex++;
                             startExercise();
@@ -28620,7 +28566,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const n = (window._awakTimerSet && window._awakTimerSet.idx === currentExerciseIndex) ? window._awakTimerSet.n : 1;
                 chip.textContent = (ex.duration || 45) + ' s · série ' + n + '/' + total;
                 chip.style.display = 'block';
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         function _awakTimerSetNext() {
             const ex = currentWorkout && currentWorkout.exercises ? currentWorkout.exercises[currentExerciseIndex] : null;
@@ -28632,7 +28578,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (window._awakTimerSet.n >= total) return false;
             window._awakTimerSet.n++;
             timeRemaining = ex.duration || 45;
-            try { updateTimerDisplay(); } catch (e) {}
+            try { updateTimerDisplay(); } catch (e) { _awkE(e); }
             _awakTimerChip(ex);
             const repos = ex.repos || (currentWorkout && currentWorkout.restBetweenSets) || globalRestSeconds || 60;
             if (typeof showToast === 'function') showToast('Série ' + window._awakTimerSet.n + '/' + total + ' après le repos', 'info', 1800);
@@ -28737,14 +28683,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const w = parseFloat(x.weight);
                     if (w > 0) { x.weight = Math.round(w * f * 100) / 100; conv = true; }
                 }));
-                if (conv) { try { localStorage.setItem('fitproSessionSets', JSON.stringify(_currentSessionSets)); } catch (e) {} }
+                if (conv) { try { localStorage.setItem('fitproSessionSets', JSON.stringify(_currentSessionSets)); } catch (e) { _awkE(e); } }
                 document.querySelectorAll('#setsGridPanel input.awak-grid-num').forEach(inp => {
                     if (!/'w'/.test(inp.getAttribute('oninput') || '')) return;   // colonne poids de la grille
                     inp.placeholder = useKg ? 'kg' : 'lb';
                     const v = parseFloat(String(inp.value).replace(',', '.'));
                     if (v > 0) { inp.value = Math.round(v * f * 2) / 2; inp.dispatchEvent(new Event('input', { bubbles: true })); }
                 });
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             updateWeightUnitLabels();
             showToast(useKg ? '⚖️ Unité : kilogrammes (kg)' : '⚖️ Unité : livres (lbs)', 'info', 2000);
         }
@@ -28921,7 +28867,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const host = document.getElementById('locationChipHost');
             if (!host) return;
             let loc = null;
-            try { loc = (typeof getActiveLocation === 'function') ? getActiveLocation() : null; } catch (e) {}
+            try { loc = (typeof getActiveLocation === 'function') ? getActiveLocation() : null; } catch (e) { _awkE(e); }
             if (!loc) { host.innerHTML = ''; return; }
 
             const nbEquip = (loc.equipment && loc.equipment.length) ? loc.equipment.length : 0;
@@ -28958,9 +28904,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function showLocationPicker() {
             document.getElementById('awakLocPicker')?.remove();
             let profiles = [];
-            try { profiles = (typeof getLocationProfiles === 'function') ? getLocationProfiles() : []; } catch (e) {}
+            try { profiles = (typeof getLocationProfiles === 'function') ? getLocationProfiles() : []; } catch (e) { _awkE(e); }
             let actif = null;
-            try { actif = (typeof getActiveLocation === 'function') ? getActiveLocation() : null; } catch (e) {}
+            try { actif = (typeof getActiveLocation === 'function') ? getActiveLocation() : null; } catch (e) { _awkE(e); }
 
             const ov = document.createElement('div');
             ov.id = 'awakLocPicker';
@@ -29016,8 +28962,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         function _awakPickLocation(id) {
             document.getElementById('awakLocPicker')?.remove();
-            try { if (typeof switchLocation === 'function') switchLocation(id); } catch (e) {}
-            try { renderLocationChip(); } catch (e) {}
+            try { if (typeof switchLocation === 'function') switchLocation(id); } catch (e) { _awkE(e); }
+            try { renderLocationChip(); } catch (e) { _awkE(e); }
         }
         window._awakPickLocation = _awakPickLocation;
 
@@ -29062,7 +29008,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // gardait la valeur d'une session précédente (ou restait vide) et
             // la sauvegarde enregistrait le mauvais mode — en 'home', toutes
             // les machines de salle sont effacées.
-            try { document.body.dataset.locMode = currentMode; } catch (e) {}
+            try { document.body.dataset.locMode = currentMode; } catch (e) { _awkE(e); }
 
             // 🏠 L'ICÔNE CHOISIE reste un EMOJI stocké (compat. avec les lieux déjà
             // enregistrés — ne pas casser leur champ `icon`), mais son AFFICHAGE
@@ -29159,7 +29105,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 ${editing && getLocationProfiles().length > 1 ? `<button onclick="deleteLocation('${editId}')" style="width:100%;margin-top:8px;padding:11px;border-radius:12px;cursor:pointer;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#f87171;font-weight:800;font-size:0.82em;">Supprimer ce lieu</button>` : ''}
             </div>`;
             document.body.appendChild(overlay);
-            try { awakLocMajBoutonsTout(); } catch (e) {}
+            try { awakLocMajBoutonsTout(); } catch (e) { _awkE(e); }
         }
 
         window._locEquip = [];
@@ -29228,7 +29174,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // remplacé depuis par du vert (#60a8f0). Le bouton Gym était donc
             // toujours lu comme « home », et la sauvegarde effaçait les
             // machines de salle.
-            try { document.body.dataset.locMode = mode; } catch (e) {}
+            try { document.body.dataset.locMode = mode; } catch (e) { _awkE(e); }
             const activeStyle = 'padding:10px;border:2px solid #60a8f0;border-radius:14px;background:linear-gradient(135deg,rgba(96,168,240,0.24),rgba(96,168,240,0.10));color:white;cursor:pointer;font-weight:700;';
             const inactiveStyle = 'padding:10px;border:1px solid rgba(255,255,255,0.12);border-radius:14px;background:rgba(255,255,255,0.03);color:#94a3b8;cursor:pointer;font-weight:700;';
 
@@ -29279,7 +29225,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const gb = document.getElementById('locModeGym');
                     mode = (gb && /60a8f0/i.test(gb.style.cssText || '')) ? 'gym' : 'home';
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // Équipements généraux sélectionnés
             const equip = [];
@@ -29329,12 +29275,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // du Corps du Chasseur — qui affiche le lieu et son nombre
             // d'équipements — n'étaient jamais mis à jour : la sauvegarde
             // fonctionnait, mais rien ne changeait à l'écran.
-            try { if (typeof renderLocationChip === 'function') renderLocationChip(); } catch (e) {}
-            try { if (document.getElementById('awakLocPicker') && typeof showLocationPicker === 'function') showLocationPicker(); } catch (e) {}
+            try { if (typeof renderLocationChip === 'function') renderLocationChip(); } catch (e) { _awkE(e); }
+            try { if (document.getElementById('awakLocPicker') && typeof showLocationPicker === 'function') showLocationPicker(); } catch (e) { _awkE(e); }
             try {
                 const _ch = document.getElementById('awakCorpsHost');
                 if (_ch && typeof awakRenderCorps === 'function') _ch.innerHTML = awakRenderCorps();
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // Si on modifie le lieu actif, appliquer les nouveaux réglages immédiatement
             if (!editId || editId === activeLocationId) {
                 selectedEquipment = [...finalEquip];
@@ -29345,7 +29291,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
             showToast(`${name} ${editId?'modifié':'créé'} !`, 'success', 2000);
             // v1281 : l'onglet Programme › Salle reflète tout de suite les machines cochées
-            try { const _pt = document.getElementById('programTab'); if (_pt && _pt.classList.contains('active') && typeof renderProgramTab === 'function') renderProgramTab(); } catch (e) {}
+            try { const _pt = document.getElementById('programTab'); if (_pt && _pt.classList.contains('active') && typeof renderProgramTab === 'function') renderProgramTab(); } catch (e) { _awkE(e); }
         }
 
         // v1581 : avec confirmation, depuis la fenêtre de modification d'un lieu
@@ -29355,12 +29301,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!loc || tous.length <= 1) return;
             showConfirm('Supprimer le lieu « ' + loc.name + ' » et son matériel ?', function () {
                 const profiles = getLocationProfiles().filter(p => p.id !== locationId);
-                if (locationId === 'outdoor') { try { localStorage.setItem('fitproOutdoorRetire', '1'); } catch (e) {} }
+                if (locationId === 'outdoor') { try { localStorage.setItem('fitproOutdoorRetire', '1'); } catch (e) { _awkE(e); } }
                 saveLocationProfiles(profiles);
                 document.getElementById('addLocationOverlay')?.remove();
                 if (activeLocationId === locationId) switchLocation(profiles[0].id);
-                try { renderLocationBtns(); } catch (e) {}
-                try { renderLocationChip(); } catch (e) {}
+                try { renderLocationBtns(); } catch (e) { _awkE(e); }
+                try { renderLocationChip(); } catch (e) { _awkE(e); }
                 showToast('Lieu supprimé', 'success', 2000);
             }, null, { title: 'Supprimer ce lieu ?', danger: true, confirmLabel: 'Supprimer' });
         }
@@ -29424,7 +29370,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (der && (Date.now() - (der.ts || 0)) > 5 * 60000) der = null;   // trop ancienne → prochaine série
                 if (der && !der.warmup) {
                     der.rpe = n;
-                    try { localStorage.setItem('fitproSessionSets', JSON.stringify(_currentSessionSets)); } catch (e) {}
+                    try { localStorage.setItem('fitproSessionSets', JSON.stringify(_currentSessionSets)); } catch (e) { _awkE(e); }
                     _currentInlineRPE = null;
                     showToast('Effort ' + n + '/10 noté pour la série ' + (der.set || l.length), 'info', 1800);
                 } else {
@@ -29450,7 +29396,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 exerciseRestOverrides[exName] = parseInt(seconds);
                 lsSet('fitproExRestOverrides', JSON.stringify(exerciseRestOverrides));
                 const _lb = { 60: '1 min', 90: '1 min 30', 120: '2 min', 180: '3 min' }[seconds] || (seconds + ' s');
-                try { showToast('Repos de ' + _lb + ' pour ' + exName + ' (gardé pour les prochaines fois)', 'info', 2200); } catch (e) {}   // v1613 : retour visible
+                try { showToast('Repos de ' + _lb + ' pour ' + exName + ' (gardé pour les prochaines fois)', 'info', 2200); } catch (e) { _awkE(e); }   // v1613 : retour visible
             }
         }
 
@@ -29723,7 +29669,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             useKg = kg;
             localStorage.setItem('fitproUseKg', kg ? 'true' : 'false');
             updateWeightUnitLabels();
-            try { awakMajBarresUnite(); } catch (e) {}
+            try { awakMajBarresUnite(); } catch (e) { _awkE(e); }
             showToast(kg ? '⚖️ Kilogrammes activés' : '⚖️ Livres activées', 'success', 1500);
         }
 
@@ -29734,7 +29680,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const activeTxt   = 'white';
             const inactiveTxt = '#94a3b8';
             // v1551 : !important — sinon le thème sombre (.btn) efface l'état actif
-            const _imp = (el, prop, val) => { try { el.style.setProperty(prop, val, 'important'); } catch (e) {} };
+            const _imp = (el, prop, val) => { try { el.style.setProperty(prop, val, 'important'); } catch (e) { _awkE(e); } };
 
             // Boutons dans Réglages
             const bKg  = document.getElementById('unitBtnKg');
@@ -29849,7 +29795,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const ov = document.getElementById('awakPauseOverlay');
                 if (ov) ov.remove();
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakHidePauseOverlay = awakHidePauseOverlay;
 
@@ -29878,7 +29824,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     existing.style.animation = 'awakFadeOut 0.3s forwards';
                     setTimeout(() => existing.remove(), 300);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
 
         // ⚔️ Barre de vie de l’Effaceur, affichée en haut de l'écran d'exercice
@@ -29900,8 +29846,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
             // v1479 : bandeau « cinéma » — l'Effaceur, sa phase, une barre découpée en
             // quatre phases (75 / 50 / 25 %), dégâts flottants et secousse à chaque coup.
-            try { if (typeof window.awakFinalCalibrer === 'function') window.awakFinalCalibrer(workout); } catch (e) {}
-            try { if (typeof window.awakFinalJoueurInit === 'function') window.awakFinalJoueurInit(workout); } catch (e) {}
+            try { if (typeof window.awakFinalCalibrer === 'function') window.awakFinalCalibrer(workout); } catch (e) { _awkE(e); }
+            try { if (typeof window.awakFinalJoueurInit === 'function') window.awakFinalJoueurInit(workout); } catch (e) { _awkE(e); }
             const hp = Math.max(0, workout._bossHp || 0);
             const max = workout._bossHpMax || 1;
             const pct = Math.max(0, Math.min(100, Math.round((hp / max) * 100)));
@@ -29959,7 +29905,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 d.textContent = '−' + c.dmg;
                 d.style.cssText = 'position:absolute;left:46px;top:6px;z-index:3;font-family:var(--font-display),sans-serif;font-weight:700;font-size:1.25em;color:#fff !important;text-shadow:0 0 10px ' + col + ',0 2px 4px #000;pointer-events:none;animation:fbHudDgt 1.3s ease-out forwards;';
                 bar.appendChild(d);
-                try { if (navigator.vibrate) navigator.vibrate(35); } catch (e) {}
+                try { if (navigator.vibrate) navigator.vibrate(35); } catch (e) { _awkE(e); }
             }
         }
 
@@ -29986,7 +29932,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         function _awakViderBulles() {
             _awakGrosFile.length = 0; _awakGrosEnCours = false;
-            try { _awakAideFile.length = 0; _awakAideEnCours = false; } catch (e) {}
+            try { _awakAideFile.length = 0; _awakAideEnCours = false; } catch (e) { _awkE(e); }
             document.getElementById('awakGros')?.remove();
             document.getElementById('awakAide')?.remove();
         }
@@ -29996,7 +29942,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const s = _awakSceneOuverte();
                 ['awakGros', 'awakAide'].forEach(id => { const e = document.getElementById(id); if (e) e.style.visibility = s ? 'hidden' : ''; });
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }, 250);
         function _awakDireGros(d) {
             if (!d || !d.txt) return;
@@ -30038,7 +29984,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +     (d.boss ? 'font-style:italic;' : '') + 'text-shadow:0 0 18px ' + c + '88,0 2px 6px #000;animation:agTxt .7s .15s ease-out both;">« ' + d.txt + ' »</div>'
                 + '</div></div>';
             document.body.appendChild(el);
-            try { if (navigator.vibrate) navigator.vibrate(d.boss ? [30, 40, 30] : 20); } catch (e) {}
+            try { if (navigator.vibrate) navigator.vibrate(d.boss ? [30, 40, 30] : 20); } catch (e) { _awkE(e); }
             const duree = Math.min(6000, 2600 + String(d.txt).length * 45);
             setTimeout(() => { el.style.animation = 'agOut .45s ease-in forwards'; }, duree);
             setTimeout(() => { el.remove(); setTimeout(_awakGrosSuivant, 250); }, duree + 450);
@@ -30122,7 +30068,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         + '</div>' : '')
                 + '</div>';
             document.body.appendChild(el);
-            try { if (navigator.vibrate) navigator.vibrate([25, 30, 50]); } catch (e) {}
+            try { if (navigator.vibrate) navigator.vibrate([25, 30, 50]); } catch (e) { _awkE(e); }
             setTimeout(() => { el.style.animation = 'aaOut .4s ease-in forwards'; }, 2300);
             setTimeout(() => { el.remove(); setTimeout(_awakAideSuivante, 150); }, 2700);
         }
@@ -30179,7 +30125,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 currentWorkout._etoiles = (currentWorkout._etoiles || 0) + 1;
                 const pg = getExerciseProgress();
                 if (window.AwakSessUX) AwakSessUX.exoFini({ cur: pg.current, total: pg.total, etoiles: currentWorkout._etoiles });
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
 
         // v1557 : une 2e touche sur « Suivant » à moins d'une demi-seconde est ignorée
@@ -30199,7 +30145,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 try {
                     const n = _gridBulkValidate();
                     window._awakDernierBulk = n;
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }
             // ⭐ v1223 : petite fête quand un exercice est vraiment terminé
             _awakFeteExoCourant(false);
@@ -30309,7 +30255,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             rpgGainXP(_skipEx._baseName || _skipEx.name, 0, 0, _elapsed);
                         }
                     }
-                } catch(e) {}
+                } catch(e) { _awkE(e); }
             }
 
             // Check which type of workout is running
@@ -30326,7 +30272,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // groupe tant que les tours ne sont pas finis, au lieu de sauter
                 // directement à l'exercice d'après.
                 if (!window._awakSSBypass && window.AwakSS && typeof window.AwakSS.onNext === 'function') {
-                    try { if (window.AwakSS.onNext()) return; } catch (e) {}
+                    try { if (window.AwakSS.onNext()) return; } catch (e) { _awkE(e); }
                 }
                 // Regular workout
                 currentExerciseIndex++;
@@ -30374,7 +30320,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (currentWorkout && !currentWorkout._completed && typeof saveActiveWorkoutState === 'function') {
                     saveActiveWorkoutState();
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             stopAllSpeech();
             clearInterval(timerInterval);
             clearInterval(cardioInterval);
@@ -30401,7 +30347,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _st = (typeof loadActiveWorkoutState === 'function') ? loadActiveWorkoutState() : null;
                 _keptForResume = !!_st;
                 if (typeof exitFullscreenMode === 'function') exitFullscreenMode();
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             // 🖤 Réaction héros si la séance était entamée depuis un moment (vrai abandon, pas faux départ)
             let _wasEngaged = false;
             try {
@@ -30409,7 +30355,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const mins = (Date.now() - workoutStartTime) / 60000;
                     _wasEngaged = mins >= 2;
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             releaseWakeLock();
             backToHome();
             // Informer que la séance est conservée et reprenable
@@ -30417,13 +30363,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (_keptForResume && typeof showToast === 'function') {
                     showToast('💾 Séance mise en pause — reprends-la quand tu veux depuis l\'accueil', 'info', 3500);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             if (_wasEngaged) {
                 try {
                     if (typeof awakShowHeroReaction === 'function') {
                         setTimeout(() => awakShowHeroReaction('abandon'), 600);
                     }
-                } catch(e) {}
+                } catch(e) { _awkE(e); }
             }
         }
 
@@ -30453,7 +30399,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (countdown) countdown.textContent = _globalRestRemaining;
                 if (fill) fill.style.width = Math.max(0, (_globalRestRemaining / _globalRestTotal) * 100) + '%';
                 if (_globalRestRemaining <= 0) {
-                    try { haptic.restEnd(); } catch (e) {}
+                    try { haptic.restEnd(); } catch (e) { _awkE(e); }
                     hideGlobalRestBanner();
                 }
             }, 1000);
@@ -30461,8 +30407,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         // v1370 : −15 s / +15 s sur le repos en cours
         function awakRestAjuster(d) {
-            try { if (typeof window._awakRestAjuster === 'function') window._awakRestAjuster(d); } catch (e) {}
-            try { vibrate(10); } catch (e) {}
+            try { if (typeof window._awakRestAjuster === 'function') window._awakRestAjuster(d); } catch (e) { _awkE(e); }
+            try { vibrate(10); } catch (e) { _awkE(e); }
         }
         window.awakRestAjuster = awakRestAjuster;
 
@@ -30543,7 +30489,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         totalSets++;
                     });
                 });
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // Rang + XP RPG (seulement si mode jeu actif)
             let rank = null, xp = 0, streak = 0;
@@ -30555,7 +30501,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
                 const st = (typeof loadStats === 'function') ? loadStats() : null;
                 streak = st && st.streak ? st.streak : 0;
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             return {
                 name: currentWorkout.name || 'Séance terminée',
@@ -30638,7 +30584,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         try {
                             await navigator.share({ files: [file], title: data.name });
-                        } catch(e) {}
+                        } catch(e) { _awkE(e); }
                     } else {
                         // Fallback : téléchargement
                         _downloadShareCard(url, fileName);
@@ -30682,7 +30628,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (typeof awakShowGameOnboarding === 'function' && !document.body.classList.contains('in-session')) awakShowGameOnboarding();
 
             // 🎭 Finaliser les missions de compagnons terminées
-            try { if (typeof awakCheckCompanionMissions === 'function') awakCheckCompanionMissions(); } catch(e) {}
+            try { if (typeof awakCheckCompanionMissions === 'function') awakCheckCompanionMissions(); } catch(e) { _awkE(e); }
 
             // Always append adventure container regardless of RPG mode
             _appendAdventureContainer();
@@ -30723,7 +30669,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     dailyQuests = dq;
                     dailyTimeLeft = dq._timeLeft || '';
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // ── Helpers ──────────────────────────────────────────────
             function barColor(lv) {
@@ -30797,7 +30743,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1621");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1622");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -30895,7 +30841,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // la plus importante à voir en premier (rang, niveau, attributs).
             tab.insertBefore(cardProfile, tab.firstChild);
             // v1410 : mission de la semaine, juste sous la Carte de Chasseur
-            try { const _ms = window.AwakMission && AwakMission.verser() >= 0 && AwakMission.carte(); if (_ms) cardProfile.insertAdjacentElement('afterend', _ms); } catch (e) {}
+            try { const _ms = window.AwakMission && AwakMission.verser() >= 0 && AwakMission.carte(); if (_ms) cardProfile.insertAdjacentElement('afterend', _ms); } catch (e) { _awkE(e); }
 
             // 🗺️ CARTE DE L'EFFACEMENT — placée AVANT la carte du joueur
             // quand la vue carte est active : on voit d'abord le LIEU, la
@@ -30908,7 +30854,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _c = _wrapCarte.firstElementChild;
                     if (_c) tab.insertBefore(_c, tab.firstChild);
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // ── BOUTON ÉQUIPEMENT RPG (à DROITE de Compétences) ──
             const _adv = typeof getAdventureEnabled === 'function' ? getAdventureEnabled() : false;
@@ -30979,11 +30925,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (_ord.indexOf(rk) <= _idx && localStorage.getItem('fitproStorySeen_' + cid) !== '1') _bJournal++;
                     });
                     if (localStorage.getItem('fitproStorySeen_prologue') !== '1') _bJournal++;
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 // Malus actifs (fonction réelle : awakCountActiveMalus)
                 try {
                     if (typeof awakCountActiveMalus === 'function') _bMalus = awakCountActiveMalus() || 0;
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 
                 const row2 = document.createElement('div');
                 row2.id = 'awakRowBtns2';
@@ -31015,7 +30961,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // non distribués est DÉJÀ affiché en haut de la carte (« ↑ 268 pts »).
                 // Deux indicateurs pour la même information, à quelques centimètres
                 // l'un de l'autre.
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // ── 👑 COMBAT FINAL — L’Effaceur (apparaît après les 4 sous-bosses) ──
             try {
@@ -31036,7 +30982,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         </div>`;
                     tab.appendChild(cardFinal);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // ── 🕳️ L'ABYSSE — descente infinie (apparaît après l’Effaceur vaincu) ──
             try {
@@ -31058,7 +31004,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         </div>`;
                     tab.appendChild(cardAbyss);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // ── 🛒 LE MARCHAND — désormais accessible par le bouton de la grille ──
             // La carte pleine largeur faisait doublon avec le bouton 🛒 placé
@@ -31086,7 +31032,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         </div>`;
                     tab.appendChild(cardShop);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
                         */
 // ── 👁️ JAUGE DU MONARQUE DU DÉCLIN [ANCIENNE HISTOIRE — MASQUÉE] ───
@@ -31125,7 +31071,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         </div>`;
                     tab.appendChild(cardMonarch);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // ── 📖 JOURNAL — désormais dans la grille (bouton 📖 avec badge) ──
             /* CARTE RETIRÉE (v834)
@@ -31198,7 +31144,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // repérait sur cardProfile, donc elle remontait en tête depuis que
                 // celle-ci est première. Repère positionnel = 3e enfant.
                 tab.insertBefore(cardMalus, tab.children[2] || null);
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
                         */
 // ── 🎭 BANDEAU MISSION DE COMPAGNONS EN COURS ──────────────
@@ -31236,7 +31182,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // celle-ci est première. Repère positionnel = 3e enfant.
                 tab.insertBefore(cardMission, tab.children[2] || null);
                 });
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // ── 🩸 BANDEAU COMPAGNONS BLESSÉS ──────────────────────────
             try {
@@ -31271,7 +31217,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     // dont la portée n'est pas garantie à cet endroit.
                     tab.insertBefore(cardInjured, tab.children[2] || null);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // ── BOUTON ÉQUIPEMENT RPG : déplacé juste sous le bouton Compétences ──
             // (voir ajout après tab.appendChild(cardProfile))
@@ -31572,7 +31518,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 _ent.setAttribute('data-echelle-garder', '');
                 _ent.innerHTML = '<div>◈ Le Système</div><h2>Ton aventure</h2>';
                 tab.insertBefore(_ent, tab.firstChild);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // ── Animer les barres XP ─────────────────────────────────
             setTimeout(() => {
@@ -31583,7 +31529,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     }, i * 60);
                 });
                     // Re-append adventure container after RPG HTML rendering wipes it
-            setTimeout(() => { try { _appendAdventureContainer(); } catch(e) {} }, 50);
+            setTimeout(() => { try { _appendAdventureContainer(); } catch(e) { _awkE(e); } }, 50);
         }, 100);
         }, 30)); // fin setTimeout/requestAnimationFrame skeleton
 
@@ -31691,7 +31637,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     localStorage.setItem(weekKey, JSON.stringify(awardedQuests));
                     // v1538 : Médaille du mérite (+XP des quêtes) aussi sur les quêtes de la semaine
                     let _qx = q.xpReward;
-                    try { const _rq = (typeof getActiveRingEffects === 'function') ? getActiveRingEffects() : {}; if (_rq.questXp) _qx = Math.round(_qx * (1 + _rq.questXp)); } catch (e) {}
+                    try { const _rq = (typeof getActiveRingEffects === 'function') ? getActiveRingEffects() : {}; if (_rq.questXp) _qx = Math.round(_qx * (1 + _rq.questXp)); } catch (e) { _awkE(e); }
                     // Ajouter XP à tous les muscles actifs
                     const rpgData = rpgLoad();
                     Object.keys(rpgData.muscles).forEach(muscle => {
@@ -31711,7 +31657,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const sk = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {};
                 if (sk.streakStart) streak += (3 - sk.streakStart); // ex: streakStart=2 → +1 jour effectif
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             if (streak >= 30) return 2.0;
             if (streak >= 14) return 1.5;
             if (streak >= 7)  return 1.25;
@@ -32030,7 +31976,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 showToast(`${cls.emoji} Classe ${cls.name} choisie ! Tu es éveillé.`, 'success', 3500);
                 if (typeof renderGameTab === 'function') renderGameTab();
                 // v1448 : le panneau « Compétences » est une copie figée de l'onglet → on le reconstruit
-                try { if (typeof rpgRafraichirPanneauDetails === 'function') rpgRafraichirPanneauDetails(); } catch (e) {}
+                try { if (typeof rpgRafraichirPanneauDetails === 'function') rpgRafraichirPanneauDetails(); } catch (e) { _awkE(e); }
                 return;
             }
 
@@ -32063,10 +32009,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         const _rg = JSON.parse(localStorage.getItem('awakSkillRangs') || '{}');
                         _vieux.forEach(id => { delete _rg[id]; });
                         localStorage.setItem('awakSkillRangs', JSON.stringify(_rg));
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                     showToast(`📜 Tome consommé ! Tu es maintenant ${cls.emoji} ${cls.name}.`, 'success', 4000);
                     if (typeof renderGameTab === 'function') renderGameTab();
-                    try { if (typeof rpgRafraichirPanneauDetails === 'function') rpgRafraichirPanneauDetails(); } catch (e) {}
+                    try { if (typeof rpgRafraichirPanneauDetails === 'function') rpgRafraichirPanneauDetails(); } catch (e) { _awkE(e); }
                 }
             );
         }
@@ -32254,7 +32200,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const skills = rpgGetUnlockedSkills();
             if (skills.includes(skillId)) return;
             // v1526 : arbre à choix — prérequis, niveau et points vérifiés
-            if (window.AwakArbre && !AwakArbre.peut(skillId)) { try { AwakArbre.choisir(skillId); } catch (e) {} return; }
+            if (window.AwakArbre && !AwakArbre.peut(skillId)) { try { AwakArbre.choisir(skillId); } catch (e) { _awkE(e); } return; }
             skills.push(skillId); localStorage.setItem('fitproRPGSkills', JSON.stringify(skills));
             const skill = SKILL_TREE.find(s=>s.id===skillId);
             showToast(`${skill.emoji} Compétence débloquée : ${skill.name} !`, 'success', 3500);
@@ -32264,7 +32210,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // ne suffit donc pas : la copie visible gardait l'ancien état et la
             // compétence restait marquée « à débloquer » jusqu'au rechargement de
             // la page. On reconstruit le panneau s'il est ouvert.
-            try { if (typeof rpgRafraichirPanneauDetails === 'function') rpgRafraichirPanneauDetails(); } catch (e) {}
+            try { if (typeof rpgRafraichirPanneauDetails === 'function') rpgRafraichirPanneauDetails(); } catch (e) { _awkE(e); }
         }
 
         // Reconstruit le panneau de détails s'il est ouvert, une fois l'onglet
@@ -32319,7 +32265,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 for (const [k, v] of Object.entries(_cp)) {
                     if (typeof v === 'number') effects[k] = (effects[k] || 0) + v; else effects[k] = v;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // v1528 : plafonds (les rangs ne doivent pas casser le rythme ni les combats)
             const _CAP = { xpAll:0.60, xpCompound:0.60, xpIsolation:0.60, critChance:0.25, doubleDropChance:0.40,
                            epicDropBonus:0.50, legendaryDropBonus:0.40, epicToLegendary:0.30, doubleXPChance:0.25, rampageChance:0.15,
@@ -32406,7 +32352,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const newUnlocks = [];
             ACHIEVEMENTS.forEach(a => {
                 if (unlocked.includes(a.id)) return;
-                try { if (a.check(stats, data)) newUnlocks.push(a); } catch(e) {}
+                try { if (a.check(stats, data)) newUnlocks.push(a); } catch(e) { _awkE(e); }
             });
             if (newUnlocks.length > 0) {
                 const allUnlocked = [...unlocked, ...newUnlocks.map(a=>a.id)];
@@ -32464,12 +32410,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
          */
         function rpgShowCharacterLevelUp(newLevel, pointsGained) {
             // v1413 : sur l'écran de fin, intégré au butin (avec « Distribuer »)
-            try { if (window.AwakFin && window.AwakFin.niveau(newLevel, pointsGained)) return; } catch (e) {}
+            try { if (window.AwakFin && window.AwakFin.niveau(newLevel, pointsGained)) return; } catch (e) { _awkE(e); }
             // v1411 : attend la fin de la séance (avant : fenêtre + « Distribuer » en pleine série)
             if (document.body.classList.contains('in-session')) { setTimeout(function () { rpgShowCharacterLevelUp(newLevel, pointsGained); }, 1500); return; }
             if (typeof window.AwakCine !== 'undefined' && window.AwakCine.defer(function () { rpgShowCharacterLevelUp(newLevel, pointsGained); })) return;
-            try { playBeep(); } catch(e) {}
-            try { vibrate([80, 50, 120, 50, 80, 50, 200]); } catch(e) {}
+            try { playBeep(); } catch(e) { _awkE(e); }
+            try { vibrate([80, 50, 120, 50, 80, 50, 200]); } catch(e) { _awkE(e); }
 
             const overlay = document.createElement('div');
             overlay.id = 'awakCharLevelUpOverlay';
@@ -32709,7 +32655,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         }
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 4. Bonus de set actifs
             try {
@@ -32717,7 +32663,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const sets = getSetBonuses();
                     score += sets.length * 100;
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 5. Compagnons actifs : bonus selon nombre
             try {
@@ -32725,7 +32671,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const activeComps = awakCompanionsGetActive();
                     score += activeComps.length * 150; // 150 points par compagnon actif
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             return Math.round(score);
         }
@@ -32784,8 +32730,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const cur = parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0', 10) || 0;
                 localStorage.setItem('fitproRPGLifetimeXP', String(cur + n));
                 if (typeof statPointsCheckLevelUp === 'function') statPointsCheckLevelUp(_awakGetCurrentLevel());
-                if (typeof awakCheckRankUp === 'function') setTimeout(function () { try { awakCheckRankUp(); } catch (e) {} }, 2500);
-            } catch (e) {}
+                if (typeof awakCheckRankUp === 'function') setTimeout(function () { try { awakCheckRankUp(); } catch (e) { _awkE(e); } }, 2500);
+            } catch (e) { _awkE(e); }
             return n;
         }
         window.awakGrantLifetimeXP = awakGrantLifetimeXP;
@@ -32808,9 +32754,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
                 const newLevel = _awakGetCurrentLevel();
                 // Rafraîchir l'UI et déclencher les vérifs narratives
-                if (typeof renderGameTab === 'function') { try { renderGameTab(); } catch(e) {} }
+                if (typeof renderGameTab === 'function') { try { renderGameTab(); } catch(e) { _awkE(e); } }
                 // [ANCIENNE HISTOIRE DÉSACTIVÉE] — on ne déclenche que le nouveau moteur d'événements
-                if (typeof storyCheckEvents === 'function') { try { storyCheckEvents({ delay: 600 }); } catch(e) {} }
+                if (typeof storyCheckEvents === 'function') { try { storyCheckEvents({ delay: 600 }); } catch(e) { _awkE(e); } }
                 if (typeof showToast === 'function') showToast('🔧 Niveau ' + newLevel + ' (admin)', 'info', 2000);
                 return newLevel;
             } catch(e) { return null; }
@@ -32829,10 +32775,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 if (localStorage.getItem('fitproGameMode') !== '1') localStorage.setItem('fitproGameMode', '1');
                 if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled() && typeof setAdventureEnabled === 'function') setAdventureEnabled(true);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             if (typeof window.awakStartFinalBoss !== 'function') { if (typeof showToast === 'function') showToast('Combat final indisponible', 'error'); return; }
             showConfirm('Lancer le combat contre l’Effaceur en essai ? Une victoire d’essai ne compte pas : l’histoire et les Abysses ne changent pas.',
-                () => { try { window.awakStartFinalBoss({ essai: true }); } catch (e) {} }, null,
+                () => { try { window.awakStartFinalBoss({ essai: true }); } catch (e) { _awkE(e); } }, null,
                 { title: 'MODE DÉVELOPPEUR', subtitle: 'Combat final', confirmLabel: 'Lancer' });
         }
         window.awakAdminCombatFinal = awakAdminCombatFinal;
@@ -32854,7 +32800,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (typeof setAdventureEnabled === 'function') setAdventureEnabled(true);
                         _rallumes.push('Mode Aventure');
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
 
                 if (typeof awakGenerateRift !== 'function') {
                     if (typeof showToast === 'function') showToast('Générateur indisponible', 'error');
@@ -32879,9 +32825,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     }
                 }
                 // Rafraîchir la carte / l'onglet pour la voir tout de suite
-                try { if (typeof renderGameTab === 'function') renderGameTab(); } catch (e) {}
+                try { if (typeof renderGameTab === 'function') renderGameTab(); } catch (e) { _awkE(e); }
             } catch (e) {
-                try { if (typeof showToast === 'function') showToast('Erreur : ' + e.message, 'error'); } catch (e2) {}
+                try { if (typeof showToast === 'function') showToast('Erreur : ' + e.message, 'error'); } catch (e2) { _awkE(e2); }
             }
         }
         window.awakAdminSpawnRift = awakAdminSpawnRift;
@@ -32946,7 +32892,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 while ((m = re2.exec(src))) cond.push('si ' + m[1].charAt(0).toUpperCase() + m[1].slice(1) + ' est un compagnon');
                 if (/fitproRPGClass/.test(src)) cond.push('si aucune classe n\'est encore choisie');
                 if (/awakGetRank\(\)\.id ===/.test(src)) cond.push('seulement si le joueur est encore à ce rang');
-            } catch (x) {}
+            } catch (x) { _awkE(x); }
             return '<b>' + txt + '</b>' + (cond.length ? '<div style="color:#a5b4c8;margin-top:2px;">Condition : ' + cond.join(' ; ') + '</div>' : '')
                 + (e.once === false ? '<div style="color:#a5b4c8;">Peut revenir plusieurs fois</div>' : '');
         }
@@ -32978,7 +32924,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     ov.appendChild(inf);
                 } else if (!ov && n > 0) setTimeout(function () { attacher(n - 1); }, 250);
             })(120);
-            try { showToast((i + 1) + ' / ' + l.length + ' · ' + (e.content.title || e.id), 'info', 2200); } catch (x) {}
+            try { showToast((i + 1) + ' / ' + l.length + ' · ' + (e.content.title || e.id), 'info', 2200); } catch (x) { _awkE(x); }
         }
         window.awakAdminScene = awakAdminScene;
         window._awakDevSceneMaj = _awakDevSceneMaj;
@@ -33040,7 +32986,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (_awakVersionTaps === 1) {
                     const panel = document.getElementById('devModePanel');
                     if (panel) {
-                        try { panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+                        try { panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { _awkE(e); }
                         panel.style.transition = 'box-shadow 0.4s';
                         panel.style.boxShadow = '0 0 0 3px rgba(168,85,247,0.7), 0 0 30px rgba(168,85,247,0.5)';
                         setTimeout(() => { panel.style.boxShadow = 'none'; }, 1800);
@@ -33073,7 +33019,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 setTimeout(() => {
                     const panel = document.getElementById('devModePanel');
                     if (panel) {
-                        try { panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+                        try { panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { _awkE(e); }
                         panel.style.transition = 'box-shadow 0.4s';
                         panel.style.boxShadow = '0 0 0 3px rgba(168,85,247,0.7), 0 0 30px rgba(168,85,247,0.5)';
                         setTimeout(() => { panel.style.boxShadow = 'none'; }, 1800);
@@ -33091,6 +33037,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const panel = document.getElementById('devModePanel');
                 if (!panel) return;
                 panel.style.display = awakIsDevUser() ? 'block' : 'none';
+                try { if (window.AwakJournal) AwakJournal.majCompteur(); } catch (e) { _awkE(e); }   // v1622
                 // Synchroniser le libellé du bouton d'invincibilité
                 const btn = document.getElementById('devInvincibleBtn');
                 if (btn) {
@@ -33100,7 +33047,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         ? 'linear-gradient(135deg,#22d3ee,#0891b2)'
                         : 'linear-gradient(135deg,#dc2626,#991b1b)';
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
         window.awakRefreshDevPanel = awakRefreshDevPanel;
 
@@ -33329,9 +33276,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 document.body.appendChild(overlay);
 
                 const finish = () => {
-                    try { localStorage.setItem(AWAKENED_GAME_GUIDE_KEY, 'true'); } catch(e) {}
+                    try { localStorage.setItem(AWAKENED_GAME_GUIDE_KEY, 'true'); } catch(e) { _awkE(e); }
                     _awakGameGuideActive = false;
-                    try { overlay.remove(); } catch(e) {}
+                    try { overlay.remove(); } catch(e) { _awkE(e); }
                     if (typeof onDone === 'function') setTimeout(onDone, 250);
                 };
                 const btn = card.querySelector('#awakGuideStartBtn');
@@ -33381,7 +33328,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const overlay = document.createElement('div');
                 overlay.id = 'awakEpicIntroOverlay';
                 overlay.style.cssText = `position:fixed;inset:0;z-index:100002;background:#04060c;display:flex;align-items:center;justify-content:center;padding:32px 24px;cursor:pointer;opacity:0;animation:awakFadeIn 0.8s forwards;overflow:hidden;`;
-                setTimeout(() => { try { overlay.style.opacity = '1'; } catch(e) {} }, 900);
+                setTimeout(() => { try { overlay.style.opacity = '1'; } catch(e) { _awkE(e); } }, 900);
 
                 // ── Couches de fond ──────────────────────────────────────
                 const scan = document.createElement('div');
@@ -33501,7 +33448,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const titleArt = document.createElement('img');
                 titleArt.src = 'images/story/intro_titre.webp';
                 titleArt.style.cssText = `position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:82%;max-height:72%;z-index:1;opacity:0;transition:opacity 1.5s ease;pointer-events:none;filter:drop-shadow(0 0 40px rgba(6,182,212,0.35));`;
-                titleArt.onerror = () => { try { titleArt.remove(); } catch(e) {} };
+                titleArt.onerror = () => { try { titleArt.remove(); } catch(e) { _awkE(e); } };
                 overlay.appendChild(titleArt);
 
                 const stage = document.createElement('div');
@@ -33532,13 +33479,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 let _musOn = false, _musAbsente = false, _musFondu = null;
                 const musique = new Audio('audio/awakened_intro.mp3?v=1');
                 musique.preload = 'auto'; musique.volume = 0;
-                try { musique.setAttribute('playsinline', ''); } catch (e) {}
+                try { musique.setAttribute('playsinline', ''); } catch (e) { _awkE(e); }
                 const _fonduMus = (cible, ms, apres) => {
                     if (_musFondu) clearInterval(_musFondu);
                     const de = musique.volume, t0 = Date.now();
                     _musFondu = setInterval(() => {
                         const k = Math.min(1, (Date.now() - t0) / ms);
-                        try { musique.volume = Math.max(0, Math.min(1, de + (cible - de) * k)); } catch (e) {}
+                        try { musique.volume = Math.max(0, Math.min(1, de + (cible - de) * k)); } catch (e) { _awkE(e); }
                         if (k >= 1) { clearInterval(_musFondu); _musFondu = null; if (apres) apres(); }
                     }, 50);
                 };
@@ -33553,7 +33500,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         const p = musique.play();
                         const ok = () => {
                             _musOn = true; sonBtn.style.display = 'none';
-                            try { audio.stop(); } catch (e) {}
+                            try { audio.stop(); } catch (e) { _awkE(e); }
                             _fonduMus(0.85, 1800);
                         };
                         if (p && typeof p.then === 'function') p.then(ok).catch(() => { if (!_musAbsente) sonBtn.style.display = 'block'; });
@@ -33563,12 +33510,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 musique.addEventListener('error', () => { _musAbsente = true; sonBtn.style.display = 'none'; });
                 sonBtn.addEventListener('click', (e) => { e.stopPropagation(); lancerMusique(); });
                 sonBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
-                const _visMus = () => { try { if (document.hidden) musique.pause(); else if (_musOn && document.body.contains(overlay)) musique.play().catch(() => {}); } catch (e) {} };
+                const _visMus = () => { try { if (document.hidden) musique.pause(); else if (_musOn && document.body.contains(overlay)) musique.play().catch(() => {}); } catch (e) { _awkE(e); } };
                 document.addEventListener('visibilitychange', _visMus);
                 const arreterMusique = () => {
                     document.removeEventListener('visibilitychange', _visMus);
-                    if (!_musOn) { try { musique.pause(); } catch (e) {} return; }
-                    _fonduMus(0, 1200, () => { try { musique.pause(); musique.src = ''; } catch (e) {} });
+                    if (!_musOn) { try { musique.pause(); } catch (e) { _awkE(e); } return; }
+                    _fonduMus(0, 1200, () => { try { musique.pause(); musique.src = ''; } catch (e) { _awkE(e); } });
                 };
 
                 // 🔊 Son synthétisé (Web Audio, aucun fichier) — activé au premier toucher
@@ -33592,7 +33539,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                 o.connect(g); g.connect(lp); o.start(); droneOsc.push(o);
                             });
                             masterGain.gain.linearRampToValueAtTime(0.45, AC.currentTime + 2.5);
-                        } catch(e) {}
+                        } catch(e) { _awkE(e); }
                     },
                     blip() {
                         try {
@@ -33604,7 +33551,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + 0.16);
                             o.connect(g); g.connect(AC.destination);
                             o.start(); o.stop(AC.currentTime + 0.18);
-                        } catch(e) {}
+                        } catch(e) { _awkE(e); }
                     },
                     impact() {
                         try {
@@ -33625,15 +33572,15 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             const hp = AC.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 900;
                             const ng = AC.createGain(); ng.gain.value = 0.22;
                             n.connect(hp); hp.connect(ng); ng.connect(AC.destination); n.start();
-                        } catch(e) {}
+                        } catch(e) { _awkE(e); }
                     },
                     stop() {
                         try {
                             if (!AC) return;
                             masterGain.gain.linearRampToValueAtTime(0.0001, AC.currentTime + 0.5);
                             const ac = AC, osc = droneOsc; AC = null; droneOsc = [];
-                            setTimeout(() => { try { osc.forEach(o => o.stop()); ac.close(); } catch(e) {} }, 700);
-                        } catch(e) {}
+                            setTimeout(() => { try { osc.forEach(o => o.stop()); ac.close(); } catch(e) { _awkE(e); } }, 700);
+                        } catch(e) { _awkE(e); }
                     }
                 };
                 overlay.addEventListener('pointerdown', () => { lancerMusique(); if (!_musOn && _musAbsente) audio.ensure(); }, { passive: true });
@@ -33656,7 +33603,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         else curB.push(line);
                     });
                     if (curB.length) narrativeBeats.push(curB.join('\n'));
-                } catch(e) {}
+                } catch(e) { _awkE(e); }
 
                 const beats = [];
                 let bootTimer = null;
@@ -33781,11 +33728,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     window.removeEventListener('resize', onResize);
                     audio.stop();
                     arreterMusique();
-                    try { localStorage.setItem(AWAKENED_EPIC_INTRO_KEY, 'true'); } catch(e) {}
-                    try { localStorage.setItem(AWAKENED_GAMETAB_INTRO_KEY, 'true'); } catch(e) {} // prologue absorbé
+                    try { localStorage.setItem(AWAKENED_EPIC_INTRO_KEY, 'true'); } catch(e) { _awkE(e); }
+                    try { localStorage.setItem(AWAKENED_GAMETAB_INTRO_KEY, 'true'); } catch(e) { _awkE(e); } // prologue absorbé
                     _awakEpicIntroActive = false;
                     overlay.style.animation = 'awakFadeIn 0.5s reverse forwards';
-                    setTimeout(() => { try { overlay.remove(); } catch(e) {} done(); }, 480);
+                    setTimeout(() => { try { overlay.remove(); } catch(e) { _awkE(e); } done(); }, 480);
                 };
                 const next = () => {
                     if (timer) { clearTimeout(timer); timer = null; }
@@ -33817,7 +33764,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 } else if (localStorage.getItem(AWAKENED_GAME_GUIDE_KEY) !== 'true') {
                     awakShowGameGuide(() => {});
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
         window.awakShowGameOnboarding = awakShowGameOnboarding;
 
@@ -33853,7 +33800,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             awakShowSystemMessage(AWAKENED_GAMETAB_INTRO, {
                                 onClose: () => {
                                     // Marqué SEULEMENT après que l'intro a réellement été vue et fermée
-                                    try { localStorage.setItem(AWAKENED_GAMETAB_INTRO_KEY, 'true'); } catch(e) {}
+                                    try { localStorage.setItem(AWAKENED_GAMETAB_INTRO_KEY, 'true'); } catch(e) { _awkE(e); }
                                     _awakGameTabIntroActive = false;
                                 }
                             });
@@ -33862,7 +33809,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         }
                     } catch(e) { _awakGameTabIntroActive = false; }
                 }, 650);
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
         window.awakShowGameTabIntro = awakShowGameTabIntro;
 
@@ -33877,14 +33824,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (document.body.classList.contains('in-session')) return true;
                 const _pv = document.getElementById('preparationView');
                 if (_pv && !_pv.classList.contains('hidden') && _pv.offsetParent !== null) return true;
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             try {
                 const cand = document.querySelectorAll('[id$="Modal"], [id$="Overlay"], [id*="Onb"], [id*="onb"], [id*="story"], [id*="Story"], [id*="tuto"], [id*="Tuto"], [id*="Welcome"], [id*="Visite"], [id*="Eveil"], #awakSecModal');
                 for (const c of cand) {
                     const cs = getComputedStyle(c), r = c.getBoundingClientRect();
                     if (cs.position === 'fixed' && cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity > 0 && r.width > 100 && r.height > 100) return true;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return false;
         }
         window.awakEcranOccupe = awakEcranOccupe;
@@ -34009,11 +33956,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (typeof awakCheckCompanionRifts === 'function') awakCheckCompanionRifts();
                         if (typeof awakCheckWeeklyBoss === 'function') awakCheckWeeklyBoss();
                         if (typeof awakCheckEveil === 'function') awakCheckEveil();
-                    }, 6000); } catch(e) {}
+                    }, 6000); } catch(e) { _awkE(e); }
                     // 🌑 [GLITCH DU TISSERAND DÉSACTIVÉ — ancienne narration, remplacée par Nabdano]
                     // try { setTimeout(() => {
                     //     if (typeof awakArchitectMaybeGlitch === 'function') awakArchitectMaybeGlitch();
-                    // }, 9000); } catch(e) {}
+                    // }, 9000); } catch(e) { _awkE(e); }
                 }
                 localStorage.setItem('awakLastRankSeen', currentRank.id);
             }
@@ -34150,7 +34097,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         setTimeout(() => showToast(`🌀 Le Déclin s\'étend : jusqu\'à ${current} Failles simultanées !`, 'warning', 4500), 1800);
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
         window.awakCheckRiftCapacityUnlock = awakCheckRiftCapacityUnlock;
         const RIFT_COOLDOWN_HOURS = 48;        // 2 jours entre 2 spawns (au lieu de 14h)
@@ -34612,16 +34559,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const key = profileId ? `${RIFT_STORAGE_KEY}_${profileId}` : RIFT_STORAGE_KEY;
                 // v1616 : une Faille s'ouvre pendant qu'on regarde l'onglet Jeu → la carte suit
                 // (avant : toast « Une Faille s'est ouverte » + carte « Aucune brèche »)
-                let _avant = 0; try { _avant = (JSON.parse(localStorage.getItem(key) || '[]') || []).filter(r => r && !r.completed).length; } catch (e) {}
+                let _avant = 0; try { _avant = (JSON.parse(localStorage.getItem(key) || '[]') || []).filter(r => r && !r.completed).length; } catch (e) { _awkE(e); }
                 localStorage.setItem(key, JSON.stringify(rifts));
                 const _apres = (rifts || []).filter(r => r && !r.completed).length;
                 if (_apres > _avant) setTimeout(() => {
                     try {
                         const t = document.getElementById('gameTab');
                         if (t && t.classList.contains('active') && !document.body.classList.contains('in-session') && typeof renderGameTab === 'function') renderGameTab();
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                 }, 400);
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
 
         /**
@@ -34712,7 +34659,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (typeof nextExercise === 'function') nextExercise();
                     else if (typeof startExercise === 'function') startExercise();
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakAssautProlonger = awakAssautProlonger;
 
@@ -34725,8 +34672,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (typeof showToast === 'function') {
                     showToast('◈ La brèche reste ouverte. Tes coups ont porté.', 'info', 3000);
                 }
-            } catch (e) {}
-            try { if (typeof awakAbandonRift === 'function') { awakActiveRiftSession = null; } } catch (e) {}
+            } catch (e) { _awkE(e); }
+            try { if (typeof awakAbandonRift === 'function') { awakActiveRiftSession = null; } } catch (e) { _awkE(e); }
             try {
                 currentWorkout = null;
                 if (typeof clearActiveWorkoutState === 'function') clearActiveWorkoutState();
@@ -34739,7 +34686,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (typeof switchTab === 'function') switchTab('game');
                 const ws = document.getElementById('workoutSelection');
                 if (ws) ws.style.display = '';
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakAssautAbandonner = awakAssautAbandonner;
 
@@ -34759,7 +34706,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (!ex || ex.isRest) return;
                     if (typeof isPaused !== 'undefined' && isPaused) return;
                     awakAssautFrapper();
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }, ASSAUT_CADENCE * 1000);
         }
         function awakAssautStop() {
@@ -34785,7 +34732,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const SOFT = 80;
                 const eff = primaire <= SOFT ? primaire : SOFT + Math.sqrt(primaire - SOFT) * Math.sqrt(SOFT);
                 degats = Math.max(10, Math.round((4 + eff * 1.5) * 0.8));
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             wave.hpCurrent = Math.max(0, wave.hpCurrent - degats);
             // 💾 SAUVEGARDE IMMÉDIATE des dégâts.
@@ -34806,7 +34753,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 sess._frappes = (sess._frappes || 0) + 1;
                 sess.setsCompleted = Math.floor(sess._frappes / 2);
                 sess.totalDamageDealt = (sess.totalDamageDealt || 0) + degats;
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // (sauvegarde déjà faite plus haut — voir v997)
 
             const pct = Math.round((wave.hpCurrent / (wave.hpMax || 1)) * 100);
@@ -34815,15 +34762,15 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     showToast('⚔️ −' + degats + ' PV · ' + (wave.name || 'ennemi') + ' ' + pct + ' %',
                               wave.hpCurrent <= 0 ? 'success' : 'info', 1600);
                 }
-            } catch (e) {}
-            try { if (typeof _renderAssautHpBar === 'function') _renderAssautHpBar(); } catch (e) {}
+            } catch (e) { _awkE(e); }
+            try { if (typeof _renderAssautHpBar === 'function') _renderAssautHpBar(); } catch (e) { _awkE(e); }
 
             // Vague vaincue → passer à la suivante, ou Faille terminée
             if (wave.hpCurrent <= 0) {
                 const idx = (sess.rift.currentWaveIdx || 0) + 1;
                 if (sess.rift.waves && idx < sess.rift.waves.length) {
                     sess.rift.currentWaveIdx = idx;
-                    try { if (typeof showToast === 'function') showToast('◈ Vague suivante', 'info', 1800); } catch (e) {}
+                    try { if (typeof showToast === 'function') showToast('◈ Vague suivante', 'info', 1800); } catch (e) { _awkE(e); }
                 } else {
                     awakAssautStop();
                     // ⚠️ FERMER LA SÉANCE AVANT d'ouvrir l'écran de victoire.
@@ -34838,8 +34785,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         document.getElementById('awakAssautHpBar')?.remove();
                         const _ws = document.getElementById('workoutSelection');
                         if (_ws) _ws.style.display = '';
-                    } catch (e) {}
-                    try { if (typeof awakCompleteRift === 'function') awakCompleteRift(); } catch (e) {}
+                    } catch (e) { _awkE(e); }
+                    try { if (typeof awakCompleteRift === 'function') awakCompleteRift(); } catch (e) { _awkE(e); }
                 }
             }
 
@@ -34855,7 +34802,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _i = _all.findIndex(function (r) { return r && r.id === sess.rift.id; });
                     if (_i >= 0) { _all[_i] = sess.rift; awakRiftsSave(_all); }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
 
         // Barre de vie de l'Assaut, en haut de l'écran d'exercice
@@ -34955,7 +34902,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!cles.length) return null;
             if (rift && rift.assautArme != null && groupes[rift.assautArme]) return rift.assautArme;
             const k = cles[Math.floor(Math.random() * cles.length)];
-            try { if (rift) rift.assautArme = k; } catch (e) {}
+            try { if (rift) rift.assautArme = k; } catch (e) { _awkE(e); }
             return k;
         }
 
@@ -34977,7 +34924,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     // il faut de quoi varier AVEC UN SEUL matériel
                     if (Object.keys(_assautGroupes(filtres, t)).length) dispo.push(t);
                 });
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // Le corps est toujours possible : jamais de liste vide.
             if (!dispo.length) dispo = [ASSAUT_THEMES[0]];
             return dispo;
@@ -35002,7 +34949,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (window.AwakPain && typeof window.AwakPain.filterExercises === 'function') {
                     pool = window.AwakPain.filterExercises(pool);
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // 🧒 Profil enfant : poids du corps uniquement.
             try {
                 if (window.AwakYouth && typeof window.AwakYouth.isChild === 'function'
@@ -35012,9 +34959,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         return eq.every(x => ['Poids du corps', 'Aucun'].includes(x));
                     });
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // v1478 : pas d'échauffement ni d'exercices pour enfants dans un Assaut
-            try { const _pa = pool.filter(awakExoCombatOk); if (_pa.length >= 6) pool = _pa; } catch (e) {}
+            try { const _pa = pool.filter(awakExoCombatOk); if (_pa.length >= 6) pool = _pa; } catch (e) { _awkE(e); }
             // v1317 : un seul matériel (ou poids du corps seul) pour tout l'Assaut
             let _arme = null;
             {
@@ -35041,7 +34988,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (window.AwakPain && typeof window.AwakPain.filterExercises === 'function') {
                         pool = window.AwakPain.filterExercises(pool);
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }
             if (!pool.length) return null;
 
@@ -35086,7 +35033,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // pour le briefing. Le matériel est choisi ici et retenu sur la Faille.
         function awakAssautApercu(rift) {
             let arme = '', n = 6;
-            try { const w = awakBuildAssautWorkout(rift); if (w) { arme = w._assautArme || ''; n = w.exercises.filter(x => !x.isRest).length || 6; } } catch (e) {}
+            try { const w = awakBuildAssautWorkout(rift); if (w) { arme = w._assautArme || ''; n = w.exercises.filter(x => !x.isRest).length || 6; } } catch (e) { _awkE(e); }
             const sec = n * 40 + (n - 1) * 20;
             return { sec: sec, n: n, label: Math.floor(sec / 60) + ' min ' + String(sec % 60).padStart(2, '0'), arme: arme || 'Poids du corps' };
         }
@@ -35215,7 +35162,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             let lifetimeDays = RIFT_LIFETIME_DAYS[riftRank];
             // v1536 : Maître Chen — les nouvelles Failles durent 10 % de plus (vrai effet)
-            try { const _cb = (typeof awakCompanionsGetActiveBonuses === 'function') ? awakCompanionsGetActiveBonuses() : {}; if (_cb.riftDurationCut) lifetimeDays = Math.round(lifetimeDays * (1 + _cb.riftDurationCut) * 10) / 10; } catch (e) {}
+            try { const _cb = (typeof awakCompanionsGetActiveBonuses === 'function') ? awakCompanionsGetActiveBonuses() : {}; if (_cb.riftDurationCut) lifetimeDays = Math.round(lifetimeDays * (1 + _cb.riftDurationCut) * 10) / 10; } catch (e) { _awkE(e); }
             // Frénésie : durée de vie réduite
             if (modifier.lifetimeCut) lifetimeDays = Math.max(2, Math.round(lifetimeDays * modifier.lifetimeCut));
 
@@ -35229,7 +35176,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const dispo = _assautThemesDispo();
                     if (dispo.length) _assautTheme = dispo[Math.floor(Math.random() * dispo.length)].id;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // ⚖️ v1218 : échelle de PV (voir awakRiftHpScale) — sauf Assaut.
             if (!_assautTheme) {
@@ -35310,7 +35257,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (wave.bossMech && _AWAK_MECH_GENERIQUES.indexOf(wave.bossMech.id) < 0) return;
                 const m = awakBossMechPourNom(wave.name);
                 if (m) { wave.bossMech = m; wave._enraged = false; wave.weaknessStat = null; }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakAssurerMechBoss = awakAssurerMechBoss;
 
@@ -35332,7 +35279,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const S = wave._bm || (wave._bm = {});
             const t = (msg, type) => out.toasts.push({ msg: msg, type: type || 'info' });
             const maxPV = (typeof awakGetPlayerMaxHP === 'function') ? awakGetPlayerMaxHP() : 100;
-            const blesse = (pct, src) => { try { if (typeof awakDamagePlayer === 'function') awakDamagePlayer(Math.max(1, Math.round(maxPV * pct)), src); } catch (e) {} };
+            const blesse = (pct, src) => { try { if (typeof awakDamagePlayer === 'function') awakDamagePlayer(Math.max(1, Math.round(maxPV * pct)), src); } catch (e) { _awkE(e); } };
             const soigneBoss = pct => { const h = Math.round(wave.hpMax * pct); wave.hpCurrent = Math.min(wave.hpMax, wave.hpCurrent + h); return h; };
             const au = c.ratio >= 1.05, sous = c.ratio < 0.9, ok = c.ratio >= 0.95;
             const exNom = (c.ex && c.ex.name) || '';
@@ -35518,7 +35465,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     case 'bm_berceuse': return S.dort ? 'Il dort : prochain coup ×2' : '';
                     case 'bm_eclipse': return 'Exige : ' + (S.voulu || _AWAK_ECLIPSE[0]);
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return '';
         }
         window.awakBossMechEtat = awakBossMechEtat;
@@ -35558,9 +35505,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         try {
                             localStorage.setItem('awakNarrativeDone_' + r.narrativeId, '1');
                             localStorage.setItem('awakStoryEvt__echec_' + r.narrativeId, '1');
-                        } catch (e) {}
-                        try { if (typeof showToast === 'function') setTimeout(() => showToast('« ' + r.name + ' » s\'est refermée sans toi. Ce souvenir est perdu.', 'warning', 5000), 1500); } catch (e) {}
-                        try { if (typeof storyCheckEvents === 'function') setTimeout(() => storyCheckEvents({ delay: 400 }), 2500); } catch (e) {}
+                        } catch (e) { _awkE(e); }
+                        try { if (typeof showToast === 'function') setTimeout(() => showToast('« ' + r.name + ' » s\'est refermée sans toi. Ce souvenir est perdu.', 'warning', 5000), 1500); } catch (e) { _awkE(e); }
+                        try { if (typeof storyCheckEvents === 'function') setTimeout(() => storyCheckEvents({ delay: 400 }), 2500); } catch (e) { _awkE(e); }
                         continue;
                     }
                     if (r.state !== 'stable') { r.state = 'stable'; changed = true; }
@@ -35609,7 +35556,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (typeof awakCheckRiftsForMonsterSpawn === 'function') {
                     awakCheckRiftsForMonsterSpawn();
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             return cleaned;
         }
@@ -35635,7 +35582,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 while (j.length > AWAK_COMBAT_LOG_MAX) j.shift();
                 localStorage.setItem(AWAK_COMBAT_LOG_KEY, JSON.stringify(j));
                 if (typeof awakRenderCombatLog === 'function') awakRenderCombatLog();
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         function awakCombatLogGet() {
             try {
@@ -35644,7 +35591,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch (e) { return []; }
         }
         function awakCombatLogClear() {
-            try { localStorage.removeItem(AWAK_COMBAT_LOG_KEY); } catch (e) {}
+            try { localStorage.removeItem(AWAK_COMBAT_LOG_KEY); } catch (e) { _awkE(e); }
         }
         window.awakCombatLogGet = awakCombatLogGet;
         window.awakCombatLogClear = awakCombatLogClear;
@@ -35662,7 +35609,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (window.AwakRiftVis) AwakRiftVis.hud(null);
                     hote.innerHTML = ''; return;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             const j = awakCombatLogGet();
 
             // 🩸 En-tête PV : PV du personnage ET du boss courant, visible pendant
@@ -35706,7 +35653,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     });
                     _hudActif = true;
                 } else if (window.AwakRiftVis) AwakRiftVis.hud(null);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             try {
                 // v1304 : la double jauge du bas n'est plus jamais dessinée — les PV
                 // sont dans le bandeau du haut (Faille, Chasse) ou la jauge d'Assaut.
@@ -35799,7 +35746,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _r = _s && _s.rift;
                     const _m = (_r && typeof awakGetRiftModifier === 'function') ? awakGetRiftModifier(_r.modifierId) : null;
                     _fog = !!(_m && _m.hideHp);
-                } catch (err) {}
+                } catch (err) { _awkE(err); }
                 const pv = (!_fog && typeof e.hp === 'number') ? ('<span style="color:#8391a7;font-size:0.9em;"> · ' + e.hp + ' PV</span>') : '';
                 return '<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;font-size:0.72em;color:#cbd5e1;">'
                     + '<span style="min-width:0;">' + et + nom + '</span>'
@@ -35828,7 +35775,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1621);'
+                +     'url(images/combat_bg_v1.webp?v=1622);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -35853,7 +35800,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // verrouille AUSSI ici : c'est la fonction qui crée la Faille, elle ne
             // doit jamais pouvoir en produire une pour un profil au jeu éteint,
             // quel que soit le chemin d'appel ajouté par la suite.
-            try { if (typeof rpgEnabled === 'function' && !rpgEnabled()) return null; } catch (e) {}
+            try { if (typeof rpgEnabled === 'function' && !rpgEnabled()) return null; } catch (e) { _awkE(e); }
             // 🎓 v1404 : FAILLE D'INITIATION garantie après la 2e vraie séance (sans tirage
             // ni attente). Avant : niveau 3 + séance de 15 min + 35 % + 48 h → un débutant
             // qui suit l'Éveil (séances de 11-12 min) ne voyait aucune Faille avant la 3e semaine.
@@ -35877,7 +35824,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         return init;
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // 🔒 Pacing : aucune Faille normale tant que le joueur débute (niveau 2).
             if (typeof _awakGetCurrentLevel === 'function' && _awakGetCurrentLevel() < RIFT_MIN_PLAYER_LEVEL) return null;
 
@@ -35896,7 +35843,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (sessionContext) {
                 // v1404 : pendant le Parcours de l'Éveil (séances courtes), 10 min suffisent
                 let _minMin = RIFT_MIN_SESSION_MINUTES;
-                try { if (typeof awakEveilAujourdhui === 'function' && awakEveilAujourdhui()) _minMin = 10; } catch (e) {}
+                try { if (typeof awakEveilAujourdhui === 'function' && awakEveilAujourdhui()) _minMin = 10; } catch (e) { _awkE(e); }
                 if (sessionContext.durationMin < _minMin) return null;
                 if (sessionContext.exercisesCompleted < RIFT_MIN_EXERCISES) return null;
             }
@@ -35923,7 +35870,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
                 if (_awakGetCurrentLevel() < RIFT_MIN_PLAYER_LEVEL) return 'Atteins le niveau ' + RIFT_MIN_PLAYER_LEVEL + ' : des Failles s\'ouvriront après tes séances.';
                 let min = RIFT_MIN_SESSION_MINUTES;
-                try { if (typeof awakEveilAujourdhui === 'function' && awakEveilAujourdhui()) min = 10; } catch (e) {}
+                try { if (typeof awakEveilAujourdhui === 'function' && awakEveilAujourdhui()) min = 10; } catch (e) { _awkE(e); }
                 const reste = RIFT_COOLDOWN_HOURS * 3600000 - (Date.now() - parseInt(localStorage.getItem(RIFT_LAST_GENERATED_KEY) || '0'));
                 if (reste > 0) return 'Prochaine Faille possible dans ' + Math.ceil(reste / 3600000) + ' h, après une séance d\'au moins ' + min + ' min.';
                 return 'Une Faille peut s\'ouvrir après ta prochaine séance d\'au moins ' + min + ' min.';
@@ -35997,7 +35944,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         expiresAt = rift.createdAt + lifetime * (1 - compBonus.riftDurationCut);
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             const ms = expiresAt - Date.now();
             if (ms <= 0) return { expired: true, label: 'Expirée' };
@@ -36178,7 +36125,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1621);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1622);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -36316,7 +36263,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 if (currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt) && currentWorkout._riftId !== riftId) _forceExitRiftSession();
                 else _awakNettoyerCombatUI();
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // ⚡ ASSAUT : séance entièrement chronométrée, exercices imposés par
             // le thème. On court-circuite la préparation classique (choix de
@@ -36332,7 +36279,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         setsCompleted: 0,
                         exercisesUsed: []
                     };
-                    try { if (typeof switchTab === 'function') switchTab('workouts'); } catch (e) {}
+                    try { if (typeof switchTab === 'function') switchTab('workouts'); } catch (e) { _awkE(e); }
                     if (w._assautReplie && typeof showToast === 'function') {
                         showToast('◈ Tes armes ne sont pas là. Il faudra faire sans.', 'info', 3200);
                     }
@@ -36366,7 +36313,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         hpMax = Math.round(hpMax * (1 - consumEffects.hpCut));
                     }
                     // v1538 : Chevalier Brisé (monstre échappé) — monstres plus résistants
-                    try { const _ha = awakGetActiveHandicaps(); if (_ha.armure > 0) hpMax = Math.round(hpMax * (1 + _ha.armure / 100)); } catch (e) {}
+                    try { const _ha = awakGetActiveHandicaps(); if (_ha.armure > 0) hpMax = Math.round(hpMax * (1 + _ha.armure / 100)); } catch (e) { _awkE(e); }
                     // v1522 : vague renforcée selon l'aide de l'équipe (une seule fois par vague)
                     if (!w._hpEquipe) { const _fe = awakRiftFacteurPV(rift); w._hpEquipe = _fe; hpMax = Math.round(hpMax * _fe); }
                     w.hpMax = hpMax;
@@ -36397,7 +36344,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             document.getElementById('awakRiftBriefingModal')?.remove();
 
             // 💬 Phase 4 : dialogue compagnon
-            try { setTimeout(() => awakCompanionShowDialogue('onFightStart'), 800); } catch(e) {}
+            try { setTimeout(() => awakCompanionShowDialogue('onFightStart'), 800); } catch(e) { _awkE(e); }
 
             // Afficher l'écran de combat
             awakShowRiftCombatScreen();
@@ -36472,10 +36419,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const f = vrai ? 0.8 : 1.25;
                 wave.hpMax = Math.max(1, Math.round(wave.hpMax * f)); wave.hpCurrent = wave.hpMax;
                 if (!vrai) rift._fauxCount = (rift._fauxCount || 0) + 1;
-                try { const all = awakRiftsLoad(); const i = all.findIndex(r => r.id === rift.id); if (i >= 0) { all[i] = rift; awakRiftsSave(all); } } catch (e) {}
+                try { const all = awakRiftsLoad(); const i = all.findIndex(r => r.id === rift.id); if (i >= 0) { all[i] = rift; awakRiftsSave(all); } } catch (e) { _awkE(e); }
                 o.remove();
-                try { showToast(vrai ? 'C\'était bien moi. La vague faiblit (−20 % PV).' : 'Ce n\'était pas moi. La vague se renforce (+25 % PV).', vrai ? 'success' : 'warning', 3500); } catch (e) {}
-                try { if (document.getElementById('awakRiftCombatModal')) awakShowRiftCombatScreen(); } catch (e) {}
+                try { showToast(vrai ? 'C\'était bien moi. La vague faiblit (−20 % PV).' : 'Ce n\'était pas moi. La vague se renforce (+25 % PV).', vrai ? 'success' : 'warning', 3500); } catch (e) { _awkE(e); }
+                try { if (document.getElementById('awakRiftCombatModal')) awakShowRiftCombatScreen(); } catch (e) { _awkE(e); }
             });
         }
         window.awakFauxSystemeChoix = awakFauxSystemeChoix;
@@ -36494,20 +36441,20 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // v1422 — LE FAUX SYSTÈME : avant chaque vague, deux messages « SYSTÈME ».
             // Le vrai n'interdit jamais le repos (« Ce qu'est une Ancre ») ; le faux parle comme Nabdano.
             if (rift.narrativeId === 'false_system' && !currentWave._voix && currentWave.hpCurrent >= currentWave.hpMax) {
-                setTimeout(() => { try { awakFauxSystemeChoix(rift, rift.currentWaveIdx); } catch (e) {} }, 350);
+                setTimeout(() => { try { awakFauxSystemeChoix(rift, rift.currentWaveIdx); } catch (e) { _awkE(e); } }, 350);
             }
 
-            try { awakAssurerMechBoss(rift, currentWave); } catch (e) {}
+            try { awakAssurerMechBoss(rift, currentWave); } catch (e) { _awkE(e); }
             // v1468 : un boss se présente (nom + image) avant son combat, une fois par vague.
             try {
                 const _cle = rift.id + ':' + rift.currentWaveIdx;
                 if (currentWave.isBoss && session._bossIntro !== _cle && window.AwakRiftVis && AwakRiftVis.bossIntro) {
                     session._bossIntro = _cle;
                     setTimeout(() => {
-                        try { AwakRiftVis.bossIntro({ nom: currentWave.name, couleur: theme.color, sousTitre: rift.isSubBoss ? 'ÉPREUVE' : 'BOSS', ligne: currentWave.bossMech && /^bm_/.test(currentWave.bossMech.id) ? (currentWave.bossMech.name + ' — ' + currentWave.bossMech.desc) : '' }); } catch (e) {}
+                        try { AwakRiftVis.bossIntro({ nom: currentWave.name, couleur: theme.color, sousTitre: rift.isSubBoss ? 'ÉPREUVE' : 'BOSS', ligne: currentWave.bossMech && /^bm_/.test(currentWave.bossMech.id) ? (currentWave.bossMech.name + ' — ' + currentWave.bossMech.desc) : '' }); } catch (e) { _awkE(e); }
                     }, 250);
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // Modal full screen pour le combat
             document.getElementById('awakRiftCombatModal')?.remove();
@@ -36532,7 +36479,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1621);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1622);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -36649,7 +36596,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const sur = L.filter(ex => !(typeof awakRaisonRefus === 'function' && awakRaisonRefus(ex, { sansNiveau: true })));
                 if (sur.length >= Math.min(mini, 1) && sur.length) L = sur;
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             try {
                 const lv = ((typeof getUserProfile === 'function' && getUserProfile()) || {}).level || 'intermediate';
                 const permis = lv === 'beginner' ? ['Débutant'] : lv === 'advanced' ? null : ['Débutant', 'Intermédiaire'];
@@ -36661,7 +36608,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (niv2.length >= mini) L = niv2;
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return L;
         }
         function awakGetExercisesForRift(rift, count) {
@@ -36698,7 +36645,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (typeof awakEquipmentOk === 'function') {
                         return awakEquipmentOk(ex, Array.from(equipSet));
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 const eq = ex.equipment || [];
                 if (eq.length === 0) return true;
                 return eq.every(e => equipSet.has(e));
@@ -36708,7 +36655,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // v1569 : refus de sécurité aussi dans tous les replis (sauf si plus rien ne passe)
             let _secu = true;
             const _refuse = (ex) => { try { return typeof awakRaisonRefus === 'function' && !!awakRaisonRefus(ex, { sansNiveau: true }); } catch (e) { return false; } };
-            let _niv = 'intermediate'; try { _niv = ((typeof getUserProfile === 'function' && getUserProfile()) || {}).level || 'intermediate'; } catch (e) {}
+            let _niv = 'intermediate'; try { _niv = ((typeof getUserProfile === 'function' && getUserProfile()) || {}).level || 'intermediate'; } catch (e) { _awkE(e); }
             const isCombatExercise = (ex) => {
                 const t = ex.type || 'exercise';
                 if (t !== 'exercise') return false; // exclut warmup, stretch, info
@@ -36746,7 +36693,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     'trail', 'bounding', 'bondissement'];
                 if (motsDuree.some(k => n.replace('sprinter', '').includes(k))) return false;
                 // Exercice d'extérieur alors que le lieu actif ne l'est pas
-                try { if (typeof awakExerciseBlockedByLocation === 'function' && awakExerciseBlockedByLocation(ex)) return false; } catch (e) {}
+                try { if (typeof awakExerciseBlockedByLocation === 'function' && awakExerciseBlockedByLocation(ex)) return false; } catch (e) { _awkE(e); }
                 if (/tapis roulant|vélo stationnaire|rameur|elliptique|stairmaster|piscine/.test(eq)) return false;
                 if (/\bpool\b|aqua|water/.test(n)) return false;   // v1417 : filet (exercices de piscine nommés en anglais)
                 return true;
@@ -36785,7 +36732,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (bw.length >= 2) pool = bw;
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             
             pool = awakCombatSecurite(pool, Math.max(2, count || 4));   // v1569
             // v1478 : pas d'exercices POUR ENFANTS ni d'exercices qui ressemblent à de
@@ -36805,7 +36752,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     _p = _p.concat(_plus.slice(0, 6 - _p.length));
                 }
                 if (_p.length >= 4) pool = _p;
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 🥋 FAILLE ORDINAIRE = POIDS DU CORPS.
             // Une Faille est un combat de 6 exercices en 40/20 où le chrono fait
@@ -36828,7 +36775,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     // Filet : on ne bascule que s'il reste de quoi composer un combat.
                     if (_bwSeul.length >= 4) pool = _bwSeul;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // Si le filtre thème+équipement vide le pool, on relâche le thème mais GARDE l'équipement
             let finalPool = pool.length >= 2 ? pool : (typeof _dbMuscu === 'function' ? _dbMuscu() : (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase : []))
@@ -36923,7 +36870,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // Créer une "séance" mini pour cet exercice unique
             // 📜 Nouveau combat : journal remis à zéro, sinon les coups
             // s'accumuleraient d'un affrontement à l'autre.
-            try { if (typeof awakCombatLogClear === 'function') awakCombatLogClear(); } catch (e) {}
+            try { if (typeof awakCombatLogClear === 'function') awakCombatLogClear(); } catch (e) { _awkE(e); }
             const miniWorkout = {
                 name: `⚔ ${session.rift.name}`,
                 _isRift: true,
@@ -37087,7 +37034,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     record = avant > 0 && reps > avant;
                     session._meilleursReps[nom] = Math.max(session._meilleursReps[nom] || 0, reps);
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return { mult, ratio: r, cible, record };
         }
         window.awakRiftEffortMult = awakRiftEffortMult;
@@ -37129,8 +37076,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (E.noms.indexOf('Yuna') >= 0 && n % 7 === 0) extra += f('Yuna', Math.max(0.2, (wave.hpMax * 0.03) / Math.max(1, degats)));
             const col = (session.theme && session.theme.color) || '#a855f7';
             L.forEach(x => {
-                try { if (typeof awakCombatLogAdd === 'function') awakCombatLogAdd({ t: Date.now(), type: 'effet', msg: x.nom + ' frappe ' + (wave.name || 'le monstre') + ' : −' + x.d + ' PV', ton: 'success' }); } catch (e) {}
-                setTimeout(() => { try { _awakAideEpique({ nom: x.nom, val: '−' + x.d + ' PV', ton: 'coup', cibleNom: wave.name || 'le monstre', monstre: wave.name, couleurCible: col, boss: !!wave.isBoss }); } catch (e) {} }, 1100);
+                try { if (typeof awakCombatLogAdd === 'function') awakCombatLogAdd({ t: Date.now(), type: 'effet', msg: x.nom + ' frappe ' + (wave.name || 'le monstre') + ' : −' + x.d + ' PV', ton: 'success' }); } catch (e) { _awkE(e); }
+                setTimeout(() => { try { _awakAideEpique({ nom: x.nom, val: '−' + x.d + ' PV', ton: 'coup', cibleNom: wave.name || 'le monstre', monstre: wave.name, couleurCible: col, boss: !!wave.isBoss }); } catch (e) { _awkE(e); } }, 1100);
             });
             return extra;
         }
@@ -37292,7 +37239,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         finalDamage = finalDamage * (1 - handicaps.reduce_stats / 100);
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // ⏱ PLANCHER DE DÉGÂTS (v1218 : appliqué APRÈS tous les bonus, avant les
             // malédictions). Filet pour le joueur sous-équipé : à l'objectif de reps,
@@ -37334,7 +37281,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const _pm = (typeof awakGetRiftModifier === 'function' && rift) ? awakGetRiftModifier(rift.modifierId) : null;
                 if (_pm && _pm.playerDmgMult > 1) finalDamage = Math.round(finalDamage * _pm.playerDmgMult);
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 🐺 SOUS-BOSS — mécanique liée au type d'effort (La Traque, Colosse, Insaisissable, Siphon)
             if (currentWave.isBoss && rift.subBossMech && typeof awakApplySubBossMech === 'function') {
@@ -37350,11 +37297,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const bu = awakApplyBossUnique(rift, currentWave, { damage: finalDamage, effort: effortType, reps: cappedReps, ratio: _eff.ratio || 1, ex: _curEx, now: Date.now() });
                     finalDamage = bu.damage;
                     bu.toasts.forEach(t => procToasts.push(t));
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }
 
             // v1522 : les alliés frappent aussi
-            try { finalDamage += awakRiftAidesCoup(session, currentWave, finalDamage); } catch (e) {}
+            try { finalDamage += awakRiftAidesCoup(session, currentWave, finalDamage); } catch (e) { _awkE(e); }
             currentWave.hpCurrent = Math.max(0, currentWave.hpCurrent - finalDamage);
             // v1470 : Phénix Éteint — renaît une fois à 30 %
             if (currentWave.hpCurrent <= 0 && currentWave.bossMech && currentWave.bossMech.id === 'bm_phenix' && !currentWave._renait) {
@@ -37370,7 +37317,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _i = _all.findIndex(function (r) { return r && r.id === rift.id; });
                     if (_i >= 0) { _all[_i] = rift; awakRiftsSave(_all); }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             const newHpPercent = (currentWave.hpCurrent / currentWave.hpMax) * 100;
             session.totalDamageDealt += finalDamage;
 
@@ -37390,7 +37337,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _heal = Math.max(1, Math.min(Math.round(awakGetPlayerMaxHP() * 0.05), Math.round(finalDamage * _vfx.riftLifesteal)));
                     if (typeof awakHealPlayer === 'function') awakHealPlayer(_heal, '(🩸 Drain Vital)');
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 💾 PERSISTER l'état dans localStorage
             try {
@@ -37419,7 +37366,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // 💬 Phase 4 : dialogue compagnon contextuel
             try {
                 if (isCrit && Math.random() < 0.4) awakCompanionShowDialogue('onCrit');
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 🎉 Afficher les procs spéciaux (séquentiellement)
             // 📜 Consigner les EFFETS dans le journal de combat, en plus des dégâts :
@@ -37432,7 +37379,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         awakCombatLogAdd({ t: Date.now(), type: 'effet', msg: p.msg, ton: p.type });
                     }
                 });
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             procToasts.forEach((p, i) => {
                 setTimeout(() => {
                     if (typeof showToast === 'function') showToast(p.msg, p.type, 1800);
@@ -37497,7 +37444,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const allRifts = awakRiftsLoad();
                 const idx = allRifts.findIndex(r => r.id === session.rift.id);
                 if (idx >= 0) { allRifts[idx] = session.rift; awakRiftsSave(allRifts); }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             if (session.rift.currentWaveIdx >= session.rift.waves.length) {
                 awakCompleteRift();
@@ -37554,7 +37501,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             const _tx = document.getElementById('playerHpText');
                             if (_el) _el.style.width = Math.round((s.playerHP / awakGetPlayerMaxHP()) * 100) + '%';
                             if (_tx) _tx.textContent = `${s.playerHP} / ${awakGetPlayerMaxHP()} HP`;
-                        } catch(e) {}
+                        } catch(e) { _awkE(e); }
                     }, 900);
                 }
 
@@ -37597,7 +37544,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (_fq) _fq.style.display = 'none';
                         document.body.classList.remove('in-session', 'workout-fullscreen');
                         if (typeof resetWorkoutInterfaceElements === 'function') resetWorkoutInterfaceElements();
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                     switchTab('game');
                 },
                 null,
@@ -37635,13 +37582,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // Les exclure du compteur bloquait « Fermer 5 Failles » (La Tour qui Murmure) :
                 // un joueur pouvait en fermer 10 sans que le compteur bouge.
                 // Seules les Failles d'HISTOIRE (narrativeId) ne se comptent pas elles-mêmes.
-                if (!_wasCompleted && !r.narrativeId) { try { awakIncrementRiftsCompleted(); } catch (e) {} }
+                if (!_wasCompleted && !r.narrativeId) { try { awakIncrementRiftsCompleted(); } catch (e) { _awkE(e); } }
                 // 🔖 Trace PERMANENTE de complétion d'une Faille narrative :
                 // le tableau purge les Failles terminées après 7 jours, donc
                 // il ne peut pas servir de preuve durable. Sans cette trace,
                 // awakRepairNarrativeRifts recréerait une Faille déjà faite.
                 if (!_wasCompleted && r.narrativeId) {
-                    try { localStorage.setItem('awakNarrativeDone_' + r.narrativeId, '1'); } catch (e) {}
+                    try { localStorage.setItem('awakNarrativeDone_' + r.narrativeId, '1'); } catch (e) { _awkE(e); }
                     // v1422 : issue des Failles à choix / à mécanique (variantes de scène)
                     try {
                         if (r._echoPerdu || (r._fauxCount || 0) >= 2) {
@@ -37651,9 +37598,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         }
                         if (r.narrativeId === 'merchant_fading' && typeof awakConsumablesAdd === 'function') {
                             awakConsumablesAdd('larme_systeme', 1);
-                            setTimeout(() => { try { showToast('Le Marchand t\'offre une Larme du Système.', 'success', 4000); } catch (e) {} }, 2200);
+                            setTimeout(() => { try { showToast('Le Marchand t\'offre une Larme du Système.', 'success', 4000); } catch (e) { _awkE(e); } }, 2200);
                         }
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                     // 🎬 DIALOGUE APRÈS UNE FAILLE D'HISTOIRE.
                     // ⚠️ La complétion était bien ENREGISTRÉE, mais le module
                     // narratif n'était jamais consulté : les événements dont le
@@ -37665,7 +37612,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (typeof storyCheckEvents === 'function') {
                             setTimeout(function () { storyCheckEvents({ delay: 400 }); }, 2600);
                         }
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                 }
                 // 🔧 Migration : si cette Faille est une Faille de compagnon mais a perdu/manque
                 // ses champs (créée par une ancienne version), on les reconstruit depuis son id/nom.
@@ -37683,7 +37630,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             rift.companionRiftId = cr.id;
                             rift.companionId = cr.companionId;
                         }
-                    } catch(e) {}
+                    } catch(e) { _awkE(e); }
                 }
                 awakRiftsSave(rifts);
             }
@@ -37726,7 +37673,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const bonuses = awakComputeStatBonuses();
             const xpBeforeBonus = xpReward;
             xpReward = Math.round(xpReward * bonuses.xpMult);
-            try { if (typeof window.awkDefiEffets === 'function') xpReward = Math.round(xpReward * window.awkDefiEffets().xp); } catch (e) {}   // v1537
+            try { if (typeof window.awkDefiEffets === 'function') xpReward = Math.round(xpReward * window.awkDefiEffets().xp); } catch (e) { _awkE(e); }   // v1537
             const xpBonusAmount = xpReward - xpBeforeBonus;
 
             // ⚡ MODIFICATEUR DE FAILLE : multiplicateur d'XP
@@ -37735,7 +37682,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (_mod && _mod.xpMult && _mod.xpMult !== 1) {
                     xpReward = Math.round(xpReward * _mod.xpMult);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // ☠️ MALÉDICTION : réduction d'XP des items maudits
             const _curse = typeof getActiveCurseEffects === 'function' ? getActiveCurseEffects() : null;
@@ -37783,7 +37730,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         }
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 💎 DROP DE MINÉRAUX (vendables au marchand) — selon les SÉRIES complétées (effort réel)
             let mineralDrops = [];
@@ -37795,7 +37742,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _mineralMult = (_mineralMod && _mineralMod.mineralMult) ? _mineralMod.mineralMult : 1;
                     mineralDrops = window.AwakEconomy.dropMineralsForRift(rift.rank, grade, setsDone, _mineralMult);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             document.getElementById('awakRiftCombatModal')?.remove();
             const modal = document.createElement('div');
@@ -37804,7 +37751,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1621');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1622');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -37891,7 +37838,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     // → ~50 XP au lieu des 200-5000 affichés. Versé maintenant en entier.
                     awakGrantLifetimeXP(Math.round(xpReward * (window.AWAK_RIFT_XP_FACTOR || 0.35)));
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 🌌 FAILLE ANOMALIE : drop légendaire garanti
             try {
@@ -37915,7 +37862,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (rift.isAbyss && typeof awakOnAbyssDefeated === 'function') {
                     awakOnAbyssDefeated(rift);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // Haptic + son
             if (typeof hapticTap === 'function') hapticTap([50, 30, 80]);
@@ -37942,27 +37889,27 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 } else {
                     setTimeout(() => awakCompanionsTriggerUnlockCheck(), 3000);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 🧪 Phase 5 : consommer les consommables actifs
-            try { awakConsumablesConsume(); } catch(e) {}
+            try { awakConsumablesConsume(); } catch(e) { _awkE(e); }
 
             // 🎁 Phase 5 : chance de drop d'un nouveau consommable
-            try { awakMaybeDropConsumable(grade); } catch(e) {}
+            try { awakMaybeDropConsumable(grade); } catch(e) { _awkE(e); }
 
             // ✨ Phase 5 : check si une Faille narrative doit apparaître
-            try { setTimeout(() => awakCheckNarrativeRifts(), 4500); } catch(e) {}
+            try { setTimeout(() => awakCheckNarrativeRifts(), 4500); } catch(e) { _awkE(e); }
             // 🤝 Check si une Faille de compagnon doit apparaître
-            try { setTimeout(() => { if (typeof awakCheckCompanionRifts === 'function') awakCheckCompanionRifts(); }, 5200); } catch(e) {}
+            try { setTimeout(() => { if (typeof awakCheckCompanionRifts === 'function') awakCheckCompanionRifts(); }, 5200); } catch(e) { _awkE(e); }
             // 🩸 Check si une Épreuve (sous-boss) doit apparaître
-            try { setTimeout(() => { if (typeof awakCheckSubBosses === 'function') awakCheckSubBosses(); }, 5600); } catch(e) {}
+            try { setTimeout(() => { if (typeof awakCheckSubBosses === 'function') awakCheckSubBosses(); }, 5600); } catch(e) { _awkE(e); }
             // 🌀 Notifier si le joueur vient de débloquer une Faille simultanée supplémentaire
-            try { setTimeout(() => { if (typeof awakCheckRiftCapacityUnlock === 'function') awakCheckRiftCapacityUnlock(); }, 3200); } catch(e) {}
+            try { setTimeout(() => { if (typeof awakCheckRiftCapacityUnlock === 'function') awakCheckRiftCapacityUnlock(); }, 3200); } catch(e) { _awkE(e); }
             // 🕳️ Check si un palier d'Abysse doit apparaître (post-Effaceur)
-            try { setTimeout(() => { if (typeof awakCheckAbyss === 'function') awakCheckAbyss(); }, 5800); } catch(e) {}
+            try { setTimeout(() => { if (typeof awakCheckAbyss === 'function') awakCheckAbyss(); }, 5800); } catch(e) { _awkE(e); }
 
             // 🌑 [GLITCH DU TISSERAND DÉSACTIVÉ — ancienne narration]
-            // try { setTimeout(() => awakArchitectMaybeGlitch(), 6000); } catch(e) {}
+            // try { setTimeout(() => awakArchitectMaybeGlitch(), 6000); } catch(e) { _awkE(e); }
 
             // Reset la session
             awakActiveRiftSession = null;
@@ -38088,7 +38035,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
                 const key = profileId ? `${MONSTERS_STORAGE_KEY}_${profileId}` : MONSTERS_STORAGE_KEY;
                 localStorage.setItem(key, JSON.stringify(monsters));
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
 
         /**
@@ -38407,7 +38354,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const eqTxt = eq.join(' ').toLowerCase();
                 if (/piscine|pool|aqua|water|natation|swim/.test(n + ' ' + eqTxt)) return false;
                 if (!(eq.length === 0 || eq.every(e => e === 'Poids du corps' || e === 'Aucun'))) return false;
-                try { if (typeof awakExerciseBlockedByLocation === 'function' && awakExerciseBlockedByLocation(ex)) return false; } catch (e) {}
+                try { if (typeof awakExerciseBlockedByLocation === 'function' && awakExerciseBlockedByLocation(ex)) return false; } catch (e) { _awkE(e); }
                 return /burpee|jump|plyo|sprint|hiit|squat|push|pompe|jack|climber/.test(n);
             });
 
@@ -38436,7 +38383,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // Mini séance de chasse
             // 📜 Nouveau combat : journal remis à zéro, sinon les coups
             // s'accumuleraient d'un affrontement à l'autre.
-            try { if (typeof awakCombatLogClear === 'function') awakCombatLogClear(); } catch (e) {}
+            try { if (typeof awakCombatLogClear === 'function') awakCombatLogClear(); } catch (e) { _awkE(e); }
             const huntWorkout = {
                 name: `🏹 Chasse — ${session.type.name}`,
                 _isHunt: true,
@@ -38457,7 +38404,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             workoutStartTime = Date.now();
             if (typeof _workoutSkipCount !== 'undefined') _workoutSkipCount = 0;
             if (typeof completedSets !== 'undefined') completedSets = [];
-            try { awakActiveRiftSession = null; } catch (e) {}   // pas les PV d'une Faille dans une Chasse
+            try { awakActiveRiftSession = null; } catch (e) { _awkE(e); }   // pas les PV d'une Faille dans une Chasse
             _awakNettoyerCombatUI();
 
             switchTab('workouts');
@@ -38554,7 +38501,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const b = (typeof awakComputeStatBonuses === 'function') ? awakComputeStatBonuses() : null;
                 if (b) xpReward = Math.round(xpReward * b.xpMult);
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             document.getElementById('awakHuntCombatModal')?.remove();
             const modal = document.createElement('div');
@@ -38565,7 +38512,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1621);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1622);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -38605,12 +38552,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (typeof rpgGainXP === 'function') {
                     awakGrantLifetimeXP(Math.round(xpReward * (window.AWAK_RIFT_XP_FACTOR || 0.35))); // v1218 (voir awakCompleteRift)
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             if (typeof hapticTap === 'function') hapticTap([50, 30, 80]);
 
             // 🎭 Phase 4 : check déblocages compagnons après chasse
-            try { setTimeout(() => awakCompanionsTriggerUnlockCheck(), 2500); } catch(e) {}
+            try { setTimeout(() => awakCompanionsTriggerUnlockCheck(), 2500); } catch(e) { _awkE(e); }
 
             awakActiveHuntSession = null;
         }
@@ -38640,7 +38587,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (_fq) _fq.style.display = 'none';
                         document.body.classList.remove('in-session', 'workout-fullscreen');
                         if (typeof resetWorkoutInterfaceElements === 'function') resetWorkoutInterfaceElements();
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                     switchTab('game');
                 },
                 null,
@@ -38736,7 +38683,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1621);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1622);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -38935,7 +38882,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
                 const key = profileId ? `${COMPANIONS_STORAGE_KEY}_${profileId}` : COMPANIONS_STORAGE_KEY;
                 localStorage.setItem(key, JSON.stringify(data));
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
 
         function awakCompanionsGetActive() {
@@ -38947,7 +38894,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const valid = raw.filter(id => COMPANIONS.some(c => c.id === id));
                 // Si nettoyage nécessaire, réécrire la liste assainie
                 if (valid.length !== raw.length) {
-                    try { localStorage.setItem(key, JSON.stringify(valid)); } catch(e) {}
+                    try { localStorage.setItem(key, JSON.stringify(valid)); } catch(e) { _awkE(e); }
                 }
                 return valid;
             } catch(e) { return []; }
@@ -38960,7 +38907,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // Limiter à MAX
                 const limited = (ids || []).slice(0, COMPANIONS_MAX_ACTIVE);
                 localStorage.setItem(key, JSON.stringify(limited));
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
         window.awakCompanionsGetActive = awakCompanionsGetActive;
 
@@ -39063,7 +39010,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (r && awakIsSoloRift(r)) {
                     return awakEmptyCompanionBonuses();
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             // 🚶 Exclure les compagnons PARTIS en mission : indisponibles tant qu'ils ne sont pas rentrés.
             const onMission = (typeof awakGetCompanionsOnMission === 'function') ? awakGetCompanionsOnMission() : [];
             const active = awakCompanionsGetActive().filter(id => !onMission.includes(id));
@@ -39169,7 +39116,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (shown.includes(companion.id)) return;
                 shown.push(companion.id);
                 localStorage.setItem(shownKey, JSON.stringify(shown));
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             const overlay = document.createElement('div');
             overlay.style.cssText = 'position:fixed;inset:0;z-index:99998;display:flex;align-items:flex-start;justify-content:center;background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);animation:awakFadeIn 0.4s;padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
 
@@ -39374,18 +39321,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const key = profileId ? `${COMPANION_RIFTS_SEEN_KEY}_${profileId}` : COMPANION_RIFTS_SEEN_KEY;
                 const seen = awakCompanionRiftsSeenLoad();
                 if (!seen.includes(id)) { seen.push(id); localStorage.setItem(key, JSON.stringify(seen)); }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
 
-        // XP totale accumulée (cohérente avec le niveau carte)
-        function awakGetTotalXP() {
-            try {
-                const data = rpgLoad();
-                const muscleXP = (data && data.muscles) ? Object.values(data.muscles).reduce((s,m)=>s+(m.xp||0),0) : 0;
-                const lifetime = parseInt(localStorage.getItem('fitproRPGLifetimeXP') || '0');
-                return muscleXP + lifetime;
-            } catch(e) { return 0; }
-        }
 
         // Vérifie s'il faut faire apparaître une Faille de compagnon (UNE à la fois)
         function awakCheckCompanionRifts() {
@@ -39659,8 +39597,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (typeof showAlert === 'function') {
                     setTimeout(() => showAlert(`${sb.emoji} ${sb.name} vaincu`, sb.meetText), 2200);
                 }
-                setTimeout(() => { try { awakCheckSubBosses(); } catch(e) {} }, 6000);
-            } catch(e) {}
+                setTimeout(() => { try { awakCheckSubBosses(); } catch(e) { _awkE(e); } }, 6000);
+            } catch(e) { _awkE(e); }
         }
         window.awakOnSubBossDefeated = awakOnSubBossDefeated;
 
@@ -39779,8 +39717,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     ), 2200);
                 }
                 // Préparer le palier suivant peu après
-                setTimeout(() => { try { awakCheckAbyss(); } catch(e) {} }, 6000);
-            } catch(e) {}
+                setTimeout(() => { try { awakCheckAbyss(); } catch(e) { _awkE(e); } }, 6000);
+            } catch(e) { _awkE(e); }
         }
         window.awakOnAbyssDefeated = awakOnAbyssDefeated;
 
@@ -39798,7 +39736,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (abyssRift && typeof awakStartRift === 'function') {
                     awakEntrerFaille(abyssRift.id);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
         window.awakOpenAbyss = awakOpenAbyss;
 
@@ -39821,7 +39759,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         function awakShowMerchantGuide(ensuite) {
             if (!window.AwakEconomy) return;
-            try { localStorage.setItem(_awakMerchantGuideKey(true), '1'); } catch (e) {}
+            try { localStorage.setItem(_awakMerchantGuideKey(true), '1'); } catch (e) { _awkE(e); }
             document.getElementById('awakMerchantGuide')?.remove();
             const T = window.AwakEconomy.MINERAL_TYPES || {};
             const OR = '#fbbf24';
@@ -40045,7 +39983,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function _merchantRefresh() {
             const modal = document.getElementById('awakMerchantModal');
             if (modal) modal.innerHTML = awakRenderMerchant();
-            if (typeof renderGameTab === 'function') { try { renderGameTab(); } catch(e){} }
+            if (typeof renderGameTab === 'function') { try { renderGameTab(); } catch(e){ _awkE(e); } }
         }
         window._merchantSwitchTab = function(t){ _merchantTab = t; _merchantRefresh(); };
         window._merchantSellOne = function(id){
@@ -40073,7 +40011,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (e) prix = e.price + ' or';
                 const bl = (it && typeof getEquipBlockReason === 'function') ? getEquipBlockReason(it) : null;
                 if (bl) bloc = ' Pas encore équipable : ' + bl.label + '.';
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             if (typeof showConfirm !== 'function') return _merchantAcheterEquipement(id);
             showConfirm('Acheter ' + nom + (prix ? ' pour ' + prix : '') + ' ?' + bloc, function () { _merchantAcheterEquipement(id); }, null,
                 { title: 'Le Marchand', confirmLabel: 'Acheter', cancelLabel: 'Annuler' });
@@ -40109,7 +40047,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _rs = awakRiftsLoad();
                 const _garde = _rs.filter(r => !r.isWeeklyBoss);
                 if (_garde.length !== _rs.length) awakRiftsSave(_garde);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return null;
             try {
                 if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return null;
@@ -40179,7 +40117,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (!next) return;
                 if (rankIdx < _order.indexOf(next.rank)) return;
                 awakShowEveilCeremony(next);
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
         window.awakCheckEveil = awakCheckEveil;
 
@@ -40206,7 +40144,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <button onclick="awakAcceptEveil(${eveil.tier})" style="width:100%;padding:15px;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#050507;border:none;border-radius:14px;font-size:0.98em;font-weight:900;letter-spacing:1px;cursor:pointer;">S'ÉVEILLER</button>
                 </div>`;
             document.body.appendChild(ov);
-            try { if (typeof hapticTap === 'function') hapticTap([40, 60, 40, 60, 140]); } catch(e) {}
+            try { if (typeof hapticTap === 'function') hapticTap([40, 60, 40, 60, 140]); } catch(e) { _awkE(e); }
         }
 
         function awakAcceptEveil(tier) {
@@ -40217,11 +40155,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const sp = statPointsLoad();
                 sp.available += eveil.statPoints;
                 statPointsSave(sp);
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             document.getElementById('awakEveilOverlay')?.remove();
-            try { if (typeof launchConfetti === 'function') launchConfetti(); } catch(e) {}
+            try { if (typeof launchConfetti === 'function') launchConfetti(); } catch(e) { _awkE(e); }
             if (typeof showToast === 'function') showToast(`👁️ ${eveil.name} accompli ! +${Math.round(eveil.xpBonus*100)}% XP permanent · +${eveil.statPoints} points de stats`, 'success', 5000);
-            try { if (typeof renderGameTab === 'function') renderGameTab(); } catch(e) {}
+            try { if (typeof renderGameTab === 'function') renderGameTab(); } catch(e) { _awkE(e); }
         }
         window.awakAcceptEveil = awakAcceptEveil;
 
@@ -40281,7 +40219,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function awakShowCompanionRiftAppearance(cr) {
             // v1413 : attend son tour (avant : s'ouvrait sur l'écran de fin, par-dessus le coffre)
             if (typeof window.AwakCine !== 'undefined' && window.AwakCine.defer(function () { awakShowCompanionRiftAppearance(cr); })) return;
-            try { if (navigator.vibrate) navigator.vibrate([60, 40, 60]); } catch(e) {}
+            try { if (navigator.vibrate) navigator.vibrate([60, 40, 60]); } catch(e) { _awkE(e); }
             const overlay = document.createElement('div');
             overlay.id = 'awakCompanionRiftOverlay';
             overlay.style.cssText = 'position:fixed;inset:0;z-index:99997;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.9);backdrop-filter:blur(8px);animation:awakFadeIn 0.4s;padding:20px;';
@@ -40508,7 +40446,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (cond.type === 'companionRift') {
                 goal = 1;
                 let _ouverte = false;
-                try { _ouverte = (awakGetActiveRifts() || []).some(r => r && (r.companionRiftId === cond.riftId || r.companionId === compId)); } catch (e) {}
+                try { _ouverte = (awakGetActiveRifts() || []).some(r => r && (r.companionRiftId === cond.riftId || r.companionId === compId)); } catch (e) { _awkE(e); }
                 if (_ouverte) current = 0.5;
                 _etat = _ouverte ? 'Sa Faille est ouverte : va la fermer.' : 'Sa Faille ne s\'est pas encore ouverte.';
             }
@@ -40779,38 +40717,38 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const fixKey = key + '_fix_v811';
                 if (localStorage.getItem(fixKey) !== '1') {
                     let reel = 0;
-                    try { reel = awakRiftsLoad().filter(r => r.completed && !r.narrativeId).length; } catch (e) {}
+                    try { reel = awakRiftsLoad().filter(r => r.completed && !r.narrativeId).length; } catch (e) { _awkE(e); }
                     const actuel = parseInt(localStorage.getItem(key) || '0', 10) || 0;
                     if (reel > actuel) { localStorage.setItem(key, String(reel)); }
                     localStorage.setItem(fixKey, '1');
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             try {
                 if (localStorage.getItem(key) === null) {
                     let ac = 0;
-                    try { ac = awakRiftsLoad().filter(r => r.completed && !r.narrativeId).length; } catch (e) {}
+                    try { ac = awakRiftsLoad().filter(r => r.completed && !r.narrativeId).length; } catch (e) { _awkE(e); }
                     localStorage.setItem(key, String(ac));
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         function awakGetRiftsCompletedTotal() {
             awakEnsureRiftsCounterSeeded();
             const key = awakRiftsCompletedTotalKey();
             let n = 0;
-            try { n = parseInt(localStorage.getItem(key) || '0', 10) || 0; } catch (e) {}
+            try { n = parseInt(localStorage.getItem(key) || '0', 10) || 0; } catch (e) { _awkE(e); }
             // Filet : jamais sous le compte actuel du tableau (rattrape un incrément manqué).
             let ac = 0;
-            try { ac = awakRiftsLoad().filter(r => r.completed && !r.narrativeId).length; } catch (e) {}
-            if (ac > n) { n = ac; try { localStorage.setItem(key, String(n)); } catch (e) {} }
+            try { ac = awakRiftsLoad().filter(r => r.completed && !r.narrativeId).length; } catch (e) { _awkE(e); }
+            if (ac > n) { n = ac; try { localStorage.setItem(key, String(n)); } catch (e) { _awkE(e); } }
             return n;
         }
         function awakIncrementRiftsCompleted() {
             awakEnsureRiftsCounterSeeded();
             const key = awakRiftsCompletedTotalKey();
             let n = 0;
-            try { n = parseInt(localStorage.getItem(key) || '0', 10) || 0; } catch (e) {}
+            try { n = parseInt(localStorage.getItem(key) || '0', 10) || 0; } catch (e) { _awkE(e); }
             n += 1;   // lecture brute (pas d'auto-guérison ici) → +1 exact par complétion
-            try { localStorage.setItem(key, String(n)); } catch (e) {}
+            try { localStorage.setItem(key, String(n)); } catch (e) { _awkE(e); }
             return n;
         }
         window.awakGetRiftsCompletedTotal = awakGetRiftsCompletedTotal;
@@ -40849,7 +40787,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         });
                         localStorage.setItem('awakNarrativeDoneSeed', '1');
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 let repares = 0;
                 for (const def of NARRATIVE_RIFTS) {
                     if (!seen.includes(def.id)) continue;
@@ -40863,7 +40801,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
                 if (repares) {
                     awakRiftsSave(rifts);
-                    try { console.log('[Failles] ' + repares + ' Faille(s) narrative(s) restaurée(s)'); } catch (e) {}
+                    try { console.log('[Failles] ' + repares + ' Faille(s) narrative(s) restaurée(s)'); } catch (e) { _awkE(e); }
                 }
                 return repares;
             } catch (e) { return 0; }
@@ -40876,7 +40814,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (rifts.some(r => r.narrativeId === nid && r.completed)) return true;
                 const cle = 'awakNarrativeDone_' + nid;
                 if (localStorage.getItem(cle) === '1') return true;
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return false;
         }
         window.awakRepairNarrativeRifts = awakRepairNarrativeRifts;
@@ -40903,7 +40841,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (e.trigger && e.trigger.narrativeId === id) localStorage.setItem('awakStoryEvt_' + e.id, '1');
                     });
                 });
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakNarrativeMigration1422 = awakNarrativeMigration1422;
         // v1422 : la Faille « Le Marchand pâlit » est-elle ouverte ?
@@ -40915,10 +40853,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         window.awakNarrativeNom = function (id) { const d = NARRATIVE_RIFTS.find(n => n.id === id); return d ? d.name : id; };
 
         function awakCheckNarrativeRifts() {
-            try { awakNarrativeMigration1422(); } catch (e) {}
+            try { awakNarrativeMigration1422(); } catch (e) { _awkE(e); }
             // Réparer AVANT de décider : une Faille perdue doit revenir plutôt
             // que de bloquer la suite.
-            try { awakRepairNarrativeRifts(); } catch (e) {}
+            try { awakRepairNarrativeRifts(); } catch (e) { _awkE(e); }
             if (typeof getAdventureEnabled === 'function' && !getAdventureEnabled()) return null;
             const seen = awakNarrativeRiftsSeenLoad();
             const rifts = awakRiftsLoad();
@@ -41033,7 +40971,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
          */
         function awakShowNarrativeRiftAppearance(narrative) {
             if (window.AwakCine && window.AwakCine.defer(function () { awakShowNarrativeRiftAppearance(narrative); })) return;
-            try { if (typeof awakHerosTexte === 'function') narrative = Object.assign({}, narrative, { description: awakHerosTexte(narrative.description), briefing: awakHerosTexte(narrative.briefing) }); } catch (e) {}
+            try { if (typeof awakHerosTexte === 'function') narrative = Object.assign({}, narrative, { description: awakHerosTexte(narrative.description), briefing: awakHerosTexte(narrative.briefing) }); } catch (e) { _awkE(e); }
             // v1447 : LE SEUIL — la Faille s'ouvre dans le noir ; on s'approche, puis on entre
             try {
                 if (window.AwakSeuil) {
@@ -41047,11 +40985,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         titre2: _phrase(narrative.description, 70),
                         sous2: _phrase(narrative.briefing, 150),
                         onEntrer: () => { if (_r) { window._awakSeuilVu = window._awakSeuilVu || {}; window._awakSeuilVu[_r.id] = Date.now(); if (typeof awakOpenRiftBriefing === 'function') awakOpenRiftBriefing(_r.id); } },
-                        onReculer: () => { try { showToast('La Faille reste ouverte. Elle t\'attend dans l\'Aventure.', 'info', 3000); } catch (e) {} }
+                        onReculer: () => { try { showToast('La Faille reste ouverte. Elle t\'attend dans l\'Aventure.', 'info', 3000); } catch (e) { _awkE(e); } }
                     });
                     return;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // Vibration plus intense
             if (typeof vibrate === 'function') vibrate([100, 50, 100, 50, 200]);
 
@@ -41147,7 +41085,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
                 const key = profileId ? `${CONSUMABLES_STORAGE_KEY}_${profileId}` : CONSUMABLES_STORAGE_KEY;
                 localStorage.setItem(key, JSON.stringify(data));
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
 
         function awakConsumablesAdd(itemId, count = 1) {
@@ -41192,7 +41130,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         && document.getElementById('awakMerchantModal')) {
                         awakRenderMerchantConsumables();
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }
             return true;
         }
@@ -41521,7 +41459,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (typeof showToast === 'function') showToast('Le bouclier du Phénix encaisse le coup', 'info', 2200);
                     return { dodged: true, dead: false };
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 🛡️ MODE DÉVELOPPEUR : invincibilité — aucun dégât subi
             if (typeof awakIsInvincible === 'function' && awakIsInvincible()) {
@@ -41548,7 +41486,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         awakCombatLogAdd({ t: Date.now(), type: 'effet',
                             msg: `🩸 ${source || 'Le monstre'} riposte ! -${damage} HP${_defTxt}`, ton: 'error' });
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 showToast(`🩸 ${source || 'Le monstre'} riposte ! -${damage} HP${_defTxt}`, 'error', 2200);
             }
             if (typeof hapticTap === 'function') hapticTap([60, 40, 60]);
@@ -41602,7 +41540,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (_hpTx2) _hpTx2.textContent = `${session.playerHP} / ${awakGetPlayerMaxHP()} HP`;
                         return { dodged: false, dead: false };
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 const lostXP = awakApplyDeathPenalty(session);
                 setTimeout(() => {
                     // v1304 : avant, la séance de la Faille restait ouverte (monstre
@@ -41612,7 +41550,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt)) _forceExitRiftSession();
                         else _awakNettoyerCombatUI();
                         if (typeof awakCombatLogClear === 'function') awakCombatLogClear();
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                     awakShowGameOverModal(source, lostXP);
                 }, 800);
                 return { dodged: false, dead: true };
@@ -41641,7 +41579,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const next = Math.max(0, cur - penalty);
                 lostXP = cur - next;
                 localStorage.setItem('fitproRPGLifetimeXP', String(next));
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             // 2) Réinitialisation de TOUTES les vagues (y compris celles déjà vaincues)
             try {
                 if (session && session.rift && session.rift.id && typeof awakRiftsLoad === 'function') {
@@ -41662,7 +41600,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (typeof awakRiftsSave === 'function') awakRiftsSave(rifts);
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             return lostXP;
         }
         window.awakApplyDeathPenalty = awakApplyDeathPenalty;
@@ -41766,7 +41704,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         awakCombatLogAdd({ t: Date.now(), type: 'effet',
                             msg: `💚 +${actuallyHealed} HP ${label || '(END régénération)'}`, ton: 'success' });
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 showToast(`💚 +${actuallyHealed} HP ${label || '(END régénération)'}`, 'success', 1600);
             }
 
@@ -41806,11 +41744,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _s0 = awakActiveRiftSession, _E0 = _s0 && awakRiftEquipe(_s0.rift);
                 if (_E0 && _E0.noms.indexOf('Chen') >= 0 && _s0._chenBloc > 0 && awakGetPlayerHP() / awakGetPlayerMaxHP() < 0.75) {
                     _s0._chenBloc = 0;
-                    try { awakCombatLogAdd({ t: Date.now(), type: 'effet', msg: 'Chen lit son geste : riposte annulée', ton: 'success' }); } catch (e) {}
-                    setTimeout(() => { try { _awakAideEpique({ nom: 'Chen', val: 'Riposte annulée', ton: 'garde', cibleNom: wave.name }); } catch (e) {} }, 1200);
+                    try { awakCombatLogAdd({ t: Date.now(), type: 'effet', msg: 'Chen lit son geste : riposte annulée', ton: 'success' }); } catch (e) { _awkE(e); }
+                    setTimeout(() => { try { _awakAideEpique({ nom: 'Chen', val: 'Riposte annulée', ton: 'garde', cibleNom: wave.name }); } catch (e) { _awkE(e); } }, 1200);
                     return;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // ⚖️ v1218 : ripostes en % des PV MAX (avant : 18 à 80 dégâts fixes contre
             // 1 000+ PV → aucun danger dès le 2e mois). Vague 12 %, boss 18 %, ±15 %.
@@ -41818,23 +41756,23 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const _rangs = ['E','D','C','B','A','S','SS','SSS'];
             const rankIdx = Math.max(0, _rangs.indexOf(wave.rank || 'E'));
             let _ecart = 0;
-            try { _ecart = rankIdx - Math.max(0, _rangs.indexOf(awakGetRank().id)); } catch (e) {}
+            try { _ecart = rankIdx - Math.max(0, _rangs.indexOf(awakGetRank().id)); } catch (e) { _awkE(e); }
             const _relMult = _ecart >= 2 ? 1.7 : _ecart === 1 ? 1.35 : _ecart <= -1 ? 0.6 : 1;
             const _maxHP = (typeof awakGetPlayerMaxHP === 'function') ? awakGetPlayerMaxHP() : 100;
             let dmg = Math.max(1, Math.round(_maxHP * (isBoss ? 0.18 : 0.12) * _relMult * (0.85 + Math.random() * 0.3)));
             // v1617 : Faille d'initiation — ripostes réduites de moitié
-            try { if (awakActiveRiftSession && awakActiveRiftSession.rift && awakActiveRiftSession.rift._initiation) dmg = Math.max(1, Math.round(dmg * 0.5)); } catch (e) {}
+            try { if (awakActiveRiftSession && awakActiveRiftSession.rift && awakActiveRiftSession.rift._initiation) dmg = Math.max(1, Math.round(dmg * 0.5)); } catch (e) { _awkE(e); }
 
             // v1538 : Loup d'Ombre (monstre échappé) — ripostes plus fortes
-            try { const _hh = awakGetActiveHandicaps(); if (_hh.hurlement > 0) dmg = Math.round(dmg * (1 + _hh.hurlement / 100)); } catch (e) {}
+            try { const _hh = awakGetActiveHandicaps(); if (_hh.hurlement > 0) dmg = Math.round(dmg * (1 + _hh.hurlement / 100)); } catch (e) { _awkE(e); }
             // ⛈️ TEMPÊTE : les contre-attaques frappent plus fort
             try {
                 const _s = awakActiveRiftSession;
                 const _m = (_s && _s.rift && typeof awakGetRiftModifier === 'function') ? awakGetRiftModifier(_s.rift.modifierId) : null;
                 if (_m && _m.counterMult > 1) dmg = Math.round(dmg * _m.counterMult);
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
-            try { dmg = Math.round(dmg * awakRiftFacteurRiposte(awakActiveRiftSession && awakActiveRiftSession.rift)); } catch (e) {}
+            try { dmg = Math.round(dmg * awakRiftFacteurRiposte(awakActiveRiftSession && awakActiveRiftSession.rift)); } catch (e) { _awkE(e); }
             setTimeout(() => {
                 awakDamagePlayer(dmg, wave.name);
                 // v1522 : Élise soigne de 15 % sous 40 % de PV (1 fois par vague)
@@ -41844,9 +41782,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         _s1._eliseFaite = true;
                         const _so = Math.round(awakGetPlayerMaxHP() * 0.15);
                         awakHealPlayer(_so, '(Élise)');
-                        setTimeout(() => { try { _awakAideEpique({ nom: 'Élise', val: '+' + _so + ' PV', ton: 'soin' }); } catch (e) {} }, 600);
+                        setTimeout(() => { try { _awakAideEpique({ nom: 'Élise', val: '+' + _so + ' PV', ton: 'soin' }); } catch (e) { _awkE(e); } }, 600);
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }, 1200);
         }
         window.awakBossCounterAttack = awakBossCounterAttack;
@@ -42167,7 +42105,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const dispo = Math.max(0, sp.available - enAttente);
             const totalAlloue = Object.values(sp.allocated).reduce((a, b) => a + b, 0);
             let totaux = {};
-            try { totaux = awakGetTotalStats() || {}; } catch (e) {}
+            try { totaux = awakGetTotalStats() || {}; } catch (e) { _awkE(e); }
             const COUL = { STR:'#ef4444', AGI:'#f59e0b', VIT:'#60a5fa', END:'#f472b6', PER:'#22d3ee', SEN:'#cbd5e1' };
             const NOM  = { STR:'Force', AGI:'Agilité', VIT:'Vitalité', END:'Endurance', PER:'Perception', SEN:'Sens' };
             const ICO  = { STR:'epee', AGI:'eclair', VIT:'bouclier', END:'coeur', PER:'cible', SEN:'etoile' };
@@ -42309,11 +42247,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 showConfirm(liste + '. Une fois confirmés, ces points ne pourront plus être retirés.', () => {
                     STAT_POINT_STATS.forEach(k => { if (br[k] > 0) statPointsAllocate(k, br[k]); });
                     modal._brouillon = { STR: 0, AGI: 0, VIT: 0, END: 0, PER: 0, SEN: 0 };
-                    try { if (typeof window.awakEmit === 'function') window.awakEmit('rpg:statsChanged', { source: 'allocate' }); } catch (e) {}
+                    try { if (typeof window.awakEmit === 'function') window.awakEmit('rpg:statsChanged', { source: 'allocate' }); } catch (e) { _awkE(e); }
                     reRendre();
-                    try { if (typeof renderAdventureTab === 'function' && typeof window.awakEmit !== 'function') renderAdventureTab(); } catch (e) {}
-                    try { awakMajValeursAttributs(); } catch (e) {}
-                    try { showToast(att + ' point' + (att > 1 ? 's' : '') + ' confirmé' + (att > 1 ? 's' : ''), 'success', 2000); } catch (e) {}
+                    try { if (typeof renderAdventureTab === 'function' && typeof window.awakEmit !== 'function') renderAdventureTab(); } catch (e) { _awkE(e); }
+                    try { awakMajValeursAttributs(); } catch (e) { _awkE(e); }
+                    try { showToast(att + ' point' + (att > 1 ? 's' : '') + ' confirmé' + (att > 1 ? 's' : ''), 'success', 2000); } catch (e) { _awkE(e); }
                 }, null, { title: 'Confirmer tes points ?', subtitle: 'Choix définitif', confirmLabel: 'Confirmer', cancelLabel: 'Revoir' });
             };
             modal._ajuster = ajuster;
@@ -42355,9 +42293,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } else {
                 // Filet de sécurité : si le bus n'était pas chargé, on retombe sur
                 // l'ancien comportement direct — aucune régression possible.
-                try { awakOpenStatPointsModal(); } catch (e) {}
-                try { if (typeof renderAdventureTab === 'function') renderAdventureTab(); } catch (e) {}
-                try { awakMajValeursAttributs(); } catch (e) {}
+                try { awakOpenStatPointsModal(); } catch (e) { _awkE(e); }
+                try { if (typeof renderAdventureTab === 'function') renderAdventureTab(); } catch (e) { _awkE(e); }
+                try { awakMajValeursAttributs(); } catch (e) { _awkE(e); }
             }
         }
         window.awakStatPointsAllocate = awakStatPointsAllocate;
@@ -42408,14 +42346,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         mult *= (1 - handicaps.reduce_xp / 100);
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // v1538 : objets maudits « −X % XP gagnée » — aussi sur l'XP des séances (avant : Faille seulement)
-            try { const _cu = (typeof getActiveCurseEffects === 'function') ? getActiveCurseEffects() : null; if (_cu && _cu.xpMalus > 0) mult *= (1 - Math.min(0.8, _cu.xpMalus)); } catch (e) {}
+            try { const _cu = (typeof getActiveCurseEffects === 'function') ? getActiveCurseEffects() : null; if (_cu && _cu.xpMalus > 0) mult *= (1 - Math.min(0.8, _cu.xpMalus)); } catch (e) { _awkE(e); }
             // v1538 : Gobelin Rebelle (monstre échappé) — une série sabotée ne donne pas d'XP
-            try { const _hs = (typeof awakGetActiveHandicaps === 'function') ? awakGetActiveHandicaps() : null; if (_hs && _hs.sabotage > 0 && Math.random() < _hs.sabotage / 100) mult = 0; } catch (e) {}
+            try { const _hs = (typeof awakGetActiveHandicaps === 'function') ? awakGetActiveHandicaps() : null; if (_hs && _hs.sabotage > 0 && Math.random() < _hs.sabotage / 100) mult = 0; } catch (e) { _awkE(e); }
             // v1537 : défis du Système (Malédiction d'XP, Gel, XP ×1,5 / ×2…) — avant : sans effet
-            try { if (typeof window.awkDefiEffets === 'function') mult *= window.awkDefiEffets().xp; } catch (e) {}
+            try { if (typeof window.awkDefiEffets === 'function') mult *= window.awkDefiEffets().xp; } catch (e) { _awkE(e); }
             return Math.round(baseXP * mult);
         }
 
@@ -42496,7 +42434,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try { const b = JSON.parse(localStorage.getItem('fitproNextWorkoutBuff') || 'null'); return (b && b.label) ? b.label : ''; } catch (e) { return ''; }
         }
         function rpgClearWorkoutBuff() {
-            try { localStorage.removeItem('fitproNextWorkoutBuff'); } catch (e) {}
+            try { localStorage.removeItem('fitproNextWorkoutBuff'); } catch (e) { _awkE(e); }
         }
         window.rpgGetWorkoutBuff = rpgGetWorkoutBuff;
         window.rpgGetWorkoutBuffLabel = rpgGetWorkoutBuffLabel;
@@ -42558,7 +42496,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     awardDisciplineProgress(loot.reward.disciplineId, loot.reward.amount, 0);
                 }
             } else if (loot.reward.type === 'buff') {
-                try { localStorage.setItem('fitproNextWorkoutBuff', JSON.stringify({ mult: loot.reward.mult, label: loot.reward.label })); } catch (e) {}
+                try { localStorage.setItem('fitproNextWorkoutBuff', JSON.stringify({ mult: loot.reward.mult, label: loot.reward.label })); } catch (e) { _awkE(e); }
             }
         }
 
@@ -42614,10 +42552,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     + '<button type="button" data-voir style="width:100%;padding:12px;border-radius:14px;border:none;cursor:pointer;font-weight:800;color:#04121f;background:linear-gradient(135deg,#22d3ee,#0891b2);margin-bottom:8px;">Voir l\'objet</button></div>'
                     + '<button type="button" data-fermer style="width:100%;padding:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:14px;color:white;font-weight:700;cursor:pointer;">Continuer</button></div>';
                 document.body.appendChild(ov);
-                const ouvrir = () => { const el = ov.querySelector('#lootChestIcon'); if (el && !el._ouvert) { el._ouvert = true; window._awakOuvrirCoffre(el); try { if (navigator.vibrate) navigator.vibrate([40, 30, 80]); } catch (e) {} } };
+                const ouvrir = () => { const el = ov.querySelector('#lootChestIcon'); if (el && !el._ouvert) { el._ouvert = true; window._awakOuvrirCoffre(el); try { if (navigator.vibrate) navigator.vibrate([40, 30, 80]); } catch (e) { _awkE(e); } } };
                 ov.querySelector('#lootChestIcon').onclick = ouvrir;
                 ov.querySelector('[data-voir]').onclick = () => { ov.remove(); window._awakFinVoir = true; try { showDropModal(item, rar, q); } finally { window._awakFinVoir = false; } };
-                ov.querySelector('[data-fermer]').onclick = () => { ov.remove(); try { if (typeof renderAdventureTab === 'function') renderAdventureTab(); } catch (e) {} };
+                ov.querySelector('[data-fermer]').onclick = () => { ov.remove(); try { if (typeof renderAdventureTab === 'function') renderAdventureTab(); } catch (e) { _awkE(e); } };
                 ov.onclick = e => { if (e.target === ov) ov.remove(); };
                 return true;
             } catch (e) { return false; }
@@ -42630,11 +42568,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 el.innerHTML = _awakCoffreSvg(c, true);
                 const r = document.getElementById('lootReward'); if (r) r.style.display = 'block';
                 const h = document.getElementById('lootChestHint'); if (h) h.style.display = 'none';
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         };
         function rpgShowLootChest(loot) {
             // v1413 : sur l'écran de fin, le coffre s'ouvre dans « Butin de la séance »
-            try { if (window.AwakFin && window.AwakFin.coffre(loot)) return; } catch (e) {}
+            try { if (window.AwakFin && window.AwakFin.coffre(loot)) return; } catch (e) { _awkE(e); }
             // v1404 : le coffre attend la fin d'une scène en cours, et les scènes attendent le coffre
             if (typeof window.AwakCine !== 'undefined' && window.AwakCine.defer(function () { rpgShowLootChest(loot); })) return;
             const overlay = document.createElement('div');
@@ -42691,7 +42629,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             ];
             // v1404 : pendant le Parcours de l'Éveil, pas de quête de volume (15 séries) :
             // elle poussait un débutant à en refaire après sa séance, le jour où l'Éveil dit de récupérer.
-            try { if (typeof awakEveilAujourdhui === 'function' && awakEveilAujourdhui()) { const i = quests.findIndex(q => q.id === 'dq_sets'); if (i >= 0) quests.splice(i, 1); } } catch (e) {}
+            try { if (typeof awakEveilAujourdhui === 'function' && awakEveilAujourdhui()) { const i = quests.findIndex(q => q.id === 'dq_sets'); if (i >= 0) quests.splice(i, 1); } } catch (e) { _awkE(e); }
             // Calculer temps restant (fin de journée)
             const endOfDay = new Date(); endOfDay.setHours(23,59,59,0);
             const msLeft = endOfDay - new Date();
@@ -42709,7 +42647,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             awarded.push(questId);
             localStorage.setItem(awardKey, JSON.stringify(awarded));
             // v1536 : bonus d'XP des quêtes (Médaille du mérite) — avant : sans effet
-            try { const _rq = (typeof getActiveRingEffects === 'function') ? getActiveRingEffects() : {}; if (_rq.questXp) xpReward = Math.round(xpReward * (1 + _rq.questXp)); } catch (e) {}
+            try { const _rq = (typeof getActiveRingEffects === 'function') ? getActiveRingEffects() : {}; if (_rq.questXp) xpReward = Math.round(xpReward * (1 + _rq.questXp)); } catch (e) { _awkE(e); }
             // XP sur tous les muscles actifs
             const data = rpgLoad();
             const muscles = Object.keys(data.muscles);
@@ -42735,16 +42673,6 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               exercises:['Squat barre haut','Développé couché barre','Traction pronation','Pompes déclinées','Fentes avec haltères','Planche','Burpees'] },
         ];
 
-        function rpgGetDungeonStatus(dungeonId) {
-            try {
-                const s = localStorage.getItem('fitproDungeon_' + dungeonId);
-                if (!s) return { available: true, lastCompleted: null };
-                const data = JSON.parse(s);
-                const dungeon = RPG_DUNGEONS.find(d=>d.id===dungeonId);
-                const daysSince = (new Date() - new Date(data.lastCompleted)) / 86400000;
-                return { available: daysSince >= dungeon.cooldownDays, lastCompleted: data.lastCompleted, daysSince };
-            } catch(e) { return { available: true, lastCompleted: null }; }
-        }
 
         function rpgCompleteDungeon(dungeonId) {
             const dungeon = RPG_DUNGEONS.find(d=>d.id===dungeonId);
@@ -42811,7 +42739,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const cible = rpgXPForLevel(L) + Math.floor(frac * _rpgXPStep(L));
                 const delta = cible - total;
                 if (delta > 0) localStorage.setItem('fitproRPGLifetimeXP', String(vie + delta));
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakMigrationCourbe1457 = awakMigrationCourbe1457;
         function rpgXPForLevel(n) {
@@ -42838,7 +42766,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         // ── Storage ─────────────────────────────────────────────────
         function rpgLoad() {
-            try { if (!localStorage.getItem('awakStoryEvt__courbe1457')) awakMigrationCourbe1457(); } catch (e) {}
+            try { if (!localStorage.getItem('awakStoryEvt__courbe1457')) awakMigrationCourbe1457(); } catch (e) { _awkE(e); }
             try { return JSON.parse(localStorage.getItem('fitproRPG') || 'null') || { muscles:{}, profile:{xp:0, lastActivity: new Date().toISOString()} }; }
             catch(e) { return { muscles:{}, profile:{xp:0, lastActivity: new Date().toISOString()} }; }
         }
@@ -42891,7 +42819,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (!data || data.day !== today) data = { day: today, xp: 0 };
                 data.xp += xp;
                 localStorage.setItem(XP_DAILY_TRACKING_KEY, JSON.stringify(data));
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
         window.rpgGetDailyXpEarned = rpgGetDailyXpEarned;
 
@@ -42914,11 +42842,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
                 data.xp += xp;
                 localStorage.setItem(XP_WORKOUT_TRACKING_KEY, JSON.stringify(data));
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
 
         function rpgResetWorkoutXpTracker() {
-            try { localStorage.removeItem(XP_WORKOUT_TRACKING_KEY); } catch(e) {}
+            try { localStorage.removeItem(XP_WORKOUT_TRACKING_KEY); } catch(e) { _awkE(e); }
         }
         window.rpgResetWorkoutXpTracker = rpgResetWorkoutXpTracker;
 
@@ -42931,7 +42859,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function _rpgPoidsCorpsKg(profileId) {
             try {
                 let up = null;
-                if (profileId && typeof getProfileData === 'function') { try { up = JSON.parse(getProfileData(profileId, 'userProfile') || 'null'); } catch (e) {} }
+                if (profileId && typeof getProfileData === 'function') { try { up = JSON.parse(getProfileData(profileId, 'userProfile') || 'null'); } catch (e) { _awkE(e); } }
                 if (!up && typeof getUserProfile === 'function') up = getUserProfile();
                 const w = parseFloat(up && up.weight);
                 return (w > 15 && w < 300) ? w : 70;
@@ -43001,7 +42929,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         xpGained = Math.round(xpGained * (1 + _skD.recordXP));
                         window._awakRecordAt = 0;
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
 
                 // 🎁 Bonus temporaire de coffre : booste l'XP de la séance.
                 const _buff = (typeof rpgGetWorkoutBuff === 'function') ? rpgGetWorkoutBuff() : 1;
@@ -43064,7 +42992,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             data.muscles[secMuscle].lastTrained = new Date().toISOString();
                         });
                     }
-                } catch(e) {}
+                } catch(e) { _awkE(e); }
                 if (!data.profile) data.profile = { xp: 0, lastActivity: new Date().toISOString() };
                 data.profile.xp = Object.values(data.muscles).reduce((s, m) => s + m.xp, 0);
                 data.profile.lastActivity = new Date().toISOString();
@@ -43076,7 +43004,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         log.push({ muscle, level: newLevel, date: new Date().toISOString() });
                         if (log.length > 50) log.splice(0, log.length - 50);
                         localStorage.setItem('fitproLevelUpLog', JSON.stringify(log));
-                    } catch(e) {}
+                    } catch(e) { _awkE(e); }
                     rpgSave(data);
                     rpgShowLevelUp(muscle, newLevel);
                     rpgCheckMilestones(muscle, newLevel, data);
@@ -43085,7 +43013,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
                 rpgShowXPPop(xpGained, muscle);
                 // 📊 Vérifier si le joueur vient de franchir un palier de Failles simultanées
-                try { awakCheckRiftCapMilestone(); } catch(e) {}
+                try { awakCheckRiftCapMilestone(); } catch(e) { _awkE(e); }
             } catch(err) {
                 console.error('rpgGainXP error:', err);
             }
@@ -43119,7 +43047,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!rpgEnabled()) return;
             // 🛡️ Mode récupération : progression gelée, aucun decay pendant la
             // convalescence (les dates sont rembobinées à la reprise).
-            try { if (window.AwakRecovery && window.AwakRecovery.isActive && window.AwakRecovery.isActive()) return; } catch (e) {}
+            try { if (window.AwakRecovery && window.AwakRecovery.isActive && window.AwakRecovery.isActive()) return; } catch (e) { _awkE(e); }
             const data = rpgLoad();
             const now = new Date();
             let changed = false;
@@ -43267,7 +43195,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (hote) hote.innerHTML = awakRenderBodyMap();
                     });
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             corps.scrollTop = y;
             // Barres XP : animées à l'ouverture, posées directement ensuite
             const barres = corps.querySelectorAll('.rpg-bar-anim');
@@ -43319,20 +43247,20 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     statPointsCheckLevelUp(rpgLevelFromXP(_lx));
                     window.AwakFin.muscle(muscle, level); return;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // v1411 : pendant une séance, pas de grande fenêtre au milieu d'une série :
             // une petite pastille, et le niveau PERSONNAGE attend la fin de la séance.
             if (document.body.classList.contains('in-session')) {
                 try {
                     const _lx = Object.values((rpgLoad().muscles||{})).reduce((s,m)=>s+(m.xp||0),0) + parseInt(localStorage.getItem('fitproRPGLifetimeXP')||'0');
                     statPointsCheckLevelUp(rpgLevelFromXP(_lx));
-                } catch (e) {}
-                try { rpgShowXPPop(0, muscle, muscle + ' · niveau ' + level); } catch (e) {}
+                } catch (e) { _awkE(e); }
+                try { rpgShowXPPop(0, muscle, muscle + ' · niveau ' + level); } catch (e) { _awkE(e); }
                 return;
             }
             if (typeof window.AwakCine !== 'undefined' && window.AwakCine.defer(function () { rpgShowLevelUp(muscle, level); })) return;
-            try { playBeep(); } catch(e) {}
-            try { vibrate([100,50,200,50,300]); } catch(e) {}
+            try { playBeep(); } catch(e) { _awkE(e); }
+            try { vibrate([100,50,200,50,300]); } catch(e) { _awkE(e); }
 
             // Vérifier si un level de profil a été atteint → donner des points
             const _lifeXP = Object.values((rpgLoad().muscles||{})).reduce((s,m)=>s+(m.xp||0),0)
@@ -43517,7 +43445,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // Apparence du bouton : gérée par le CSS .aw-switch via :checked
             if (preview) preview.style.display   = enabled ? 'block' : 'none';
             if (navTab)  navTab.style.display    = enabled ? '' : 'none';
-            try { document.body.classList.toggle('awk-jeu-on', !!enabled); } catch (e) {}   // v1404 : Jeu = 6e onglet en bas
+            try { document.body.classList.toggle('awk-jeu-on', !!enabled); } catch (e) { _awkE(e); }   // v1404 : Jeu = 6e onglet en bas
             if (enabled) {
                 // Mettre à jour compteur inventaire dans la preview
                 const inv = typeof getInventory === 'function' ? getInventory() : [];
@@ -43542,17 +43470,17 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function initGameMode() {
             const enabled = rpgEnabled();
             // 🔗 Réparer les noms restés au défaut « Mon Profil » dans le registre.
-            try { if (typeof repairProfileNames === 'function') repairProfileNames(); } catch (e) {}
+            try { if (typeof repairProfileNames === 'function') repairProfileNames(); } catch (e) { _awkE(e); }
             // 🔒 Purger l'ancienne clé GLOBALE du mode dev : elle débloquait le
             // mode développeur pour TOUS les profils. Le profil développeur le
             // réactivera seul par son nom ; les autres devront le refaire.
-            try { localStorage.removeItem('awakDevMode'); } catch (e) {}
+            try { localStorage.removeItem('awakDevMode'); } catch (e) { _awkE(e); }
             // Synchroniser l'onglet Famille (affiché par défaut, masquable en solo).
             try {
                 if (typeof applyFamilyTabVisibility === 'function') applyFamilyTabVisibility();
                 const famToggle = document.getElementById('familyTabToggle');
                 if (famToggle) famToggle.checked = familyTabEnabled();
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // Garder le mode chasseur/aventure aligné sur le mode jeu (évite tout état hybride).
             if (typeof setAdventureEnabled === 'function') setAdventureEnabled(enabled);
             const toggle  = document.getElementById('gameModeToggle');
@@ -43574,11 +43502,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     _card.appendChild(_note);
                 }
                 if (_note) _note.style.display = _bloque ? '' : 'none';
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // Apparence du bouton : gérée par le CSS .aw-switch via :checked
             if (preview) preview.style.display      = enabled ? 'block' : 'none';
             if (navTab)  navTab.style.display       = enabled ? 'flex' : 'none';
-            try { document.body.classList.toggle('awk-jeu-on', !!enabled); } catch (e) {}   // v1404 : Jeu = 6e onglet en bas
+            try { document.body.classList.toggle('awk-jeu-on', !!enabled); } catch (e) { _awkE(e); }   // v1404 : Jeu = 6e onglet en bas
             if (enabled) {
                 rpgApplyDecay();
                 // Initialiser awakLastRankSeen silencieusement si jamais défini
@@ -43631,7 +43559,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function vibrate(pattern) {
             if (isVibOff) return;
             // App Play Store : vibreur natif (plus fiable que navigator.vibrate en WebView)
-            try { if (window.AwakNative && window.AwakNative.estNatif()) { window.AwakNative.vibrer(pattern); return; } } catch (e) {}
+            try { if (window.AwakNative && window.AwakNative.estNatif()) { window.AwakNative.vibrer(pattern); return; } } catch (e) { _awkE(e); }
             if ('vibrate' in navigator) navigator.vibrate(pattern);
         }
 
@@ -43672,7 +43600,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     currentWorkout._duoNom = true;
                     currentWorkout.name = (currentWorkout.name || 'Séance') + ' · duo avec ' + AwakDuo.lire().nom;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // v1544 : séance VIDE (aucune série validée, moins de 3 min) → pas enregistrée.
             // Avant : tout passer avec « Suivant » donnait « Bravo », XP, quêtes et exploits.
             try {
@@ -43680,24 +43608,24 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _nbS = Object.keys(_currentSessionSets || {}).reduce((n, k) => n + ((_currentSessionSets[k] || []).length), 0);
                 const _min = workoutStartTime ? (Date.now() - workoutStartTime) / 60000 : 99;
                 let _duoSeries = false;   // v1605 : le partenaire du duo a fait ses séries → pas « vide »
-                try { _duoSeries = !!(window.AwakDuo && AwakDuo.actif() && AwakDuo.aDesSeries()); } catch (e) {}
+                try { _duoSeries = !!(window.AwakDuo && AwakDuo.actif() && AwakDuo.aDesSeries()); } catch (e) { _awkE(e); }
                 if (_w && !_w._awakVideOk && !_nbS && !_duoSeries && _min < 3 && !_w._isRift && !_w._isHunt && !_w._isAssaut && !_w._isFinalBoss && typeof showConfirm === 'function') {
                     if (_w._awakVideOuvert) return;   // v1545 : une seule fenêtre, même après plusieurs touches
                     _w._awakVideOuvert = true;
                     showConfirm('Aucune série n\'a été validée. Cette séance ne sera pas enregistrée.', () => {
-                        try { _doQuitWorkout(); } catch (e) {}
-                        try { clearActiveWorkoutState(); } catch (e) {}
-                        try { if (typeof updateHomeStats === 'function') updateHomeStats(); } catch (e) {}
-                        try { showToast('Séance non enregistrée', 'info', 2000); } catch (e) {}
+                        try { _doQuitWorkout(); } catch (e) { _awkE(e); }
+                        try { clearActiveWorkoutState(); } catch (e) { _awkE(e); }
+                        try { if (typeof updateHomeStats === 'function') updateHomeStats(); } catch (e) { _awkE(e); }
+                        try { showToast('Séance non enregistrée', 'info', 2000); } catch (e) { _awkE(e); }
                     }, () => {
-                        try { if (currentWorkout) currentWorkout._awakVideOuvert = false; } catch (e) {}
-                        try { if (currentWorkout && currentWorkout.exercises) { currentExerciseIndex = Math.max(0, currentWorkout.exercises.length - 1); startExercise(); } } catch (e) {}
+                        try { if (currentWorkout) currentWorkout._awakVideOuvert = false; } catch (e) { _awkE(e); }
+                        try { if (currentWorkout && currentWorkout.exercises) { currentExerciseIndex = Math.max(0, currentWorkout.exercises.length - 1); startExercise(); } } catch (e) { _awkE(e); }
                     }, { title: 'Séance vide', confirmLabel: 'Quitter sans enregistrer', cancelLabel: 'Reprendre la séance' });
                     return;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // ⏳ Mode enfant : proposer une pause après une longue session.
-            try { if (typeof awakEnfantChrono === 'function') awakEnfantChrono(); } catch (e) {}
+            try { if (typeof awakEnfantChrono === 'function') awakEnfantChrono(); } catch (e) { _awkE(e); }
 
             // ⚡ ASSAUT : si le monstre tient encore, on n'enregistre PAS la
             // séance — on propose d'abord la prolongation de 5 minutes.
@@ -43707,18 +43635,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     && awakAssautFinDuTemps()) {
                     return;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             clearInterval(timerInterval);
             releaseWakeLock();
             if (currentWorkout) currentWorkout._completed = true;
             // v1561 : séance de mentor comptée quand elle est vraiment terminée
-            try { if (currentWorkout && currentWorkout.fromCelebrity && typeof recordCelebritySession === 'function') recordCelebritySession(currentWorkout.fromCelebrity); } catch (e) {}
+            try { if (currentWorkout && currentWorkout.fromCelebrity && typeof recordCelebritySession === 'function') recordCelebritySession(currentWorkout.fromCelebrity); } catch (e) { _awkE(e); }
             // 🌅 PARCOURS DE L'ÉVEIL : valider le jour si c'était une séance d'Éveil.
             try {
                 if (currentWorkout && currentWorkout._eveil && typeof awakEveilOnWorkoutComplete === 'function') {
                     awakEveilOnWorkoutComplete();
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // 🌳 ARBRE DE PROGRESSION : si la séance était un palier, débloquer le suivant.
             try {
                 const _pc = window._awakProgressionContext;
@@ -43747,7 +43675,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         }
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // 👑 COMBAT FINAL : si c'était l’Effaceur, marquer la victoire pour l'épilogue
             const _wasFinalBoss = currentWorkout && currentWorkout._isFinalBoss;
             window._awakFinSansFile = !!_wasFinalBoss;   // v1413 : la victoire finale ne fait pas la file
@@ -43755,22 +43683,22 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // v1480 : victoire SEULEMENT s'il est tombé ; sinon défaite, tout est à refaire
             // v1487 : la victoire exige la PREUVE qu'il est tombé (_bossVaincu, posé au coup
             // fatal). Avant : « PV manquants » valait 0 → victoire même après une défaite.
-            if (_wasFinalBoss) { try { if (typeof window.awakFinalCalibrer === 'function') window.awakFinalCalibrer(currentWorkout); } catch (e) {} }
+            if (_wasFinalBoss) { try { if (typeof window.awakFinalCalibrer === 'function') window.awakFinalCalibrer(currentWorkout); } catch (e) { _awkE(e); } }
             const _fbTombe = _wasFinalBoss && currentWorkout._bossVaincu === true && currentWorkout._bossHp === 0 && !currentWorkout._joueurMort;
-            if (_wasFinalBoss && currentWorkout._larme) { try { awakConsumablesConsume(); } catch (e) {} }
+            if (_wasFinalBoss && currentWorkout._larme) { try { awakConsumablesConsume(); } catch (e) { _awkE(e); } }
             if (_wasFinalBoss && !_fbTombe && typeof window.awakFinalDefaite === 'function') {
                 const _fbReste = typeof currentWorkout._bossHp === 'number' ? Math.max(0, currentWorkout._bossHp) : (currentWorkout._bossHpMax || 1);
                 const _pctR = Math.max(1, Math.round(_fbReste / (currentWorkout._bossHpMax || 1) * 100));
                 const _plch = !!currentWorkout._bossPlancher;
                 const _mort = !!currentWorkout._joueurMort;
-                try { setTimeout(() => window.awakFinalDefaite(_pctR, _plch, _mort), 2500); } catch (e) {}
+                try { setTimeout(() => window.awakFinalDefaite(_pctR, _plch, _mort), 2500); } catch (e) { _awkE(e); }
             } else if (_wasFinalBoss && currentWorkout._essaiDev) {
                 // v1482 : essai du mode développeur → visuels de victoire, rien d'enregistré
                 window._awakFinEssai = true;
-                try { setTimeout(() => awakShowFinalBossVictory(), 2500); } catch(e) {}
+                try { setTimeout(() => awakShowFinalBossVictory(), 2500); } catch(e) { _awkE(e); }
             } else if (_wasFinalBoss && typeof awakOnFinalBossComplete === 'function') {
-                try { awakOnFinalBossComplete(); } catch(e) {}
-                try { setTimeout(() => awakShowFinalBossVictory(), 2500); } catch(e) {}
+                try { awakOnFinalBossComplete(); } catch(e) { _awkE(e); }
+                try { setTimeout(() => awakShowFinalBossVictory(), 2500); } catch(e) { _awkE(e); }
             }
             clearActiveWorkoutState(); // Nettoyer l'état de séance persisté
             // 👥 SÉANCE À PLUSIEURS : enregistrer la séance chez chaque
@@ -43801,7 +43729,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     }
                     // v1603 : bilan du partenaire (duo) pour l'écran de fin, AVANT la remise à zéro
                     let _duoBilan = null;
-                    try { if (window.AwakDuo && AwakDuo.actif()) _duoBilan = AwakDuo.resumePourBilan(); } catch (e) {}
+                    try { if (window.AwakDuo && AwakDuo.actif()) _duoBilan = AwakDuo.resumePourBilan(); } catch (e) { _awkE(e); }
                     const _contribs = window.AwakGroup.profiledContributors();
                     const _dureeGroupe = (typeof workoutStartTime === 'number' && workoutStartTime > 0) ? Math.round((Date.now() - workoutStartTime) / 1000) : 0;
                     const _xpGroupe = [];
@@ -43814,17 +43742,17 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                 saveGroupWorkoutForProfile(p.id, w);
                                 const _xp = awakXPParticipant(p.id, w, (window.AwakGroup.gabaritPour ? window.AwakGroup.gabaritPour(p.id, currentWorkout) : currentWorkout));   // v1313
                                 if (_xp > 0) _xpGroupe.push(p.name + ' +' + _xp + ' XP');
-                                if (_duoBilan && window.AwakDuo && AwakDuo.pid() === p.id) { _duoBilan.xp = _xp; try { AwakDuo.compterMentor(); } catch (e) {} }
+                                if (_duoBilan && window.AwakDuo && AwakDuo.pid() === p.id) { _duoBilan.xp = _xp; try { AwakDuo.compterMentor(); } catch (e) { _awkE(e); } }
                             }
-                        } catch(e) {}
+                        } catch(e) { _awkE(e); }
                     });
-                    if (_duoBilan && _duoBilan.series) { try { AwakDuo.bilan(_duoBilan); } catch (e) {} }
+                    if (_duoBilan && _duoBilan.series) { try { AwakDuo.bilan(_duoBilan); } catch (e) { _awkE(e); } }
                     if (_contribs.length && typeof showToast === 'function') {
                         showToast('Séance enregistrée pour ' + _contribs.map(function(c){return c.name;}).join(', ') + (_xpGroupe.length ? ' · ' + _xpGroupe.join(', ') : ''), 'success', 4500);
                     }
                 }
-            } catch(e) {}
-            try { if (window.AwakGroup && typeof window.AwakGroup.finSeance === 'function') window.AwakGroup.finSeance(); else if (window.AwakGroup && typeof window.AwakGroup.reset === 'function') window.AwakGroup.reset(); } catch(e) {}   // v1603 : le duo reste prêt
+            } catch(e) { _awkE(e); }
+            try { if (window.AwakGroup && typeof window.AwakGroup.finSeance === 'function') window.AwakGroup.finSeance(); else if (window.AwakGroup && typeof window.AwakGroup.reset === 'function') window.AwakGroup.reset(); } catch(e) { _awkE(e); }   // v1603 : le duo reste prêt
             exitFullscreenMode(); // Sortir du plein écran
             // Sauvegarder une copie des séries AVANT le nettoyage par saveSessionSets
             window._completedSessionSets = JSON.parse(JSON.stringify(_currentSessionSets || {}));
@@ -43881,7 +43809,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             setTimeout(function () { showAlert(_emoji + ' ' + _label + ' — Niveau ' + _res.level + ' !', 'success'); }, 1400);
                         }
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }
 
             // NOUVEAU : Sauvegarder muscles travaillés pour tracking récupération
@@ -43895,39 +43823,39 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch(e) { console.warn('Awakened auto-stats error:', e); }
 
             // 🌌 AWAKENED — [ANCIEN PREMIER CONTACT DÉSACTIVÉ — remplacé par « Première Trace » du moteur d'événements]
-            // try { if (typeof awakTriggerFirstContactIfNeeded === 'function') awakTriggerFirstContactIfNeeded(); } catch(e) {}
+            // try { if (typeof awakTriggerFirstContactIfNeeded === 'function') awakTriggerFirstContactIfNeeded(); } catch(e) { _awkE(e); }
 
             // 🌌 AWAKENED — Détection de montée de rang
             try {
                 if (typeof awakCheckRankUp === 'function') {
                     awakCheckRankUp();
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 🌌 AWAKENED — Apparition fiable des Failles de compagnon (découplée du rank-up)
             try {
                 if (typeof awakCheckCompanionRifts === 'function') {
-                    setTimeout(() => { try { awakCheckCompanionRifts(); } catch(e) {} }, 5000);
+                    setTimeout(() => { try { awakCheckCompanionRifts(); } catch(e) { _awkE(e); } }, 5000);
                 }
                 // v1422 : Failles d'histoire déclenchées par le niveau
                 if (typeof awakCheckNarrativeRifts === 'function') {
-                    setTimeout(() => { try { awakCheckNarrativeRifts(); } catch(e) {} }, 5600);
+                    setTimeout(() => { try { awakCheckNarrativeRifts(); } catch(e) { _awkE(e); } }, 5600);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 🩸 AWAKENED — Apparition des Quatre Épreuves (sous-boss en séquence avant le boss final)
             try {
                 if (typeof awakCheckSubBosses === 'function') {
-                    setTimeout(() => { try { awakCheckSubBosses(); } catch(e) {} }, 5400);
+                    setTimeout(() => { try { awakCheckSubBosses(); } catch(e) { _awkE(e); } }, 5400);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 🕳️ AWAKENED — Apparition du palier d'Abysse (descente infinie post-Effaceur)
             try {
                 if (typeof awakCheckAbyss === 'function') {
-                    setTimeout(() => { try { awakCheckAbyss(); } catch(e) {} }, 5800);
+                    setTimeout(() => { try { awakCheckAbyss(); } catch(e) { _awkE(e); } }, 5800);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 🌀 AWAKENED — Init silencieuse de la capacité de Failles : pour les joueurs DÉJÀ
             // au-delà des paliers, on enregistre la capacité actuelle sans notifier (évite une
@@ -43936,7 +43864,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (localStorage.getItem('awakRiftCapSeen') === null && typeof awakGetMaxActiveRifts === 'function') {
                     localStorage.setItem('awakRiftCapSeen', String(awakGetMaxActiveRifts()));
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 🔧 AWAKENED — Migration : répare les Failles de compagnon complétées par une
             // ancienne version (champs isCompanionRift/companionRiftId/companionId manquants),
@@ -43956,16 +43884,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (_changed) awakRiftsSave(_rifts);
                     // Si une Faille de compagnon est complétée mais le compagnon pas encore débloqué → rattraper
                     if (typeof awakCompanionsTriggerUnlockCheck === 'function') {
-                        setTimeout(() => { try { awakCompanionsTriggerUnlockCheck(); } catch(e) {} }, 6500);
+                        setTimeout(() => { try { awakCompanionsTriggerUnlockCheck(); } catch(e) { _awkE(e); } }, 6500);
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 📖 NARRATIF — [ANCIENNE HISTOIRE DÉSACTIVÉE — remplacée par le moteur d'événements]
             // Les chapitres/fragments de l’Effaceur ne se déclenchent plus.
             // (Code conservé mais non appelé, pour migration ultérieure.)
-            // try { if (typeof checkStoryRankUnlock === 'function') setTimeout(() => checkStoryRankUnlock(), 4500); } catch(e) {}
-            // try { if (typeof awakCheckStoryFragments === 'function') setTimeout(() => { if (!document.getElementById('storyOverlay')) awakCheckStoryFragments(); }, 7000); } catch(e) {}
+            // try { if (typeof checkStoryRankUnlock === 'function') setTimeout(() => checkStoryRankUnlock(), 4500); } catch(e) { _awkE(e); }
+            // try { if (typeof awakCheckStoryFragments === 'function') setTimeout(() => { if (!document.getElementById('storyOverlay')) awakCheckStoryFragments(); }, 7000); } catch(e) { _awkE(e); }
 
             // 📖 NARRATIF — Moteur d'événements (rencontres, faits amusants, dialogues) « Le Monde qui s'efface »
             try {
@@ -43978,7 +43906,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 } else if (typeof storyCheckEvents === 'function') {
                     storyCheckEvents({ delay: 4500 });
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 🌀 AWAKENED — Tenter de générer une Faille après séance (pas si c'est une Faille)
             try {
@@ -44006,7 +43934,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         }
                     }, 2500);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 🎭 Phase 4 : check déblocages compagnons après séance
             try {
@@ -44017,7 +43945,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (typeof awakCheckCompanionRifts === 'function') {
                     setTimeout(() => awakCheckCompanionRifts(), 5500);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // ⚔️ Tentative de drop d'équipement (mode aventure)
             try {
@@ -44099,7 +44027,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             _countUp('completionExercises', realExercises.length);
             // v1399 : accord (« 1 Minutes », « 1 Exercices »)
             _setText('completionTimeLbl', totalMinutes > 1 ? 'Minutes' : 'Minute');
-            try { const _le = document.getElementById('completionExercises'); const _ll = _le && _le.nextElementSibling; if (_ll) _ll.textContent = realExercises.length > 1 ? 'Exercices' : 'Exercice'; } catch (e) {}
+            try { const _le = document.getElementById('completionExercises'); const _ll = _le && _le.nextElementSibling; if (_ll) _ll.textContent = realExercises.length > 1 ? 'Exercices' : 'Exercice'; } catch (e) { _awkE(e); }
 
             // Calories précises : formule MET × poids_kg × heures
             const profile = getUserProfile();
@@ -44154,7 +44082,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     else intakeEl.innerHTML = '🍽️ Ta séance ≈ <strong>' + kcal + ' kcal</strong> dépensées. Pour ton objectif (' + goalTxt + '), vise environ <strong>' + lo.toLocaleString('fr-FR') + ' – ' + hi.toLocaleString('fr-FR') + ' kcal</strong> aujourd\'hui, avec des protéines à chaque repas. C\'est un repère, pas un examen 😉';
                     habitsEl.style.display = 'block';
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // Volume total (séries × reps × poids) — basé sur les séries de CETTE séance
             let totalVolume = 0;
@@ -44170,7 +44098,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         totalSets++;
                     });
                 });
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             if (totalVolume > 0 && volDiv && volVal) {
                 const unit = useKg ? 'kg' : 'lbs';
                 volVal.textContent = Math.round(totalVolume).toLocaleString('fr-CA') + ' ' + unit + ' (' + totalSets + ' séries)';
@@ -44206,7 +44134,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         heroImg.style.display = 'none';
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // Muscles travaillés
             const muscles = [...new Set(realExercises
@@ -44245,7 +44173,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     ).join('');
                     prsDiv.style.display = 'block';
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 🔥 Élan hebdo — « Nᵉ séance cette semaine » (jamais punitif)
             try {
@@ -44263,7 +44191,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         streakEl.style.display = 'block';
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 🌳 Arbre de l'Éveil — ce que la séance a nourri (+ passages de palier)
             try {
@@ -44290,7 +44218,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         treeDiv.style.display = 'block';
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 🎯 Verdict de séance (intensité ressentie automatique)
             const verdictEl = document.getElementById('completionVerdict');
@@ -44338,9 +44266,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                 : (up ? '+' : '') + pct + '% de volume vs ta dernière séance';
                             verdictEl.innerHTML += '<div style="margin-top:7px;font-size:0.78em;color:' + col + ';font-weight:700;text-align:center;">' + arrow + ' ' + txt + '</div>';
                         }
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                     verdictEl.style.display = 'block';
-                } catch(e) {}
+                } catch(e) { _awkE(e); }
             }
 
             // ── COMPARAISON STATS CÉLÉBRITÉ ───────────────────────────
@@ -44391,7 +44319,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 renderWeeklyChallenge(JSON.parse(localStorage.getItem('fitproWeeklyChallenge') || 'null'));
             } catch (e) { console.warn('weeklyChallenge:', e); }
             // ⌚ v1232 : pouls et calories réels de la montre (Health Connect)
-            try { if (window.AwakSante && AwakSante.connecte()) AwakSante.completerFinSeance(workoutStartTime || (Date.now() - totalMinutes * 60000), Date.now()); } catch (e) {}
+            try { if (window.AwakSante && AwakSante.connecte()) AwakSante.completerFinSeance(workoutStartTime || (Date.now() - totalMinutes * 60000), Date.now()); } catch (e) { _awkE(e); }
             // 🎉 Confettis !
             setTimeout(launchConfetti, 200);
             // 📤 Invitation discrète à partager la carte (après les autres pop-ups)
@@ -44401,7 +44329,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (cv && !cv.classList.contains('hidden') && typeof showToast === 'function') {
                         showToast('📤 Partage ta carte de séance !', 'info', 3500);
                     }
-                } catch(e) {}
+                } catch(e) { _awkE(e); }
             }, 6000);
             // Animer les stats
             document.querySelectorAll('#completionView [id^="completion"]').forEach((el, i) => {
@@ -44423,7 +44351,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const dq = rpgGetDailyQuests();
                     dq.forEach(q => { if (q.done) rpgAwardDailyQuest(q.id, q.xpReward); });
                     // v1538 : quêtes de la semaine payées après la séance (avant : seulement à l'ouverture de l'onglet Jeu)
-                    try { rpgGetWeeklyQuests(rpgLoad()); } catch (e) {}
+                    try { rpgGetWeeklyQuests(rpgLoad()); } catch (e) { _awkE(e); }
                 }, 600);
                 // Système de Boss désactivé — retiré du jeu
                 // Vérifier les exploits
@@ -44450,8 +44378,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (typeof window.awakEmit === 'function') {
                             window.awakEmit('rpg:rankChanged', { rank: newRank.id, prevRank: prevRank });
                         } else {
-                            try { if (typeof renderGameTab === 'function') renderGameTab(); } catch (e) {}
-                            try { if (typeof renderHomeRpgCard === 'function') renderHomeRpgCard(); } catch (e) {}
+                            try { if (typeof renderGameTab === 'function') renderGameTab(); } catch (e) { _awkE(e); }
+                            try { if (typeof renderHomeRpgCard === 'function') renderHomeRpgCard(); } catch (e) { _awkE(e); }
                         }
                     }
                 }, 1200);
@@ -45846,10 +45774,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const K = ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'], jours = {};
                 // v1572 : date de début du mentor (pas de jours « manqués » avant son activation)
                 let depuis = null;
-                try { const _k = CELEBRITY_START_KEY + '_' + c.id; const _v = localStorage.getItem('profile_' + pid + '_' + _k) || localStorage.getItem(_k); if (_v) depuis = Date.parse(_v); } catch (e) {}
+                try { const _k = CELEBRITY_START_KEY + '_' + c.id; const _v = localStorage.getItem('profile_' + pid + '_' + _k) || localStorage.getItem(_k); if (_v) depuis = Date.parse(_v); } catch (e) { _awkE(e); }
                 c.splits.forEach((s, i) => {
                     if (i > 6 || !s || /repos|🛌/i.test(s.name || '')) return;
-                    let mus = []; try { mus = _splitNameToMuscles(s.name) || []; } catch (e) {}
+                    let mus = []; try { mus = _splitNameToMuscles(s.name) || []; } catch (e) { _awkE(e); }
                     if (!mus.length) { const dz = _splitNameToDiscipline(s.name); if (dz) mus = [{ yoga: 'Yoga', pilates: 'Pilates', mobilite: 'Mobilité' }[dz]]; }
                     jours[K[i]] = { muscles: mus.length ? mus : ['Corps entier'], label: c.nickname + ' · ' + s.name, source: 'mentor', mentorDay: K[i], mentor: c.nickname, depuis: depuis };
                 });
@@ -45895,7 +45823,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch (e) { return 'personnalite'; }
         }
         function setProgramTabView(v) {
-            try { localStorage.setItem('programTabView', v); } catch (e) {}
+            try { localStorage.setItem('programTabView', v); } catch (e) { _awkE(e); }
         }
         window.getProgramTabView = getProgramTabView;
         window.setProgramTabView = setProgramTabView;
@@ -45927,7 +45855,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         // 🎯 Arbres de progression — système générique pour toutes les disciplines.
         function awakGetProgress() { try { return JSON.parse(localStorage.getItem('awakProgressTrees') || '{}'); } catch (e) { return {}; } }
-        function awakSaveProgress(p) { try { localStorage.setItem('awakProgressTrees', JSON.stringify(p)); } catch (e) {} }
+        function awakSaveProgress(p) { try { localStorage.setItem('awakProgressTrees', JSON.stringify(p)); } catch (e) { _awkE(e); } }
         function _progKey(disc, skill) { return disc + '::' + skill; }
         function _progListFor(disc) { const M = (typeof DISCIPLINE_PROGRESSIONS !== 'undefined') ? DISCIPLINE_PROGRESSIONS : (window.DISCIPLINE_PROGRESSIONS || {}); return (M && M[disc]) ? M[disc] : []; }
         // 🌿 Prérequis inter-skills (les « branches » de l'arbre).
@@ -45961,7 +45889,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const o = JSON.parse(old); const p = awakGetProgress();
                 Object.keys(o).forEach(function (k) { const nk = 'calisthenie::' + k; if (p[nk] === undefined) p[nk] = o[k]; });
                 awakSaveProgress(p); localStorage.removeItem('awakCalisProgress');
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         })();
 
         // Bouton d'accès affiché dans la fiche d'une discipline (si elle a des progressions).
@@ -45990,14 +45918,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         const _PROG_STRUCT = /(^|\s)round\s*\d+\s*\/\s*\d+|^Repos\b|entre blocs|^\s*Récup|^Effort\b|^VMA\b|^Sortie\b|^Finisher\b|\b\d+\s*\/\s*\d+\b/i;
         function _progPool(disc, toutNiveau) {
             const DS = (typeof DISCIPLINE_SESSIONS !== 'undefined') ? DISCIPLINE_SESSIONS : (window.DISCIPLINE_SESSIONS || {});
-            let lv = 99; try { if (!toutNiveau && typeof getDisciplineLevel === 'function') lv = getDisciplineLevel(disc).level; } catch (e) {}
+            let lv = 99; try { if (!toutNiveau && typeof getDisciplineLevel === 'function') lv = getDisciplineLevel(disc).level; } catch (e) { _awkE(e); }
             let sessions = DS[disc] || [];
-            try { if (typeof listDisciplineSessions === 'function') sessions = listDisciplineSessions(disc); } catch (e) {}
+            try { if (typeof listDisciplineSessions === 'function') sessions = listDisciplineSessions(disc); } catch (e) { _awkE(e); }
             const pool = []; const seen = {};
             sessions.filter(function (s) { return (s.minLevel || 1) <= lv; }).forEach(function (s) {
                 (s.exercises || []).forEach(function (e) {
                     if (!e || !e.name || seen[e.name] || e.isRest || e.isInfo || _PROG_STRUCT.test(e.name)) return;
-                    try { if (typeof awakRaisonRefus === 'function' && awakRaisonRefus(e, { sansNiveau: true })) return; } catch (x) {}
+                    try { if (typeof awakRaisonRefus === 'function' && awakRaisonRefus(e, { sansNiveau: true })) return; } catch (x) { _awkE(x); }
                     seen[e.name] = 1; pool.push(e);
                 });
             });
@@ -46150,7 +46078,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const c = window._awakCourseEtape; if (!c) return;
             window._awakCourseEtape = null;
             if ((distance || 0) >= c.m) {
-                try { const _sk = _progListFor(c.disc)[c.skillIdx]; if (_sk && (awakGetProgress()[_progKey(c.disc, _sk.skill)] || 0) <= c.stepIdx) awakAdvanceStep(c.disc, c.skillIdx, c.stepIdx); } catch (e) {}
+                try { const _sk = _progListFor(c.disc)[c.skillIdx]; if (_sk && (awakGetProgress()[_progKey(c.disc, _sk.skill)] || 0) <= c.stepIdx) awakAdvanceStep(c.disc, c.skillIdx, c.stepIdx); } catch (e) { _awkE(e); }
                 if (typeof showToast === 'function') setTimeout(function () { showToast('Étape validée : « ' + c.label + ' »', 'success', 4500); }, 1500);
             } else if (typeof showToast === 'function') {
                 setTimeout(function () { showToast('Étape « ' + c.label + ' » pas encore validée : ' + (Math.round((distance || 0) / 100) / 10).toString().replace('.', ',') + ' km sur ' + (Math.round(c.m / 0.98 / 100) / 10).toString().replace('.', ',') + ' km', 'info', 5000); }, 1500);
@@ -46269,13 +46197,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // On les route vers la vue Disciplines de l'onglet Programme, là où vivent
         // réellement les arbres de progression.
         function showAwakeningTree() {
-            try { if (typeof switchTab === 'function') switchTab('program'); } catch (e) {}
-            try { if (typeof setProgramTabView === 'function') setProgramTabView('discipline'); } catch (e) {}
-            try { if (typeof renderProgramTab === 'function') renderProgramTab(); } catch (e) {}
+            try { if (typeof switchTab === 'function') switchTab('program'); } catch (e) { _awkE(e); }
+            try { if (typeof setProgramTabView === 'function') setProgramTabView('discipline'); } catch (e) { _awkE(e); }
+            try { if (typeof renderProgramTab === 'function') renderProgramTab(); } catch (e) { _awkE(e); }
         }
         function showFeatureMap() {
-            try { if (typeof switchTab === 'function') switchTab('program'); } catch (e) {}
-            try { if (typeof renderProgramTab === 'function') renderProgramTab(); } catch (e) {}
+            try { if (typeof switchTab === 'function') switchTab('program'); } catch (e) { _awkE(e); }
+            try { if (typeof renderProgramTab === 'function') renderProgramTab(); } catch (e) { _awkE(e); }
         }
         window.showAwakeningTree = showAwakeningTree;
         window.showFeatureMap = showFeatureMap;
@@ -46447,7 +46375,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // Vue « Discipline » — catalogue (contenu réel des séances : brique 5).
         // Sélection d'une discipline dans le catalogue (chips → carte unique)
         function selectDisciplineCard(id) {
-            try { localStorage.setItem('awakSelectedDiscipline', id); } catch (e) {}
+            try { localStorage.setItem('awakSelectedDiscipline', id); } catch (e) { _awkE(e); }
             if (typeof renderProgramTab === 'function') renderProgramTab();
         }
         window.selectDisciplineCard = selectDisciplineCard;
@@ -46460,7 +46388,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 : [];
             // discipline sélectionnée (mémorisée ; défaut = première)
             let selId = null;
-            try { selId = localStorage.getItem('awakSelectedDiscipline'); } catch (e) {}
+            try { selId = localStorage.getItem('awakSelectedDiscipline'); } catch (e) { _awkE(e); }
             if (!list.some(function (d) { return d.id === selId; })) selId = list[0] ? list[0].id : null;
             // barre de chips : toutes les voies visibles d'un coup, sans défiler
             const chips = '<div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px;">'
@@ -46516,7 +46444,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             }
                             // v1228 : dire COMMENT débloquer (≈ 100 XP par séance, 300 par niveau)
                             let _reste = 0;
-                            try { const _l = getDisciplineLevel(d.id); _reste = Math.max(1, Math.ceil(((need - 1) * 300 - _l.xp) / 100)); } catch (e) {}
+                            try { const _l = getDisciplineLevel(d.id); _reste = Math.max(1, Math.ceil(((need - 1) * 300 - _l.xp) / 100)); } catch (e) { _awkE(e); }
                             return '<span title="Atteins le niveau ' + need + ' pour débloquer" style="display:inline-flex;flex-direction:column;align-items:flex-start;background:rgba(255,255,255,0.04);color:#8391a7;border:1px dashed rgba(255,255,255,0.16);border-radius:12px;padding:6px 12px;font-size:0.74em;font-weight:800;">'
                                 + '<span style="display:inline-flex;align-items:center;gap:5px;">' + (window.AwakIcon ? AwakIcon.get('porte', 12, '#64748b') : '') + s.name + '</span>'
                                 + '<span style="font-size:0.85em;font-weight:600;color:#8391a7;">Niveau ' + need + (_reste ? ' · encore ~' + _reste + ' séance' + (_reste > 1 ? 's' : '') : '') + '</span></span>';
@@ -46621,7 +46549,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function _saveDisciplineProgress(obj) {
             const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
             const data = JSON.stringify(obj || {});
-            try { if (profileId) setProfileData(profileId, DISCIPLINE_PROGRESS_KEY, data); else localStorage.setItem(DISCIPLINE_PROGRESS_KEY, data); } catch (e) {}
+            try { if (profileId) setProfileData(profileId, DISCIPLINE_PROGRESS_KEY, data); else localStorage.setItem(DISCIPLINE_PROGRESS_KEY, data); } catch (e) { _awkE(e); }
         }
         function getDisciplineLevel(disciplineId) {
             const p = getDisciplineProgress()[disciplineId] || { xp: 0, sessions: 0 };
@@ -46784,7 +46712,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     container.innerHTML = window.AwakKidsPrograms.renderTab();
                     return;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 🌱 PROFIL SÉNIOR (65+) et ♿ MOBILITÉ RÉDUITE : on PROPOSE des
             // programmes adaptés EN PLUS, sans rien masquer. Ces sections sont
@@ -46796,13 +46724,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     && typeof window.AwakAdaptive.renderSection === 'function') {
                     _seniorPrefix += window.AwakAdaptive.renderSection();
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             try {
                 if (window.AwakYouth && window.AwakYouth.isSenior && window.AwakYouth.isSenior()
                     && window.AwakSeniorPrograms && typeof window.AwakSeniorPrograms.renderSection === 'function') {
                     _seniorPrefix += window.AwakSeniorPrograms.renderSection();
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // ── Brique 4 : sélecteur de catégorie + routing des sous-vues ──
             const _progView = (typeof getProgramTabView === 'function') ? getProgramTabView() : 'personnalite';
@@ -47008,7 +46936,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (window.AwakYouth && AwakYouth.isYoung && AwakYouth.isYoung() && !(AwakYouth.isChild && AwakYouth.isChild())) {
                     return !p || p.level !== 'Avancé';
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return true;
         }
         window.awakProgrammeAdapte = awakProgrammeAdapte;
@@ -47256,7 +47184,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (!full || _ok(full)) { _res.push(ex); return; }
                         let cands = exerciseDatabase.filter(e => e.muscle === full.muscle && !e.isRest && !e.isInfo &&
                             (!e.type || e.type === 'exercise') && !_pris.has(e.name) && _ok(e));
-                        try { if (Array.isArray(AWAK_FAIBLES)) { const _fo = cands.filter(e => !AWAK_FAIBLES.includes(e.name)); if (_fo.length) cands = _fo; } } catch (e) {}
+                        try { if (Array.isArray(AWAK_FAIBLES)) { const _fo = cands.filter(e => !AWAK_FAIBLES.includes(e.name)); if (_fo.length) cands = _fo; } } catch (e) { _awkE(e); }
                         if (!cands.length) return;
                         const mw = _mots(full.name);
                         const fe = full.equipment || [];
@@ -47421,7 +47349,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _wp = JSON.parse(getProfileData(profileId, 'weeklyPlan') || 'null');
                     if (_wp && Array.isArray(_wp.plan) && _wp.plan.some(d => d && d._celebrity)) setProfileData(profileId, 'weeklyPlan', null);
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             if (typeof updateProfileDisplay === 'function') updateProfileDisplay();
             if (typeof updateHomeStats      === 'function') updateHomeStats();
             const planTab = document.getElementById('planningTab');
@@ -47429,48 +47357,6 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
 
         // ── 1. Plan hebdomadaire calqué sur la personnalité ────────────
-        function applyCelebrityWeeklyPlan(program) {
-            const dayNames = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
-
-            // Mapper les splits de la personnalité sur les 7 jours
-            const plan = dayNames.map((dayName, i) => {
-                const dayPrefix = dayName.toLowerCase().slice(0, 3); // 'lun', 'mar', ...
-                // Trouver le split correspondant à ce jour
-                const split = program.splits.find(s => {
-                    const d = s.day.toLowerCase();
-                    // Gérer les formats combinés style 'Sam/Dim'
-                    if (d.includes('/')) {
-                        return d.split('/').some(part => part.trim().startsWith(dayPrefix));
-                    }
-                    return d === dayPrefix || d.startsWith(dayPrefix);
-                });
-
-                if (!split || split.name.includes('Repos') || split.name.includes('🛌') || split.name.includes('repos')) {
-                    return {
-                        day: dayName,
-                        focus: split ? split.name.replace('🛌','').trim() : 'Repos',
-                        intensity: split && (split.name.toLowerCase().includes('actif') || split.name.toLowerCase().includes('yoga') || split.name.toLowerCase().includes('surf')) ? 'low' : 'rest',
-                        muscles: []
-                    };
-                }
-
-                // Déduire les muscles du focus du split
-                const muscles = _musclesFromSplitName(split.name);
-                const intensity = _intensityFromSplitName(split.name);
-
-                return {
-                    day: dayName,
-                    focus: `${program.emoji} ${split.name}`,
-                    intensity,
-                    muscles,
-                    _celebrity: program.id
-                };
-            });
-
-            saveAutoWeeklyPlan(plan);
-            renderWeeklyPlan();
-            showToast(`📅 Plan de ${program.nickname} appliqué à ta semaine !`, 'success', 3500);
-        }
 
         function _musclesFromSplitName(name) {
             const n = name.toLowerCase();
@@ -47690,8 +47576,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 
                 oscillator.start(audioContext.currentTime);
                 oscillator.stop(audioContext.currentTime + 0.3);
-            } catch (e) {
-            }
+            } catch (e) { _awkE(e); }
         }
 
         // ── Système sonore ─────────────────────────────────────────
@@ -47718,7 +47603,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + delay + dur);
                 osc.start(ctx.currentTime + delay);
                 osc.stop(ctx.currentTime + delay + dur + 0.05);
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
 
         // Bip court countdown (5 dernières secondes)
@@ -48515,13 +48400,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // profil, ciel de la famille…) sans recharger la page
             clearTimeout(window.__awakProfRefresh);
             window.__awakProfRefresh = setTimeout(function () {
-                try { if (typeof awakMajBoutonProfil === 'function') awakMajBoutonProfil(); } catch (e) {}
-                try { if (window.AwakHomePro && AwakHomePro.render) AwakHomePro.render(); } catch (e) {}
+                try { if (typeof awakMajBoutonProfil === 'function') awakMajBoutonProfil(); } catch (e) { _awkE(e); }
+                try { if (window.AwakHomePro && AwakHomePro.render) AwakHomePro.render(); } catch (e) { _awkE(e); }
                 try {
                     const t = (typeof currentTab !== 'undefined') ? currentTab : '';
                     if (t === 'family' && window.AwakFamily && typeof window.renderFamilyTab === 'function') window.renderFamilyTab();
                     else if (t === 'calendar' && typeof window.renderCalendarTab === 'function') window.renderCalendarTab();
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }, 0);
             return ok;
         }
@@ -48545,7 +48430,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const profiles = getAllProfiles();
                 const p = profiles.find(x => x.id === profileId);
                 if (p && p.name !== name) { p.name = name; saveProfiles(profiles); }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.syncProfileNameToRegistry = syncProfileNameToRegistry;
 
@@ -48565,7 +48450,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (typeof updateProfileDisplay === 'function') updateProfileDisplay();
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.syncRegistryNameToProfile = syncRegistryNameToProfile;
 
@@ -48586,7 +48471,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     }
                 });
                 if (changed) saveProfiles(profiles);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.repairProfileNames = repairProfileNames;
 
@@ -48636,7 +48521,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     localStorage.removeItem(k);
                     if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) return;
                     if (typeof awakEveilMaybeOffer === 'function') awakEveilMaybeOffer();
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             };
             setTimeout(tenter, 1500);
         }
@@ -48677,7 +48562,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // v1585 : l'historique n'a PLUS de copie de travail (il occupait la moitié du
             // stockage de l'appareil) : seule la clé du profil compte.
             if (key === 'workoutHistory') {
-                try { if (ok && localStorage.getItem(profileKey) !== null) localStorage.removeItem(key); } catch (e) {}
+                try { if (ok && localStorage.getItem(profileKey) !== null) localStorage.removeItem(key); } catch (e) { _awkE(e); }
                 return ok;
             }
             // Also update legacy key if current profile
@@ -48697,7 +48582,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // ne s'exécute que si l'on est sur l'accueil, or on peut changer de
             // profil depuis n'importe quel onglet.
             setTimeout(function () {
-                try { if (typeof awakMajBoutonProfil === 'function') awakMajBoutonProfil(); } catch (e) {}
+                try { if (typeof awakMajBoutonProfil === 'function') awakMajBoutonProfil(); } catch (e) { _awkE(e); }
             }, 120);
             // updateHomeStats appelé automatiquement après reload
             const profiles = getAllProfiles();
@@ -48709,7 +48594,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
             // v1604 : autre profil actif → la séance à plusieurs / le duo repart à zéro
             // (avant : le nouveau profil restait « partenaire » de lui-même)
-            try { if (profileId !== getCurrentProfileId() && window.AwakGroup && typeof AwakGroup.reset === 'function') AwakGroup.reset(); } catch (e) {}
+            try { if (profileId !== getCurrentProfileId() && window.AwakGroup && typeof AwakGroup.reset === 'function') AwakGroup.reset(); } catch (e) { _awkE(e); }
             
             // 🎮 Données de jeu propres à chaque profil (RPG, items, stats, équipement de gym).
             // Stockées sous profile_<id>_<clé> ; les clés "principales" sont le set de travail du profil actif.
@@ -48776,7 +48661,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _hLeg = localStorage.getItem('workoutHistory');
                 if (prevProfileId && _hPrec === null && _hLeg !== null) localStorage.setItem('profile_' + prevProfileId + '_workoutHistory', _hLeg);
                 localStorage.removeItem('workoutHistory');
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             const keysToLoad = [
                 'myPrograms', 'weeklyPlan', 'userProfile',
                 'exerciseBlacklist', 'userEquipment', 'selectedMuscles',
@@ -48864,8 +48749,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // compteurs à zéro dans l'espace profile_<id>_*.
             const _pk = 'profile_' + newProfile.id + '_';
             const _setBlank = (k, v) => {
-                try { if (typeof lsSet === 'function') { lsSet(_pk + k, v); return; } } catch (e) {}
-                try { localStorage.setItem(_pk + k, v); } catch (e) {}
+                try { if (typeof lsSet === 'function') { lsSet(_pk + k, v); return; } } catch (e) { _awkE(e); }
+                try { localStorage.setItem(_pk + k, v); } catch (e) { _awkE(e); }
             };
             const _blankProfile = JSON.stringify({ name: newProfile.name, setupComplete: false });
             _setBlank('userProfile', _blankProfile);
@@ -48877,7 +48762,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // NI du drapeau « déjà proposé » — sinon l'offre du pas-à-pas ne
             // s'afficherait jamais. On efface aussi les clés GLOBALES courantes.
             ['awakEveilJourney', 'awakEveilOffered', 'awakEveilLevel'].forEach(k => {
-                try { localStorage.removeItem('profile_' + newProfile.id + '_' + k); } catch (e) {}
+                try { localStorage.removeItem('profile_' + newProfile.id + '_' + k); } catch (e) { _awkE(e); }
                 // v1236 : on n'efface PLUS la clé globale ici. C'est le jeu de travail
                 // du profil ACTUEL : répondre « Plus tard » à « Passer à ce profil ? »
                 // lui faisait perdre son Parcours en cours. switchProfile s'en charge
@@ -48912,7 +48797,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // Garde-fou : si l'écriture du userProfile vierge a échoué, ne PAS laisser
             // le fallback legacy copier l'ancien profil — on réessaie en direct.
             if (localStorage.getItem(_pk + 'userProfile') !== _blankProfile) {
-                try { localStorage.setItem(_pk + 'userProfile', _blankProfile); } catch (e) {}
+                try { localStorage.setItem(_pk + 'userProfile', _blankProfile); } catch (e) { _awkE(e); }
             }
 
             showToast(`✅ Profil ${newProfile.name} créé`, 'success', 2000);
@@ -48963,11 +48848,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         else if (k.endsWith('_' + profileId) || k.indexOf('_' + profileId + '_') >= 0) _suppr.push(k);   // v1575 : routines_, records, corbeille…
                     }
                     _suppr.forEach(k => localStorage.removeItem(k));
-                } catch (e) {}
-                try { if (typeof window.awakFamilleOublierProfil === 'function') window.awakFamilleOublierProfil(profileId); } catch (e) {}
+                } catch (e) { _awkE(e); }
+                try { if (typeof window.awakFamilleOublierProfil === 'function') window.awakFamilleOublierProfil(profileId); } catch (e) { _awkE(e); }
                 // v1554 : ses photos et ses tracés GPS aussi
-                try { awakViderBase('awakPhotosDB', 'progressPhotos', (k, v) => v && v.profileId === profileId); } catch (e) {}
-                try { if (window.AwakRunStore && AwakRunStore.oublierPrefixe) AwakRunStore.oublierPrefixe('profile_' + profileId + '_'); } catch (e) {}
+                try { awakViderBase('awakPhotosDB', 'progressPhotos', (k, v) => v && v.profileId === profileId); } catch (e) { _awkE(e); }
+                try { if (window.AwakRunStore && AwakRunStore.oublierPrefixe) AwakRunStore.oublierPrefixe('profile_' + profileId + '_'); } catch (e) { _awkE(e); }
                 if (typeof updateFamilyNavVisibility === 'function') updateFamilyNavVisibility();
                 showToast(`Profil "${profile.name}" supprimé`, 'success', 2000);
             }, null, { title: 'Supprimer le profil ?', icon: '🗑️', confirmLabel: 'Supprimer', danger: true });
@@ -49025,7 +48910,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             _refreshReducedMobilityUI();
             document.getElementById('profileEditorTitle').textContent = 'Créer un profil';
             document.getElementById('profileEditorName').value = '';
-            try { const _a = document.getElementById('profileEditorAge'); if (_a) _a.value = ''; const _w = document.getElementById('profileEditorAgeWrap'); if (_w) _w.style.display = ''; } catch (e) {}
+            try { const _a = document.getElementById('profileEditorAge'); if (_a) _a.value = ''; const _w = document.getElementById('profileEditorAgeWrap'); if (_w) _w.style.display = ''; } catch (e) { _awkE(e); }
             renderAvatarPicker();
             document.getElementById('profileEditorModal').classList.add('active');
             closeProfileSelectionModal();
@@ -49097,20 +48982,20 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             const _up = JSON.parse(localStorage.getItem(_k) || '{}') || {};
                             _up.age = _ag; localStorage.setItem(_k, JSON.stringify(_up));
                         }
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                     // ♿ Marqueur : proposer les limitations physiques à ce profil.
                     // ⚠️ Ce parcours de création ne passe PAS par showProfileSetup(),
                     //    où la section avait été ajoutée — la question n'était donc
                     //    jamais posée. Et switchProfile() recharge la page, donc on
                     //    ne peut pas ouvrir la fenêtre ici : on pose un marqueur que
                     //    js/limitations.js lit au démarrage suivant.
-                    try { localStorage.setItem('profile_' + newProfile.id + '_awakLimitAsk', '1'); } catch(e) {}
+                    try { localStorage.setItem('profile_' + newProfile.id + '_awakLimitAsk', '1'); } catch(e) { _awkE(e); }
                     if (selectedReducedMobility) {
                         try {
                             const _all = getAllProfiles();
                             const _np = _all.find(p => p.id === newProfile.id);
                             if (_np) { _np.reducedMobility = true; saveProfiles(_all); }
-                        } catch(e) {}
+                        } catch(e) { _awkE(e); }
                     }
                     // Ask if switch to new profile
                     showConfirm(`Le profil « ${name} » est créé. On passe à ce profil maintenant ?`, function() {
@@ -49213,7 +49098,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     _b.textContent = _plein ? 'Maximum de ' + AWAK_MAX_PROFILS + ' profils atteint' : 'Créer un nouveau profil (' + profiles.length + ' / ' + AWAK_MAX_PROFILS + ')';
                     _b.style.opacity = _plein ? '0.55' : '';
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             
             container.innerHTML = profiles.map(profile => {
                 const isCurrent = profile.id === currentId;
@@ -49435,7 +49320,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         }
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 1. Routine du jour (plan hebdo)
             try {
@@ -49465,7 +49350,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         }
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 2. Faille active (la plus avancée en danger)
             try {
@@ -49496,7 +49381,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         </div>`);
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 3. Monstres échappés en chasse
             try {
@@ -49518,7 +49403,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         </div>`);
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // Fallback : rien à faire aujourd'hui
             if (blocks.length === 0) {
@@ -49546,7 +49431,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <span style="font-size:0.78em;color:#4ade80;font-weight:800;">${n} séance${n>1?'s':''} cette semaine${n>=3?' — quel rythme !':''}</span>
                     </div>`);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             container.innerHTML = blocks.join('');
         }
@@ -49593,7 +49478,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 window._overrideSessionMuscles = f.muscles.slice();
                 if (typeof showToast === 'function') showToast('🎯 ' + f.label, 'info', 1800);
                 if (typeof openWorkoutModeModal === 'function') openWorkoutModeModal();
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakStartFocusSession = awakStartFocusSession;
 
@@ -49737,7 +49622,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '</div>';
         }
         function awakStartDisciplineFromCycle() {
-            if (typeof openYogaQuiz === 'function') { try { openYogaQuiz(); return; } catch (e) {} }
+            if (typeof openYogaQuiz === 'function') { try { openYogaQuiz(); return; } catch (e) { _awkE(e); } }
             if (typeof showToast === 'function') showToast('Va dans Disciplines → Yoga pour une séance douce 🧘', 'info', 3000);
         }
         window.renderCycleCard = renderCycleCard;
@@ -49745,7 +49630,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         // ── 🌬️ Lanceur d'une séance de respiration (Sérénité) ──
         function awakStartSerenite() {
-            if (typeof startDisciplineSession === 'function') { try { startDisciplineSession('serenite', 'souffle'); return; } catch (e) {} }
+            if (typeof startDisciplineSession === 'function') { try { startDisciplineSession('serenite', 'souffle'); return; } catch (e) { _awkE(e); } }
             if (typeof showToast === 'function') showToast('Va dans Disciplines → Sérénité 🌬️', 'info', 3000);
         }
         window.awakStartSerenite = awakStartSerenite;
@@ -49767,7 +49652,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             log = log.filter(function (e) { return e.date !== today; });
             log.push({ date: today, mood: v });
             if (log.length > 90) log = log.slice(-90);
-            try { localStorage.setItem('awakMoodLog', JSON.stringify(log)); } catch (e) {}
+            try { localStorage.setItem('awakMoodLog', JSON.stringify(log)); } catch (e) { _awkE(e); }
             const m = AWAK_MOODS.find(function (x) { return x.v === v; });
             let msg;
             if (v <= 2) msg = 'Les jours sans existent — sois douce avec toi. Une respiration peut aider.';
@@ -49808,8 +49693,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             log = log.filter(function (e) { return e.date !== today; });
             log.push({ date: today, mood: v });
             if (log.length > 90) log = log.slice(-90);
-            try { localStorage.setItem('awakMoodLog', JSON.stringify(log)); } catch (e) {}
-            try { renderMoodCard(); } catch (e) {}
+            try { localStorage.setItem('awakMoodLog', JSON.stringify(log)); } catch (e) { _awkE(e); }
+            try { renderMoodCard(); } catch (e) { _awkE(e); }
         }
         window.awakLogMoodSilent = awakLogMoodSilent;
         window.renderMoodCard = renderMoodCard;
@@ -49939,7 +49824,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch (e) { host.innerHTML = ''; }
         }
         function dismissWeeklyReview() {
-            try { localStorage.setItem('awakWeeklyReviewSeen', _awakWeekKey(Date.now())); } catch (e) {}
+            try { localStorage.setItem('awakWeeklyReviewSeen', _awakWeekKey(Date.now())); } catch (e) { _awkE(e); }
             renderWeeklyReviewCard();
         }
         window.renderWeeklyReviewCard = renderWeeklyReviewCard;
@@ -49956,7 +49841,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 nb = (window.AwakGroup && typeof window.AwakGroup.count === 'function') ? window.AwakGroup.count() : 1;
                 const profs = (typeof getAllProfiles === 'function') ? (getAllProfiles() || []).length : 1;
                 show = (profs >= 2) || (nb > 1);
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
             host.innerHTML = (show && window.AwakGroup && typeof window.AwakGroup.renderHomeButton === 'function')
                 ? window.AwakGroup.renderHomeButton() : '';
         }
@@ -50015,7 +49900,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (!isNaN(d)) trained.add(d.toDateString());
                     }
                 });
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // Semaine du lundi au dimanche
             const now = new Date();
@@ -50131,11 +50016,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 let d = new Date(); d.setHours(0, 0, 0, 0);
                 if (!jours.has(d.toDateString())) d.setDate(d.getDate() - 1);
                 while (jours.has(d.toDateString())) { serie++; d.setDate(d.getDate() - 1); }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             try {
                 const g = (typeof getWeeklyGoal === 'function') ? getWeeklyGoal() : null;
                 if (g && g.target) objectif = g.target;
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return { seances, serie, minutes, semaine, objectif };
         }
 
@@ -50153,7 +50038,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // ── Bloc central : ce qu'il faut faire MAINTENANT ──
             let titre, sous, surtitre = '◈ PRÊT', couleur = '#4ade80';
             let plan = {};
-            try { plan = (typeof getManualWeeklyPlan === 'function') ? getManualWeeklyPlan() : {}; } catch (e) {}
+            try { plan = (typeof getManualWeeklyPlan === 'function') ? getManualWeeklyPlan() : {}; } catch (e) { _awkE(e); }
             const JOURS = (typeof MANUAL_PLAN_DAYS !== 'undefined')
                 ? MANUAL_PLAN_DAYS : ['lun','mar','mer','jeu','ven','sam','dim'];
             const auj = plan[JOURS[(new Date().getDay() + 6) % 7]];
@@ -50273,7 +50158,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                           + 'si tu en as envie.', '#4ade80');
                     }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakEnfantChrono = awakEnfantChrono;
 
@@ -50339,7 +50224,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const v = valeurs[b.type] || 0;
                     acquis.push({ ...b, valeur: v, obtenu: v >= b.seuil });
                 });
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             return acquis;
         }
         window.awakBadgesEnfant = awakBadgesEnfant;
@@ -50351,7 +50236,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             let enfant = false;
             try {
                 enfant = !!(window.AwakYouth && typeof AwakYouth.isChild === 'function' && AwakYouth.isChild());
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             if (!enfant) { host.innerHTML = ''; return; }
 
             const b = awakBadgesEnfant();
@@ -50412,14 +50297,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     try {
                         const p = (typeof getUserProfile === 'function') ? getUserProfile() : null;
                         nom = (p && p.name) ? p.name : '';
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                     setTimeout(function () {
                         _awakModaleFete('🎂', 'Bonne fête' + (nom ? ', ' + nom : '') + ' !',
                             'Le Système marque ce jour. Une année de plus, et tu es toujours là — '
                           + "c'est ça qui compte.", '#fbbf24');
                     }, 1200);
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakCheckAnniversaire = awakCheckAnniversaire;
 
@@ -50446,7 +50331,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               + '</div>';
             ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
             document.body.appendChild(ov);
-            try { if (typeof vibrate === 'function') vibrate([60, 40, 60]); } catch (e) {}
+            try { if (typeof vibrate === 'function') vibrate([60, 40, 60]); } catch (e) { _awkE(e); }
         }
 
 
@@ -50476,7 +50361,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     }
                     b.setAttribute('aria-label', 'Profil : ' + (p.name || '') + ' — changer');
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakMajBoutonProfil = awakMajBoutonProfil;
 
@@ -50486,7 +50371,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // inventées se remarque tout de suite.
         function awakRenderTerminalHead() {
             // v1551 : icône (au lieu d'un emoji) dans « À propos »
-            try { const vi = document.getElementById('awakVersionIco'); if (vi && !vi.innerHTML && window.AwakIcon) vi.innerHTML = AwakIcon.get('etoile', 30, '#93c5fd'); } catch (e) {}
+            try { const vi = document.getElementById('awakVersionIco'); if (vi && !vi.innerHTML && window.AwakIcon) vi.innerHTML = AwakIcon.get('etoile', 30, '#93c5fd'); } catch (e) { _awkE(e); }
             // v1553 : profil enfant → pas de réglages d'entraînement d'adulte (ses séances sont des jeux)
             try {
                 const _kid = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild());
@@ -50495,7 +50380,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (_ADULTE.indexOf(t.textContent.trim()) < 0) return;
                     const bloc = t.closest('.settings-sub'); if (bloc) bloc.style.display = _kid ? 'none' : '';
                 });
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // v1552 : aperçu « Niveau profil » recalculé à l'ouverture (même XP que l'Accueil)
             try {
                 if (typeof window.awakXPTotale === 'function' && typeof rpgLevelFromXP === 'function') {
@@ -50505,16 +50390,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (gX) gX.textContent = _xp.toLocaleString('fr-CA');
                     if (gT && typeof awakGetRank === 'function') gT.textContent = awakGetRank().name;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             try {
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1621';
+                    let ver = 'v0.95.1622';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
-                    } catch (e) {}
+                    } catch (e) { _awkE(e); }
                     v.textContent = ver;
                 }
                 if (c) {
@@ -50527,7 +50412,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     }
                     c.textContent = n + ' paramètres · prêt';
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakRenderTerminalHead = awakRenderTerminalHead;
 
@@ -50551,7 +50436,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (window.AwakPhotoMesures) { window.AwakPhotoMesures.galerie(); return; }
             let photos = [];
             try { photos = (typeof getProgressPhotos === 'function') ? (getProgressPhotos() || []) : []; }
-            catch (e) {}
+            catch (e) { _awkE(e); }
             if (photos.length < 2) {
                 if (typeof showToast === 'function') {
                     showToast('Il faut au moins 2 photos pour comparer.', 'info', 2500);
@@ -50596,7 +50481,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 document.getElementById('awakPickA').value = photos[photos.length - 1].id;
                 document.getElementById('awakPickB').value = photos[0].id;
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakOpenPhotoCompare = awakOpenPhotoCompare;
 
@@ -50618,10 +50503,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (_da && _db && new Date(_da.date) > new Date(_db.date)) {
                         _av = b; _ap = a;
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 document.getElementById('awakPhotoPick')?.remove();
                 if (typeof comparePhotos === 'function') comparePhotos(_av, _ap);
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakDoPhotoCompare = awakDoPhotoCompare;
 
@@ -50657,7 +50542,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 try {
                     const el = document.getElementById(id);
                     rempli = !!(el && el.value && parseFloat(el.value) > 0);
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 const col = rempli ? '#4ade80' : '#475569';
                 if (p.type === 'ligne') {
                     // 📏 La taille debout : une ligne du haut vers le bas.
@@ -50678,7 +50563,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1621" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1622" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -50711,7 +50596,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     awakRenderSilhouetteMesures();
                     if (lb) lb.textContent = '';
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
         }
         window.awakMesureFocus = awakMesureFocus;
 
@@ -50733,7 +50618,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     }
                 }
                 photos = (typeof getProgressPhotos === 'function') ? (getProgressPhotos() || []) : [];
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // ⚠️ awakLoadProgressPhotos() trie les plus RÉCENTES EN PREMIER :
             // prendre le dernier élément donnait la photo la plus ANCIENNE.
             const derniere = photos.length ? photos[0] : null;
@@ -50760,7 +50645,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1621);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1622);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -50794,14 +50679,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _raw = _pid ? getProfileData(_pid, 'bodyMeasurements')
                                       : localStorage.getItem('bodyMeasurements');
                     if (_raw) _mes = JSON.parse(_raw) || [];
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 if (_mes.length && _mes[0] && _mes[0].weight) {
                     poids = _fmt(awakMesurePoids(_mes[0]));
                 } else {
                     const p = (typeof getUserProfile === 'function') ? getUserProfile() : null;
                     if (p && p.weight) poids = _fmt(fmtWeightVal(p.weight));   // v1311 : profil en kg
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             const bandeau =
                 '<div style="display:flex;gap:8px;margin-top:11px;">'
               + _corpsTuile('Photos', photos.length)
@@ -50827,7 +50712,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1621);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1622);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -50848,7 +50733,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               +   centre + bandeau + actions
               + '</div>';
             // v1392 : rappel « Photo du mois ? » + discrétion (photo floutée)
-            try { if (window.AwakPhotoMesures) window.AwakPhotoMesures.decorerCarte(host); } catch (e) {}
+            try { if (window.AwakPhotoMesures) window.AwakPhotoMesures.decorerCarte(host); } catch (e) { _awkE(e); }
         }
         window.awakRenderCorpsCard = awakRenderCorpsCard;
 
@@ -50913,17 +50798,17 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // 🩹 Carte « J'ai mal » : elle n'était rendue QUE depuis
             // awakSetHomeCardHidden() — donc jamais à l'ouverture de
             // l'accueil, et le bouton n'apparaissait pas.
-            try { if (typeof awakRenderPainCard === 'function') awakRenderPainCard(); } catch (e) {}
-            try { if (typeof awakMajBoutonProfil === 'function') awakMajBoutonProfil(); } catch (e) {}
+            try { if (typeof awakRenderPainCard === 'function') awakRenderPainCard(); } catch (e) { _awkE(e); }
+            try { if (typeof awakMajBoutonProfil === 'function') awakMajBoutonProfil(); } catch (e) { _awkE(e); }
             // 🏠 Accueil « pro » (js/home-pro.js) : en-tête, Aujourd'hui, Semaine, Raccourcis
-            try { if (window.AwakHomePro) window.AwakHomePro.render(); } catch (e) {}
+            try { if (window.AwakHomePro) window.AwakHomePro.render(); } catch (e) { _awkE(e); }
             // 🏠 En-tête recalculé à chaque affichage : les stats et le
             // programme du jour changent.
-            try { if (typeof renderHomeHeader === 'function') renderHomeHeader(); } catch (e) {}
+            try { if (typeof renderHomeHeader === 'function') renderHomeHeader(); } catch (e) { _awkE(e); }
             // 🏅 Badges enfant (ne rend rien pour un profil adulte)
             // 📋 Programme personnel en cours (rien si aucun plan actif)
-            try { if (typeof renderActivePlan === 'function') renderActivePlan(); } catch (e) {}
-            try { if (typeof renderBadgesEnfant === 'function') renderBadgesEnfant(); } catch (e) {}
+            try { if (typeof renderActivePlan === 'function') renderActivePlan(); } catch (e) { _awkE(e); }
+            try { if (typeof renderBadgesEnfant === 'function') renderBadgesEnfant(); } catch (e) { _awkE(e); }
             if (typeof updateYouthBanner === 'function') updateYouthBanner();
             // ▶️ Bandeau de reprise. renderSmartStartButton() existait mais n'était
             // JAMAIS appelée : le message de sortie de séance promettait un bouton
@@ -50938,13 +50823,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     _hote.innerHTML = (_enCours && typeof renderSmartStartButton === 'function')
                         ? renderSmartStartButton() : '';
                 }
-            } catch (e) {}
-            try { renderHomeRpgCard(); } catch (e) {}
-            try { renderHomeWeekCalendar(); } catch (e) {}
-            try { renderHomeCoachCard(); } catch (e) {}
-            try { if (window.AwakPain && typeof window.AwakPain.updateButton === 'function') window.AwakPain.updateButton(); } catch(e) {}
-            try { if (window.AwakRecovery && typeof window.AwakRecovery.updateBanner === 'function') window.AwakRecovery.updateBanner(); } catch(e) {}
-            try { if (window.AwakFamily && typeof window.AwakFamily.updateInboxBanner === 'function') window.AwakFamily.updateInboxBanner(); } catch(e) {}
+            } catch (e) { _awkE(e); }
+            try { renderHomeRpgCard(); } catch (e) { _awkE(e); }
+            try { renderHomeWeekCalendar(); } catch (e) { _awkE(e); }
+            try { renderHomeCoachCard(); } catch (e) { _awkE(e); }
+            try { if (window.AwakPain && typeof window.AwakPain.updateButton === 'function') window.AwakPain.updateButton(); } catch(e) { _awkE(e); }
+            try { if (window.AwakRecovery && typeof window.AwakRecovery.updateBanner === 'function') window.AwakRecovery.updateBanner(); } catch(e) { _awkE(e); }
+            try { if (window.AwakFamily && typeof window.AwakFamily.updateInboxBanner === 'function') window.AwakFamily.updateInboxBanner(); } catch(e) { _awkE(e); }
             if (typeof updateHomeGroupButton === 'function') updateHomeGroupButton();
             const qEl = document.getElementById('homeStatWorkouts');
             const sEl = document.getElementById('homeStatStreak');
@@ -51035,7 +50920,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
             } catch(e) { console.warn('Heatmap render error:', e); }
             // 🎯 Weekly challenge
-            try { const ch = JSON.parse(localStorage.getItem('fitproWeeklyChallenge')||'null'); if(ch) renderWeeklyChallenge(ch); else generateWeeklyChallenge(); } catch(e) {}
+            try { const ch = JSON.parse(localStorage.getItem('fitproWeeklyChallenge')||'null'); if(ch) renderWeeklyChallenge(ch); else generateWeeklyChallenge(); } catch(e) { _awkE(e); }
             if (qQuote) {
                 const celeb = getActiveCelebrity();
                 if (celeb && CELEBRITY_QUOTES[celeb.id]) {
@@ -51064,13 +50949,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const volEl = $el('weeklyVolumeWidget');
             if (volEl) volEl.innerHTML = '';
             // 📊 Volume hebdomadaire par muscle (réactivé)
-            try { renderWeeklyMuscleVolume(); } catch (e) {}
-            try { renderWeeklyReviewCard(); } catch (e) {}
-            try { renderInsightsCard(); } catch (e) {}
-            try { renderSexFocusCard(); } catch (e) {}
-            try { renderCycleCard(); } catch (e) {}
-            try { renderStrengthCard(); } catch (e) {}
-            try { renderMoodCard(); } catch (e) {}
+            try { renderWeeklyMuscleVolume(); } catch (e) { _awkE(e); }
+            try { renderWeeklyReviewCard(); } catch (e) { _awkE(e); }
+            try { renderInsightsCard(); } catch (e) { _awkE(e); }
+            try { renderSexFocusCard(); } catch (e) { _awkE(e); }
+            try { renderCycleCard(); } catch (e) { _awkE(e); }
+            try { renderStrengthCard(); } catch (e) { _awkE(e); }
+            try { renderMoodCard(); } catch (e) { _awkE(e); }
         }
 
         // ══════════════════════════════════════════════════════════
@@ -51209,7 +51094,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 try {
                     const l = (_currentSessionSets || {})[ex._baseName || ex.name] || (_currentSessionSets || {})[ex.name] || [];
                     for (let i = l.length - 1; i >= 0; i--) if (!l[i].warmup && parseFloat(l[i].weight) > 0) return parseFloat(l[i].weight);
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 const inp = document.getElementById('quickWeightInput');
                 return inp && inp.value ? parseFloat(inp.value) : null;
             })();
@@ -51309,7 +51194,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
             // Fermer si clic ailleurs (en dehors du panneau et du bouton menu)
             if (panel.style.display === 'block') {
-                try { _awakMajMenuEtats(); } catch (e) {}   // v1615 : état Son / Vibreur / Unité visible
+                try { _awakMajMenuEtats(); } catch (e) { _awkE(e); }   // v1615 : état Son / Vibreur / Unité visible
                 const _mo = document.getElementById('muscuOnlyOpts');
                 if (_mo) _mo.style.display = (currentWorkout && currentWorkout._discipline) ? 'none' : '';
                 // 🧒 v1223 : techniques avancées masquées pour un enfant
@@ -51356,7 +51241,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 if (window.AwakSS && typeof window.AwakSS.inGroup === 'function' && window.AwakSS.inGroup()) n = 'ss' + currentSetNumber;
                 else if (window._awakTimerSet && window._awakTimerSet.idx === currentExerciseIndex) n = window._awakTimerSet.n;
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             const k = currentExerciseIndex + ':' + n;
             if (_awakXPChrono.vus[k]) return false;
             _awakXPChrono.vus[k] = 1;
@@ -51373,7 +51258,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 return;
             }
             clearInterval(timerInterval);
-            try { _awakSeriesMemoriser(); } catch (e) {}
+            try { _awakSeriesMemoriser(); } catch (e) { _awkE(e); }
             window._awakRetourArriere = workoutStartTime || 0;
             currentExerciseIndex--;
 
@@ -51558,7 +51443,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const ex = (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase.find(e => e.name === nom) : null) || { name: nom };
                     const src = window.EXERCISE_IMAGES && (window.EXERCISE_IMAGES[ex._baseName || nom] || window.EXERCISE_IMAGES[nom]);
                     let _anim = null;
-                    try { if (src && window.awakAnimHTML) _anim = window.awakAnimHTML(src, String(src).split('/').map((g, k) => k === 0 ? g : encodeURIComponent(g)).join('/')); } catch (e) {}
+                    try { if (src && window.awakAnimHTML) _anim = window.awakAnimHTML(src, String(src).split('/').map((g, k) => k === 0 ? g : encodeURIComponent(g)).join('/')); } catch (e) { _awkE(e); }
                     const media = _anim ? '<div class="swap-anim">' + _anim + '</div>' : src
                         ? '<div class="swap-big" onclick="window.awakZoomImage && awakZoomImage(this)" data-src="' + String(src).split('/').map((g, k) => k === 0 ? g : encodeURIComponent(g)).join('/').replace(/"/g, '&quot;') + '">'
                           + (typeof window.buildLazyImg === 'function' ? window.buildLazyImg(src, nom, 'width:100%;height:100%;object-fit:contain;display:block;') : '<img src="' + encodeURI(src) + '" alt="" style="width:100%;height:100%;object-fit:contain;">') + '</div>'
@@ -51574,8 +51459,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     };
                 }
                 det.hidden = false; btn.setAttribute('aria-expanded', 'true');
-                setTimeout(() => { try { card.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {} }, 60);
-            } catch (e) {}
+                setTimeout(() => { try { card.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) { _awkE(e); } }, 60);
+            } catch (e) { _awkE(e); }
         };
 
         function closeSwapModal() {
@@ -51601,7 +51486,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // sauf en séance de discipline (yoga, etc.) où le remplacement reste dans la discipline.
             if (!currentWorkout._discipline) awakRecordSwap(oldName);
             // v1343 : pilier remplacé 2 fois dans le bloc → il change
-            try { if (oldEx && oldEx._pilier) awakPilierRemplace(oldEx._baseName || oldName, newEx); } catch (e) {}
+            try { if (oldEx && oldEx._pilier) awakPilierRemplace(oldEx._baseName || oldName, newEx); } catch (e) { _awkE(e); }
 
             // Remplacer dans le tableau de la séance
             currentWorkout.exercises[currentExerciseIndex] = {
@@ -51654,7 +51539,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 } else if (typeof getAllProfiles === 'function') {
                     count = (getAllProfiles() || []).length;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // v1540 : tient aussi compte du choix du profil (avant : les deux règles s'écrasaient)
             const _visible = count >= 2 && (typeof familyTabEnabled !== 'function' || familyTabEnabled());
             navTab.style.display = _visible ? 'flex' : 'none';
@@ -51807,7 +51692,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function _lsPurge() {
             // v1585 : d'abord les vraies économies, sans rien perdre : séances allégées
             // (tous les profils) et suppression de la copie de travail de l'historique.
-            try { awakAllegerHistoriques(true); } catch (e0) {}
+            try { awakAllegerHistoriques(true); } catch (e0) { _awkE(e0); }
             // 1. Historique séances — garder 100 max, retirer workoutData des anciennes
             const profileId = getCurrentProfileId?.() || null;
             const histKey = profileId ? `profile_${profileId}_workoutHistory` : 'workoutHistory';
@@ -51819,7 +51704,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const pruned = hist.slice(0, 100);
                     _lsOrig.set(histKey, JSON.stringify(pruned));
                 }
-            } catch(e2) {}
+            } catch(e2) { _awkE(e2); }
 
             // 2. Progression exercices — retenir seulement les 20 dernières perf par exercice
             try {
@@ -51833,7 +51718,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     }
                 });
                 if (changed) _lsOrig.set(progKey, JSON.stringify(prog));
-            } catch(e3) {}
+            } catch(e3) { _awkE(e3); }
 
             // 3. Performance exercices — idem
             try {
@@ -51847,7 +51732,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     }
                 });
                 if (changed) _lsOrig.set(perfKey, JSON.stringify(perf));
-            } catch(e4) {}
+            } catch(e4) { _awkE(e4); }
         }
 
         function lsSet(key, val) {
@@ -51883,7 +51768,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     _lsPurge();
                     showToast(`Nettoyage automatique du stockage (${MB.toFixed(1)} Mo)`, 'info', 3000);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
 
         // ── Helper DOM null-safe ───────────────────────────────────
@@ -52056,7 +51941,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             // Récupèrer les meilleures perfs de l'utilisateur
             let perfs = {};
-            try { perfs = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch(e) {}
+            try { perfs = JSON.parse(localStorage.getItem(_cleProfilLecture('exercisePerformance')) || '{}'); } catch(e) { _awkE(e); }
 
             const comparisons = [];
             for (const [exName, starWeight] of Object.entries(benchmarks)) {
@@ -52181,11 +52066,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _pid = getCurrentProfileId();
                 const _pr = (typeof getAllProfiles === 'function') ? getAllProfiles().find(x => x.id === _pid) : null;
                 if (_pr && _pr.name && !/^mon profil$/i.test(_pr.name.trim())) _nomConnu = _pr.name.trim();
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             if (_nomConnu) draft.name = _nomConnu;
             // v1407 : âge saisi à la création du profil → on ne le redemande pas
             let _ageConnu = 0;
-            try { const _u0 = getUserProfile() || {}; const _a0 = parseInt(_u0.age, 10); if (!_u0.setupComplete && _a0 >= 3 && _a0 <= 99) _ageConnu = _a0; } catch (e) {}
+            try { const _u0 = getUserProfile() || {}; const _a0 = parseInt(_u0.age, 10); if (!_u0.setupComplete && _a0 >= 3 && _a0 <= 99) _ageConnu = _a0; } catch (e) { _awkE(e); }
             if (_ageConnu) draft.age = _ageConnu;
             if (_ageConnu && _ageConnu < 13) { draft.mode = 'fitness'; draft.level = 'beginner'; draft.goal = 'fitness'; }
 
@@ -52284,7 +52169,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     } else {
                         const _eqCommon = ['bodyweight','dumbbells','barbell','resistance','kettlebell','bench','parallelbars','machine','trx','jumprope','swissball','abwheel','treadmill','yogamat','yogablock','yogastrap'];
                         // v1403 : « Boxe » cochée à l'écran Rythme → proposer le sac de frappe
-                        try { if (draft && (draft.aime || []).indexOf('boxe') >= 0) _eqCommon.splice(1, 0, 'punchbag'); } catch (e) {}
+                        try { if (draft && (draft.aime || []).indexOf('boxe') >= 0) _eqCommon.splice(1, 0, 'punchbag'); } catch (e) { _awkE(e); }
                         const _eqChips = _eqCommon.map(function (id) {
                             const eq = availableEquipment.find(e => e.id === id);
                             if (!eq) return '';
@@ -52358,7 +52243,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         + btnPrimary(adv ? 'Commencer l\'aventure' : 'Commencer', 'window._premOnbFinish()');
                 }
                 ov.innerHTML = frame(inner, pct);
-                regles.forEach(id => { try { AwakRegle.init(id); } catch (e) {} });
+                regles.forEach(id => { try { AwakRegle.init(id); } catch (e) { _awkE(e); } });
             }
 
             // Enregistre les réponses de l'écran courant avant de le quitter
@@ -52380,7 +52265,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             window._premOnbNext = function() {
                 _sauverEcran();
                 if (step >= _sequence().length - 1) return;
-                step++; render(); try { haptic.light(); } catch(e) {}
+                step++; render(); try { haptic.light(); } catch(e) { _awkE(e); }
             };
             // v1236 : livres ou kilos. Le choix devient l'unité par défaut de
             // l'app (Réglages › Unité de poids) : charges, historique, mesures.
@@ -52389,14 +52274,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (kg === useKg) return;
                 _sauverEcran();                     // poids courant mémorisé en kg
                 useKg = kg;
-                try { localStorage.setItem('fitproUseKg', kg ? 'true' : 'false'); } catch (e) {}
-                try { updateWeightUnitLabels(); } catch (e) {}
-                render(); try { haptic.light(); } catch(e) {}
+                try { localStorage.setItem('fitproUseKg', kg ? 'true' : 'false'); } catch (e) { _awkE(e); }
+                try { updateWeightUnitLabels(); } catch (e) { _awkE(e); }
+                render(); try { haptic.light(); } catch(e) { _awkE(e); }
             };
             window._premOnbPrev = function() {
                 if (step <= 0) return;
                 _sauverEcran();
-                step--; render(); try { haptic.light(); } catch(e) {}
+                step--; render(); try { haptic.light(); } catch(e) { _awkE(e); }
             };
 
             // 🏋️ Choix du matériel pendant l'inscription — enregistré tout de suite
@@ -52435,7 +52320,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             ? machineTypes.map(m => m.id) : [];
                     }
                     saveLocationProfiles(profiles);
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
             }
             window._premOnbEquipPreset = function (kind) {
                 draft._preset = kind;
@@ -52448,14 +52333,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (_cible) {
                         activeLocationId = _cible.id;
                         localStorage.setItem('fitproActiveLocation', _cible.id);
-                        try { setSessionMode(_cible.mode, true); } catch (e) {}
+                        try { setSessionMode(_cible.mode, true); } catch (e) { _awkE(e); }
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 selectedEquipment = (_ONB_EQ_PRESETS[kind] || ['bodyweight']).slice();
-                try { saveEquipment(); } catch (e) {}
+                try { saveEquipment(); } catch (e) { _awkE(e); }
                 _onbPersistEquipToLocation();
                 _onbEqRefreshChips();
-                try { haptic.light(); } catch (e) {}
+                try { haptic.light(); } catch (e) { _awkE(e); }
             };
             window._premOnbEquipToggle = function (id) {
                 const i = selectedEquipment.indexOf(id);
@@ -52467,10 +52352,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     selectedEquipment.push(id);
                 }
                 if (selectedEquipment.indexOf('bodyweight') === -1) selectedEquipment.push('bodyweight');
-                try { saveEquipment(); } catch (e) {}
+                try { saveEquipment(); } catch (e) { _awkE(e); }
                 _onbPersistEquipToLocation();
                 _onbEqRefreshChips();
-                try { haptic.light(); } catch (e) {}
+                try { haptic.light(); } catch (e) { _awkE(e); }
             };
             // Échauffement/étirements : si « non », on DÉSACTIVE tout de suite la
             // fonction (préférence persistée), sinon on la laisse active (défaut).
@@ -52480,7 +52365,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     includeStretch = !!keep;
                     if (typeof saveWarmupStretchPreferences === 'function') saveWarmupStretchPreferences();
                     if (typeof updateWarmupStretchUI === 'function') updateWarmupStretchUI();
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 window._premOnbNext();
             };
             // v1404 : « Qu'est-ce qui t'amène ? » — le jeu → mode Aventure retenu
@@ -52494,19 +52379,19 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (field === 'goal') { const gi = document.getElementById('_premOnbGoalInfo'); if (gi) gi.innerHTML = _infoObjectif(val); }
                 document.querySelectorAll(`[data-pick="${field}"]`).forEach(b => b.style.borderColor = 'rgba(255,255,255,0.1)');
                 if (btn) btn.style.borderColor = 'rgba(96,168,240,0.7)';
-                try { haptic.light(); } catch(e) {}
+                try { haptic.light(); } catch(e) { _awkE(e); }
             };
             window._premOnbFreq = function (n) {
                 draft.freq = n;
                 document.querySelectorAll('[data-freq]').forEach(b => { b.style.borderColor = +b.dataset.freq === n ? 'rgba(96,168,240,0.7)' : 'rgba(255,255,255,0.1)'; });
-                try { haptic.light(); } catch (e) {}
+                try { haptic.light(); } catch (e) { _awkE(e); }
             };
             window._premOnbAime = function (k) {
                 const i = draft.aime.indexOf(k);
                 if (i >= 0) draft.aime.splice(i, 1); else draft.aime.push(k);
                 const b = document.querySelector('[data-aime="' + k + '"]'), on = draft.aime.indexOf(k) >= 0;
                 if (b) { b.style.borderColor = on ? 'rgba(96,168,240,0.7)' : 'rgba(255,255,255,0.1)'; b.style.background = on ? 'rgba(96,168,240,0.18)' : 'rgba(255,255,255,0.04)'; }
-                try { haptic.light(); } catch (e) {}
+                try { haptic.light(); } catch (e) { _awkE(e); }
             };
             window._premOnbSaveName = function() {
                 draft.name = (document.getElementById('_premOnbName')?.value || '').trim();
@@ -52526,16 +52411,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 userProfile = { name: draft.name || _nomDefaut, goal: draft.goal, level: _kid ? 'beginner' : draft.level, age: draft.age, sex: draft.sex || '', setupComplete: true };
                 if (!_kid) { userProfile.weeklyGoal = draft.freq || 3; userProfile.aime = (draft.aime || []).slice(); if (draft.vient) userProfile.vient = draft.vient; }   // v1400 · v1404 : vient
                 // Sport présélectionné dans Programme › Sports : l'activité aimée (avant : la boxe)
-                try { const _d = ['yoga', 'pilates', 'boxe', 'course'].find(x => (draft.aime || []).indexOf(x) >= 0) || (draft.goal === 'flexibility' ? 'yoga' : null); if (_d && !_kid) localStorage.setItem('awakSelectedDiscipline', _d); } catch (e) {}
+                try { const _d = ['yoga', 'pilates', 'boxe', 'course'].find(x => (draft.aime || []).indexOf(x) >= 0) || (draft.goal === 'flexibility' ? 'yoga' : null); if (_d && !_kid) localStorage.setItem('awakSelectedDiscipline', _d); } catch (e) { _awkE(e); }
                 if (!_kid) userProfile.weight = draft.weight;   // 🧒 pas de poids demandé à un enfant
-                try { if (typeof syncProfileNameToRegistry === 'function') syncProfileNameToRegistry(getCurrentProfileId(), userProfile.name); } catch (e) {}
+                try { if (typeof syncProfileNameToRegistry === 'function') syncProfileNameToRegistry(getCurrentProfileId(), userProfile.name); } catch (e) { _awkE(e); }
                 const profileId = getCurrentProfileId();
                 if (profileId) { setProfileData(profileId, 'userProfile', JSON.stringify(userProfile)); }
                 else { localStorage.setItem('userProfile', JSON.stringify(userProfile)); }
                 localStorage.setItem('fitproOnboardingDone', '1');
                 // Filet de sécurité : réappliquer le matériel choisi au lieu actif,
                 // au cas où un lieu aurait été (ré)activé pendant l'inscription.
-                try { _onbPersistEquipToLocation(); } catch (e) {}
+                try { _onbPersistEquipToLocation(); } catch (e) { _awkE(e); }
                 // 🏠 Accueil ÉPURÉ par défaut pour un nouvel inscrit : on masque les
                 // cartes secondaires (rang, calendrier, coach…) et on garde profil +
                 // action du jour + ⚡ Actions rapides (accès direct aux séances).
@@ -52550,12 +52435,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         if (typeof awakRenderHomeCardsPrefs === 'function') awakRenderHomeCardsPrefs();
                         if (typeof awakRenderHomeMoreHint === 'function') awakRenderHomeMoreHint();
                     }
-                } catch(e) {}
+                } catch(e) { _awkE(e); }
                 // Appliquer la voie choisie (Fitness pur / Aventure)
-                try { if (typeof toggleGameMode === 'function') toggleGameMode(draft.mode === 'aventure' && !awakJeuBloqueAge()); } catch(e) {}
-                try { updateProfileDisplay(); } catch(e) {}
-                try { generateWeeklyPlan(); } catch(e) {}
-                try { haptic.medium(); } catch(e) {}
+                try { if (typeof toggleGameMode === 'function') toggleGameMode(draft.mode === 'aventure' && !awakJeuBloqueAge()); } catch(e) { _awkE(e); }
+                try { updateProfileDisplay(); } catch(e) { _awkE(e); }
+                try { generateWeeklyPlan(); } catch(e) { _awkE(e); }
+                try { haptic.medium(); } catch(e) { _awkE(e); }
                 ov.style.transition = 'opacity 0.4s ease';
                 ov.style.opacity = '0';
                 setTimeout(() => ov.remove(), 420);
@@ -52564,16 +52449,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // ouverture de l'app. Jamais pour un enfant (repas, rythme de vie…).
                 // v1235 : proposé dès que l'écran est libre (après l'histoire et le
                 // tutoriel du jeu), AVANT « Mes limitations ».
-                try { if (!_kid) { localStorage.setItem(_cleProfil('awakEveilPlusTard'), '1'); awakEveilQuandLibre(); } } catch (e) {}
+                try { if (!_kid) { localStorage.setItem(_cleProfil('awakEveilPlusTard'), '1'); awakEveilQuandLibre(); } } catch (e) { _awkE(e); }
                 // v1575 : « Mes limitations » proposé aussi au PREMIER profil (avant : seulement via Créer un profil)
                 try {
                     if (!_kid) {
                         localStorage.setItem('profile_' + getCurrentProfileId() + '_awakLimitAsk', '1');
                         if (window.AwakLimitations && AwakLimitations.proposerSiNouveau) AwakLimitations.proposerSiNouveau();
                     }
-                } catch (e) {}
+                } catch (e) { _awkE(e); }
                 // 🔐 v1296 : mot de passe de suppression proposé dès que l'écran est libre
-                try { if (!awakSecIsSet()) awakSecQuandLibre(); } catch (e) {}
+                try { if (!awakSecIsSet()) awakSecQuandLibre(); } catch (e) { _awkE(e); }
             };
 
             render();
@@ -52596,7 +52481,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             // MULTI-PROFILE SYSTEM INITIALIZATION
             getAllProfiles(); // Initialize profiles if first time
-            try { awakAllegerHistoriques(); } catch (e) {}   // v1585 : une fois
+            try { awakAllegerHistoriques(); } catch (e) { _awkE(e); }   // v1585 : une fois
             lsCheckQuota();  // Purge préventive si stockage > 80%
 
             // 🌱 Onboarding PRIORITAIRE : on vérifie AVANT les rendus (loadStats,
@@ -52607,13 +52492,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const _op = getUserProfile();
                 if (_op && !_op.setupComplete && typeof showPremiumOnboarding === 'function') {
-                    setTimeout(() => { try { showPremiumOnboarding(); } catch (e) {} }, 700);
+                    setTimeout(() => { try { showPremiumOnboarding(); } catch (e) { _awkE(e); } }, 700);
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
             // 🌅 Parcours de l'Éveil en attente (app fermée avant qu'il s'affiche)
             try {
                 if (localStorage.getItem(_cleProfil('awakEveilPlusTard')) === '1' && getUserProfile().setupComplete) awakEveilQuandLibre();
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 🔐 Mot de passe de sécurité : proposé à la première ouverture, une
             // fois la configuration terminée (donc hors onboarding). « Plus tard »
@@ -52623,21 +52508,21 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const _sp = getUserProfile();
                 if (_sp && _sp.setupComplete && typeof awakSecMaybePromptSetup === 'function' && !awakSecIsSet()) {
-                    try { awakSecQuandLibre(); } catch (e) {}
+                    try { awakSecQuandLibre(); } catch (e) { _awkE(e); }
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             // 🎨 Affichage : appliquer les cartes masquées + préparer les toggles du réglage.
-            try { awakApplyHomeCardsCSS(); } catch (e) {}
-            try { awakRenderHomeCardsPrefs(); } catch (e) {}
-            try { awakRenderHomeMoreHint(); } catch (e) {}
+            try { awakApplyHomeCardsCSS(); } catch (e) { _awkE(e); }
+            try { awakRenderHomeCardsPrefs(); } catch (e) { _awkE(e); }
+            try { awakRenderHomeMoreHint(); } catch (e) { _awkE(e); }
 
             // 🕳️ Amorcer le compteur à vie des Failles AVANT toute nouvelle complétion
             // (sinon la complétion en cours serait comptée deux fois).
-            try { if (typeof awakEnsureRiftsCounterSeeded === 'function') awakEnsureRiftsCounterSeeded(); } catch (e) {}
+            try { if (typeof awakEnsureRiftsCounterSeeded === 'function') awakEnsureRiftsCounterSeeded(); } catch (e) { _awkE(e); }
 
             // 📸 Migrer les anciennes photos localStorage → IndexedDB (libère la place).
-            try { if (typeof awakMigratePhotosToIDB === 'function') awakMigratePhotosToIDB(); } catch (e) {}
+            try { if (typeof awakMigratePhotosToIDB === 'function') awakMigratePhotosToIDB(); } catch (e) { _awkE(e); }
             
             loadStats();
             loadEquipment();
@@ -52653,8 +52538,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             setTimeout(initHunterMode, 850);
             // 🎂 Anniversaire / passage de catégorie d'âge
             // 🎯 Un membre s'est-il retiré de l'objectif commun ?
-            try { if (typeof AwakGoalCheckDemande === 'function') AwakGoalCheckDemande(); } catch (e) {}
-            try { if (typeof awakCheckAnniversaire === 'function') awakCheckAnniversaire(); } catch (e) {}
+            try { if (typeof AwakGoalCheckDemande === 'function') AwakGoalCheckDemande(); } catch (e) { _awkE(e); }
+            try { if (typeof awakCheckAnniversaire === 'function') awakCheckAnniversaire(); } catch (e) { _awkE(e); }
             
             // 🃏 Carte du Système — tirage quotidien (si mode jeu actif)
             setTimeout(() => {
@@ -52663,11 +52548,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         typeof awakShowSystemCard === 'function') {
                         awakShowSystemCard();
                     }
-                } catch(e) {}
+                } catch(e) { _awkE(e); }
             }, 2200);
 
             // 🌫️ Murmure de Nabdano quand la jauge du Déclin monte (avant la réaction des héros)
-            setTimeout(() => { try { if (typeof awakMurmureDeclin === 'function') awakMurmureDeclin(); } catch (e) {} }, 2900);
+            setTimeout(() => { try { if (typeof awakMurmureDeclin === 'function') awakMurmureDeclin(); } catch (e) { _awkE(e); } }, 2900);
             // 🖤 Réaction héros au RETOUR après une absence prolongée (≥ 4 jours)
             setTimeout(() => {
                 try {
@@ -52685,7 +52570,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             try {
                                 if (window.AwakPain && window.AwakPain.activeZones) { _repos = window.AwakPain.activeZones().length > 0; }
                                 if (!_repos && typeof injuredMuscles !== 'undefined') { _repos = (injuredMuscles || []).length > 0; }
-                            } catch (e) {}
+                            } catch (e) { _awkE(e); }
                             const _reaction = () => awakShowHeroReaction(_repos ? 'repos' : 'absence');
                             // v1447 : LE SEUIL au retour — « Tu es encore là. » Une Faille ouverte
                             // attend ; on s'approche, on entre (briefing), ou on recule.
@@ -52712,7 +52597,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             if (!_seuil) _reaction();
                         }
                     }
-                } catch(e) {}
+                } catch(e) { _awkE(e); }
             }, 3200);
             // Initialiser le suivi des points de stats (1× pour ne pas donner rétroactivement)
             setTimeout(() => {
@@ -52733,7 +52618,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         sp.lastLevel = currentLevel;
                         statPointsSave(sp);
                     }
-                } catch(e) {}
+                } catch(e) { _awkE(e); }
             }, 900);
         renderEquipmentGrid();
             renderMuscleGrid();
@@ -52934,7 +52819,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         async function forceAppUpdate() {
             // v1555 : SANS RÉSEAU, on ne touche à rien. Avant : caches vidés et service
             // worker retiré même hors ligne → l'app ne s'ouvrait plus sans connexion.
-            const _horsLigne = () => { try { showToast('Pas de connexion : réessaie quand tu seras en ligne', 'warning', 3500); } catch (e) {} };
+            const _horsLigne = () => { try { showToast('Pas de connexion : réessaie quand tu seras en ligne', 'warning', 3500); } catch (e) { _awkE(e); } };
             if (navigator.onLine === false) { _horsLigne(); return; }
             try {
                 const _r = await fetch('index.html?_ping=' + Date.now(), { cache: 'no-store' });
@@ -53181,7 +53066,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     eligible.sort((a,b) => order.indexOf(a.rankId) - order.indexOf(b.rankId));
                     showStoryChapter(eligible[0]);
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
         window.checkStoryRankUnlock = checkStoryRankUnlock;
 
@@ -53240,7 +53125,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1621");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1622");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -53270,7 +53155,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         + '</div>';
                     break;
                 }
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             sheet.innerHTML = `
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
@@ -53342,7 +53227,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 try {
                     const rifts = (typeof awakRiftsLoad === 'function') ? awakRiftsLoad() : [];
                     riftsCompleted = rifts.filter(r => r.completed).length;
-                } catch(e) {}
+                } catch(e) { _awkE(e); }
                 const ctx = {
                     workouts: stats.workouts || 0,
                     streak: stats.streak || 0,
@@ -53360,7 +53245,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         return; // un seul fragment par déclenchement
                     }
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
         }
         window.awakCheckStoryFragments = awakCheckStoryFragments;
 
@@ -53382,7 +53267,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             catch(e) { return {}; }
         }
         function awakSaveCompanionMissions(m) {
-            try { localStorage.setItem(_compMissionKey(), JSON.stringify(m)); } catch(e) {}
+            try { localStorage.setItem(_compMissionKey(), JSON.stringify(m)); } catch(e) { _awkE(e); }
         }
 
         // 🚶 Liste des compagnons actuellement PARTIS en mission (mission non terminée).
@@ -53435,7 +53320,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             catch(e) { return {}; }
         }
         function awakSaveCompanionStamina(s) {
-            try { localStorage.setItem(_compStaminaKey(), JSON.stringify(s)); } catch(e) {}
+            try { localStorage.setItem(_compStaminaKey(), JSON.stringify(s)); } catch(e) { _awkE(e); }
         }
         // Récupère l'endurance actuelle d'un compagnon (applique la régén temps réel)
         function awakGetCompanionStamina(id) {
@@ -53496,7 +53381,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             catch(e) { return {}; }
         }
         function awakSaveInjuredCompanions(m) {
-            try { localStorage.setItem(_compInjuryKey(), JSON.stringify(m)); } catch(e) {}
+            try { localStorage.setItem(_compInjuryKey(), JSON.stringify(m)); } catch(e) { _awkE(e); }
         }
         // Nettoie les compagnons rétablis et renvoie la liste des IDs encore indisponibles
         function awakGetInjuredCompanionIds() {
@@ -53671,7 +53556,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _act = awakCompanionsGetActive().filter(id => !active.includes(id));
                 awakCompanionsSetActive(_act);
                 if (typeof window.awakEmit === 'function') window.awakEmit('rpg:statsChanged', { source: 'companionMission' });
-            } catch (e) {}
+            } catch (e) { _awkE(e); }
 
             document.getElementById('awakRiftBriefingModal')?.remove();
             document.getElementById('awakDelegatePicker')?.remove();
@@ -53854,7 +53739,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                     m.partialPct = Math.round(part * 100);
                                 }
                             }
-                        } catch (e) {}
+                        } catch (e) { _awkE(e); }
                     } else {
                         // ✅ SUCCÈS : fermer la Faille (sans loot ni XP de combat)
                         const rifts = typeof awakRiftsLoad === 'function' ? awakRiftsLoad() : [];
@@ -53863,7 +53748,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             rift.completed = true;
                             rift.completedBy = 'companions';
                             rift.currentWaveIdx = (rift.waves || []).length;
-                            if (!rift.narrativeId) { try { awakIncrementRiftsCompleted(); } catch (e) {} }
+                            if (!rift.narrativeId) { try { awakIncrementRiftsCompleted(); } catch (e) { _awkE(e); } }
                             if (typeof awakRiftsSave === 'function') awakRiftsSave(rifts);
                         }
                         // 💎 Les compagnons rapportent des minéraux de la Faille fermée
@@ -53871,7 +53756,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             if (window.AwakEconomy && typeof window.AwakEconomy.dropMineralsForCompanionMission === 'function') {
                                 m.mineralReward = window.AwakEconomy.dropMineralsForCompanionMission(m.riftRank || (rift && rift.rank) || 'E');
                             }
-                        } catch(e) {}
+                        } catch(e) { _awkE(e); }
                         m.failed = false;
                     }
                     m.done = true;
@@ -54168,7 +54053,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch(e) { return { power: 0, lastUpdate: Date.now() }; }
         }
         function awakSaveMonarch(d) {
-            try { localStorage.setItem(_monarchKey(), JSON.stringify(d)); } catch(e) {}
+            try { localStorage.setItem(_monarchKey(), JSON.stringify(d)); } catch(e) { _awkE(e); }
         }
         // Recalcule la puissance actuelle (applique la montée liée à l'inactivité)
         function awakGetMonarchPower() {
@@ -54231,7 +54116,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         negStats
                     });
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 2️⃣ PÉNALITÉS de défi échoué
             try {
@@ -54252,7 +54137,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         remaining
                     });
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             // 3️⃣ HANDICAPS de monstres échappés
             try {
@@ -54265,7 +54150,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (h.reduce_stats > 0)   malus.handicaps.push({ icon:'💢', text:`−${h.reduce_stats}% de dégâts en Faille` });
                     if (h.block_drops)        malus.handicaps.push({ icon:'🚫', text:`Drops d'équipement bloqués` });
                 }
-            } catch(e) {}
+            } catch(e) { _awkE(e); }
 
             return malus;
         }
@@ -54286,7 +54171,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const m = awakCollectActiveMalus();
             // v1366 : même compte que la fenêtre (un monstre = un malus)
             let nMonstres = 0;
-            try { nMonstres = (typeof awakGetActiveMonsters === 'function') ? (awakGetActiveMonsters() || []).length : 0; } catch (e) {}
+            try { nMonstres = (typeof awakGetActiveMonsters === 'function') ? (awakGetActiveMonsters() || []).length : 0; } catch (e) { _awkE(e); }
             return m.curses.length + m.penalties.length + nMonstres;
         }
         window.awakCountActiveMalus = awakCountActiveMalus;

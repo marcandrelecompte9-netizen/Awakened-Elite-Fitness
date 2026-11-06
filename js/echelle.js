@@ -81,7 +81,7 @@
     clearTimeout(minuteries[id]);
     minuteries[id] = setTimeout(function () {
       var el = document.getElementById(id);
-      if (el && el.getClientRects().length) { try { traiter(el); } catch (e) {} }
+      if (el && el.getClientRects().length) { try { traiter(el); } catch (e) { _awkE(e); } }
     }, 120);
   }
 

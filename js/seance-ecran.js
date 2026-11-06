@@ -12,7 +12,7 @@
   function prochain(workout, idx) {
     if (!workout || !Array.isArray(workout.exercises)) return null;
     // v1589 : en superset, on revient au premier exercice tant que les tours ne sont pas finis
-    try { var k = window.AwakSS && window.AwakSS.prochain ? window.AwakSS.prochain(workout, idx) : -1; if (k >= 0 && workout.exercises[k]) return workout.exercises[k]; } catch (e) {}
+    try { var k = window.AwakSS && window.AwakSS.prochain ? window.AwakSS.prochain(workout, idx) : -1; if (k >= 0 && workout.exercises[k]) return workout.exercises[k]; } catch (e) { _awkE(e); }
     for (var i = idx + 1; i < workout.exercises.length; i++) {
       var e = workout.exercises[i];
       if (e && !e.isRest && !e.isInfo) return e;
@@ -39,7 +39,7 @@
     if (hote) {
       var n = prochain(workout, idx);
       var nom = n ? (n._baseName || n.name || '') : '';
-      try { if (n && typeof window.awakNom === 'function') nom = window.awakNom(nom) || nom; } catch (e) {}
+      try { if (n && typeof window.awakNom === 'function') nom = window.awakNom(nom) || nom; } catch (e) { _awkE(e); }
       hote.innerHTML = n ? '<span class="awk-ens-lbl">Ensuite</span> ' + esc(nom) : '<span class="awk-ens-lbl">Dernier exercice</span>';
       hote.style.display = (mode === 'reps' || mode === 'timer') ? '' : 'none';
     }

@@ -160,10 +160,10 @@
   }
   function clicCarte(e) {
     var b = e.target.closest('[data-fin-coffre]');
-    if (b) { var k = etat.coffres[+b.getAttribute('data-fin-coffre')]; if (k && !k.ouvert) { k.ouvert = true; try { if (navigator.vibrate) navigator.vibrate([40, 30, 80]); } catch (x) {} rendre(); } return; }
+    if (b) { var k = etat.coffres[+b.getAttribute('data-fin-coffre')]; if (k && !k.ouvert) { k.ouvert = true; try { if (navigator.vibrate) navigator.vibrate([40, 30, 80]); } catch (x) { _awkE(x); } rendre(); } return; }
     var o = e.target.closest('[data-fin-objet]');
     if (o) { var it = etat.objets[+o.getAttribute('data-fin-objet')]; if (it && typeof window.showDropModal === 'function') { window._awakFinVoir = true; try { window.showDropModal(it.item, it.rarity, it.q); } finally { window._awakFinVoir = false; } } return; }
-    if (e.target.closest('[data-fin-points]')) { try { window.awakOpenStatPointsModal(); } catch (x) {} }
+    if (e.target.closest('[data-fin-points]')) { try { window.awakOpenStatPointsModal(); } catch (x) { _awkE(x); } }
   }
 
   // ── Détails repliés + prochain objectif ──
@@ -198,7 +198,7 @@
         txt = 'Objectif de la semaine atteint (' + s.fait + ' / ' + s.visee + ').';
       }
       if (pr) txt += (txt ? ' ' : '') + 'Prochaine séance ' + pr + '.';
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     if (!txt) return;
     var c = document.createElement('div');
     c.id = 'awakFinProchain';

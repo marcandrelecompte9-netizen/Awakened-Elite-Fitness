@@ -22,7 +22,7 @@
     var v = document.getElementById('completionView');
     if (!v || v.classList.contains('hidden') || !actif()) return;
     var vieux = document.getElementById('awakXpFin'); if (vieux) vieux.remove();
-    try { if (window.AwakMission) AwakMission.verser(); } catch (e) {}   // v1410 : mission de la semaine
+    try { if (window.AwakMission) AwakMission.verser(); } catch (e) { _awkE(e); }   // v1410 : mission de la semaine
     var xp = xpProfil(); if (xp === null || depart === null) return;
     var gain = xp - depart;
     if (gain <= 0) return;

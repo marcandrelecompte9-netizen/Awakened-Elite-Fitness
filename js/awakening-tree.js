@@ -465,7 +465,7 @@
         }, 'image/png');
       };
       img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
   window.awakShareTree = awakShareTree;
 

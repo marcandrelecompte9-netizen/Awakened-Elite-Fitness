@@ -35,7 +35,7 @@
       var c = cap();
       if (c.Plugins && c.Plugins[nom]) return c.Plugins[nom];
       if (typeof c.registerPlugin === 'function') return c.registerPlugin(nom);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return null;
   }
   function dispo(nom) {
@@ -76,7 +76,7 @@
           });
         }).then(function (id) {
           ref.id = id;
-          if (ref.annule) { try { BG.removeWatcher({ id: id }); } catch (e) {} }
+          if (ref.annule) { try { BG.removeWatcher({ id: id }); } catch (e) { _awkE(e); } }
         });
         return ref;
       }
@@ -87,7 +87,7 @@
         G.watchPosition({ enableHighAccuracy: true, maximumAge: 0, timeout: 20000 }, function (pos, err) {
           if (err) { surErr && surErr({ code: /denied|permission/i.test(String(err.message)) ? 1 : 2 }); return; }
           if (pos) surPos(pos);
-        }).then(function (id) { r2.id = id; if (r2.annule) { try { G.clearWatch({ id: id }); } catch (e) {} } });
+        }).then(function (id) { r2.id = id; if (r2.annule) { try { G.clearWatch({ id: id }); } catch (e) { _awkE(e); } } });
         return r2;
       }
       // 3) Web
@@ -101,7 +101,7 @@
         if (ref.type === 'bg') { if (ref.id) plugin('BackgroundGeolocation').removeWatcher({ id: ref.id }); else ref.annule = true; }
         else if (ref.type === 'cap') { if (ref.id) plugin('Geolocation').clearWatch({ id: ref.id }); else ref.annule = true; }
         else navigator.geolocation.clearWatch(ref.id);
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     },
     disponible: function () { return dispo('BackgroundGeolocation') || dispo('Geolocation') || ('geolocation' in navigator); }
   };
@@ -110,18 +110,18 @@
   var _wake = null;
   var ecran = {
     garder: function () {
-      if (dispo('KeepAwake')) { try { plugin('KeepAwake').keepAwake(); } catch (e) {} return; }
+      if (dispo('KeepAwake')) { try { plugin('KeepAwake').keepAwake(); } catch (e) { _awkE(e); } return; }
       try {
         if ('wakeLock' in navigator && !_wake) {
           navigator.wakeLock.request('screen').then(function (w) {
             _wake = w; w.addEventListener('release', function () { _wake = null; });
           }).catch(function () {});
         }
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     },
     liberer: function () {
-      if (dispo('KeepAwake')) { try { plugin('KeepAwake').allowSleep(); } catch (e) {} return; }
-      try { if (_wake) _wake.release(); } catch (e) {}
+      if (dispo('KeepAwake')) { try { plugin('KeepAwake').allowSleep(); } catch (e) { _awkE(e); } return; }
+      try { if (_wake) _wake.release(); } catch (e) { _awkE(e); }
       _wake = null;
     }
   };
@@ -146,10 +146,10 @@
       try {
         var total = Array.isArray(motif) ? motif.reduce(function (s, v, i) { return i % 2 ? s : s + v; }, 0) : (motif || 30);
         plugin('Haptics').vibrate({ duration: Math.min(1000, total) });
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
       return;
     }
-    try { if (navigator.vibrate) navigator.vibrate(motif); } catch (e) {}
+    try { if (navigator.vibrate) navigator.vibrate(motif); } catch (e) { _awkE(e); }
   }
 
   // ═══ BOUTON RETOUR ══════════════════════════════════════════════════
@@ -162,7 +162,7 @@
       try { plugin('App').addListener('backButton', function () { fn(); }); return true; } catch (e) { return false; }
     },
     quitter: function () {
-      if (dispo('App')) { try { plugin('App').exitApp(); return true; } catch (e) {} }
+      if (dispo('App')) { try { plugin('App').exitApp(); return true; } catch (e) { _awkE(e); } }
       return false;
     }
   };
@@ -200,7 +200,7 @@
           });
         }
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return Promise.resolve(false);
   }
 
@@ -208,13 +208,13 @@
   // manifest.json → shortcuts : ./?go=seance | course | agenda | routines
   function raccourci() {
     var go = null;
-    try { go = new URLSearchParams(location.search).get('go'); } catch (e) {}
+    try { go = new URLSearchParams(location.search).get('go'); } catch (e) { _awkE(e); }
     if (!go) return;
     try {
       var u = new URL(location.href);
       u.searchParams.delete('go');
       history.replaceState(history.state, '', u.pathname + u.search + u.hash);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     var essais = 0;
     (function lancer() {
       if (typeof window.switchTab !== 'function') { if (essais++ < 20) setTimeout(lancer, 250); return; }
@@ -223,7 +223,7 @@
         else if (go === 'routines') window.switchTab('routines');
         else if (go === 'agenda') window.switchTab('calendar');
         else if (go === 'course') { if (window.AwakRun) window.AwakRun.ouvrir(); else window.switchTab('workouts'); }
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     })();
   }
   window.addEventListener('load', function () { setTimeout(raccourci, 900); });
@@ -243,7 +243,7 @@
         if (k) o[k] = localStorage.getItem(k);
       }
       plugin('Preferences').set({ key: CLE_SAUVEGARDE, value: JSON.stringify({ t: Date.now(), d: o }) });
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
   function restaurerSiVide() {
     if (!dispo('Preferences')) return;
@@ -253,10 +253,10 @@
         if (!r || !r.value) return;
         var s = JSON.parse(r.value);
         if (!s || !s.d) return;
-        Object.keys(s.d).forEach(function (k) { try { localStorage.setItem(k, s.d[k]); } catch (e) {} });
+        Object.keys(s.d).forEach(function (k) { try { localStorage.setItem(k, s.d[k]); } catch (e) { _awkE(e); } });
         location.reload();
       });
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
   if (estNatif()) {
     restaurerSiVide();

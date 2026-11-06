@@ -22,7 +22,7 @@
   var BLEU = '#60a8f0', CLAIR = '#93c5fd', JOUR = 864e5;
   var K_DERNIERE = 'awakDerniereSauvegarde', K_RAPPEL = 'awakRappelSauvegarde';
 
-  function toast(m, t, d) { try { if (typeof showToast === 'function') showToast(m, t || 'info', d || 3000); } catch (e) {} }
+  function toast(m, t, d) { try { if (typeof showToast === 'function') showToast(m, t || 'info', d || 3000); } catch (e) { _awkE(e); } }
   function ico(n, t, c) { return window.AwakIcon ? AwakIcon.get(n, t || 18, c || CLAIR) : ''; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
@@ -73,7 +73,7 @@
       if (k != null) data[k] = localStorage.getItem(k);
     }
     // v1308 : tracés GPS complets (gardés dans IndexedDB, hors localStorage)
-    try { if (window.AwakRunStore) { var tr = AwakRunStore.tout(); if (Object.keys(tr).length) data[CLE_TRACES] = JSON.stringify(tr); } } catch (e) {}
+    try { if (window.AwakRunStore) { var tr = AwakRunStore.tout(); if (Object.keys(tr).length) data[CLE_TRACES] = JSON.stringify(tr); } } catch (e) { _awkE(e); }
     return { appName: 'Awakened', version: 3, exportedAt: new Date().toISOString(), data: data };
   }
   function octets() {
@@ -108,16 +108,16 @@
     try {
       if (obj.exportedAt) return new Date(obj.exportedAt);
       if (obj._backupMeta) return new Date(JSON.parse(obj._backupMeta).date);
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return null;
   }
   function resume(data) {
     var noms = [];
-    try { noms = JSON.parse(data.allProfiles || '[]').map(function (p) { return p.name; }).filter(Boolean); } catch (e) {}
+    try { noms = JSON.parse(data.allProfiles || '[]').map(function (p) { return p.name; }).filter(Boolean); } catch (e) { _awkE(e); }
     // Historique par profil (profile_<id>_workoutHistory) ; repli sur la clé globale
     var seances = 0, cles = Object.keys(data).filter(function (k) { return /^profile_.+_workoutHistory$/.test(k); });
     if (!cles.length && data.workoutHistory) cles = ['workoutHistory'];
-    cles.forEach(function (k) { try { seances += (JSON.parse(data[k]) || []).length; } catch (e) {} });
+    cles.forEach(function (k) { try { seances += (JSON.parse(data[k]) || []).length; } catch (e) { _awkE(e); } });
     return { noms: noms, seances: seances };
   }
 
@@ -176,7 +176,7 @@
     delete avant[CLE_TRACES];
     // Les tracés GPS vont dans IndexedDB, jamais dans localStorage (trop gros)
     if (data[CLE_TRACES]) {
-      try { if (window.AwakRunStore) AwakRunStore.importer(JSON.parse(data[CLE_TRACES])); } catch (e) {}
+      try { if (window.AwakRunStore) AwakRunStore.importer(JSON.parse(data[CLE_TRACES])); } catch (e) { _awkE(e); }
       data = Object.assign({}, data); delete data[CLE_TRACES];
     }
     // v1551 : les photos sont écrites en base par restaurer() ; jamais dans localStorage
@@ -187,7 +187,7 @@
       return true;
     } catch (e) {
       // Échec (espace plein…) : on remet exactement ce qu'il y avait
-      try { localStorage.clear(); Object.keys(avant).forEach(function (k) { localStorage.setItem(k, avant[k]); }); } catch (e2) {}
+      try { localStorage.clear(); Object.keys(avant).forEach(function (k) { localStorage.setItem(k, avant[k]); }); } catch (e2) { _awkE(e2); }
       return false;
     }
   }
@@ -222,7 +222,7 @@
     var r = new FileReader();
     r.onload = function (e) {
       var obj = null;
-      try { obj = JSON.parse(e.target.result); } catch (er) {}
+      try { obj = JSON.parse(e.target.result); } catch (er) { _awkE(er); }
       if (!obj) { toast('Fichier illisible : ce n\'est pas une sauvegarde', 'error', 3500); return; }
       restaurer(obj, '◈ DEPUIS UN FICHIER ◈');
     };
@@ -238,7 +238,7 @@
     if (photos && photos.length) s.data[CLE_PHOTOS] = JSON.stringify(photos);
     var texte = JSON.stringify(s);
     var nom = 'Awakened-Sauvegarde-' + new Date().toISOString().split('T')[0] + '.json';
-    var noter = function () { try { localStorage.setItem(K_DERNIERE, String(Date.now())); } catch (e) {} rendreReglages(); };
+    var noter = function () { try { localStorage.setItem(K_DERNIERE, String(Date.now())); } catch (e) { _awkE(e); } rendreReglages(); };
     var telecharger = function () {
       try {
         var url = URL.createObjectURL(new Blob([texte], { type: 'application/json' }));
@@ -263,8 +263,8 @@
       if (Date.now() - last < JOUR) return;
       var c = collecter();
       if (Object.keys(c.data).length < 4) return;
-      ajouterCopie(c, function (ok) { if (ok) try { localStorage.setItem('fitproLastAutoBackup', String(Date.now())); } catch (e) {} });
-    } catch (e) {}
+      ajouterCopie(c, function (ok) { if (ok) try { localStorage.setItem('fitproLastAutoBackup', String(Date.now())); } catch (e) { _awkE(e); } });
+    } catch (e) { _awkE(e); }
   }
 
   // ── fenêtre des copies sur le téléphone ──
@@ -342,7 +342,7 @@
         };
         if (navigator.storage.persisted) navigator.storage.persisted().then(fin, function () { fin(false); }); else fin(false);
       }).catch(function () {});
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   // ── rappel ──
@@ -361,7 +361,7 @@
   function assezDeDonnees() {
     var n = 0;
     Object.keys(localStorage).forEach(function (k) {
-      if (/^profile_.+_(workoutHistory|awakRuns)$/.test(k)) { try { n += (JSON.parse(localStorage.getItem(k)) || []).length; } catch (e) {} }
+      if (/^profile_.+_(workoutHistory|awakRuns)$/.test(k)) { try { n += (JSON.parse(localStorage.getItem(k)) || []).length; } catch (e) { _awkE(e); } }
     });
     return n >= 3;
   }
@@ -379,7 +379,7 @@
       if (typeof showConfirm !== 'function') return;
       showConfirm('Tes séances, sorties et progrès ne sont enregistrés que sur ce téléphone. Envoie-toi une copie (Drive, courriel) : ça prend 10 secondes, et rien ne se perd si tu changes de téléphone.',
         envoyer, null, { title: 'Mets tes données à l\'abri', subtitle: last ? '◈ DERNIÈRE SAUVEGARDE : ' + depuis(last).toUpperCase() + ' ◈' : '◈ AUCUNE SAUVEGARDE ◈', confirmLabel: 'Sauvegarder', cancelLabel: 'Plus tard' });
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   window.AwakSauvegarde = {

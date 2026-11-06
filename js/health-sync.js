@@ -37,7 +37,7 @@
     try { return window._cleProfilLecture ? window._cleProfilLecture(k) : k; } catch (e) { return k; }
   }
   function lire(k, d) { try { var v = localStorage.getItem(cleL(k)); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
-  function ecrire(k, v) { try { localStorage.setItem(cle(k), JSON.stringify(v)); } catch (e) {} }
+  function ecrire(k, v) { try { localStorage.setItem(cle(k), JSON.stringify(v)); } catch (e) { _awkE(e); } }
   function iso(t) { return new Date(t).toISOString(); }
   function arr(r, champ) {
     if (!r) return [];
@@ -63,7 +63,7 @@
     if (!p) return Promise.resolve(false);
     return disponible().then(function (ok) {
       if (!ok) {
-        try { if (p.openHealthConnectSettings) p.openHealthConnectSettings(); } catch (e) {}
+        try { if (p.openHealthConnectSettings) p.openHealthConnectSettings(); } catch (e) { _awkE(e); }
         throw new Error('indisponible');
       }
       return p.requestAuthorization({ read: LIRE, write: [], requestHistoryAccess: false });
@@ -189,7 +189,7 @@
       var brut = h.map(function (e) { var c = Object.assign({}, e); if (typeof c._nbExos === 'number') c.exercises = c._nbExos; delete c._nbExos; return c; });
       if (id && typeof window.setProfileData === 'function') window.setProfileData(id, 'workoutHistory', JSON.stringify(brut));
       else localStorage.setItem('workoutHistory', JSON.stringify(brut));
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   function importer(jours) {
@@ -229,7 +229,7 @@
           h.sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
           if (h.length > 200) h = h.slice(0, 200);
           sauverHistorique(h);
-          try { if (typeof window.rpgEnabled === 'function' && window.rpgEnabled() && typeof window.awakGrantLifetimeXP === 'function' && xp) window.awakGrantLifetimeXP(xp); } catch (e) {}
+          try { if (typeof window.rpgEnabled === 'function' && window.rpgEnabled() && typeof window.awakGrantLifetimeXP === 'function' && xp) window.awakGrantLifetimeXP(xp); } catch (e) { _awkE(e); }
         }
         ecrire('awakSanteImport', Date.now());
         return ajout;
@@ -267,7 +267,7 @@
             if (r.kcal) { h[0].calories = r.kcal; h[0]._kcalMontre = true; }
             sauverHistorique(h);
           }
-        } catch (e) {}
+        } catch (e) { _awkE(e); }
       });
     };
     essai(0);
@@ -322,7 +322,7 @@
 
   function connecterUI() {
     connecter().then(function (ok) {
-      try { if (typeof showToast === 'function') showToast(ok ? 'Montre connectée' : 'Connexion impossible : vérifie Health Connect', ok ? 'success' : 'warning', 3000); } catch (e) {}
+      try { if (typeof showToast === 'function') showToast(ok ? 'Montre connectée' : 'Connexion impossible : vérifie Health Connect', ok ? 'success' : 'warning', 3000); } catch (e) { _awkE(e); }
       if (ok) synchroniser(true); else rendreReglages();
     });
   }
@@ -340,7 +340,7 @@
         if (n && typeof showToast === 'function') showToast(n + ' séance' + (n > 1 ? 's' : '') + ' de la montre importée' + (n > 1 ? 's' : ''), 'success', 3000);
         else if (manuel && typeof showToast === 'function') showToast('Montre synchronisée', 'success', 2000);
         if (n && typeof window.renderWorkoutHistory === 'function') window.renderWorkoutHistory(window._histFilter || 'all');
-      } catch (e) {}
+      } catch (e) { _awkE(e); }
     }).catch(function () { _enCours = false; });
   }
 

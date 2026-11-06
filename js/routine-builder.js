@@ -36,8 +36,8 @@
   function attr(s) { return esc(s).replace(/\n/g, ' '); }
 
   function db() {
-    try { if (typeof exerciseDatabase !== 'undefined' && Array.isArray(exerciseDatabase)) return exerciseDatabase; } catch (e) {}
-    try { if (Array.isArray(window.exerciseDatabase)) return window.exerciseDatabase; } catch (e) {}
+    try { if (typeof exerciseDatabase !== 'undefined' && Array.isArray(exerciseDatabase)) return exerciseDatabase; } catch (e) { _awkE(e); }
+    try { if (Array.isArray(window.exerciseDatabase)) return window.exerciseDatabase; } catch (e) { _awkE(e); }
     return [];
   }
   function pid() {
@@ -68,7 +68,7 @@
       var r = recents().filter(function (x) { return x !== nom; });
       r.unshift(nom);
       localStorage.setItem(k, JSON.stringify(r.slice(0, 12)));
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
 
   // Routine en cours d'édition
@@ -359,7 +359,7 @@
     if (cat2) cat2.scrollTop = scCat;
     if (gardeFocus) {
       var n = document.getElementById('awakBldSearch');
-      if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) {} }
+      if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) { _awkE(e); } }
     }
   }
   API.refresh = refresh;
@@ -423,7 +423,7 @@
     noteRecent(ex.name);
     refresh(false);
     if (typeof window.showToast === 'function') window.showToast('➕ ' + ex.name, 'success', 1400);
-    try { if (navigator.vibrate) navigator.vibrate(25); } catch (e) {}
+    try { if (navigator.vibrate) navigator.vibrate(25); } catch (e) { _awkE(e); }
   };
 
   // ── Glisser-déposer aux événements POINTEUR (le DnD natif ne marche pas au tactile) ──
@@ -493,7 +493,7 @@
   }
 
   function nettoyer() {
-    if (drag && drag.ghost) { try { drag.ghost.remove(); } catch (e) {} }
+    if (drag && drag.ghost) { try { drag.ghost.remove(); } catch (e) { _awkE(e); } }
     var zone = document.getElementById('awakBldDrop');
     if (zone) zone.classList.remove('awak-drop-on');
     drag = null;

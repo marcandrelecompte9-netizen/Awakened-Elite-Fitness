@@ -30,10 +30,10 @@
   function etatMuscles() {
     var out = {}, now = Date.now();
     var data = {};
-    try { data = (typeof rpgLoad === 'function') ? (rpgLoad() || {}) : {}; } catch (e) {}
+    try { data = (typeof rpgLoad === 'function') ? (rpgLoad() || {}) : {}; } catch (e) { _awkE(e); }
     var m = data.muscles || {};
     var rec = {};
-    try { rec = (typeof getAllMusclesRecoveryStatus === 'function') ? getAllMusclesRecoveryStatus() : {}; } catch (e) {}
+    try { rec = (typeof getAllMusclesRecoveryStatus === 'function') ? getAllMusclesRecoveryStatus() : {}; } catch (e) { _awkE(e); }
     MUSCLES.forEach(function (k) {
       var i = m[k] || {};
       var lvl = 0;
@@ -113,7 +113,7 @@
       if (p && !p.setupComplete) { if (typeof showProfileSetup === 'function') showProfileSetup(); return; }
       window._overrideSessionMuscles = (m && m.length) ? m.slice() : null;
       if (typeof openWorkoutModeModal === 'function') openWorkoutModeModal();
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }
   function voirEquilibre() {
     var ov = document.getElementById('systemAnalysisOverlay'); if (ov) ov.remove();
@@ -204,7 +204,7 @@
   }
   function tendances() {
     var P = {};
-    try { P = (typeof getExercisePerformances === 'function') ? (getExercisePerformances() || {}) : {}; } catch (e) {}
+    try { P = (typeof getExercisePerformances === 'function') ? (getExercisePerformances() || {}) : {}; } catch (e) { _awkE(e); }
     var now = Date.now(), out = [];
     Object.keys(P).forEach(function (n) {
       var S = (P[n] || []).filter(function (s) { return s && !s.warmup && !isNaN(Date.parse(s.date || '')); });
@@ -372,7 +372,7 @@
       pS.style.display = s ? '' : 'none'; pC.style.display = s ? 'none' : '';
       bS.style.background = s ? 'linear-gradient(135deg,#22d3ee,#0891b2)' : 'transparent'; bS.style.color = s ? '#fff' : C.gris;
       bC.style.background = !s ? 'linear-gradient(135deg,#22d3ee,#0891b2)' : 'transparent'; bC.style.color = !s ? '#fff' : C.gris;
-      try { sh.scrollTop = 0; } catch (e) {}
+      try { sh.scrollTop = 0; } catch (e) { _awkE(e); }
     }
     bS.addEventListener('click', function () { bascule('systeme'); });
     bC.addEventListener('click', function () { bascule('coach'); });

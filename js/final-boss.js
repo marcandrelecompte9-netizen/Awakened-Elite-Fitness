@@ -69,10 +69,10 @@
   function _playerStats() {
     // v1481 : stats TOTALES (base + séances + points + équipement + compagnons).
     // Avant : équipement seul → un joueur sans équipement frappait presque à vide.
-    try { if (typeof window.awakGetTotalStats === 'function') return window.awakGetTotalStats(); } catch (e) {}
+    try { if (typeof window.awakGetTotalStats === 'function') return window.awakGetTotalStats(); } catch (e) { _awkE(e); }
     try {
       if (typeof getPlayerEquipStats === 'function') return getPlayerEquipStats();
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return { STR: 10, AGI: 10, VIT: 10, END: 10, PER: 5, SEN: 5 };
   }
 
@@ -89,7 +89,7 @@
     // déterminant sans rendre le combat infaisable.
     const BASE = 12500;
     let power = 0;
-    try { if (typeof awakGetPowerScore === 'function') power = awakGetPowerScore(); } catch (e) {}
+    try { if (typeof awakGetPowerScore === 'function') power = awakGetPowerScore(); } catch (e) { _awkE(e); }
     const ref = 12000;                       // Power Score « attendu » à ce stade
     const ratio = power > 0 ? power / ref : 1;
     const mod = Math.max(0.9, Math.min(1.15, 0.9 + ratio * 0.25));
@@ -159,9 +159,9 @@
   // (gros coups, surprises) sans le raccourcir. Seul l'effort le fait tomber.
   function offensif() {
     var b = {}, fx = {}, cb = {};
-    try { b = typeof window.awakComputeStatBonuses === 'function' ? window.awakComputeStatBonuses(null, true) : {}; } catch (e) {}
-    try { fx = typeof window.rpgGetActiveEffects === 'function' ? (window.rpgGetActiveEffects() || {}) : {}; } catch (e) {}
-    try { cb = typeof window.awakCompanionsGetActiveBonuses === 'function' ? (window.awakCompanionsGetActiveBonuses() || {}) : {}; } catch (e) {}
+    try { b = typeof window.awakComputeStatBonuses === 'function' ? window.awakComputeStatBonuses(null, true) : {}; } catch (e) { _awkE(e); }
+    try { fx = typeof window.rpgGetActiveEffects === 'function' ? (window.rpgGetActiveEffects() || {}) : {}; } catch (e) { _awkE(e); }
+    try { cb = typeof window.awakCompanionsGetActiveBonuses === 'function' ? (window.awakCompanionsGetActiveBonuses() || {}) : {}; } catch (e) { _awkE(e); }
     var crit = Math.min(0.6, 0.05 + (b.critChance || 0) + (cb.critChance || 0) + (fx.critChance || 0));
     var dbl = Math.min(0.5, b.doubleChance || 0);
     // v1528 : compétences de dégâts (Tir Perçant, Œil de la Tempête, Point Faible) — comptées dans la calibration
@@ -198,19 +198,19 @@
     window.awakMonarqueHP = monarqueHP;
     window.awakMonarqueActDamage = actDamage;
     window.AWAK_ACT_STATS = ACT_STATS;
-  } catch (e) {}
+  } catch (e) { _awkE(e); }
 
   // 🧭 Le combat final parle du parcours RÉEL du joueur (séances, série, compagnons).
   function parcours() {
     var st = {}, noms = [];
-    try { st = JSON.parse(localStorage.getItem('workoutStats') || '{}') || {}; } catch (e) {}
+    try { st = JSON.parse(localStorage.getItem('workoutStats') || '{}') || {}; } catch (e) { _awkE(e); }
     try {
       var COURTS = { marcus: 'Marcus', kira: 'Kira', elise: 'Élise', yuna: 'Yuna', chen: 'Chen' };
       var d = (typeof awakCompanionsLoad === 'function') ? awakCompanionsLoad() : null;
       // v1515 : essai du mode développeur → tous les compagnons sont là (sans rien enregistrer)
       var ids = window._awakFbEssaiTous ? Object.keys(COURTS) : (d && Array.isArray(d.unlocked) ? d.unlocked : []);
       ids.forEach(function (id) { if (COURTS[id]) noms.push(COURTS[id]); });
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
     return { seances: st.workouts || 0, serie: Math.max(st.bestStreak || 0, st.streak || 0), noms: noms };
   }
   function partenaire() {
@@ -326,7 +326,7 @@
     }
     const exercises = buildFinalWorkout();
     imagesCombat(true);   // v1506 : images du champ de bataille dès le 1er exercice
-    try { document.body.classList.add('awk-fb'); } catch (e) {}
+    try { document.body.classList.add('awk-fb'); } catch (e) { _awkE(e); }
     // ⚔️ PV DU MONARQUE : le combat final utilise enfin le build du joueur.
     // Chaque exercice terminé retire des dégâts calculés selon la stat de l'acte.
     const hpMax = monarqueHP();
@@ -345,7 +345,7 @@
     };
     // v1468 : L'Effaceur se présente avant le combat
     // (v1485 : au-dessus du prologue — la séance démarre derrière, sans écran « Prépare-toi »)
-    try { if (window.AwakRiftVis && AwakRiftVis.bossIntro) AwakRiftVis.bossIntro({ nom: 'L’Effaceur', monstreNom: 'L’Effaceur assis', couleur: '#dc2626', sousTitre: 'COMBAT FINAL', zIndex: 99998 }); } catch (e) {}
+    try { if (window.AwakRiftVis && AwakRiftVis.bossIntro) AwakRiftVis.bossIntro({ nom: 'L’Effaceur', monstreNom: 'L’Effaceur assis', couleur: '#dc2626', sousTitre: 'COMBAT FINAL', zIndex: 99998 }); } catch (e) { _awkE(e); }
     // Utilise le pipeline de séance préparée existant
     if (typeof window.setPendingWorkout === 'function') {
       window.setPendingWorkout(workout);
@@ -356,7 +356,7 @@
     // Le combat final se lance depuis l'onglet JEU : sans bascule d'onglet,
     // la séance était bien préparée… mais restait invisible. Rien ne semblait
     // se passer au clic.
-    try { if (typeof switchTab === 'function') switchTab('workouts'); } catch (e) {}
+    try { if (typeof switchTab === 'function') switchTab('workouts'); } catch (e) { _awkE(e); }
 
     if (typeof window.showWorkoutPreparation === 'function') {
       // v1485 : pas d'écran « Prépare-toi » pour le combat final. La préparation
@@ -411,7 +411,7 @@
         st.textContent = 'body.awk-fb #prevBtn,body.awk-fb #swapBtn{display:none!important}body.awk-fb #awakBarreActions #awakSuivantBtn{grid-column:1/-1}';
         document.head.appendChild(st);
       }
-    } catch (e) {}
+    } catch (e) { _awkE(e); }
   }, 1000);
 
   // ⚔️ Applique les dégâts d'un exercice terminé à l’Effaceur.
@@ -573,11 +573,11 @@
     var txt = dispo[Math.floor(Math.random() * dispo.length)];
     vus.push(txt);
     // v1516 : jetons personnels
-    var fem = false; try { fem = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme'; } catch (e) {}
+    var fem = false; try { fem = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme'; } catch (e) { _awkE(e); }
     txt = txt.replace(/\{part\}/g, partenaire()).replace(/\{seances\}/g, String(parcours().seances || 0)).replace(/\{e\}/g, fem ? 'e' : '');
     workout._nargueT = now;
     workout._nargue = { txt: txt, t: now };
-    try { var J = workout._journal || (workout._journal = []); J.push({ t: now, ton: 'nab', txt: 'Nabdano : « ' + txt + ' »' }); } catch (e) {}
+    try { var J = workout._journal || (workout._journal = []); J.push({ t: now, ton: 'nab', txt: 'Nabdano : « ' + txt + ' »' }); } catch (e) { _awkE(e); }
     return txt;
   }
   window.awakNabdanoNargue = nargue;
@@ -635,12 +635,12 @@
     var L = ALLIES[nom].l[ctx], vus = workout._encVus || (workout._encVus = []);
     var dispo = L.filter(function (x) { return vus.indexOf(nom + x) < 0; }); if (!dispo.length) dispo = L;
     var txt = dispo[Math.floor(Math.random() * dispo.length)];
-    var fem = false; try { fem = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme'; } catch (e) {}
+    var fem = false; try { fem = (localStorage.getItem('fitproAvatarGender') || 'homme') === 'femme'; } catch (e) { _awkE(e); }
     txt = txt.replace(/\{e\}/g, fem ? 'e' : '');
     vus.push(nom + txt);
     workout._encT = now; workout._encDernier = nom;
     workout._encourage = { nom: nom, couleur: ALLIES[nom].couleur, txt: txt, t: now };
-    try { (workout._journal || (workout._journal = [])).push({ t: now, ton: 'allie', txt: nom + ' : « ' + txt + ' »' }); } catch (e) {}
+    try { (workout._journal || (workout._journal = [])).push({ t: now, ton: 'allie', txt: nom + ' : « ' + txt + ' »' }); } catch (e) { _awkE(e); }
     return workout._encourage;
   }
   window.awakAllieEncourage = encourage;
@@ -659,7 +659,7 @@
     workout._joueurPVMax = _pvMaxJoueur();
     workout._joueurPV = workout._joueurPVMax;
     var larme = false;
-    try { larme = !workout._essaiDev && typeof window.awakConsumablesGetActiveEffects === 'function' && !!window.awakConsumablesGetActiveEffects().revive; } catch (e) {}
+    try { larme = !workout._essaiDev && typeof window.awakConsumablesGetActiveEffects === 'function' && !!window.awakConsumablesGetActiveEffects().revive; } catch (e) { _awkE(e); }
     workout._releves = larme ? 2 : 1;
     workout._larme = larme;
   }
@@ -681,7 +681,7 @@
     joueurInit(workout);
     if (workout._joueurMort) return null;
     var b = {};
-    try { b = typeof window.awakComputeStatBonuses === 'function' ? window.awakComputeStatBonuses() : {}; } catch (e) {}
+    try { b = typeof window.awakComputeStatBonuses === 'function' ? window.awakComputeStatBonuses() : {}; } catch (e) { _awkE(e); }
     var res = { dmg: 0, esquive: false, bloque: 0, soin: 0, releve: false, mort: false };
     // Régénération END après ta série (avant le coup)
     var regen = Math.round((b.hpRegen || 0) * (b.hpRegenMult || 1) * f);
@@ -690,7 +690,7 @@
       workout._joueurPV = Math.min(workout._joueurPVMax, workout._joueurPV + regen);
       res.soin = workout._joueurPV - av;
     }
-    try { if (typeof window.awakIsInvincible === 'function' && window.awakIsInvincible()) return res; } catch (e) {}
+    try { if (typeof window.awakIsInvincible === 'function' && window.awakIsInvincible()) return res; } catch (e) { _awkE(e); }
     if (Math.random() < (b.dodgeChance || 0)) { res.esquive = true; workout._derniereRiposte = { esquive: true, t: Date.now() }; return res; }
     // v1511 : Chen a lu son geste → riposte annulée (1 par phase ; la 1re dès le début)
     if (aUn(workout, 'Chen')) {
@@ -703,7 +703,7 @@
     var mult = [1, 1.1, 1.25, 1.45][ph] || 1;
     var brut = _coupRiposte(workout) * mult * f * (0.85 + Math.random() * 0.3);
     var vit = 0;
-    try { vit = (window.awakGetTotalStats ? window.awakGetTotalStats() : {}).VIT || 0; } catch (e) {}
+    try { vit = (window.awakGetTotalStats ? window.awakGetTotalStats() : {}).VIT || 0; } catch (e) { _awkE(e); }
     var red = Math.min(0.40, vit / (vit + 300));
     var dmg = Math.max(1, Math.round(brut * (1 - red)));
     res.bloque = Math.max(0, Math.round(brut) - dmg);
@@ -750,7 +750,7 @@
     function fermer() { if (fini) return; fini = true; ov.remove(); if (typeof apres === 'function') apres(); }
     ov.querySelector('button').onclick = fermer;
     document.body.appendChild(ov);
-    try { if (navigator.vibrate) navigator.vibrate([80, 60, 160]); } catch (e) {}
+    try { if (navigator.vibrate) navigator.vibrate([80, 60, 160]); } catch (e) { _awkE(e); }
   }
   window.awakFinalReleve = releveFinale;
 
@@ -771,7 +771,7 @@
       + '<p style="color:#94a3b8;font-size:.85em;line-height:1.6;margin:0 0 20px;">' + (mort ? 'Le Système : « Tes PV n\'ont pas tenu. Monte ton END et ta VIT, équipe-toi, prends une Larme du Système, puis reviens. Il t\'attendra — entier. »' : plancher ? 'Le Système : « Tu es arrivé trop faible pour lui. Répartis tes points, équipe-toi, entraîne-toi, puis reviens. Il t\'attendra — entier. »' : 'Le Système : « Ce n\'est pas fini. Chaque série au bout, chaque rep comptée : c\'est comme ça qu\'il tombe. Il t\'attendra — entier. »') + '</p>'
       + '<button style="width:100%;padding:15px;border:none;border-radius:14px;background:linear-gradient(135deg,#7f1d1d,#dc2626);color:#fff;font-family:var(--font-display),sans-serif;font-weight:700;font-size:1.05em;letter-spacing:1px;cursor:pointer;">Revenir plus fort</button>'
       + '</div>';
-    ov.querySelector('button').onclick = function () { ov.remove(); try { if (typeof switchTab === 'function') switchTab('game'); } catch (e) {} };
+    ov.querySelector('button').onclick = function () { ov.remove(); try { if (typeof switchTab === 'function') switchTab('game'); } catch (e) { _awkE(e); } };
     document.body.appendChild(ov);
   }
   window.awakFinalDefaite = defaiteFinale;
@@ -790,7 +790,7 @@
     // victoire. La scène « L'Ancre » est marquée vue (journal), sans être réaffichée.
     if (!window._awakFinaleFaite) {
       window._awakFinaleFaite = true;
-      if (!window._awakFinEssai) { try { localStorage.setItem('awakStoryEvt_evt_fin_ancre', '1'); } catch (e) {} }
+      if (!window._awakFinEssai) { try { localStorage.setItem('awakStoryEvt_evt_fin_ancre', '1'); } catch (e) { _awkE(e); } }
       finaleCinematique(showFinalBossVictory);
       return;
     }
@@ -843,8 +843,8 @@
     window._awakChuteFaite = false;   // prochaine victoire : la chute rejouera
     window._awakFinaleFaite = false;
     window._awakFinEssai = false;
-    try { if (typeof hapticTap === 'function') hapticTap([60,40,60,40,60,40,200]); } catch(e) {}
-    try { if (typeof launchConfetti === 'function') launchConfetti(); } catch(e) {}
+    try { if (typeof hapticTap === 'function') hapticTap([60,40,60,40,60,40,200]); } catch(e) { _awkE(e); }
+    try { if (typeof launchConfetti === 'function') launchConfetti(); } catch(e) { _awkE(e); }
   }
   window.awakShowFinalBossVictory = showFinalBossVictory;
 
@@ -891,8 +891,8 @@
       var h = typeof window.getWorkoutHistory === 'function' ? (window.getWorkoutHistory() || []) : [];
       var t = h.map(function (s) { return s && s.date ? new Date(s.date).getTime() : NaN; }).filter(function (x) { return !isNaN(x); });
       if (t.length) jours = Math.max(1, Math.round((Date.now() - Math.min.apply(null, t)) / 86400000) + 1);
-    } catch (e) {}
-    try { failles = typeof window.awakGetRiftsCompletedTotal === 'function' ? (window.awakGetRiftsCompletedTotal() || 0) : 0; } catch (e) {}
+    } catch (e) { _awkE(e); }
+    try { failles = typeof window.awakGetRiftsCompletedTotal === 'function' ? (window.awakGetRiftsCompletedTotal() || 0) : 0; } catch (e) { _awkE(e); }
     var l = [];
     if (P.seances) l.push([P.seances, 'séances']);
     if (jours) l.push([jours, 'jours depuis le premier']);
@@ -905,7 +905,7 @@
   function finaleCinematique(apres) {
     var scenes = _scenesFin(), si = 0, li = 0;
     var dejaVue = false;
-    try { dejaVue = localStorage.getItem('awakFinaleVue') === '1'; } catch (e) {}
+    try { dejaVue = localStorage.getItem('awakFinaleVue') === '1'; } catch (e) { _awkE(e); }
     if (!document.getElementById('awakFinaleCss')) {
       var st = document.createElement('style'); st.id = 'awakFinaleCss';
       st.textContent = '@keyframes afKen{0%{transform:scale(1)}100%{transform:scale(1.09)}}'
@@ -967,19 +967,19 @@
         + '<button class="af-fin" style="width:100%;padding:16px;border:none;border-radius:14px;background:linear-gradient(135deg,#fbbf24,#dc2626);color:#1a0e0e;font-family:var(--font-display),sans-serif;font-weight:700;font-size:1.05em;letter-spacing:1px;cursor:pointer;">Continuer</button>'
         + '</div>';
       bas.querySelector('.af-fin').onclick = terminer;
-      try { if (typeof launchConfetti === 'function') launchConfetti(); } catch (e) {}
+      try { if (typeof launchConfetti === 'function') launchConfetti(); } catch (e) { _awkE(e); }
     }
     var fini = false;
     function terminer() {
       if (fini) return; fini = true;
-      try { if (!window._awakFinEssai) localStorage.setItem('awakFinaleVue', '1'); } catch (e) {}
+      try { if (!window._awakFinEssai) localStorage.setItem('awakFinaleVue', '1'); } catch (e) { _awkE(e); }
       ov.style.transition = 'opacity .7s'; ov.style.opacity = '0';
       setTimeout(function () { ov.remove(); if (typeof apres === 'function') apres(); }, 700);
     }
     var bp = ov.querySelector('.af-passer'); if (bp) bp.onclick = function () { parcoursFinal(); };
     poserImage(scenes[0].img);
     rendreTexte();
-    try { if (navigator.vibrate) navigator.vibrate(40); } catch (e) {}
+    try { if (navigator.vibrate) navigator.vibrate(40); } catch (e) { _awkE(e); }
   }
   window.awakFinaleCinematique = finaleCinematique;
 
@@ -989,7 +989,7 @@
     // v1479 : carte d'acte plein écran (nom de l'acte + l'Effaceur + sa phrase), puis le texte
     if (beat && beat._acte && !beat._carteVue && window.AwakRiftVis && AwakRiftVis.bossIntro) {
       beat._carteVue = true;
-      try { if (beat._acte.climax && window.AwakMusique && AwakMusique.intensifier) AwakMusique.intensifier(); } catch (e) {}
+      try { if (beat._acte.climax && window.AwakMusique && AwakMusique.intensifier) AwakMusique.intensifier(); } catch (e) { _awkE(e); }
       AwakRiftVis.bossIntro({ nom: beat._acte.titre, sousTitre: beat._acte.num, couleur: beat._color || '#dc2626', ligne: beat._acte.ligne,
         monstreNom: 'L’Effaceur', duree: 3800, apres: function () { showFinalStoryBeat(beat, onDone); } });
       return;
@@ -1024,7 +1024,7 @@
     }
     render();
     document.body.appendChild(ov);
-    try { if (typeof hapticTap === 'function') hapticTap([40]); } catch (e) {}
+    try { if (typeof hapticTap === 'function') hapticTap([40]); } catch (e) { _awkE(e); }
   }
   window.awakShowFinalStoryBeat = showFinalStoryBeat;
 
@@ -1036,7 +1036,7 @@
   };
   function palierFinal(n) {
     var P = PALIERS[n]; if (!P || !window.AwakRiftVis || !AwakRiftVis.bossIntro) return;
-    try { if (n === 3 && window.AwakMusique && AwakMusique.climaxFinal) AwakMusique.climaxFinal(); } catch (e) {}   // v1517 : boucle du climax
+    try { if (n === 3 && window.AwakMusique && AwakMusique.climaxFinal) AwakMusique.climaxFinal(); } catch (e) { _awkE(e); }   // v1517 : boucle du climax
     AwakRiftVis.bossIntro({ nom: P.nom, sousTitre: P.sous, couleur: P.couleur, ligne: P.ligne, monstreNom: ['', 'L’Effaceur', 'L’Effaceur rouge', 'L’Effaceur ultime'][n] || 'L’Effaceur', duree: 3200 });
   }
   window.awakFinalPalier = palierFinal;
@@ -1078,7 +1078,7 @@
     ov.addEventListener('click', function () { if (Date.now() - t0 > 2500) fin(); });
     var t0 = Date.now();
     document.body.appendChild(ov);
-    try { if (navigator.vibrate) navigator.vibrate([120, 60, 120, 60, 400]); } catch (e) {}
+    try { if (navigator.vibrate) navigator.vibrate([120, 60, 120, 60, 400]); } catch (e) { _awkE(e); }
     setTimeout(fin, calme ? 3200 : 6200);
   }
   window.awakFinalChute = chuteEffaceur;
