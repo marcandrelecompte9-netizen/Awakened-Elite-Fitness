@@ -289,12 +289,12 @@
           '<div id="awakLimitList">' + lignes + '</div>' +
           // v1408 : mode « garder mes capacités » — pour une condition qui évolue
           '<div onclick="AwakLimitations.basculerMaintien()" style="cursor:pointer;display:flex;align-items:flex-start;gap:11px;padding:12px 13px;margin:6px 0 8px;' +
-            'background:' + (maintien() ? 'rgba(167,139,250,0.12)' : 'rgba(255,255,255,0.025)') + ';border:1.5px solid ' + (maintien() ? 'rgba(167,139,250,0.5)' : 'rgba(255,255,255,0.07)') + ';border-radius:13px;">' +
-            '<span style="flex-shrink:0;margin-top:1px;">' + ic('coeur', maintien() ? '#c4b5fd' : '#94a3b8') + '</span>' +
+            'background:' + (maintien() ? 'rgba(34,211,238,0.1)' : 'rgba(255,255,255,0.025)') + ';border:1.5px solid ' + (maintien() ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.07)') + ';border-radius:13px;">' +
+            '<span style="flex-shrink:0;margin-top:1px;">' + ic('coeur', maintien() ? '#67e8f9' : '#94a3b8') + '</span>' +
             '<div style="flex:1;min-width:0;"><div style="font-size:0.84em;font-weight:800;color:#e8f0f8;margin-bottom:3px;">Garder mes capacités</div>' +
             '<div style="font-size:0.7em;color:#94a3b8;line-height:1.45;">Pour une condition qui évolue : l\'app ne propose plus de charge plus lourde. Tenir sa charge, c\'est réussir.</div></div>' +
             '<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.7em;font-weight:900;' +
-              (maintien() ? 'background:#a78bfa;color:#04121f;">' + (window.AwakIcon ? window.AwakIcon.get('valide', 13, '#04121f') : '') : 'border:1.5px dashed rgba(148,163,184,0.5);color:#8391a7;">+') + '</span>' +
+              (maintien() ? 'background:#22d3ee;color:#04121f;">' + (window.AwakIcon ? window.AwakIcon.get('valide', 13, '#04121f') : '') : 'border:1.5px dashed rgba(148,163,184,0.5);color:#8391a7;">+') + '</span>' +
           '</div>' +
           '<div id="awakLimitImpact" style="margin-top:6px;"></div>' +
           '<div style="margin-top:14px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);' +
@@ -303,6 +303,13 @@
             'Ces réglages ne remplacent pas un avis médical. En cas de blessure ou de douleur, ' +
             'demande l\'avis d\'un professionnel de santé.' +
           '</div>' +
+        '</div>' +
+        // v1626 : bouton de sortie clair (avant : seulement le × en haut — au premier lancement,
+        // on ne savait pas comment continuer sans rien cocher)
+        '<div style="flex-shrink:0;padding:12px 18px calc(14px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(255,255,255,0.07);">' +
+          '<button onclick="document.getElementById(\'awakLimitModal\').remove()" style="width:100%;min-height:46px;border-radius:12px;border:none;cursor:pointer;font-family:inherit;font-weight:900;font-size:0.92em;' +
+            'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;">Terminé</button>' +
+          '<div style="text-align:center;font-size:0.68em;color:#8391a7;margin-top:7px;">Rien à cocher ? Touche simplement Terminé. Modifiable dans Réglages.</div>' +
         '</div>' +
       '</div>';
 

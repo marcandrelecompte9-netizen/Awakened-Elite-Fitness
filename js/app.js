@@ -8622,7 +8622,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const muscle = exerciseData ? exerciseData.muscle : '';
                     const difficulty = exerciseData ? exerciseData.difficulty : '';
 
-                    let difficultyColor = '#22c55e';
+                    let difficultyColor = '#60a8f0';   // v1626 : bleu (avant : vert)
                     if (difficulty === 'Intermédiaire') difficultyColor = '#f59e0b';
                     if (difficulty === 'Avancé') difficultyColor = '#ef4444';
 
@@ -17591,7 +17591,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 try {
                     showConfirm('Ta séance n\'a pas pu être enregistrée : le stockage de l\'appareil est plein. Fais une sauvegarde, puis libère de la place (un profil inutilisé, par exemple).',
                         function () { try { switchTab('settings'); setTimeout(() => { const c = document.getElementById('awakSauvegardeCarte'); if (c) c.scrollIntoView({ block: 'center' }); }, 400); } catch (e) { _awkE(e); } },
-                        null, { title: 'Stockage plein', confirmLabel: 'Aller à la sauvegarde', cancelLabel: 'Plus tard', danger: true });
+                        null, { title: 'Stockage plein', subtitle: '◈ SÉANCE NON ENREGISTRÉE ◈', confirmLabel: 'Aller à la sauvegarde', cancelLabel: 'Plus tard', danger: true });
                 } catch (e) { _awkE(e); }
             }
             // 🎯 v1253 : le Bingo de la semaine se coche tout seul (séance avant 9 h…).
@@ -20170,7 +20170,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 name: 'Arnold Split',
                 emoji: '🏆',
                 color: '#a855f7',
-                description: '6 jours/sem. Méthode légendaire de Schwarzenegger. Antagonistes regroupés.',
+                description: '6 jours/sem. Méthode de l\'âge d\'or du culturisme. Antagonistes regroupés.',
                 level: 'Avancé',
                 days: 6,
                 sessions: [
@@ -24268,9 +24268,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
         // ── MESSAGES MOTIVATIONNELS PENDANT LE REPOS ──────────────────
         const restMotivationMessages = [
-            { text: "💪 Chaque série compte. Tu bâtis quelque chose.", author: "The Rock" },
-            { text: "🔥 Le succès n'est pas donné — il se gagne.", author: "CBum" },
-            { text: "⚡ La douleur est temporaire. La fierté est permanente.", author: "Arnold" },
+            { text: "💪 Chaque série compte. Tu bâtis quelque chose.", author: "" },
+            { text: "🔥 Le succès n'est pas donné — il se gagne.", author: "" },
+            { text: "⚡ La douleur est temporaire. La fierté est permanente.", author: "" },
             { text: "🏆 Un jour de plus, une version meilleure de toi.", author: "" },
             { text: "💎 Les champions s'entraînent quand personne ne regarde.", author: "" },
             { text: "🚀 Tu vaux plus que tes excuses.", author: "" },
@@ -24646,7 +24646,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1625);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1626);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24699,7 +24699,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1625" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1626" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -30775,7 +30775,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1625");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1626");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -44443,7 +44443,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1625';
+                    let ver = 'v0.95.1626';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -44611,7 +44611,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1625" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1626" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -44693,7 +44693,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1625);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1626);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -44760,7 +44760,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1625);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1626);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -45438,7 +45438,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (!items.length) return '';
                 let s = '<div class="swap-section-title">' + title + '</div>';
                 items.forEach(ex => {
-                    const diffColors = {'Débutant':'#34d399','Intermédiaire':'#fbbf24','Avancé':'#f87171'};
+                    const diffColors = {'Débutant':'#60a8f0','Intermédiaire':'#fbbf24','Avancé':'#f87171'};
                     const dc = diffColors[ex.difficulty] || '#94a3b8';
                     const _n = String(ex.name).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
                     s += `<div class="swap-card" data-n="${_n}">
@@ -45735,7 +45735,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
 
         // ── localStorage sécurisé avec auto-purge ─────────────────
-        const _lsOrig = { get: localStorage.getItem.bind(localStorage), set: localStorage.setItem.bind(localStorage), remove: localStorage.removeItem.bind(localStorage) };
+        // v1626 : set = écriture BRUTE (lève QuotaExceededError) : lsSet doit savoir qu'elle a échoué.
+        const _lsOrig = { get: localStorage.getItem.bind(localStorage), set: function (k, v) { return (window._awkSetItemBrut || Storage.prototype.setItem).call(localStorage, k, v); }, remove: localStorage.removeItem.bind(localStorage) };
 
         function _lsPurge() {
             // v1585 : d'abord les vraies économies, sans rien perdre : séances allégées
@@ -45783,6 +45784,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch(e4) { _awkE(e4); }
         }
 
+        window._awkLibererStockage = function () { _lsPurge(); };   // v1626 : appelée par le garde-fou de stockage (index.html)
         function lsSet(key, val) {
             try {
                 _lsOrig.set(key, val);
@@ -47173,7 +47175,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1625");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1626");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
