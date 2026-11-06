@@ -24692,7 +24692,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1642);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1643);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24745,7 +24745,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1642" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1643" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -28402,22 +28402,82 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             }
         });
 
-        // 🫁 Guide de respiration (yoga) — cercle animé en CSS, inspire 4 s / expire 6 s.
+        // 🫁 Guide de respiration (yoga) — v1643 : piloté en JS, décompte par phase,
+        // suit la pause de la séance, palette cyan (plus de mauve).
         function _ensureBreathStyle() {
             if (document.getElementById('awakBreathStyle')) return;
             const st = document.createElement('style');
             st.id = 'awakBreathStyle';
             st.textContent =
-                '@keyframes awakBreath{0%{transform:scale(.55)}40%{transform:scale(1)}100%{transform:scale(.55)}}' +
-                '@keyframes awakBreathInL{0%,37%{opacity:1}43%,100%{opacity:0}}' +
-                '@keyframes awakBreathOutL{0%,37%{opacity:0}43%,100%{opacity:1}}' +
-                '#awakBreathPacer{display:flex;flex-direction:column;align-items:center;gap:12px;margin:16px auto 6px;}' +
-                '#awakBreathPacer .bp-ring{width:118px;height:118px;border-radius:50%;background:radial-gradient(circle at 50% 42%,rgba(196,181,253,.40),rgba(129,140,248,.12) 70%);border:2px solid rgba(196,181,253,.55);box-shadow:0 0 30px rgba(167,139,250,.35);animation:awakBreath 10s ease-in-out infinite;}' +
-                '#awakBreathPacer .bp-label{position:relative;height:1.3em;min-width:120px;text-align:center;font-weight:700;letter-spacing:1px;color:#c4b5fd;font-size:1.05em;}' +
-                '#awakBreathPacer .bp-in,#awakBreathPacer .bp-out{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;}' +
-                '#awakBreathPacer .bp-in{animation:awakBreathInL 10s ease-in-out infinite;}' +
-                '#awakBreathPacer .bp-out{animation:awakBreathOutL 10s ease-in-out infinite;}';
+                '#awakBreathPacer{display:flex;flex-direction:column;align-items:center;gap:10px;margin:16px auto 6px;user-select:none;}' +
+                '#awakBreathPacer .bp-zone{position:relative;width:150px;height:150px;display:flex;align-items:center;justify-content:center;}' +
+                '#awakBreathPacer .bp-guide{position:absolute;inset:0;border-radius:50%;border:1px dashed rgba(103,232,249,.22);}' +
+                '#awakBreathPacer .bp-ring{width:150px;height:150px;border-radius:50%;transform:scale(.55);' +
+                    'background:radial-gradient(circle at 50% 40%,rgba(103,232,249,.38),rgba(96,165,250,.12) 68%,rgba(96,165,250,.04));' +
+                    'border:2px solid rgba(103,232,249,.55);box-shadow:0 0 34px rgba(34,211,238,.28),inset 0 0 24px rgba(103,232,249,.18);' +
+                    'transition:transform 4s cubic-bezier(.45,0,.55,1),box-shadow 4s ease;}' +
+                '#awakBreathPacer.bp-hold .bp-ring{box-shadow:0 0 44px rgba(34,211,238,.45),inset 0 0 30px rgba(103,232,249,.28);}' +
+                '#awakBreathPacer .bp-num{position:absolute;font-size:2.1em;font-weight:900;color:#e0f7fb;text-shadow:0 0 12px rgba(34,211,238,.55);font-variant-numeric:tabular-nums;}' +
+                '#awakBreathPacer .bp-label{font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#67e8f9;font-size:1em;min-height:1.3em;transition:opacity .35s;}' +
+                '#awakBreathPacer .bp-sous{font-size:.72em;color:#8aa4b8;margin-top:-6px;min-height:1.2em;}' +
+                '#awakBreathPacer .bp-cycles{display:flex;gap:5px;}' +
+                '#awakBreathPacer .bp-cycles i{width:6px;height:6px;border-radius:50%;background:rgba(103,232,249,.18);transition:background .4s;}' +
+                '#awakBreathPacer .bp-cycles i.on{background:#67e8f9;}' +
+                '#awakBreathPacer.bp-pause .bp-label{opacity:.45;}' +
+                '@media (prefers-reduced-motion: reduce){#awakBreathPacer .bp-ring{transition:none!important;transform:scale(.8)!important;}}';
             document.head.appendChild(st);
+        }
+        // Rythme selon l'exercice : 4-7-8, carrée, cohérence cardiaque, sinon 4 / 6.
+        function _awakRythmeSouffle(ex) {
+            const n = ((ex && (ex._baseName || ex.name)) || '').toLowerCase();
+            const P = (l, d, sc, sous) => ({ l, d, sc, sous });
+            if (/4-7-8/.test(n)) return [P('Inspire', 4, 1, 'par le nez'), P('Retiens', 7, 1, 'poumons pleins'), P('Expire', 8, .55, 'par la bouche')];
+            if (/carr|box/.test(n)) return [P('Inspire', 4, 1, 'par le nez'), P('Retiens', 4, 1, 'poumons pleins'), P('Expire', 4, .55, 'lentement'), P('Retiens', 4, .55, 'poumons vides')];
+            if (/coh[ée]rence/.test(n)) return [P('Inspire', 5, 1, 'par le nez'), P('Expire', 5, .55, 'par la bouche')];
+            return [P('Inspire', 4, 1, 'par le nez'), P('Expire', 6, .55, 'par la bouche')];
+        }
+        function _awakBouclerSouffle(wrap, phases) {
+            const ring = wrap.querySelector('.bp-ring'), num = wrap.querySelector('.bp-num'),
+                  lab = wrap.querySelector('.bp-label'), sous = wrap.querySelector('.bp-sous'), cyc = wrap.querySelector('.bp-cycles');
+            let ph = 0, reste = phases[0].d, cycles = 0, enPause = false;
+            const appliquer = (secondes) => {
+                const p = phases[ph];
+                ring.style.transition = 'transform ' + secondes + 's cubic-bezier(.45,0,.55,1),box-shadow ' + secondes + 's ease';
+                ring.style.transform = 'scale(' + p.sc + ')';
+            };
+            const afficher = () => {
+                const p = phases[ph];
+                lab.textContent = p.l; sous.textContent = p.sous; num.textContent = reste;
+                wrap.classList.toggle('bp-hold', p.l === 'Retiens');
+            };
+            const majCycles = () => {
+                const n = cycles % 5;
+                cyc.innerHTML = [0,1,2,3,4].map(k => '<i' + (k < n ? ' class="on"' : '') + '></i>').join('');
+            };
+            afficher(); majCycles();
+            requestAnimationFrame(() => appliquer(reste));
+            wrap._bpTimer = setInterval(() => {
+                if (!document.body.contains(wrap)) { clearInterval(wrap._bpTimer); return; }
+                const pause = isPaused || (typeof _awakEvenementAffiche === 'function' && _awakEvenementAffiche());
+                if (pause) {
+                    if (!enPause) {   // fige le cercle là où il est
+                        enPause = true; wrap.classList.add('bp-pause');
+                        const t = getComputedStyle(ring).transform;
+                        ring.style.transition = 'none'; ring.style.transform = (t && t !== 'none') ? t : ring.style.transform;
+                        lab.textContent = 'En pause';
+                    }
+                    return;
+                }
+                if (enPause) { enPause = false; wrap.classList.remove('bp-pause'); afficher(); appliquer(reste); return; }
+                reste--;
+                if (reste <= 0) {
+                    ph = (ph + 1) % phases.length;
+                    if (ph === 0) { cycles++; majCycles(); }
+                    reste = phases[ph].d;
+                    appliquer(reste);
+                }
+                afficher();
+            }, 1000);
         }
         function _renderBreathPacer(exercise) {
             const existing = document.getElementById('awakBreathPacer');
@@ -28437,14 +28497,20 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 else if (vf.dataset.yogaHidden) { vf.style.display = ''; delete vf.dataset.yogaHidden; }
             }
             if (!isYoga) { if (existing) existing.remove(); return; }
-            if (existing) return;
+            const _bpCle = JSON.stringify(_awakRythmeSouffle(exercise).map(p => p.d));
+            if (existing && existing.dataset.rythme === _bpCle) return;   // même rythme : on ne recommence pas le cycle
+            if (existing) { clearInterval(existing._bpTimer); existing.remove(); }
             _ensureBreathStyle();
             const anchor = document.getElementById('exerciseVisualFrame');
             if (!anchor || !anchor.parentNode) return;
             const wrap = document.createElement('div');
             wrap.id = 'awakBreathPacer';
-            wrap.innerHTML = '<div class="bp-ring"></div><div class="bp-label"><span class="bp-in">Inspire…</span><span class="bp-out">Expire…</span></div>';
+            wrap.innerHTML = '<div class="bp-zone"><div class="bp-guide"></div><div class="bp-ring"></div><div class="bp-num"></div></div>'
+                + '<div class="bp-label"></div><div class="bp-sous"></div><div class="bp-cycles" aria-hidden="true"></div>';
+            wrap.setAttribute('aria-hidden', 'true');
+            wrap.dataset.rythme = _bpCle;
             anchor.parentNode.insertBefore(wrap, anchor.nextSibling);
+            _awakBouclerSouffle(wrap, _awakRythmeSouffle(exercise));
         }
 
         function startTimer() {
@@ -30821,7 +30887,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1642");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1643");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -44489,7 +44555,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1642';
+                    let ver = 'v0.95.1643';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -44657,7 +44723,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1642" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1643" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -44739,7 +44805,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1642);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1643);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -44806,7 +44872,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1642);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1643);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47271,7 +47337,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1642");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1643");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
