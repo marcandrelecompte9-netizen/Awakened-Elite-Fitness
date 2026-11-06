@@ -622,7 +622,21 @@ function _awkDefiIco(nom, px, col) {
     try { return window.AwakIcon ? '<span style="display:inline-flex;vertical-align:middle;">' + AwakIcon.get(nom, px, col) + '</span>' : ''; } catch (e) { return ''; }
 }
 function getActiveSystemChallenge() {
-    try { return JSON.parse(localStorage.getItem(CHALLENGE_STORAGE.active) || 'null'); }
+    try {
+        const c = JSON.parse(localStorage.getItem(CHALLENGE_STORAGE.active) || 'null');
+        // v1624 : défi émis « dans le futur » (horloge décalée, « Avancer le temps » du mode
+        // dev) → on ramène son émission à maintenant en gardant sa durée. Et jamais plus
+        // de 7 jours devant soi (le plus long défi dure 168 h).
+        if (c && c.deadline) {
+            const now = Date.now();
+            let fin = Date.parse(c.deadline), emis = Date.parse(c.issuedAt || '');
+            let corrige = false;
+            if (emis && emis - now > 60000) { fin -= (emis - now); c.issuedAt = new Date(now).toISOString(); corrige = true; }
+            if (fin - now > 168 * 3600000) { fin = now + 168 * 3600000; corrige = true; }
+            if (corrige) { c.deadline = new Date(fin).toISOString(); localStorage.setItem(CHALLENGE_STORAGE.active, JSON.stringify(c)); }
+        }
+        return c;
+    }
     catch(e) { return null; }
 }
 function saveActiveSystemChallenge(challenge) {
@@ -635,8 +649,14 @@ function getActivePenalties() {
         const penalties = JSON.parse(localStorage.getItem(CHALLENGE_STORAGE.penalties) || '[]');
         // Nettoyer les pénalités expirées
         const now = Date.now();
+        // v1624 : aucune pénalité ne dure plus de 96 h. Une échéance plus lointaine vient
+        // d'une horloge décalée (téléphone à la mauvaise date, « Avancer le temps » du
+        // mode dev) : elle est ramenée à 96 h au lieu d'afficher « 785h restantes ».
+        const MAX_PEN = 96 * 3600000;
+        let corrige = false;
+        penalties.forEach(p => { if (p && typeof p.expiresAt === 'number' && p.expiresAt - now > MAX_PEN) { p.expiresAt = now + MAX_PEN; corrige = true; } });
         const active = penalties.filter(p => p.expiresAt > now);
-        if (active.length !== penalties.length) {
+        if (corrige || active.length !== penalties.length) {
             localStorage.setItem(CHALLENGE_STORAGE.penalties, JSON.stringify(active));
         }
         return active;
