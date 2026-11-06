@@ -11,6 +11,8 @@
 
   function prochain(workout, idx) {
     if (!workout || !Array.isArray(workout.exercises)) return null;
+    // v1589 : en superset, on revient au premier exercice tant que les tours ne sont pas finis
+    try { var k = window.AwakSS && window.AwakSS.prochain ? window.AwakSS.prochain(workout, idx) : -1; if (k >= 0 && workout.exercises[k]) return workout.exercises[k]; } catch (e) {}
     for (var i = idx + 1; i < workout.exercises.length; i++) {
       var e = workout.exercises[i];
       if (e && !e.isRest && !e.isInfo) return e;

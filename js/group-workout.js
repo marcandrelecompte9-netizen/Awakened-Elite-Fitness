@@ -94,7 +94,16 @@
   // La liste inclut TOUJOURS le profil actif en premier (le "meneur").
   function getParticipants() {
     var s = load();
-    if (s && s.participants.length) return s.participants;
+    if (s && s.participants.length) {
+      // v1606 : profil supprimé → retiré ; nom / avatar à jour (profil renommé)
+      var profs = _profiles(), parId = {};
+      profs.forEach(function (p) { parId[p.id] = p; });
+      return s.participants.filter(function (p) { return p.self || p.kind !== 'profile' || parId[p.id]; }).map(function (p) {
+        if (p.self || p.kind !== 'profile') return p;
+        var q = parId[p.id];
+        return { kind: 'profile', id: p.id, name: q.name || p.name, avatar: q.avatar || p.avatar };
+      });
+    }
     return [_selfParticipant()];
   }
 
@@ -113,6 +122,8 @@
   }
 
   function isActive() {
+    // v1604 : en mode duo, « à plusieurs » seulement si le duo tourne (pas « Solo cette fois »)
+    try { if (window.AwakDuo && AwakDuo.mode() === 'duo') return AwakDuo.actif(); } catch (e) {}
     var p = getParticipants();
     return p.length > 1;   // à plusieurs seulement si ≥2 participants
   }
@@ -165,10 +176,36 @@
     return true;
   }
 
-  function reset() { clear(); clearSets(); _promptedExercises = {}; }
+  // v1603 : fin de séance — en duo, on GARDE le partenaire et sa séance (prochaine fois prête)
+  function finSeance() {
+    try {
+      if (window.AwakDuo && AwakDuo.mode() === 'duo' && AwakDuo.lire()) {
+        clearSets(); _promptedExercises = {}; AwakDuo.nouvelleSeance(); AwakDuo.setSolo(false); return;
+      }
+    } catch (e) {}
+    reset();
+  }
+  function enSeance() { try { return document.body.classList.contains('in-session'); } catch (e) { return false; } }
+  function bloqueEnSeance() {
+    if (!enSeance()) return false;
+    try { if (window.showToast) showToast('Séance en cours : change le duo après la séance', 'info', 2600); } catch (e) {}
+    return true;
+  }
+  function reset() { clear(); clearSets(); _promptedExercises = {}; try { if (window.AwakDuo) { AwakDuo.oublier(); AwakDuo.setSolo(false); } } catch (e) {} }
   // v1312 : nouvelle séance → on garde les participants, mais on oublie les séries
   // d'une séance précédente abandonnée (elles se retrouvaient dans la suivante).
-  function nouvelleSeance() { clearSets(); _promptedExercises = {}; }
+  function nouvelleSeance() { clearSets(); _promptedExercises = {}; try { if (window.AwakDuo) AwakDuo.nouvelleSeance(); } catch (e) {} }
+  // v1601 (duo) : annuler la dernière série d'un participant sur un exercice
+  function retirerDerniere(pid, exerciseName, warmup) {
+    var all = loadSets();
+    var l = all[pid] && all[pid][exerciseName];
+    if (!l || !l.length) return;
+    // v1606 : retirer la dernière série DU BON TYPE (avant : un échauffement fait après
+    // S1 était retiré à la place de S1, qui restait enregistrée)
+    for (var k = l.length - 1; k >= 0; k--) if (!!l[k].warmup === !!warmup) { l.splice(k, 1); break; }
+    if (!l.length) delete all[pid][exerciseName];
+    saveSets(all);
+  }
 
   // ── Panneau de saisie « autres participants » ──────────────────────
   // Affiché après que le meneur a validé SA série. Chaque autre participant
@@ -182,6 +219,7 @@
     // n'étaient enregistrées nulle part : on leur faisait remplir des cases pour rien)
     var others = getParticipants().filter(function (p) { return !p.self && p.kind === 'profile'; });
     if (!others.length) return;   // solo malgré tout
+    try { if (window.AwakDuo && AwakDuo.actif()) return; } catch (e) {}   // v1601 : en duo, le partenaire a son propre carnet
     // déjà demandé pour cet exercice ? on ne redemande pas.
     if (_promptedExercises[exerciseName]) return;
     if (document.getElementById('awakGroupSetModal')) return;   // déjà ouvert
@@ -198,7 +236,7 @@
         + '<div id="grpRows_' + p.id + '">'
         +   _setRowHtml(p.id, 1)
         + '</div>'
-        + '<button onclick="AwakGroupAddRow(\'' + p.id + '\')" style="width:100%;margin-top:4px;padding:7px;border:1px dashed rgba(139,92,246,0.4);border-radius:9px;cursor:pointer;background:rgba(139,92,246,0.05);color:#a78bfa;font-size:0.74em;font-weight:700;">+ série</button>'
+        + '<button onclick="AwakGroupAddRow(\'' + p.id + '\')" style="width:100%;margin-top:4px;padding:7px;border:1px dashed rgba(34,211,238,0.4);border-radius:9px;cursor:pointer;background:rgba(34,211,238,0.05);color:#67e8f9;font-size:0.74em;font-weight:700;">+ série</button>'
         + '</div>';
     }).join('');
 
@@ -209,16 +247,16 @@
       st.textContent = '#awakGroupSetModal input{border:1px solid rgba(255,255,255,0.14) !important;box-shadow:none !important;}#awakGroupSetModal input:focus{border-color:#22d3ee !important;outline:none !important;}';
       document.head.appendChild(st); }
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:99998;display:flex;align-items:flex-end;justify-content:center;padding:0;';
-    overlay.innerHTML = '<div style="background:linear-gradient(160deg,#16121f,#0d0d12);border-top:1px solid rgba(139,92,246,0.35);border-radius:22px 22px 0 0;padding:20px;max-width:460px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.6);">'
+    overlay.innerHTML = '<div style="background:linear-gradient(160deg,#16121f,#0d0d12);border-top:1px solid rgba(34,211,238,0.35);border-radius:22px 22px 0 0;padding:20px;max-width:460px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.6);">'
       + '<div style="display:flex;align-items:center;gap:9px;margin-bottom:5px;">'
-      +   '<span style="flex-shrink:0;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(139,92,246,0.14);border:1px solid rgba(167,139,250,0.35);">' + _ico('groupe', 20, '#c4b5fd') + '</span>'
-      +   '<div style="flex:1;"><div style="font-size:0.6em;color:#a78bfa;font-weight:800;letter-spacing:0.5px;">SÉANCE À PLUSIEURS' + (isWarmup ? ' · ÉCHAUFFEMENT' : '') + '</div>'
+      +   '<span style="flex-shrink:0;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(34,211,238,0.14);border:1px solid rgba(103,232,249,0.35);">' + _ico('groupe', 20, '#a5f3fc') + '</span>'
+      +   '<div style="flex:1;"><div style="font-size:0.6em;color:#67e8f9;font-weight:800;letter-spacing:0.5px;">SÉANCE À PLUSIEURS' + (isWarmup ? ' · ÉCHAUFFEMENT' : '') + '</div>'
       +   '<div style="font-size:0.98em;font-weight:900;color:#fff;">' + esc(exerciseName) + '</div></div>'
       + '</div>'
       + '<div style="font-size:0.72em;color:#94a3b8;margin-bottom:14px;">Saisis les séries de chacun (répétitions + poids en ' + ((typeof useKg !== 'undefined' && useKg) ? 'kg' : 'lb') + '). « + série » pour en ajouter. Laisse vide pour passer.</div>'
       + blocks
-      + '<button onclick="AwakGroupSaveSet(\'' + encodeURIComponent(exerciseName) + '\',' + setNum + ',' + (isWarmup ? 'true' : 'false') + ')" style="width:100%;margin-top:8px;padding:13px;border:1px solid rgba(167,139,250,0.34);border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-weight:800;font-size:0.9em;">Valider et continuer</button>'
-      + '<button onclick="AwakGroupSkipSet()" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;cursor:pointer;background:transparent;color:#64748b;font-size:0.8em;">Passer</button>'
+      + '<button onclick="AwakGroupSaveSet(\'' + encodeURIComponent(exerciseName) + '\',' + setNum + ',' + (isWarmup ? 'true' : 'false') + ')" style="width:100%;margin-top:8px;padding:13px;border:1px solid rgba(103,232,249,0.34);border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#0891b2,#0e7490);color:#fff;font-weight:800;font-size:0.9em;">Valider et continuer</button>'
+      + '<button onclick="AwakGroupSkipSet()" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;cursor:pointer;background:transparent;color:#8391a7;font-size:0.8em;">Passer</button>'
       + '</div>';
     document.body.appendChild(overlay);
     setTimeout(function () {
@@ -230,7 +268,7 @@
   // Une ligne de saisie (reps + poids en lb) pour un participant, index de ligne.
   function _setRowHtml(pid, rowIdx) {
     return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;" data-grprow="' + pid + '">'
-      + '<span style="font-size:0.7em;color:#64748b;width:38px;flex-shrink:0;">Série ' + rowIdx + '</span>'
+      + '<span style="font-size:0.7em;color:#8391a7;width:38px;flex-shrink:0;">Série ' + rowIdx + '</span>'
       + '<input id="grpReps_' + pid + '_' + rowIdx + '" type="number" inputmode="numeric" placeholder="reps" style="flex:1;min-width:0;padding:8px 6px;border-radius:9px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.05);color:#fff;font-size:0.82em;text-align:center;">'
       + '<input id="grpWeight_' + pid + '_' + rowIdx + '" type="number" inputmode="decimal" placeholder="' + ((typeof useKg !== 'undefined' && useKg) ? 'kg' : 'lb') + '" style="flex:1;min-width:0;padding:8px 6px;border-radius:9px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.05);color:#fff;font-size:0.82em;text-align:center;">'
       + '</div>';
@@ -285,6 +323,8 @@
   // buildWorkoutFor(participant, templateWorkout) → objet workout prêt à
   // enregistrer, ou null si le participant n'a saisi aucune série.
   function buildWorkoutForParticipant(participantId, templateWorkout) {
+    // v1601 : en duo, le partenaire suit SA séance → son gabarit
+    try { if (window.AwakDuo && AwakDuo.actif() && AwakDuo.pid() === participantId) templateWorkout = AwakDuo.gabarit() || templateWorkout; } catch (e) {}
     var sets = getParticipantSets(participantId);
     var exNames = Object.keys(sets);
     if (!exNames.length) return null;
@@ -306,8 +346,12 @@
       }
     });
     if (!exercises.length) return null;
+    // v1607 : seulement des échauffements → rien à enregistrer
+    if (!exercises.some(function (e) { return e.completedSets.some(function (x) { return !x.warmup; }); })) return null;
+    var _sp = (templateWorkout && templateWorkout._salleProg) ? { _salleProg: templateWorkout._salleProg, _salleJour: templateWorkout._salleJour } : {};
     return {
-      name: (templateWorkout && templateWorkout.name ? templateWorkout.name : 'Séance') + ' (en groupe)',
+      _salleProg: _sp._salleProg, _salleJour: _sp._salleJour,
+      name: (templateWorkout && templateWorkout.name ? templateWorkout.name : 'Séance') + (/\(en duo\)$/.test((templateWorkout && templateWorkout.name) || '') ? '' : ' (en groupe)'),
       exercises: exercises,
       _fromGroup: true
     };
@@ -337,6 +381,9 @@
     promptOthersForSet: promptOthersForSet,
     buildWorkoutForParticipant: buildWorkoutForParticipant,
     profiledContributors: profiledContributors,
+    retirerDerniere: retirerDerniere,
+    finSeance: finSeance,
+    gabaritPour: function (pid, w) { try { if (window.AwakDuo && AwakDuo.actif() && AwakDuo.pid() === pid) return AwakDuo.gabarit() || w; } catch (e) {} return w; },
     _self: _selfParticipant
   };
 
@@ -352,18 +399,22 @@
     var nb = count();
     var label = nb > 1 ? (nb + ' participants') : 'Séance à plusieurs';
     var sub = nb > 1 ? 'Prêt · appuie pour gérer' : 'Ajoute des membres ou des invités';
+    try {
+      if (window.AwakDuo && AwakDuo.actif()) { var d = AwakDuo.lire(); label = 'Duo avec ' + d.nom; sub = 'Sa séance : ' + d.nomSeance + ' · lance la tienne'; }
+      else if (window.AwakDuo && AwakDuo.mode() === 'duo' && nb > 1) { sub = 'Choisis la séance de ton partenaire'; }
+    } catch (e) {}
     return '<button onclick="AwakGroupOpen()" style="'
-      + 'width:100%;margin-top:8px;background:linear-gradient(135deg,rgba(139,92,246,0.13) 0%,rgba(124,58,237,0.09) 100%);color:white;border:1px solid rgba(167,139,250,0.34);'
+      + 'width:100%;margin:8px 0 14px;background:linear-gradient(135deg,rgba(34,211,238,0.13) 0%,rgba(8,145,178,0.09) 100%);color:white;border:1px solid rgba(103,232,249,0.34);'
       + 'border-radius:14px;padding:13px 16px;font-size:0.95em;font-weight:800;cursor:pointer;'
-      + 'box-shadow:0 4px 18px rgba(139,92,246,0.3);position:relative;overflow:hidden;'
+      + 'box-shadow:0 4px 18px rgba(34,211,238,0.3);position:relative;overflow:hidden;'
       + 'text-align:left;display:flex;align-items:center;gap:11px;">'
-      + '<div style="flex-shrink:0;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(139,92,246,0.18);">' + _ico('groupe', 22, '#e9d5ff') + '</div>'
+      + '<div style="flex-shrink:0;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(34,211,238,0.18);">' + _ico('groupe', 22, '#cffafe') + '</div>'
       + '<div style="flex:1;min-width:0;">'
       +   '<div style="font-size:0.6em;letter-spacing:2px;opacity:0.9;font-weight:700;">ENSEMBLE</div>'
       +   '<div style="font-size:0.95em;font-weight:900;line-height:1.2;margin-top:2px;">' + label + '</div>'
       +   '<div style="font-size:0.68em;opacity:0.85;margin-top:2px;">' + sub + '</div>'
       + '</div>'
-      + '<div style="flex-shrink:0;color:#c4b5fd;font-size:1.3em;">›</div>'
+      + '<div style="flex-shrink:0;color:#a5f3fc;font-size:1.3em;">›</div>'
       + '</button>';
   }
 
@@ -379,14 +430,17 @@
     var parts = getParticipants();
     var avail = availableProfiles();
     var n = count();
+    var duo = (window.AwakDuo && AwakDuo.mode() === 'duo');
+    var partenaire = parts.filter(function (p) { return !p.self && p.kind === 'profile'; })[0] || null;
+    if (duo && partenaire) avail = [];   // v1601 : duo = 2 personnes
     var titreSection = function (t) {
-      return '<div style="font-size:0.62em;color:#a78bfa;font-weight:900;letter-spacing:1.4px;margin:16px 0 8px;">' + t + '</div>';
+      return '<div style="font-size:0.62em;color:#67e8f9;font-weight:900;letter-spacing:1.4px;margin:16px 0 8px;">' + t + '</div>';
     };
 
     // ── Participants ──
     var partRows = parts.map(function (p) {
       var badge = p.kind === 'guest' ? 'Invité' : (p.self ? 'Toi' : 'Profil');
-      var badgeCoul = p.kind === 'guest' ? '#fbbf24' : (p.self ? '#a78bfa' : '#60a8f0');
+      var badgeCoul = p.kind === 'guest' ? '#fbbf24' : (p.self ? '#67e8f9' : '#60a8f0');
       var rm = p.self ? '' :
         '<button onclick="AwakGroupRemove(\'' + p.id + '\')" aria-label="Retirer" style="flex-shrink:0;width:34px;height:34px;min-height:auto;padding:0;display:inline-flex;align-items:center;justify-content:center;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#f87171;border-radius:10px;cursor:pointer;">' + _CROIX + '</button>';
       return '<div style="display:flex;align-items:center;gap:11px;padding:9px 10px;margin-bottom:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;">'
@@ -400,35 +454,83 @@
     var availBlock = '';
     if (avail.length) {
       var tuiles = avail.map(function (p) {
-        return '<button onclick="AwakGroupAddProfile(\'' + p.id + '\')" style="display:flex;align-items:center;gap:8px;width:100%;min-width:0;min-height:auto;padding:8px 10px;border:1px dashed rgba(167,139,250,0.35);border-radius:12px;cursor:pointer;background:rgba(139,92,246,0.05);color:#e2e8f0;font-size:0.8em;font-weight:800;text-align:left;">'
+        return '<button onclick="AwakGroupAddProfile(\'' + p.id + '\')" style="display:flex;align-items:center;gap:8px;width:100%;min-width:0;min-height:auto;padding:8px 10px;border:1px dashed rgba(103,232,249,0.35);border-radius:12px;cursor:pointer;background:rgba(34,211,238,0.05);color:#e2e8f0;font-size:0.8em;font-weight:800;text-align:left;">'
           + _av(p.avatar, 26)
           + '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(p.name) + '</span>'
-          + '<span style="color:#a78bfa;display:inline-flex;flex-shrink:0;">' + _PLUS + '</span></button>';
+          + '<span style="color:#67e8f9;display:inline-flex;flex-shrink:0;">' + _PLUS + '</span></button>';
       }).join('');
-      availBlock = titreSection('AJOUTER UN PROFIL')
+      availBlock = titreSection(duo ? 'CHOISIS TON PARTENAIRE' : 'AJOUTER UN PROFIL')
         + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">' + tuiles + '</div>';
+    } else if (duo && !partenaire) {
+      availBlock = '<div style="margin-top:12px;font-size:0.76em;color:#a3b1c2;line-height:1.45;">Il faut un deuxième profil sur ce téléphone pour s\'entraîner en duo.</div>';
     }
 
-    var champ = 'flex:1;min-width:0;box-sizing:border-box;height:44px;padding:0 12px !important;border-radius:11px;border:1px solid rgba(167,139,250,0.28) !important;background:rgba(255,255,255,0.04) !important;color:#fff;font-size:0.88em;';
+    // v1601 : sélecteur de mode + séance du partenaire
+    var segMode = function (m, t, sous) {
+      var on = (m === 'duo') === duo;
+      return '<button onclick="AwakGroupMode(\'' + m + '\')" style="flex:1;min-width:0;min-height:auto;padding:9px 8px;border-radius:11px;cursor:pointer;text-align:center;'
+        + (on ? 'background:rgba(34,211,238,0.14);border:1.5px solid rgba(34,211,238,0.6);color:#fff;' : 'background:rgba(255,255,255,0.03);border:1.5px solid rgba(255,255,255,0.08);color:#a3b1c2;') + '">'
+        + '<div style="font-size:0.82em;font-weight:900;">' + t + '</div><div style="font-size:0.62em;font-weight:700;opacity:0.8;margin-top:1px;">' + sous + '</div></button>';
+    };
+    var modeBlock = '<div style="display:flex;gap:7px;margin-top:14px;">' + segMode('meme', 'Même séance', 'tout le monde pareil') + segMode('duo', 'Chacun sa séance', 'à deux, ta séance + la sienne') + '</div>';
+    var duoBlock = '';
+    if (duo && partenaire) {
+      var d = AwakDuo.lire();
+      var choisi = d && d.pid === partenaire.id ? d : null;
+      var ligne = function (r, source) {
+        var on = choisi && String(choisi.routineId) === String(r.id) && choisi.source === source;
+        var nb = (r.exercises || []).length;
+        var db = window.exerciseDatabase || [];
+        var nbBl = (r.exercises || []).filter(function (e) {
+          var f = null; for (var k = 0; k < db.length; k++) if (db[k].name === e.name) { f = db[k]; break; }
+          try { return AwakDuo.bloque(partenaire.id, f || e); } catch (x) { return false; }
+        }).length;
+        return '<button onclick="AwakGroupDuoChoisir(\'' + source + '\',decodeURIComponent(\'' + encodeURIComponent(String(r.id)).replace(/'/g, '%27') + '\'))" style="display:flex;align-items:center;gap:9px;width:100%;min-height:auto;padding:10px 11px;margin-bottom:6px;border-radius:11px;cursor:pointer;text-align:left;'
+          + (on ? 'background:rgba(34,211,238,0.12);border:1.5px solid rgba(34,211,238,0.6);' : 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);') + '">'
+          + '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.84em;font-weight:800;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(r.name || 'Routine') + '</span>'
+          + '<span style="display:block;font-size:0.66em;color:#8391a7;font-weight:700;">' + (source === 'prog' ? 'Prochaine séance de son programme · ' : source === 'star' ? 'Séance du jour de son mentor · ' : '') + nb + ' exercice' + (nb > 1 ? 's' : '')
+          + (nbBl ? ' · <span style="color:#fbbf24;">' + nbBl + ' déconseillé' + (nbBl > 1 ? 's' : '') + ' pour ' + esc(partenaire.name) + '</span>' : '') + '</span></span>'
+          + (on ? '<span style="color:#22d3ee;display:inline-flex;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7"/></svg></span>' : '')
+          + '</button>';
+      };
+      var verrou = enSeance();
+      var prog = AwakDuo.progDe(partenaire.id);
+      var star = AwakDuo.starDe(partenaire.id);
+      var siennes = AwakDuo.routinesDe(partenaire.id).filter(function (r) { return r && r.exercises && r.exercises.length; });
+      var miennes = AwakDuo.mesRoutines().filter(function (r) { return r && r.exercises && r.exercises.length; });
+      duoBlock = titreSection('SÉANCE DE ' + esc(partenaire.name).toUpperCase())
+        + (verrou ? '<div style="font-size:0.72em;color:#fbbf24;margin-bottom:8px;">Séance en cours : la séance de ' + esc(partenaire.name) + ' se change après.</div>' : '')
+        + (prog ? ligne({ id: 'prog', name: prog.nom, exercises: prog.exercises }, 'prog') : '')
+        + (star && !star.repos ? ligne({ id: 'star', name: star.nom, exercises: star.exercises }, 'star') : '')
+        + (star && star.repos ? '<div style="font-size:0.72em;color:#8391a7;margin-bottom:8px;">Son mentor : ' + esc(star.nom) + ' aujourd\'hui.</div>' : '')
+        + (siennes.length ? siennes.map(function (r) { return ligne(r, 'lui'); }).join('')
+                          : (prog || (star && !star.repos) ? '' : '<div style="font-size:0.74em;color:#8391a7;margin-bottom:8px;">' + esc(partenaire.name) + ' n\'a pas encore de routine.</div>'))
+        + (miennes.length ? '<div style="font-size:0.6em;color:#8391a7;font-weight:900;letter-spacing:1.2px;margin:10px 0 6px;">OU UNE DE TES ROUTINES</div>' + miennes.map(function (r) { return ligne(r, 'moi'); }).join('') : '');
+    }
+
+    var champ = 'flex:1;min-width:0;box-sizing:border-box;height:44px;padding:0 12px !important;border-radius:11px;border:1px solid rgba(103,232,249,0.28) !important;background:rgba(255,255,255,0.04) !important;color:#fff;font-size:0.88em;';
 
     return '<div style="display:flex;align-items:center;gap:12px;">'
-      +   '<div style="width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(139,92,246,0.14);border:1px solid rgba(167,139,250,0.35);">' + _ico('groupe', 22, '#c4b5fd') + '</div>'
-      +   '<div style="flex:1;min-width:0;"><div style="font-size:0.6em;color:#a78bfa;font-weight:900;letter-spacing:1.4px;">SÉANCE À PLUSIEURS</div>'
+      +   '<div style="width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(34,211,238,0.14);border:1px solid rgba(103,232,249,0.35);">' + _ico('groupe', 22, '#a5f3fc') + '</div>'
+      +   '<div style="flex:1;min-width:0;"><div style="font-size:0.6em;color:#67e8f9;font-weight:900;letter-spacing:1.4px;">SÉANCE À PLUSIEURS</div>'
       +   '<div style="font-size:1.12em;font-weight:900;color:#fff;line-height:1.2;">Qui participe ?</div></div>'
       +   '<button onclick="AwakGroupClose()" aria-label="Fermer" style="flex-shrink:0;width:36px;height:36px;min-height:auto;padding:0;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;border-radius:10px;cursor:pointer;">' + _CROIX + '</button>'
       + '</div>'
+      + modeBlock
       + titreSection('PARTICIPANTS · ' + n)
       + partRows
       + availBlock
-      + titreSection('INVITER UNE PERSONNE NON INSCRITE')
+      + duoBlock
+      + (duo ? '<div style="font-size:0.68em;color:#8391a7;margin-top:14px;line-height:1.45;">Lance ta séance comme d\'habitude. Un onglet au nom de ton partenaire apparaît en haut : il y suit sa séance, ses séries et son repos. Chacun la retrouve dans son historique.</div>' : '')
+      + (duo ? '' : titreSection('INVITER UNE PERSONNE NON INSCRITE')
       + '<div style="display:flex;gap:7px;align-items:center;">'
       +   '<input id="awakGuestName" type="text" placeholder="Prénom de l\'invité" onkeydown="if(event.key===\'Enter\')AwakGroupAddGuest()" style="' + champ + '">'
-      +   '<button onclick="AwakGroupAddGuest()" aria-label="Ajouter l\'invité" style="flex-shrink:0;width:44px;height:44px;min-height:auto;padding:0;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(167,139,250,0.4);border-radius:11px;cursor:pointer;background:rgba(139,92,246,0.18);color:#e9d5ff;">' + _PLUS + '</button>'
+      +   '<button onclick="AwakGroupAddGuest()" aria-label="Ajouter l\'invité" style="flex-shrink:0;width:44px;height:44px;min-height:auto;padding:0;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(103,232,249,0.4);border-radius:11px;cursor:pointer;background:rgba(34,211,238,0.18);color:#cffafe;">' + _PLUS + '</button>'
       + '</div>'
-      + '<div style="font-size:0.68em;color:#64748b;margin-top:14px;line-height:1.45;">Chaque profil saisit ses propres séries et garde la séance dans son historique. Les invités s\'entraînent avec vous : rien n\'est enregistré pour eux.</div>'
+      + '<div style="font-size:0.68em;color:#8391a7;margin-top:14px;line-height:1.45;">Chaque profil saisit ses propres séries et garde la séance dans son historique. Les invités s\'entraînent avec vous : rien n\'est enregistré pour eux.</div>')
       + '<div style="display:flex;gap:8px;margin-top:16px;">'
       +   (n > 1 ? '<button onclick="AwakGroupReset()" style="flex:1;min-height:auto;padding:12px 8px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;cursor:pointer;background:rgba(255,255,255,0.04);color:#94a3b8;font-weight:800;font-size:0.82em;">Repasser en solo</button>' : '')
-      +   '<button onclick="AwakGroupClose()" style="flex:2;min-height:auto;padding:12px 8px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-weight:900;font-size:0.9em;box-shadow:0 4px 16px rgba(139,92,246,0.35);">' + (n > 1 ? 'Valider · ' + n + ' participants' : 'Fermer') + '</button>'
+      +   '<button onclick="AwakGroupClose()" style="flex:2;min-height:auto;padding:12px 8px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#0891b2,#0e7490);color:#fff;font-weight:900;font-size:0.9em;box-shadow:0 4px 16px rgba(34,211,238,0.35);">' + (duo && partenaire ? ((window.AwakDuo && AwakDuo.actif()) ? 'Valider · Duo avec ' + esc(partenaire.name) : 'Fermer') : (n > 1 ? 'Valider · ' + n + ' participants' : 'Fermer')) + '</button>'
       + '</div>';
   }
 
@@ -439,7 +541,7 @@
     overlay.id = 'awakGroupModal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;';
     overlay.onclick = function (e) { if (e.target === overlay) AwakGroupClose(); };
-    overlay.innerHTML = '<div class="awak-group-card" style="background:linear-gradient(160deg,#16121f,#0d0d12);border:1px solid rgba(139,92,246,0.3);border-radius:20px;padding:18px 16px !important;max-width:400px;width:100%;box-sizing:border-box;max-height:88vh;overflow-y:auto;overflow-x:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.6);">'
+    overlay.innerHTML = '<div class="awak-group-card" style="background:linear-gradient(160deg,#16121f,#0d0d12);border:1px solid rgba(34,211,238,0.3);border-radius:20px;padding:18px 16px !important;max-width:400px;width:100%;box-sizing:border-box;max-height:88vh;overflow-y:auto;overflow-x:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.6);">'
       + _modalContent() + '</div>';
     document.body.appendChild(overlay);
   }
@@ -455,8 +557,29 @@
     if (!name || !name.trim()) { if (typeof window.showToast === 'function') window.showToast('Entre un prénom pour l\'invité', 'info', 2000); return; }
     addGuest(name); _renderModal();
   };
-  window.AwakGroupRemove = function (id) { removeParticipant(id); _renderModal(); };
-  window.AwakGroupReset = function () { reset(); _renderModal(); };
+  window.AwakGroupRemove = function (id) { if (window.AwakDuo && AwakDuo.mode() === 'duo' && bloqueEnSeance()) return; removeParticipant(id); _renderModal(); };
+  window.AwakGroupReset = function () { if (window.AwakDuo && AwakDuo.mode() === 'duo' && bloqueEnSeance()) return; reset(); _renderModal(); };
+  // v1601 : mode « Même séance » / « Chacun sa séance » (duo = 2 profils, sans invité)
+  window.AwakGroupMode = function (m) {
+    if (bloqueEnSeance()) return;
+    try { localStorage.setItem('awakGroupMode', m === 'duo' ? 'duo' : 'meme'); } catch (e) {}
+    if (m === 'duo') {
+      var garde = null;
+      var list = getParticipants().filter(function (p) {
+        if (p.self) return true;
+        if (p.kind !== 'profile' || garde) return false;
+        garde = p; return true;
+      });
+      save(list);
+    }
+    _renderModal();
+  };
+  window.AwakGroupDuoChoisir = function (source, id) {
+    if (bloqueEnSeance()) return;
+    var p = getParticipants().filter(function (x) { return !x.self && x.kind === 'profile'; })[0];
+    if (p && window.AwakDuo) AwakDuo.choisir(p.id, id, source);
+    _renderModal();
+  };
 
   window.AwakGroup.renderHomeButton = renderHomeButton;
 })();

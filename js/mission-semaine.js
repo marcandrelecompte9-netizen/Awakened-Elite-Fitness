@@ -98,7 +98,7 @@
   function pastilles(e) {
     var h = '';
     for (var i = 0; i < e.visee; i++) {
-      h += '<span style="flex:1;height:7px;border-radius:99px;' + (i < e.fait ? 'background:linear-gradient(90deg,#a78bfa,#7c3aed);' : 'background:rgba(255,255,255,0.08);') + '"></span>';
+      h += '<span style="flex:1;height:7px;border-radius:99px;' + (i < e.fait ? 'background:linear-gradient(90deg,#60a8f0,#1d5fa8);' : 'background:rgba(255,255,255,0.08);') + '"></span>';
     }
     return '<div style="display:flex;gap:4px;margin:10px 0 7px;">' + h + '</div>';
   }
@@ -109,12 +109,12 @@
     var e = etat(); if (!e) return null;
     var c = document.createElement('div');
     c.id = 'awakMissionSemaine';
-    c.style.cssText = 'margin:0 0 12px;padding:14px 16px;border-radius:14px;background:linear-gradient(160deg,rgba(124,58,237,0.16),rgba(124,58,237,0.04));border:1px solid rgba(167,139,250,0.4);';
+    c.style.cssText = 'margin:0 0 12px;padding:14px 16px;border-radius:14px;background:linear-gradient(160deg,rgba(29,95,168,0.16),rgba(29,95,168,0.04));border:1px solid rgba(96,168,240,0.4);';
     var bas = e.payee || e.finie
-      ? '<span style="color:#c4b5fd;font-weight:800;">Mission accomplie</span> · +' + e.xp + ' XP reçus'
-      : e.fait + ' / ' + e.visee + ' séance' + (e.visee > 1 ? 's' : '') + ' · <span style="color:#c4b5fd;font-weight:800;">+' + e.xp + ' XP</span> à la fin';
-    c.innerHTML = '<div style="display:flex;align-items:center;gap:8px;">' + ico('bouclier', 17, '#c4b5fd')
-      + '<span style="font-size:0.66em;font-weight:800;letter-spacing:1.2px;color:#c4b5fd;text-transform:uppercase;">Mission de la semaine</span></div>'
+      ? '<span style="color:#93c5fd;font-weight:800;">Mission accomplie</span> · +' + e.xp + ' XP reçus'
+      : e.fait + ' / ' + e.visee + ' séance' + (e.visee > 1 ? 's' : '') + ' · <span style="color:#93c5fd;font-weight:800;">+' + e.xp + ' XP</span> à la fin';
+    c.innerHTML = '<div style="display:flex;align-items:center;gap:8px;">' + ico('bouclier', 17, '#93c5fd')
+      + '<span style="font-size:0.66em;font-weight:800;letter-spacing:1.2px;color:#93c5fd;text-transform:uppercase;">Mission de la semaine</span></div>'
       + '<div style="font-size:1em;font-weight:900;color:#f8fafc;margin-top:6px;">' + e.titre + '</div>'
       + '<div style="font-size:0.78em;color:#cbd5e1;line-height:1.45;margin-top:3px;">' + e.texte + '</div>'
       + pastilles(e)
@@ -129,8 +129,8 @@
     var t = e.finie
       ? 'Mission « ' + e.titre + ' » accomplie' + (e.payee ? ' · +' + e.xp + ' XP' : '')
       : 'Mission « ' + e.titre + ' » : ' + e.fait + ' / ' + e.visee + (e.visee - e.fait === 1 ? ' · plus qu\'une séance' : ' · encore ' + (e.visee - e.fait) + ' séances');
-    return '<div style="display:flex;align-items:center;gap:7px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.07);font-size:0.74em;color:#c4b5fd;font-weight:700;">'
-      + ico('bouclier', 14, '#c4b5fd') + '<span>' + t + '</span></div>';
+    return '<div style="display:flex;align-items:center;gap:7px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.07);font-size:0.74em;color:#93c5fd;font-weight:700;">'
+      + ico('bouclier', 14, '#93c5fd') + '<span>' + t + '</span></div>';
   }
 
   window.AwakMission = { etat: etat, verser: verser, carte: carte, ligneFin: ligneFin, _mission: mission, _histoire: HISTOIRE, _disponibles: disponibles };

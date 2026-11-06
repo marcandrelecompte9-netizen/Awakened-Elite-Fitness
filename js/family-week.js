@@ -124,7 +124,7 @@
     return '<span style="display:flex;gap:5px;flex-shrink:0;">' + jours.map(function (on, i) {
       var auj = i === iAuj, futur = i > iAuj;
       return '<span style="display:flex;flex-direction:column;align-items:center;gap:3px;">'
-        + '<span style="font-size:0.5em;font-weight:800;color:' + (auj ? '#f9a8d4' : '#64748b') + ';">' + JOURS[i] + '</span>'
+        + '<span style="font-size:0.5em;font-weight:800;color:' + (auj ? '#f9a8d4' : '#8391a7') + ';">' + JOURS[i] + '</span>'
         + '<span style="width:15px;height:15px;border-radius:50%;box-sizing:border-box;'
         +   (on ? 'background:' + ROSE + ';' : 'background:' + (futur ? 'transparent' : 'rgba(255,255,255,0.06)') + ';')
         +   'border:1.5px solid ' + (on ? ROSE : (auj ? '#f9a8d4' : 'rgba(255,255,255,0.10)')) + ';"></span>'
@@ -154,7 +154,7 @@
       var nom = estMoi ? 'Toi' : (p.name || 'Membre');
       var droite;
       if (enf && !estMoi) {
-        droite = '<span style="font-size:0.66em;font-weight:700;color:' + (s.seances ? '#f9a8d4' : '#64748b') + ';white-space:nowrap;">' + (s.seances ? 'A bougé' : 'Pas encore') + '</span>';
+        droite = '<span style="font-size:0.66em;font-weight:700;color:' + (s.seances ? '#f9a8d4' : '#8391a7') + ';white-space:nowrap;">' + (s.seances ? 'A bougé' : 'Pas encore') + '</span>';
       } else {
         droite = points(s.jours, iAuj);
       }
@@ -178,7 +178,7 @@
           + 'background:rgba(255,255,255,0.04);border:1px solid ' + (n ? 'rgba(236,72,153,0.45)' : 'rgba(255,255,255,0.08)') + ';' + (estMoi ? '' : 'cursor:pointer;') + '">'
           + avatar(p.avatar, 24)
           + '<span style="font-size:0.74em;font-weight:800;color:#f1f5f9;max-width:84px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(estMoi ? 'Toi' : (p.name || 'Membre')) + '</span>'
-          + '<span style="font-size:0.66em;font-weight:900;color:' + (n ? '#f9a8d4' : '#64748b') + ';">' + n + '</span></span>';
+          + '<span style="font-size:0.66em;font-weight:900;color:' + (n ? '#f9a8d4' : '#8391a7') + ';">' + n + '</span></span>';
       }).join('');
       return '<div id="awakFamSemaine" style="background:#12161c;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:12px 14px 4px;margin-bottom:12px;">'
         + '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px;">'
@@ -197,7 +197,7 @@
       +   '<span style="font-size:0.66em;color:#94a3b8;">' + esc(resume) + '</span>'
       + '</div>'
       + lignes
-      + (enf ? '' : '<div style="font-size:0.62em;color:#64748b;padding:6px 0 2px;">Touche un membre pour l\'encourager ou lui lancer un défi.</div>')
+      + (enf ? '' : '<div style="font-size:0.62em;color:#8391a7;padding:6px 0 2px;">Touche un membre pour l\'encourager ou lui lancer un défi.</div>')
       + boutonBouger('8px 0 8px')
       + '</div>'
       + carteJours();
@@ -355,6 +355,7 @@
     try {
       if (window.AwakGroup && typeof AwakGroup.setParticipants === 'function') {
         if (typeof AwakGroup.reset === 'function') AwakGroup.reset();
+        try { localStorage.setItem('awakGroupMode', 'meme'); } catch (e) {}   // v1606 : Bouger ensemble = même séance (sinon les membres n'étaient pas crédités en mode duo)
         var me = moi();
         AwakGroup.setParticipants(profils().filter(function (p) { return p.id !== me && ids.indexOf(p.id) >= 0; }).map(function (p) {
           return { kind: 'profile', id: p.id, name: p.name || 'Membre', avatar: p.avatar || '' };

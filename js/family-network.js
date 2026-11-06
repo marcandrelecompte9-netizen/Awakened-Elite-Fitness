@@ -541,7 +541,7 @@
     ov.innerHTML =
       '<div style="width:100%;max-width:460px;margin:auto;">'
     +   '<div style="width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 14px;"></div>'
-    +   (contenu || '<div style="color:#64748b;text-align:center;padding:24px;">Aucune famille pour l\'instant.</div>')
+    +   (contenu || '<div style="color:#8391a7;text-align:center;padding:24px;">Aucune famille pour l\'instant.</div>')
     +   '<button onclick="document.getElementById(\'awakFamilyManage\').remove()" '
     +     'style="width:100%;padding:12px;margin-top:4px;border-radius:13px;cursor:pointer;'
     +     'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);'
@@ -570,7 +570,7 @@
     +   'border:1px solid rgba(236,72,153,0.22);border-radius:20px;padding:18px;">'
     +   '<div style="width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 14px;"></div>'
     +   '<div style="font-size:0.56em;letter-spacing:2.5px;color:#ec4899;font-weight:900;margin-bottom:12px;">◈ JOURNAL FAMILIAL</div>'
-    +   (contenu || '<div style="color:#64748b;text-align:center;padding:20px;font-size:0.85em;">Rien à raconter pour l\'instant.</div>')
+    +   (contenu || '<div style="color:#8391a7;text-align:center;padding:20px;font-size:0.85em;">Rien à raconter pour l\'instant.</div>')
     +   '<button onclick="document.getElementById(\'awakFamilyFeed\').remove()" '
     +     'style="width:100%;padding:12px;margin-top:12px;border-radius:13px;cursor:pointer;'
     +     'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);'
@@ -898,10 +898,10 @@
                 : (estEnfant
                     ? (total
                         ? '<span style="color:#fbbf24;font-weight:800;">Votre ciel brille</span><span style="color:#94a3b8;"> — touche une étoile pour envoyer un message</span>'
-                        : '<span style="color:#64748b;">Le ciel dort. Bouge un peu et il s\'allume.</span>')
+                        : '<span style="color:#8391a7;">Le ciel dort. Bouge un peu et il s\'allume.</span>')
                     : (total
                         ? ('<span style="color:#fbbf24;font-weight:800;">' + total + ' séance' + (total > 1 ? 's' : '') + ' en 7 jours</span><span style="color:#94a3b8;"> — touche une étoile pour encourager</span>')
-                        : '<span style="color:#64748b;">Le ciel est calme. Une séance et il s\'allume.</span>')))
+                        : '<span style="color:#8391a7;">Le ciel est calme. Une séance et il s\'allume.</span>')))
       +   '</div>'
       // 👨‍👩‍👧 Deux accès discrets, pour ce que la constellation ne peut pas
       // montrer : ajouter/retirer un membre, et l'historique familial.
@@ -1114,11 +1114,11 @@
                   _enf = !!(window.AwakYouth && typeof window.AwakYouth.isChild === 'function'
                             && window.AwakYouth.isChild());
               } catch (e) {}
-              if (!ws.seances) return '<div style="font-size:0.68em;color:#64748b;margin-top:2px;">Pas encore de séance cette semaine</div>';
+              if (!ws.seances) return '<div style="font-size:0.68em;color:#8391a7;margin-top:2px;">Pas encore de séance cette semaine</div>';
               if (_enf) return '<div style="font-size:0.68em;color:#4ade80;margin-top:2px;">🏋️ A bougé cette semaine</div>';
               return '<div style="font-size:0.68em;color:#94a3b8;margin-top:2px;">'
                 + '🏋️ ' + ws.seances + ' séance' + (ws.seances > 1 ? 's' : '')
-                + '<span style="color:#475569;"> · </span>'
+                + '<span style="color:#7c8aa0;"> · </span>'
                 + '🔥 ' + ws.joursActifs + ' jour' + (ws.joursActifs > 1 ? 's' : '')
                 + '</div>';
             })()
@@ -1128,7 +1128,7 @@
     }).join('');
 
     if (!mine.length) {
-      rows = '<div style="font-size:0.78em;color:#64748b;text-align:center;padding:14px 0;">Aucun lien pour l\'instant. Ajoute un membre de ta famille ci-dessous.</div>';
+      rows = '<div style="font-size:0.78em;color:#8391a7;text-align:center;padding:14px 0;">Aucun lien pour l\'instant. Ajoute un membre de ta famille ci-dessous.</div>';
     }
 
 
@@ -1168,7 +1168,7 @@
       if (_pct !== null) _bits.push('🎯 ' + _pct + ' % de l\'objectif');
       recap = '<div style="background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.16);border-radius:12px;padding:9px 12px;margin-bottom:12px;">'
         + '<div style="font-size:0.6em;color:#ec4899;font-weight:800;letter-spacing:1px;margin-bottom:4px;">CETTE SEMAINE</div>'
-        + '<div style="font-size:0.78em;color:#e2e8f0;">' + _bits.join('<span style="color:#475569;"> · </span>') + '</div>'
+        + '<div style="font-size:0.78em;color:#e2e8f0;">' + _bits.join('<span style="color:#7c8aa0;"> · </span>') + '</div>'
         + '</div>';
     } catch (e) { recap = ''; }
 
@@ -1230,7 +1230,7 @@
       + '</div>'
       + buttons
       + removeBtn
-      + '<button onclick="document.getElementById(\'awakFamilyModal\').remove()" style="width:100%;margin-top:6px;padding:10px;border:none;border-radius:10px;cursor:pointer;background:transparent;color:#64748b;font-size:0.8em;">Annuler</button>'
+      + '<button onclick="document.getElementById(\'awakFamilyModal\').remove()" style="width:100%;margin-top:6px;padding:10px;border:none;border-radius:10px;cursor:pointer;background:transparent;color:#8391a7;font-size:0.8em;">Annuler</button>'
       + '</div>';
     document.body.appendChild(overlay);
   };
@@ -1343,7 +1343,7 @@
       + '<div style="flex:1;overflow-y:auto;padding:14px 16px 18px;-webkit-overflow-scrolling:touch;">'
       +   '<div style="font-size:0.72em;color:#94a3b8;margin-bottom:11px;">Choisis ton message :</div>'
       +   lignes
-      +   '<div style="font-size:0.58em;letter-spacing:1.6px;color:#64748b;font-weight:900;margin:16px 0 7px;">OU ÉCRIS LE TIEN</div>'
+      +   '<div style="font-size:0.58em;letter-spacing:1.6px;color:#8391a7;font-weight:900;margin:16px 0 7px;">OU ÉCRIS LE TIEN</div>'
       +   '<textarea id="awakNudgeLibre" rows="2" maxlength="140" placeholder="Ton message…" '
       +     'style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);'
       +     'color:#e8f0f8;border-radius:12px;padding:11px 13px;font-size:0.86em;font-weight:600;'
@@ -1403,7 +1403,7 @@
       + '<div style="font-size:1.05em;font-weight:700;color:#fff;line-height:1.5;margin-bottom:14px;">« ' + esc(msg) + ' »</div>'
       + (delivered
           ? '<div style="font-size:0.74em;color:#4ade80;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);border-radius:9px;padding:8px 10px;margin-bottom:16px;line-height:1.4;">📬 Envoyé ! ' + esc(m.name) + ' le verra en ouvrant son profil.</div>'
-          : '<div style="font-size:0.72em;color:#64748b;margin-bottom:16px;">Transmets-lui ce message.</div>')
+          : '<div style="font-size:0.72em;color:#8391a7;margin-bottom:16px;">Transmets-lui ce message.</div>')
       + '<button onclick="document.getElementById(\'awakNudgeModal\').remove()" style="width:100%;padding:12px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-weight:800;font-size:0.9em;">Compris 💪</button>'
       + '</div>';
     document.body.appendChild(overlay);

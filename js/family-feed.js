@@ -166,7 +166,7 @@
         +   '<div style="flex:1;min-width:0;">'
         +     '<div style="font-size:0.86em;color:#e5e7eb;line-height:1.4;"><b style="color:#fff;">' + esc(it.name) + '</b> a terminé <b style="color:#4ade80;">' + esc(it.workoutName) + '</b></div>'
         +     (detail ? '<div style="font-size:0.74em;color:#94a3b8;margin-top:1px;">' + esc(detail) + '</div>' : '')
-        +     '<div style="font-size:0.68em;color:#64748b;margin-top:1px;">' + _timeAgo(it.ts) + '</div>'
+        +     '<div style="font-size:0.68em;color:#8391a7;margin-top:1px;">' + _timeAgo(it.ts) + '</div>'
         +     '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">' + reactBtns + '</div>'
         +   '</div>'
         + '</div>'

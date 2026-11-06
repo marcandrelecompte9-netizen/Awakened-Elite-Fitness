@@ -535,7 +535,7 @@
         + '</div>'
         + (c.ended
             ? '<button onclick="AwakChallengeCancel(\'' + c.id + '\')" style="width:100%;margin-top:9px;padding:8px;border:none;border-radius:9px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-size:0.74em;font-weight:700;">Terminer</button>'
-            : '<button onclick="AwakChallengeCancel(\'' + c.id + '\')" style="width:100%;margin-top:9px;padding:6px;border:none;border-radius:8px;cursor:pointer;background:transparent;color:#64748b;font-size:0.7em;">Abandonner</button>')
+            : '<button onclick="AwakChallengeCancel(\'' + c.id + '\')" style="width:100%;margin-top:9px;padding:6px;border:none;border-radius:8px;cursor:pointer;background:transparent;color:#8391a7;font-size:0.7em;">Abandonner</button>')
         + '</div>';
     });
 
@@ -543,7 +543,7 @@
     if (canChallenge) {
       html += '<button onclick="AwakChallengeNew()" style="width:100%;padding:12px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-weight:800;font-size:0.88em;">⚔️ Défier un membre</button>';
     } else if (!challenges.length) {
-      html += '<div style="font-size:0.76em;color:#64748b;text-align:center;padding:6px 0;">Lie d\'abord un membre de ta famille pour le défier.</div>';
+      html += '<div style="font-size:0.76em;color:#8391a7;text-align:center;padding:6px 0;">Lie d\'abord un membre de ta famille pour le défier.</div>';
     }
 
     html += '</div>';
@@ -592,7 +592,7 @@
         + '<span style="flex:1;"><span style="font-size:0.9em;font-weight:800;display:block;">' + t.label + '</span>'
         + '<span style="font-size:0.72em;color:#94a3b8;">' + t.desc + '</span></span></button>';
     }).join('');
-    _showModal('Type de défi', '🎯', typeBtns + '<div style="font-size:0.72em;color:#64748b;text-align:center;margin-top:4px;">Durée : ' + DURATION_DAYS + ' jours · pour le fun 😄</div>');
+    _showModal('Type de défi', '🎯', typeBtns + '<div style="font-size:0.72em;color:#8391a7;text-align:center;margin-top:4px;">Durée : ' + DURATION_DAYS + ' jours · pour le fun 😄</div>');
   };
 
   window.AwakChallengeStart = function (memberId, type) {
@@ -634,7 +634,7 @@
       +   '<div style="font-size:1.1em;font-weight:900;color:#fff;">' + esc(title) + '</div>'
       + '</div>'
       + bodyHtml
-      + '<button onclick="AwakChallengeCloseModal()" style="width:100%;margin-top:6px;padding:10px;border:none;border-radius:10px;cursor:pointer;background:transparent;color:#64748b;font-size:0.8em;">Annuler</button>'
+      + '<button onclick="AwakChallengeCloseModal()" style="width:100%;margin-top:6px;padding:10px;border:none;border-radius:10px;cursor:pointer;background:transparent;color:#8391a7;font-size:0.8em;">Annuler</button>'
       + '</div>';
     document.body.appendChild(overlay);
   }
@@ -684,7 +684,7 @@
       return '<div style="display:flex;align-items:center;gap:7px;font-size:0.74em;color:#cbd5e1;padding:3px 0;">'
         + '<span>' + _av(m.avatar, 22) + '</span><span style="flex:1;">' + esc(m.name) + '</span>'
         + '<span style="color:#22d3ee;font-weight:800;">' + m.value + ' ' + esc(d.unit) + '</span></div>';
-    }).join('') || '<div style="font-size:0.72em;color:#64748b;">Aucune contribution pour l\'instant.</div>';
+    }).join('') || '<div style="font-size:0.72em;color:#8391a7;">Aucune contribution pour l\'instant.</div>';
 
     var entete = st.atteint
       ? '<div style="font-size:0.92em;font-weight:900;color:#93c5fd;">Objectif atteint, ensemble !</div>'
@@ -718,7 +718,7 @@
       + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">'
       +   '<span style="flex-shrink:0;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(96,168,240,0.16);">' + _ic(COOP_ICO[st.type] || 'groupe', 19, '#93c5fd') + '</span>'
       +   '<div style="flex:1;min-width:0;"><div style="font-size:0.62em;font-weight:800;letter-spacing:0.5px;color:#60a8f0;">DÉFI D\'ÉQUIPE</div>' + entete + '</div>'
-      +   '<button onclick="AwakCoopStop()" style="background:transparent;border:none;color:#64748b;font-size:1.1em;cursor:pointer;padding:4px 6px;">×</button>'
+      +   '<button onclick="AwakCoopStop()" style="background:transparent;border:none;color:#8391a7;font-size:1.1em;cursor:pointer;padding:4px 6px;">×</button>'
       + '</div>'
       + '<div style="font-size:0.74em;color:#94a3b8;">' + esc(d.desc) + '</div>'
       + barre
@@ -760,7 +760,7 @@
       +     'style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;font-size:1.1em;'
       +     'width:34px;height:34px;min-height:auto;border-radius:10px;cursor:pointer;line-height:1;">×</button>'
       + '</div>'
-      + (contenuHtml || '<div style="color:#64748b;font-size:0.85em;">Rien à afficher pour le moment.</div>')
+      + (contenuHtml || '<div style="color:#8391a7;font-size:0.85em;">Rien à afficher pour le moment.</div>')
       + '<div style="height:10px;"></div>'
       + '</div>';
     ov.onclick = function (e) { if (e.target === ov) ov.remove(); };

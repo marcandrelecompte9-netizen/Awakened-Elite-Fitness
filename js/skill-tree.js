@@ -309,7 +309,7 @@
     if (!actif && !ok) badge = '<span style="position:absolute;right:-3px;bottom:-3px;width:22px;height:22px;border-radius:50%;background:#0b0d12;border:1.5px solid rgba(255,255,255,0.16);display:flex;align-items:center;justify-content:center;">' + CADENAS(e === 'points' ? c : '#8d9cb1', 12) + '</span>';
     else if (ok) badge = '<span style="position:absolute;right:-4px;top:-4px;min-width:22px;height:22px;padding:0 5px;border-radius:99px;background:' + c + ';color:#0b0d12;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px ' + c + ';">+</span>';
     var niv = e === 'niveau' ? '<div style="font-size:10px;color:#8d9cb1;margin-top:1px;">Niv. ' + sk.req.level + '</div>' : '';
-    return '<div onclick="AwakArbre.voir(\'' + sk.id + '\')" role="button" aria-label="' + esc(sk.name) + '" style="position:absolute;left:' + p.x + '%;top:' + p.y + 'px;transform:translate(-50%,-29px);width:124px;text-align:center;cursor:pointer;z-index:2;">'
+    return '<div onclick="AwakArbre.voir(\'' + sk.id + '\')" role="button" aria-label="' + esc(sk.name) + '" class="awk-bulle" style="overflow:visible;position:absolute;left:' + p.x + '%;top:' + p.y + 'px;transform:translate(-50%,-29px);width:124px;text-align:center;cursor:pointer;z-index:2;">'
       + '<div style="position:relative;width:' + D + 'px;height:' + D + 'px;margin:0 auto;border-radius:50%;background:' + fond + ';border:2px solid ' + bord + ';box-shadow:' + ombre + ';display:flex;align-items:center;justify-content:center;'
       + (ok ? 'animation:awkPulse 1.8s ease-in-out infinite;--awk-c:' + c + '66;' : '') + (sel ? 'outline:2px solid #fff;outline-offset:3px;' : '') + '">'
       + embleme(sk, 40, c, !actif && !ok) + badge + '</div>'
@@ -371,10 +371,10 @@
     L.forEach(function (x) {
       var on = x.id === VUE.onglet, ids = idsDe(x), nb = ids.filter(function (id) { return unl.indexOf(id) >= 0; }).length;
       var pastille = !x.vide && aFaire(x, lv, unl) ? '<span style="position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;background:' + x.c + ';box-shadow:0 0 8px ' + x.c + ';"></span>' : '';
-      h += '<button onclick="AwakArbre.onglet(\'' + x.id + '\')" style="position:relative;min-height:0;padding:8px 2px 7px;border-radius:12px;font-family:inherit;cursor:pointer;text-align:center;'
+      h += '<button onclick="AwakArbre.onglet(\'' + x.id + '\')" aria-label="' + esc(x.nom) + '" style="position:relative;overflow:visible;min-height:0;padding:8px 2px 7px;border-radius:12px;font-family:inherit;cursor:pointer;text-align:center;'
         + 'background:' + (on ? x.c + '26' : 'rgba(255,255,255,0.03)') + ';border:1.5px solid ' + (on ? x.c : 'rgba(255,255,255,0.08)') + ';color:' + (on ? '#f1f5f9' : '#a3b1c2') + ';">'
         + '<div style="display:flex;justify-content:center;">' + (x.vide ? CADENAS('#8d9cb1', 16) : ic(x.icone, 17, on ? x.c : '#8d9cb1')) + '</div>'
-        + '<div style="font-size:10.5px;font-weight:800;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(x.nom) + '</div>'
+        + '<div style="font-size:10.5px;font-weight:800;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(x.id === 'classe' ? String(x.nom).split(' ')[0] : x.nom) + '</div>'
         + (x.vide ? '' : '<div style="font-size:10px;color:' + (on ? x.c : '#8d9cb1') + ';font-weight:800;">' + nb + '/' + ids.length + '</div>') + pastille + '</button>';
     });
     h += '</div>';

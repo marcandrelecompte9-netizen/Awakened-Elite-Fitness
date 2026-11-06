@@ -184,6 +184,8 @@
     audio.addEventListener('error', function () { if (actif && file.length > 1) setTimeout(suivante, 400); else majBarre(); });
     audio.addEventListener('play', majBarre);
     audio.addEventListener('pause', majBarre);
+    audio.addEventListener('timeupdate', majProgression);   // v1588
+    audio.addEventListener('loadedmetadata', majProgression);
     return audio;
   }
   function melanger(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
@@ -275,6 +277,33 @@
     note: svg('<path d="M10 3v10.6A3.5 3.5 0 1 0 12 17V7h6V3z"/>', 15)
   };
 
+  // v1588 : habillage des lecteurs (égaliseur animé, barre de progression, temps)
+  function styles() {
+    if (document.getElementById('awkMusStyles')) return;
+    var st = document.createElement('style'); st.id = 'awkMusStyles';
+    st.textContent = '.awk-eq{display:inline-flex;align-items:flex-end;gap:2px;width:14px;height:14px}'
+      + '.awk-eq i{display:block;flex:1;height:30%;border-radius:2px;background:currentColor}'
+      + '.awk-eq.on i{animation:awkEq .9s ease-in-out infinite}'
+      + '.awk-eq.on i:nth-child(2){animation-delay:-.3s}.awk-eq.on i:nth-child(3){animation-delay:-.6s}'
+      + '@keyframes awkEq{0%,100%{height:25%}50%{height:100%}}'
+      + '.awk-mus-prog{height:3px;border-radius:99px;background:rgba(255,255,255,0.08);overflow:hidden}'
+      + '.awk-mus-prog>i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#22d3ee,#60a5fa);transition:width .3s linear}'
+      + '#awakMusBar button:active,#awakMusReglages [data-mus-ctl]:active{transform:scale(.92)}'
+      + '@media (prefers-reduced-motion: reduce){.awk-eq.on i{animation:none;height:70%}}';
+    document.head.appendChild(st);
+  }
+  function eq(on) { return '<span class="awk-eq' + (on ? ' on' : '') + '" aria-hidden="true"><i></i><i></i><i></i></span>'; }
+  function mmss(t) { t = Math.max(0, Math.floor(+t || 0)); return Math.floor(t / 60) + ':' + ('0' + (t % 60)).slice(-2); }
+  function source(m) { return !m ? '' : m.type === 'perso' ? 'Mes musiques' : m.type === 'entrainement' ? 'Entraînement' : m.type === 'jeu' ? 'Musiques du jeu' : 'Awakened'; }
+  // Progression et temps : mis à jour dans tous les lecteurs affichés
+  function majProgression() {
+    if (!audio) return;
+    var d = audio.duration, c = audio.currentTime;
+    var pc = (d && isFinite(d)) ? Math.min(100, c / d * 100) : 0;
+    document.querySelectorAll('.awk-mus-prog > i').forEach(function (x) { x.style.width = pc + '%'; });
+    document.querySelectorAll('.awk-mus-temps').forEach(function (x) { x.textContent = mmss(c) + ((d && isFinite(d)) ? ' / ' + mmss(d) : ''); });
+  }
+
   // ── Barre compacte dans l'écran de séance ──
   function barre() {
     var vue = document.getElementById('exerciseView');
@@ -284,13 +313,21 @@
       b = document.createElement('div');
       b.id = 'awakMusBar';
       b.setAttribute('data-emoji-keep', '');
-      b.style.cssText = 'display:flex;align-items:center;gap:6px;margin:6px 12px 0;padding:5px 6px 5px 11px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);';
-      var btn = 'min-height:0;width:34px;height:34px;padding:0;border-radius:50%;border:none;background:transparent;color:#cbd5e1;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;';
-      b.innerHTML = '<span style="display:inline-flex;color:#94a3b8;flex-shrink:0;">' + IC.note + '</span>'
-        + '<span class="awk-mus-titre" style="flex:1;min-width:0;font-size:12px;font-weight:700;color:#cbd5e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>'
+      styles();
+      // v1588 : pochette avec égaliseur, titre + source/temps, lecture en cyan, progression en bas
+      b.style.cssText = 'position:relative;overflow:hidden;display:flex;align-items:center;gap:8px;margin:6px 12px 0;padding:6px 6px 8px 6px;border-radius:14px;'
+        + 'background:linear-gradient(135deg,rgba(34,211,238,0.07),rgba(96,165,250,0.04) 60%,rgba(255,255,255,0.02));border:1px solid rgba(34,211,238,0.18);';
+      var btn = 'min-height:0;width:34px;height:34px;padding:0;border-radius:50%;border:none;background:transparent;color:#cbd5e1;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:transform .12s;';
+      b.innerHTML = '<span class="awk-mus-poch" style="width:34px;height:34px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;'
+        +   'background:linear-gradient(135deg,rgba(34,211,238,0.22),rgba(96,165,250,0.12));color:#67e8f9;">' + eq(false) + '</span>'
+        + '<span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;">'
+        +   '<span class="awk-mus-titre" style="font-size:12.5px;font-weight:800;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>'
+        +   '<span style="font-size:10.5px;font-weight:700;color:#8391a7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><span class="awk-mus-src"></span> · <span class="awk-mus-temps">0:00</span></span>'
+        + '</span>'
         + '<button data-a="prec" aria-label="Musique précédente" style="' + btn + '">' + IC.prec + '</button>'
-        + '<button data-a="lect" aria-label="Lecture ou pause" style="' + btn + 'background:rgba(255,255,255,0.08);color:#fff;">' + IC.lect + '</button>'
-        + '<button data-a="suiv" aria-label="Musique suivante" style="' + btn + '">' + IC.suiv + '</button>';
+        + '<button data-a="lect" aria-label="Lecture ou pause" style="' + btn + 'width:38px;height:38px;background:linear-gradient(135deg,#22d3ee,#3b82f6);color:#04121f;box-shadow:0 2px 10px rgba(34,211,238,0.3);">' + IC.lect + '</button>'
+        + '<button data-a="suiv" aria-label="Musique suivante" style="' + btn + '">' + IC.suiv + '</button>'
+        + '<span class="awk-mus-prog" style="position:absolute;left:10px;right:10px;bottom:3px;height:2px;"><i></i></span>';
       b.addEventListener('click', function (e) {
         var t = e.target.closest && e.target.closest('button[data-a]'); if (!t) return;
         e.stopPropagation();
@@ -311,9 +348,13 @@
     // v1517 : combat final — aucun titre, seulement lecture / pause
     var fin = enFinal();
     b.querySelector('.awk-mus-titre').textContent = fin ? '' : (m ? m.titre : 'Musique');
+    var src = b.querySelector('.awk-mus-src'); if (src) src.textContent = fin ? '' : (m ? source(m) : 'Prête à jouer');
+    var info = src && src.parentElement; if (info) info.style.visibility = fin ? 'hidden' : 'visible';
     b.querySelectorAll('button[data-a="prec"],button[data-a="suiv"]').forEach(function (x) { x.style.display = fin ? 'none' : 'flex'; });
-    var note = b.firstElementChild; if (note) note.style.visibility = fin ? 'hidden' : 'visible';
+    var note = b.firstElementChild; if (note) { note.style.visibility = fin ? 'hidden' : 'visible'; var e2 = note.querySelector('.awk-eq'); if (e2) e2.classList.toggle('on', !!joue); }
+    var pr = b.querySelector('.awk-mus-prog'); if (pr) pr.style.display = fin ? 'none' : '';
     b.style.justifyContent = fin ? 'flex-end' : '';
+    majProgression();
     var l = b.querySelector('button[data-a="lect"]'); l.innerHTML = joue ? IC.paus : IC.lect;
     l.setAttribute('aria-label', joue ? 'Pause' : 'Lecture');
     var r = document.getElementById('awakMusReglages'); if (r && r._maj) r._maj();
@@ -379,7 +420,7 @@
         + 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);color:#e2e8f0;' + (off ? 'opacity:0.45;pointer-events:none;' : '') + '">'
         + '<span style="flex:1;min-width:0;"><span style="display:block;font-size:14px;font-weight:800;color:#f1f5f9;">' + titre + '</span>'
         + '<span style="display:block;font-size:12px;color:#94a3b8;margin-top:1px;">' + sous + '</span></span>'
-        + '<span style="flex-shrink:0;width:44px;height:26px;border-radius:99px;position:relative;transition:background .2s;background:' + (on ? '#a855f7' : 'rgba(255,255,255,0.15)') + ';">'
+        + '<span style="flex-shrink:0;width:44px;height:26px;border-radius:99px;position:relative;transition:background .2s;background:' + (on ? '#22d3ee' : 'rgba(255,255,255,0.15)') + ';">'
         + '<span style="position:absolute;top:3px;left:' + (on ? '21px' : '3px') + ';width:20px;height:20px;border-radius:50%;background-color:rgb(248,250,252);transition:left .2s;"></span></span></button>';
     };
     var l = candidats(), ex = exclus(), cur = courant();
@@ -395,19 +436,36 @@
       +   '<div style="display:flex;align-items:center;gap:10px;">'
       +     '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:800;color:#f1f5f9;">Mes musiques</div>'
       +     '<div style="font-size:12px;color:#94a3b8;margin-top:2px;">Tes fichiers MP3, M4A… depuis ton téléphone. Gardés sur cet appareil seulement.</div></div>'
-      +     '<button data-mus="importer" style="min-height:0;flex-shrink:0;padding:9px 14px;border-radius:99px;border:1px solid rgba(168,85,247,0.55);background:rgba(168,85,247,0.15);color:#e9d5ff;font-weight:800;font-size:13px;cursor:pointer;">Ajouter</button>'
+      +     '<button data-mus="importer" style="min-height:0;flex-shrink:0;padding:9px 14px;border-radius:99px;border:1px solid rgba(34,211,238,0.5);background:rgba(34,211,238,0.12);color:#a5f3fc;font-weight:800;font-size:13px;cursor:pointer;">Ajouter</button>'
       +   '</div>'
       +   '<input type="file" accept="audio/*" multiple data-mus="fichier" style="display:none;">'
       +   (nPer ? '<div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;">' + PERSO.map(function (m) {
             return '<div style="display:flex;align-items:center;gap:8px;padding:7px 8px 7px 12px;border-radius:10px;background:rgba(255,255,255,0.03);">'
               + '<span style="flex:1;min-width:0;font-size:13px;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + m.titre.replace(/[<>&"]/g, '') + '</span>'
-              + '<span style="font-size:11px;color:#64748b;flex-shrink:0;">' + (m.taille ? (m.taille / 1048576).toFixed(1).replace('.', ',') + ' Mo' : '') + '</span>'
+              + '<span style="font-size:11px;color:#8391a7;flex-shrink:0;">' + (m.taille ? (m.taille / 1048576).toFixed(1).replace('.', ',') + ' Mo' : '') + '</span>'
               + '<button data-retirer="' + m.id + '" aria-label="Retirer ' + m.titre.replace(/[<>&"]/g, '') + '" style="min-height:0;width:30px;height:30px;padding:0;border-radius:50%;border:none;background:rgba(255,255,255,0.06);color:#cbd5e1;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">'
               + '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>';
           }).join('') + '</div>' : '')
       + '</div>'
       + '<label style="display:flex;align-items:center;gap:12px;margin:14px 2px 6px;font-size:13px;color:#cbd5e1;font-weight:700;">Volume'
-      + '<input type="range" min="0" max="100" value="' + Math.round(r.volume * 100) + '" data-r="volume" style="flex:1;accent-color:#a855f7;"></label>'
+      + '<input type="range" min="0" max="100" value="' + Math.round(r.volume * 100) + '" data-r="volume" style="flex:1;accent-color:#22d3ee;"></label>'
+      // v1588 : carte « En cours » (titre, source, progression, commandes)
+      + (cur && !r.externe ? (function () {
+          var j = !!(audio && !audio.paused), cb = 'min-height:0;width:40px;height:40px;padding:0;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:transform .12s;';
+          return '<div style="margin:12px 0 4px;padding:14px;border-radius:16px;background:linear-gradient(135deg,rgba(34,211,238,0.10),rgba(59,130,246,0.06));border:1px solid rgba(34,211,238,0.25);">'
+            + '<div style="display:flex;align-items:center;gap:12px;">'
+            +   '<span style="width:46px;height:46px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(34,211,238,0.28),rgba(59,130,246,0.18));color:#67e8f9;"><span style="display:inline-flex;transform:scale(1.6);">' + eq(j) + '</span></span>'
+            +   '<span style="flex:1;min-width:0;"><span style="display:block;font-size:10.5px;font-weight:800;letter-spacing:1.2px;color:#67e8f9;">' + (j ? 'EN COURS' : 'EN PAUSE') + '</span>'
+            +   '<span style="display:block;font-size:15px;font-weight:900;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;">' + String(cur.titre).replace(/[<>&"]/g, '') + '</span>'
+            +   '<span style="display:block;font-size:11.5px;color:#8391a7;font-weight:700;margin-top:1px;">' + source(cur) + ' · <span class="awk-mus-temps">0:00</span></span></span>'
+            + '</div>'
+            + '<div class="awk-mus-prog" style="margin:12px 0 10px;"><i></i></div>'
+            + '<div style="display:flex;align-items:center;justify-content:center;gap:18px;">'
+            +   '<button data-mus-ctl="prec" aria-label="Musique précédente" style="' + cb + 'background:rgba(255,255,255,0.05);color:#cbd5e1;">' + IC.prec + '</button>'
+            +   '<button data-mus-ctl="lect" aria-label="' + (j ? 'Pause' : 'Lecture') + '" style="' + cb + 'width:52px;height:52px;background:linear-gradient(135deg,#22d3ee,#3b82f6);color:#04121f;box-shadow:0 4px 16px rgba(34,211,238,0.3);">' + (j ? IC.paus : IC.lect) + '</button>'
+            +   '<button data-mus-ctl="suiv" aria-label="Musique suivante" style="' + cb + 'background:rgba(255,255,255,0.05);color:#cbd5e1;">' + IC.suiv + '</button>'
+            + '</div></div>';
+        })() : '')
       + (l.length ? '<div style="margin-top:8px;font-size:12px;color:#94a3b8;font-weight:800;letter-spacing:1px;text-transform:uppercase;">Morceaux</div>'
         + '<div style="display:flex;flex-direction:column;gap:6px;margin-top:6px;">'
         + l.map(function (m) {
@@ -415,15 +473,18 @@
             var hors = ex.indexOf(m.fichier) >= 0, t = String(m.titre).replace(/[<>&"]/g, '');
             return '<div style="display:flex;align-items:center;gap:6px;">'
               + '<button data-piste="' + m.fichier + '"' + (hors ? ' disabled' : '') + ' style="min-height:0;flex:1;min-width:0;display:flex;align-items:center;gap:10px;text-align:left;padding:10px 12px;border-radius:12px;cursor:' + (hors ? 'default' : 'pointer') + ';'
-              + 'background:' + (ici ? 'rgba(168,85,247,0.14)' : 'rgba(255,255,255,0.03)') + ';border:1px solid ' + (ici ? 'rgba(168,85,247,0.5)' : 'rgba(255,255,255,0.08)') + ';color:#e2e8f0;' + (hors ? 'opacity:0.4;' : '') + '">'
-              + '<span style="display:inline-flex;color:' + (ici ? '#c084fc' : '#94a3b8') + ';">' + (ici ? IC.paus : IC.lect) + '</span>'
-              + '<span style="flex:1;min-width:0;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + (hors ? 'text-decoration:line-through;' : '') + '">' + t + '</span>'
-              + '<span style="font-size:11px;color:#94a3b8;font-weight:700;">' + (hors ? 'Retiré' : m.type === 'perso' ? 'À moi' : m.type === 'jeu' ? 'Jeu' : 'Entraînement') + '</span></button>'
-              + '<button data-exclure="' + m.fichier + '" aria-label="' + (hors ? 'Remettre ' : 'Retirer de la liste ') + t + '" title="' + (hors ? 'Remettre dans la liste' : 'Retirer de la liste') + '" style="min-height:0;flex-shrink:0;width:38px;height:38px;padding:0;border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:' + (hors ? '#c084fc' : '#94a3b8') + ';cursor:pointer;display:flex;align-items:center;justify-content:center;">'
+              + 'background:' + (ici ? 'rgba(34,211,238,0.10)' : 'rgba(255,255,255,0.03)') + ';border:1px solid ' + (ici ? 'rgba(34,211,238,0.45)' : 'rgba(255,255,255,0.08)') + ';color:#e2e8f0;' + (hors ? 'opacity:0.4;' : '') + '">'
+              + '<span style="display:inline-flex;width:18px;justify-content:center;color:' + (ici ? '#67e8f9' : '#94a3b8') + ';">' + (ici ? eq(true) : IC.lect) + '</span>'
+              + '<span style="flex:1;min-width:0;font-size:13px;font-weight:' + (ici ? '800' : '700') + ';color:' + (ici ? '#f8fafc' : '#e2e8f0') + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + (hors ? 'text-decoration:line-through;' : '') + '">' + t + '</span>'
+              // v1588 : pastille de source colorée (jeu = or, entraînement = cyan, à moi = bleu)
+              + (function () { var k = hors ? ['Retiré', '#94a3b8', 'rgba(148,163,184,0.10)'] : m.type === 'perso' ? ['À moi', '#93c5fd', 'rgba(96,165,250,0.12)'] : m.type === 'jeu' ? ['Jeu', '#fcd34d', 'rgba(251,191,36,0.12)'] : ['Entraînement', '#67e8f9', 'rgba(34,211,238,0.10)'];
+                  return '<span style="flex-shrink:0;font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:99px;color:' + k[1] + ';background:' + k[2] + ';">' + k[0] + '</span>'; })() + '</button>'
+              + '<button data-exclure="' + m.fichier + '" aria-label="' + (hors ? 'Remettre ' : 'Retirer de la liste ') + t + '" title="' + (hors ? 'Remettre dans la liste' : 'Retirer de la liste') + '" style="min-height:0;flex-shrink:0;width:38px;height:38px;padding:0;border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:' + (hors ? '#67e8f9' : '#94a3b8') + ';cursor:pointer;display:flex;align-items:center;justify-content:center;">'
               + '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">' + (hors ? '<path d="M12 5v14M5 12h14"/>' : '<path d="M5 12h14"/>') + '</svg></button></div>';
           }).join('') + '</div>'
         : '<p class="settings-sub-desc" style="margin-top:8px;">' + (r.externe ? 'La musique de l\'app est coupée : celle de ton autre app continue pendant la séance.' : 'Aucun morceau avec ces filtres.') + '</p>');
       // v1493 : les musiques de combat restent une surprise, rien n'en est dit ici
+    styles(); majProgression();
   }
   function brancherReglages() {
     var h = document.getElementById('awakMusReglages'); if (!h || h._ok) return;
@@ -438,6 +499,13 @@
       e.target.value = '';
     });
     h.addEventListener('click', function (e) {
+      var ctl = e.target.closest && e.target.closest('[data-mus-ctl]');   // v1588 : carte « En cours »
+      if (ctl) {
+        var a1 = ctl.getAttribute('data-mus-ctl');
+        if (a1 === 'prec') precedente(); else if (a1 === 'suiv') suivante(); else basculer();
+        setTimeout(rendreReglages, 250);
+        return;
+      }
       var imp = e.target.closest && e.target.closest('[data-mus="importer"]');
       if (imp) { var inp = h.querySelector('input[data-mus="fichier"]'); if (inp) inp.click(); return; }
       var exc = e.target.closest && e.target.closest('[data-exclure]');

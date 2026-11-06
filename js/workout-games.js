@@ -499,7 +499,7 @@
         var nbEx = p.exercices.length;
         var tour = Math.floor(p.pas / nbEx), idx = p.pas % nbEx;
         var suite = p.rounds.map(function (r, i) {
-          return '<span style="color:' + (i === tour ? '#60a8f0' : '#475569') + ';font-weight:' + (i === tour ? '900' : '700') + ';">' + r + '</span>';
+          return '<span style="color:' + (i === tour ? '#60a8f0' : '#7c8aa0') + ';font-weight:' + (i === tour ? '900' : '700') + ';">' + r + '</span>';
         }).join('<span style="color:#334155;"> · </span>');
         return sousTitre('TOUR ' + (tour + 1) + ' / ' + p.rounds.length)
           + '<div style="font-size:0.9em;margin-bottom:12px;">' + suite + '</div>'
@@ -622,7 +622,7 @@
         var q = p.pas % 2, e = p.exercices[p.pas];
         var restants = p.exercices.slice(p.pas + 1, p.pas + 4).map(function (x, i) {
           var pour = p.duo[(p.pas + 1 + i) % 2].nom;
-          return '<div style="display:flex;justify-content:space-between;font-size:0.68em;color:#64748b;padding:2px 0;">'
+          return '<div style="display:flex;justify-content:space-between;font-size:0.68em;color:#8391a7;padding:2px 0;">'
             + '<span>' + esc(nomEx(x)) + '</span><span>' + esc(pour) + '</span></div>';
         }).join('');
         return sousTitre('ÉTAPE ' + (p.pas + 1) + ' / ' + p.exercices.length + ' · POUR ' + esc(p.duo[q].nom).toUpperCase())
@@ -1008,7 +1008,7 @@
   }
   function blocChrono() {
     return '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:12px;padding:9px;margin-bottom:14px;">'
-      + '<div style="font-size:0.56em;color:#64748b;font-weight:800;letter-spacing:1.5px;">TEMPS RESTANT</div>'
+      + '<div style="font-size:0.56em;color:#8391a7;font-weight:800;letter-spacing:1.5px;">TEMPS RESTANT</div>'
       + '<div id="awakChrono" style="font-size:1.7em;font-weight:900;color:#60a8f0;line-height:1.1;">1:00</div></div>';
   }
 
@@ -1399,7 +1399,7 @@
       + '<div style="font-size:0.82em;color:#94a3b8;margin-bottom:14px;">' + esc(partie.jeu.name) + '</div>'
       + (partie.record
           ? '<div style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);border-radius:12px;padding:10px;margin-bottom:14px;font-size:0.86em;font-weight:900;color:#fbbf24;">Nouveau record : ' + partie.score + ' minute' + (partie.score > 1 ? 's' : '') + '</div>'
-          : (partie.id === 'deathby' && records()[partie.id] ? '<div style="font-size:0.74em;color:#64748b;margin-bottom:14px;">Ton record : ' + records()[partie.id] + ' minutes</div>' : ''))
+          : (partie.id === 'deathby' && records()[partie.id] ? '<div style="font-size:0.74em;color:#8391a7;margin-bottom:14px;">Ton record : ' + records()[partie.id] + ' minutes</div>' : ''))
       + extra
       + '<div style="display:flex;gap:10px;margin-bottom:16px;">'
       +   stat(totalReps, partie.jeu.duo ? 'TES RÉPÉTITIONS' : 'RÉPÉTITIONS', '#60a8f0')
@@ -1629,7 +1629,7 @@
       '<div style="margin-bottom:6px;">' + ic('cible', 36, '#93c5fd') + '</div>'
       + '<div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:3px;">Bingo de la semaine</div>'
       + '<div style="font-size:0.78em;color:#94a3b8;margin-bottom:6px;">' + faits + ' / 9 défis validés · la grille se renouvelle chaque lundi</div>'
-      + '<div style="font-size:0.68em;color:#64748b;margin-bottom:14px;line-height:1.4;">Les cases se cochent toutes seules d\'après tes séances, tes jeux et tes records. Grille complète : une étoile.</div>'
+      + '<div style="font-size:0.68em;color:#8391a7;margin-bottom:14px;line-height:1.4;">Les cases se cochent toutes seules d\'après tes séances, tes jeux et tes records. Grille complète : une étoile.</div>'
       + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:16px;">' + cases + '</div>'
       + (faits === 9 ? '<div style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);border-radius:12px;padding:11px;margin-bottom:14px;font-size:0.86em;font-weight:900;color:#fbbf24;">Grille complète : une étoile gagnée !</div>' : '')
       + bouton('AwakGamesFermer()', 'Fermer'), 430);
@@ -1645,7 +1645,7 @@
     }).join('');
     var rec = (id === 'deathby' && records()[id]) ? '<div style="display:flex;justify-content:space-between;font-size:0.72em;color:#cbd5e1;padding:2px 0;"><span>Record</span><b style="color:#fbbf24;">' + records()[id] + ' minutes</b></div>' : '';
     return '<div style="text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 12px;margin:10px 0 4px;">'
-      + '<div style="font-size:0.58em;color:#64748b;font-weight:800;letter-spacing:1px;margin-bottom:4px;">TON CARNET</div>'
+      + '<div style="font-size:0.58em;color:#8391a7;font-weight:800;letter-spacing:1px;margin-bottom:4px;">TON CARNET</div>'
       + '<div style="display:flex;justify-content:space-between;font-size:0.72em;color:#cbd5e1;padding:2px 0;"><span>Parties jouées</span><b style="color:#fff;">' + e.parties + '</b></div>'
       + rec + lignes + '</div>';
   }
@@ -1708,7 +1708,7 @@
     var puces = autresProfils().map(function (x) {
       return puce(!pc.invite && pc.id === x.id, 'AwakGamesPartenaire(\'' + esc(x.id) + '\')', avatarDe(x.nom, 20) + esc(x.nom));
     }).join('') + puce(!!pc.invite, 'AwakGamesPartenaire(null)', ic('personne', 16, pc.invite ? '#fff' : '#94a3b8') + 'Invité');
-    return '<div style="font-size:0.62em;color:#64748b;font-weight:800;letter-spacing:1px;margin:12px 0 8px;">AVEC QUI ?</div>'
+    return '<div style="font-size:0.62em;color:#8391a7;font-weight:800;letter-spacing:1px;margin:12px 0 8px;">AVEC QUI ?</div>'
       + '<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;">' + puces + '</div>'
       + (pc.invite ? '<input type="text" maxlength="20" placeholder="Prénom de ton invité" value="' + esc(pc.nom === 'Invité' ? '' : pc.nom) + '" oninput="AwakGamesNomInvite(this.value)" style="width:100%;box-sizing:border-box;margin-top:8px;padding:10px 12px;border-radius:11px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.04);color:#fff;font-size:0.85em;">'
           + (function () {
@@ -1737,7 +1737,7 @@
       + (g.duo ? '<div style="display:inline-block;background:rgba(168,85,247,0.14);border:1px solid rgba(168,85,247,0.35);color:#c4b5fd;border-radius:8px;padding:3px 9px;font-size:0.68em;font-weight:800;margin-bottom:14px;">À deux</div>' : '')
       + carnetHTML(gameId)
       + (g.duo ? blocAvecQui() : '')
-      + '<div style="font-size:0.62em;color:#64748b;font-weight:800;letter-spacing:1px;margin:12px 0 8px;">' + esc(g.reglage).toUpperCase() + '</div>'
+      + '<div style="font-size:0.62em;color:#8391a7;font-weight:800;letter-spacing:1px;margin:12px 0 8px;">' + esc(g.reglage).toUpperCase() + '</div>'
       + '<div style="display:flex;gap:8px;margin-bottom:16px;">' + opts + '</div>'
       + '<button onclick="AwakGamesFermer()" style="width:100%;padding:11px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.8em;">Annuler</button>');
   };

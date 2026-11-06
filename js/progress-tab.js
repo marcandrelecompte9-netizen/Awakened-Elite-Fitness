@@ -143,7 +143,7 @@
                : '<div style="width:100%;height:3px;border-radius:2px;background:rgba(255,255,255,0.08);"></div>')
         + '</div>');
       dates += col('<span style="font-size:11px;line-height:1.2;text-align:center;white-space:nowrap;color:' + (courant ? '#67e8f9' : '#8a99ad') + ';font-weight:' + (courant ? 800 : 600) + ';">'
-        + (courant ? 'Cette<br>sem.' : d.getDate() + '<br><span style="color:#64748b;">' + (mois || '&nbsp;') + '</span>') + '</span>');
+        + (courant ? 'Cette<br>sem.' : d.getDate() + '<br><span style="color:#8391a7;">' + (mois || '&nbsp;') + '</span>') + '</span>');
     });
     var basBut = Math.round(but / max * 100);
     var faites = sem.filter(function (s) { return s.n >= but; }).length;
@@ -293,7 +293,7 @@
       var leg = cles.slice(0, 3).map(function (m) {
         return '<span style="display:inline-flex;align-items:center;gap:4px;white-space:nowrap;">'
           + '<span style="width:7px;height:7px;border-radius:50%;background:' + couleur(m) + ';"></span>' + esc(m) + '</span>';
-      }).join('') + (cles.length > 3 ? '<span style="color:#64748b;">+' + (cles.length - 3) + '</span>' : '');
+      }).join('') + (cles.length > 3 ? '<span style="color:#8391a7;">+' + (cles.length - 3) + '</span>' : '');
       // Un seul muscle : une barre pleine d'une couleur n'apporte rien (et le
       // rouge des pectoraux se lisait comme une erreur) → légende seule.
       return (cles.length > 1 ? '<div style="display:flex;height:4px;border-radius:99px;overflow:hidden;margin-top:9px;background:rgba(255,255,255,0.06);">' + seg + '</div>' : '')
@@ -322,7 +322,7 @@
     } catch (er) {}
     if (!noms.length) return '';
     var txt = noms.slice(0, 2).join(', ') + (noms.length > 2 ? ' +' + (noms.length - 2) : '');
-    return '<div style="font-size:0.66em;color:#64748b;font-weight:600;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(txt) + '</div>';
+    return '<div style="font-size:0.66em;color:#8391a7;font-weight:600;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(txt) + '</div>';
   }
 
   function carte(e, fav) {
@@ -350,7 +350,7 @@
       +     '<div style="font-size:0.7em;color:#94a3b8;font-weight:600;margin-top:2px;">' + infos.join(' · ') + '</div>'
       +     apercuExos(e)
       +   '</div>'
-      +   '<span class="awk-hist-chev" style="flex-shrink:0;color:#64748b;transition:transform .2s;display:inline-flex;">'
+      +   '<span class="awk-hist-chev" style="flex-shrink:0;color:#8391a7;transition:transform .2s;display:inline-flex;">'
       +     '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></span>'
       + '</div>'
       + barresMuscles(v, false)
@@ -360,7 +360,7 @@
       +     (e.workoutData
               ? bouton('replayWorkout(' + id + ')', 'Rejouer', true)
               + bouton('saveHistoryAsRoutine(' + id + ')', 'Garder en routine', false)
-              : '<span style="font-size:0.7em;color:#64748b;">Séance ancienne : impossible à rejouer.</span>')
+              : '<span style="font-size:0.7em;color:#8391a7;">Séance ancienne : impossible à rejouer.</span>')
       +     '<button onclick="toggleFavoriteWorkout(' + id + ')" aria-label="' + (fav ? 'Retirer des favoris' : 'Ajouter aux favoris') + '" '
       +       'style="flex-shrink:0;width:40px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;'
       +       'background:' + (fav ? 'rgba(251,191,36,0.14)' : 'rgba(255,255,255,0.04)') + ';border:1px solid ' + (fav ? 'rgba(251,191,36,0.5)' : 'rgba(255,255,255,0.12)') + ';">'
@@ -396,7 +396,7 @@
         var n = liste.filter(function (x) { return libelleSemaine(x.date) === lib; }).length;
         h += '<div style="display:flex;align-items:baseline;justify-content:space-between;margin:' + (semPrec === null ? '2px' : '14px') + ' 2px 7px;">'
           + '<span style="font-size:0.72em;font-weight:900;color:' + CLAIR + ';">' + lib + '</span>'
-          + '<span style="font-size:0.64em;color:#64748b;font-weight:700;">' + n + ' séance' + (n > 1 ? 's' : '') + '</span></div>';
+          + '<span style="font-size:0.64em;color:#8391a7;font-weight:700;">' + n + ' séance' + (n > 1 ? 's' : '') + '</span></div>';
         semPrec = lib;
       }
       h += carte(e, favoris.indexOf(e.id) !== -1);

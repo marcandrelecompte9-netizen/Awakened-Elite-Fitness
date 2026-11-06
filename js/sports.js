@@ -48,7 +48,7 @@
 
   function titre(t, c, extra) {
     return '<div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 7px;">'
-      + '<span style="font-size:0.58em;font-weight:900;letter-spacing:1.6px;color:' + (c || '#64748b') + ';">' + t + '</span>' + (extra || '') + '</div>';
+      + '<span style="font-size:0.58em;font-weight:900;letter-spacing:1.6px;color:' + (c || '#8391a7') + ';">' + t + '</span>' + (extra || '') + '</div>';
   }
   function ligne(opts) {
     // opts : { onclick, ico, couleur, nom, meta, droite, sourdine }
@@ -59,7 +59,7 @@
       + '<span style="flex-shrink:0;width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:' + (opts.sourdine ? 'rgba(255,255,255,0.05)' : c + '1f') + ';">' + ic(opts.ico || 'eclair', 15, opts.sourdine ? '#64748b' : c) + '</span>'
       + '<span style="flex:1;min-width:0;">'
       +   '<span style="display:block;font-size:0.84em;font-weight:800;color:' + (opts.sourdine ? '#94a3b8' : '#f1f5f9') + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(opts.nom) + '</span>'
-      +   (opts.meta ? '<span style="display:block;font-size:0.64em;color:#64748b;margin-top:2px;">' + esc(opts.meta) + '</span>' : '')
+      +   (opts.meta ? '<span style="display:block;font-size:0.64em;color:#8391a7;margin-top:2px;">' + esc(opts.meta) + '</span>' : '')
       + '</span>'
       + (opts.droite || '') + '</button>';
   }
@@ -101,7 +101,7 @@
       +   '<span style="display:block;font-weight:900;color:#fff;font-size:1.06em;">' + esc(d.name) + '</span>'
       +   (d.voie ? '<span style="display:block;font-size:0.68em;color:' + c + ';font-weight:800;margin-top:1px;">' + esc(d.voie) + '</span>' : '')
       + '</span>'
-      + '<span style="flex-shrink:0;text-align:right;"><span style="display:block;font-size:0.56em;color:#64748b;font-weight:800;letter-spacing:1px;">NIVEAU</span><span style="display:block;font-size:1.25em;font-weight:900;color:' + c + ';line-height:1;">' + lv.level + '</span></span>'
+      + '<span style="flex-shrink:0;text-align:right;"><span style="display:block;font-size:0.56em;color:#8391a7;font-weight:800;letter-spacing:1px;">NIVEAU</span><span style="display:block;font-size:1.25em;font-weight:900;color:' + c + ';line-height:1;">' + lv.level + '</span></span>'
       + '</div>'
       + '<div style="height:4px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;margin:11px 0 6px;"><div style="height:100%;width:' + pct + '%;background:' + c + ';border-radius:99px;"></div></div>'
       + '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">'
@@ -112,7 +112,7 @@
     if (!sessions.length) {
       h += '<div style="margin-top:14px;font-size:0.74em;color:#94a3b8;">Séances bientôt disponibles.</div>';
     } else {
-      h += titre('SÉANCES', c, '<span style="font-size:0.6em;color:#64748b;">' + dispo.length + ' disponible' + (dispo.length > 1 ? 's' : '') + '</span>');
+      h += titre('SÉANCES', c, '<span style="font-size:0.6em;color:#8391a7;">' + dispo.length + ' disponible' + (dispo.length > 1 ? 's' : '') + '</span>');
       h += dispo.map(function (s) {
         var n = (s.exercises || []).length, adapt = 0;
         // v1565 : séance adaptée à tes réglages (limitations, douleurs, bannis)
@@ -129,7 +129,7 @@
       if (verrou.length) {
         var cleL = d.id + ':lock', ouvL = !!_ouvert[cleL];
         h += '<button onclick="AwakSports.basculer(\'' + cleL + '\')" style="display:flex;align-items:center;justify-content:space-between;width:100%;margin:10px 0 6px;padding:8px 2px;background:none;border:none;cursor:pointer;font-family:inherit;">'
-          + '<span style="display:flex;align-items:center;gap:6px;font-size:0.6em;font-weight:900;letter-spacing:1.6px;color:#64748b;">' + ic('porte', 12, '#64748b') + 'À DÉBLOQUER (' + verrou.length + ')</span>' + chevron('#64748b', ouvL) + '</button>';
+          + '<span style="display:flex;align-items:center;gap:6px;font-size:0.6em;font-weight:900;letter-spacing:1.6px;color:#8391a7;">' + ic('porte', 12, '#64748b') + 'À DÉBLOQUER (' + verrou.length + ')</span>' + chevron('#64748b', ouvL) + '</button>';
         if (ouvL) h += verrou.map(function (s) {
           var need = s.minLevel || 1, reste = Math.max(1, Math.ceil(((need - 1) * 300 - (lv.xp || 0)) / 100));
           return ligne({ ico: 'porte', nom: propre(s.name), meta: 'Niveau ' + need + ' · encore ~' + reste + ' séance' + (reste > 1 ? 's' : ''), sourdine: true });
@@ -157,7 +157,7 @@
     if (!list.some(function (d) { return d.id === selId; })) selId = list[0] ? list[0].id : null;
     var d = list.filter(function (x) { return x.id === selId; })[0];
     return '<div style="display:grid;gap:12px;">'
-      + '<div style="font-size:0.58em;color:#64748b;font-weight:900;letter-spacing:2px;">CHOISIS TON SPORT</div>'
+      + '<div style="font-size:0.58em;color:#8391a7;font-weight:900;letter-spacing:2px;">CHOISIS TON SPORT</div>'
       + tuiles(list, selId)
       + (d ? carte(d) : '<p style="text-align:center;color:#94a3b8;padding:20px;">Aucun sport disponible.</p>')
       + (typeof _renderMyVoies === 'function' ? _renderMyVoies() : '')

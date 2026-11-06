@@ -553,7 +553,7 @@
         + '</div>'
         + '<div>'
         +   '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0 10px;">' + legend + '</div>'
-        +   '<div style="font-size:0.62em;color:#64748b;text-align:center;line-height:1.5;margin-bottom:12px;">Ton arbre grandit avec tes séances réelles — chaque entraînement nourrit les qualités qu\'il travaille. Aucune branche ne rétrécit jamais.</div>'
+        +   '<div style="font-size:0.62em;color:#8391a7;text-align:center;line-height:1.5;margin-bottom:12px;">Ton arbre grandit avec tes séances réelles — chaque entraînement nourrit les qualités qu\'il travaille. Aucune branche ne rétrécit jamais.</div>'
         + '</div>'
         + '</div>'
         + '<button id="awkShareBtn" style="width:100%;padding:13px;margin-bottom:8px;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;border-radius:14px;color:#04121f;font-weight:800;font-size:15px;cursor:pointer;">Partager mon arbre</button>'

@@ -130,7 +130,7 @@
       enTete = '<div style="display:flex;align-items:center;gap:7px;margin:2px 0 5px;">' +
           '<span style="background:rgba(251,146,60,0.15);border:1px solid rgba(251,146,60,0.45);color:#fb923c;' +
             'padding:2px 9px;border-radius:99px;font-size:0.6em;font-weight:900;letter-spacing:1px;display:inline-flex;align-items:center;gap:4px;">' + (window.AwakIcon ? window.AwakIcon.get('eclair', 11, '#fb923c') : '⚡') + 'SUPERSET</span>' +
-          '<span style="font-size:0.62em;color:#64748b;font-weight:700;">' + members.length + ' exercices enchaînés sans repos</span>' +
+          '<span style="font-size:0.62em;color:#8391a7;font-weight:700;">' + members.length + ' exercices enchaînés sans repos</span>' +
         '</div>';
     }
 
@@ -151,7 +151,7 @@
     var ligneSeries =
       '<div class="awak-rb-ligne">' + lbl('SÉRIES') +
         champ('sets', parseInt(ex.sets, 10) || 3, 1, 20) +
-        '<span style="color:#475569;font-weight:900;flex-shrink:0;">×</span>' +
+        '<span style="color:#7c8aa0;font-weight:900;flex-shrink:0;">×</span>' +
         (timed
           ? champ('duration', parseInt(ex.duration, 10) || 45, 5, 3600, 5, '', 'width:66px;') + unite('s (' + esc(shortDur(ex.duration || 45)) + ')', '#67e8f9')
           : champ('reps', parseInt(ex.reps, 10) || 10, 1, 100) + unite('reps', '#86efac')) +
@@ -161,10 +161,10 @@
         'border-radius:8px;overflow:hidden;">' +
         '<button onclick="AwakRoutineEditor.setMode(' + i + ',\'reps\')" ' +
           'style="border:none;cursor:pointer;padding:6px 11px;min-height:0;font-size:0.68em;font-weight:800;font-family:inherit;' +
-          'background:' + (timed ? 'transparent' : 'rgba(74,222,128,0.2)') + ';color:' + (timed ? '#64748b' : '#86efac') + ';">Reps</button>' +
+          'background:' + (timed ? 'transparent' : 'rgba(74,222,128,0.2)') + ';color:' + (timed ? '#8391a7' : '#86efac') + ';">Reps</button>' +
         '<button onclick="AwakRoutineEditor.setMode(' + i + ',\'timer\')" ' +
           'style="border:none;cursor:pointer;padding:6px 11px;min-height:0;font-size:0.68em;font-weight:800;font-family:inherit;' +
-          'background:' + (timed ? 'rgba(34,211,238,0.2)' : 'transparent') + ';color:' + (timed ? '#67e8f9' : '#64748b') + ';">Durée</button>' +
+          'background:' + (timed ? 'rgba(34,211,238,0.2)' : 'transparent') + ';color:' + (timed ? '#67e8f9' : '#8391a7') + ';">Durée</button>' +
       '</div>';
     // ⏱ Repos après la série (vide = réglage global). En superset, c'est
     // le repos de FIN DE TOUR (réglé sur le 1er exercice du groupe).
@@ -180,7 +180,7 @@
     // Actions : ordre, superset, suppression
     var btn = 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;' +
       'border-radius:7px;padding:5px 9px;font-size:0.7em;font-weight:800;cursor:pointer;font-family:inherit;';
-    var btnOff = 'background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);color:#475569;' +
+    var btnOff = 'background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);color:#7c8aa0;' +
       'border-radius:7px;padding:5px 9px;font-size:0.7em;font-weight:800;cursor:not-allowed;font-family:inherit;';
 
     var peutLier = (i < exs.length - 1);
@@ -212,10 +212,10 @@
           (estGroupe
             ? '<span style="flex-shrink:0;width:21px;height:21px;border-radius:6px;background:#fb923c;color:#1a0f04;' +
               'font-size:0.68em;font-weight:900;display:inline-flex;align-items:center;justify-content:center;">' + lettre + '</span>'
-            : '<span style="flex-shrink:0;color:#475569;font-size:0.72em;font-weight:900;min-width:16px;">' + (i + 1) + '</span>') +
+            : '<span style="flex-shrink:0;color:#7c8aa0;font-size:0.72em;font-weight:900;min-width:16px;">' + (i + 1) + '</span>') +
           '<div style="flex:1;min-width:0;cursor:pointer;" onclick="window.awakShowExercisePreview&&awakShowExercisePreview(this.getAttribute(\'data-n\'))" data-n="' + esc(ex.name) + '">' +
             '<div style="font-weight:800;color:#e8f0f8;font-size:0.86em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(ex.name) + '</div>' +
-            '<div style="font-size:0.64em;color:#64748b;margin-top:1px;">' + esc(ex.muscle || 'Corps') + '</div>' +
+            '<div style="font-size:0.64em;color:#8391a7;margin-top:1px;">' + esc(ex.muscle || 'Corps') + '</div>' +
           '</div>' +
           // v1425 : voir l'image de l'exercice
           '<button type="button" class="awak-rb-voir" aria-label="Voir l\'image" onclick="event.stopPropagation();window.awakShowExercisePreview&&awakShowExercisePreview(this.getAttribute(\'data-n\'))" data-n="' + esc(ex.name) + '">' +
@@ -238,10 +238,10 @@
       'padding:2px 4px!important;font-size:16px!important;border-radius:8px!important;' +
       'border:1px solid rgba(255,255,255,0.14)!important;background:rgba(255,255,255,0.05)!important;' +
       'color:#e8f0f8!important;text-align:center!important;box-sizing:border-box!important;}' +
-      'input.awak-num::placeholder{color:#64748b;font-size:13px;}' +
+      'input.awak-num::placeholder{color:#8391a7;font-size:13px;}' +
       // v1425 : lignes de réglage alignées (libellé de largeur fixe)
       '.awak-rb-ligne{display:flex;align-items:center;gap:6px;margin-top:8px;min-width:0;}' +
-      '.awak-rb-lbl{width:52px;flex-shrink:0;font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:1px;}' +
+      '.awak-rb-lbl{width:52px;flex-shrink:0;font-size:0.6em;color:#8391a7;font-weight:900;letter-spacing:1px;}' +
       '.awak-rb-voir{flex-shrink:0;width:34px;height:34px;min-height:0!important;padding:0!important;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);}';
     document.head.appendChild(st);
   }
@@ -250,10 +250,10 @@
     stylesChamps();
     var exs = (routine && routine.exercises) || [];
     if (!exs.length) {
-      return '<div style="text-align:center;padding:30px 18px;color:#475569;font-size:0.82em;font-style:italic;">' +
+      return '<div style="text-align:center;padding:30px 18px;color:#7c8aa0;font-size:0.82em;font-style:italic;">' +
         'Aucun exercice. Ajoute-en !</div>';
     }
-    var aide = '<div style="font-size:0.64em;color:#64748b;line-height:1.5;margin-bottom:10px;padding:9px 11px;' +
+    var aide = '<div style="font-size:0.64em;color:#8391a7;line-height:1.5;margin-bottom:10px;padding:9px 11px;' +
       'background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:9px;">' +
       '💡 Règle chaque exercice en <strong style="color:#86efac;">reps</strong> ou en ' +
       '<strong style="color:#67e8f9;">durée</strong> (ex. 5 min de vélo). ' +
@@ -433,6 +433,26 @@
       }
       SS.banner();
     } catch (e) { SS.st = null; }
+  };
+
+  // v1589 : index du VRAI exercice suivant dans un superset (pour « Ensuite » et
+  // le bandeau de repos) : membre suivant du tour ; au dernier membre, retour au
+  // premier tant qu'il reste des tours ; -1 = hors superset ou dernier tour fini
+  // (l'appelant prend alors l'exercice suivant de la liste).
+  SS.prochain = function (w, idx) {
+    try {
+      var ex = w && w.exercises && w.exercises[idx];
+      if (!ex || !ex.ss || _fini(w, ex.ss)) return -1;
+      var mem = groupMembers(w.exercises, idx);
+      if (mem.length < 2) return -1;
+      var arme = SS.st && SS.st.g === ex.ss;
+      var tour = arme ? SS.st.round : 1;
+      var total = arme ? SS.st.total : (parseInt(mem.map(function (k) { return w.exercises[k].sets; })[0], 10) || 3);
+      var pos = mem.indexOf(idx);
+      if (pos < 0) return -1;
+      if (pos < mem.length - 1) return mem[pos + 1];
+      return tour < total ? mem[0] : -1;
+    } catch (e) { return -1; }
   };
 
   // L'exercice affiché appartient-il à un superset de 2+ exercices ?

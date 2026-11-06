@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=1585">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1585">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1585">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1585">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1585">
+    <link rel="manifest" href="manifest.json?v=1616">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1616">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1616">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1616">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1616">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -38,13 +38,13 @@
         });
     </script>
     <!-- v1398 : mode dev « Avancer le temps » — doit précéder tous les scripts -->
-    <script src="js/dev-temps.js?v=1585"></script>
+    <script src="js/dev-temps.js?v=1616"></script>
 
     <!-- Fonts -->
     <!-- v1288 : police Outfit embarquée (fonts/ + css/style.css) : plus besoin d'Internet -->
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=1585">
+    <link rel="stylesheet" href="css/style.css?v=1616">
 </head>
 <body>
 
@@ -201,8 +201,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1585">
-                <img src="images/banner_v3_mobile.webp?v=1585"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1616">
+                <img src="images/banner_v3_mobile.webp?v=1616"
                      alt="Awakened Elite Fitness"
                      onerror="var p=this.closest('picture');if(p&&p.parentElement)p.parentElement.style.display='none';"
                      style="width:100%;height:auto;display:block;" />
@@ -339,7 +339,7 @@
                                 <div id="homeStatStreak" style="font-family:'SFMono-Regular','Consolas',monospace;
                                      font-size:1.25em;font-weight:900;color:#fbbf24;line-height:1;">0</div>
                                 <div style="font-family:'SFMono-Regular','Consolas',monospace;font-size:0.55em;
-                                     color:#64748b;margin-top:5px;font-weight:800;letter-spacing:1.2px;">JOURS DE SUITE</div>
+                                     color:#8391a7;margin-top:5px;font-weight:800;letter-spacing:1.2px;">JOURS DE SUITE</div>
                             </div>
                             <div style="flex:1;min-width:0;padding:10px 12px;border-radius:8px;
                                         background:#070b12;border:1px solid rgba(96,168,240,0.16);
@@ -347,7 +347,7 @@
                                 <div id="homeStatWeek" style="font-family:'SFMono-Regular','Consolas',monospace;
                                      font-size:1.25em;font-weight:900;color:#60a8f0;line-height:1;">0</div>
                                 <div style="font-family:'SFMono-Regular','Consolas',monospace;font-size:0.55em;
-                                     color:#64748b;margin-top:5px;font-weight:800;letter-spacing:1.2px;">CETTE SEMAINE</div>
+                                     color:#8391a7;margin-top:5px;font-weight:800;letter-spacing:1.2px;">CETTE SEMAINE</div>
                             </div>
                         </div>
                         <!-- ⚠️ Conteneurs CONSERVÉS mais masqués : updateHomeStats() y écrit,
@@ -364,7 +364,7 @@
                 </div>
                 <!-- ✨ Carte des fonctionnalités (accès discret) -->
                 <button onclick="showFeatureMap()" style="
-                    width:100%;margin-top:6px;background:none;border:none;color:#64748b;
+                    width:100%;margin-top:6px;background:none;border:none;color:#8391a7;
                     padding:8px;font-size:0.76em;font-weight:700;cursor:pointer;">
                     ✨ Tout explorer ›
                 </button>
@@ -404,7 +404,7 @@
                 </div>
             <div id="eveilJourneyCard"></div>
                 <!-- 👥 Séance à plusieurs — rempli par updateHomeGroupButton() -->
-                <span id="groupWorkoutBtnContainer"></span>
+                <div id="groupWorkoutBtnContainer" style="display:block;"></div>
             <!-- 🤕 Où as-tu mal ? (sélecteur visuel sur le personnage) -->
             <div id="painCheckCard"></div>
             </div>
@@ -644,7 +644,7 @@
                     Temps minimum : 48h par groupe musculaire
                 </p>
                 <div id="muscleRecoveryContainer"></div>
-                <p style="font-size:0.72em;color:#64748b;margin:12px 0 0;line-height:1.5;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;">
+                <p style="font-size:0.72em;color:#8391a7;margin:12px 0 0;line-height:1.5;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;">
                     ↻ Pour remettre tous tes muscles à l'état « prêt » :
                     <strong style="color:#94a3b8;">Réglages › Entraînement › Réinitialiser la récupération</strong>
                 </p>
@@ -1198,25 +1198,25 @@
                         <button onclick="selectExerciseCount(3)" style="padding:13px 6px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(34,211,238,0.25);border-radius:12px;color:#e2e8f0;cursor:pointer;">
                             <div style="font-size:1.1em;font-weight:900;color:#fff;">3</div>
                             <div style="font-size:0.62em;color:#94a3b8;margin-top:2px;">EXOS</div>
-                            <div style="font-size:0.55em;color:#64748b;margin-top:2px;">~15 min</div>
+                            <div style="font-size:0.55em;color:#8391a7;margin-top:2px;">~15 min</div>
                         </button>
                         <button onclick="selectExerciseCount(5)" style="padding:13px 6px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(34,211,238,0.25);border-radius:12px;color:#e2e8f0;cursor:pointer;">
                             <div style="font-size:1.1em;font-weight:900;color:#fff;">5</div>
                             <div style="font-size:0.62em;color:#94a3b8;margin-top:2px;">EXOS</div>
-                            <div style="font-size:0.55em;color:#64748b;margin-top:2px;">~25 min</div>
+                            <div style="font-size:0.55em;color:#8391a7;margin-top:2px;">~25 min</div>
                         </button>
                         <button onclick="selectExerciseCount(8)" style="padding:13px 6px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(34,211,238,0.25);border-radius:12px;color:#e2e8f0;cursor:pointer;">
                             <div style="font-size:1.1em;font-weight:900;color:#fff;">8</div>
                             <div style="font-size:0.62em;color:#94a3b8;margin-top:2px;">EXOS</div>
-                            <div style="font-size:0.55em;color:#64748b;margin-top:2px;">~40 min</div>
+                            <div style="font-size:0.55em;color:#8391a7;margin-top:2px;">~40 min</div>
                         </button>
                         <button onclick="selectExerciseCount(12)" style="padding:13px 6px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(34,211,238,0.25);border-radius:12px;color:#e2e8f0;cursor:pointer;">
                             <div style="font-size:1.1em;font-weight:900;color:#fff;">12</div>
                             <div style="font-size:0.62em;color:#94a3b8;margin-top:2px;">EXOS</div>
-                            <div style="font-size:0.55em;color:#64748b;margin-top:2px;">~60 min</div>
+                            <div style="font-size:0.55em;color:#8391a7;margin-top:2px;">~60 min</div>
                         </button>
                     </div>
-                    <p id="awakDureeNote" style="font-size:0.66em;color:#64748b;margin:10px 0 0;line-height:1.45;">La durée dépend de ton objectif : séries et repos compris, plus l'échauffement et les étirements.</p>
+                    <p id="awakDureeNote" style="font-size:0.66em;color:#8391a7;margin:10px 0 0;line-height:1.45;">La durée dépend de ton objectif : séries et repos compris, plus l'échauffement et les étirements.</p>
 
                 </div>
             </div>
@@ -1385,7 +1385,7 @@
                     <span style="flex-shrink:0;width:38px;height:38px;border-radius:11px;display:inline-flex;align-items:center;justify-content:center;background:rgba(34,211,238,0.10);color:#67e8f9;"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
                     <span style="flex:1;min-width:0;">
                         <span style="display:block;font-size:0.95em;font-weight:800;color:#f1f5f9;">Autres façons de s'entraîner</span>
-                        <span style="display:block;font-size:0.76em;color:#a3b1c2;margin-top:2px;">Tabata, superset, circuit, AMRAP et 16 jeux d'entraînement</span>
+                        <span style="display:block;font-size:0.76em;color:#a3b1c2;margin-top:2px;">Tabata, superset, circuit, AMRAP et 15 jeux d'entraînement</span>
                     </span>
                     <span class="awak-chev" style="flex-shrink:0;color:#94a3b8;display:inline-flex;transition:transform .25s ease;"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
                 </button>
@@ -1500,7 +1500,7 @@
                     </div>
 
                     <!-- Muscles Overview Badge -->
-                    <div id="musclesOverviewBadge" style="background:rgba(168,85,247,0.08);color:#c084fc;padding:8px 14px;border-radius:6px;text-align:center;font-weight:800;margin-bottom:14px;font-size:0.74em;border:1px solid rgba(168,85,247,0.3);display:none;letter-spacing:1px;position:relative;z-index:1;">
+                    <div id="musclesOverviewBadge" style="background:rgba(34,211,238,0.08);color:#67e8f9;padding:8px 14px;border-radius:6px;text-align:center;font-weight:800;margin-bottom:14px;font-size:0.74em;border:1px solid rgba(34,211,238,0.3);display:none;letter-spacing:1px;position:relative;z-index:1;">
                         💪 Muscles : Pectoraux • Dos • Épaules
                     </div>
 
@@ -1510,8 +1510,8 @@
 
                     <div class="timer" style="text-align:center;padding:8px 0;position:relative;z-index:1;">
                         <div class="next-exercise-preview" id="nextExercisePreview" style="margin-bottom:14px;">
-                            <div class="next-exercise-label" style="font-size:0.6em;color:#475569;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:3px;">▸ PROCHAIN</div>
-                            <div class="next-exercise-name" id="nextExerciseName" style="font-size:0.85em;color:#64748b;font-weight:700;">-</div>
+                            <div class="next-exercise-label" style="font-size:0.6em;color:#7c8aa0;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:3px;">▸ PROCHAIN</div>
+                            <div class="next-exercise-name" id="nextExerciseName" style="font-size:0.85em;color:#8391a7;font-weight:700;">-</div>
                         </div>
                         <!-- Exercise number with HUD corners -->
                         <div class="exercise-number" id="exerciseNumber" style="font-size:0.65em;color:#cbd5e1;font-weight:900;letter-spacing:3.5px;text-transform:uppercase;margin-bottom:8px;text-shadow:0 0 8px rgba(34,211,238,0.5);">Exercise 1/10</div>
@@ -1549,7 +1549,7 @@
                         <div class="timer-display" id="timerDisplay" style="color:white;font-family:var(--font-display);text-shadow:0 0 8px rgba(34,211,238,0.3);font-variant-numeric:tabular-nums;">00:45</div>
 
                         <!-- Tag muscle (masqué — dispo dans les détails) -->
-                        <div id="visualMuscleTag" style="display:none;position:absolute;top:12px;left:14px;z-index:2;font-size:0.55em;font-weight:900;color:#a855f7;letter-spacing:1.5px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);padding:3px 8px;border-radius:6px;text-transform:uppercase;"></div>
+                        <div id="visualMuscleTag" style="display:none;position:absolute;top:12px;left:14px;z-index:2;font-size:0.55em;font-weight:900;color:#22d3ee;letter-spacing:1.5px;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.3);padding:3px 8px;border-radius:6px;text-transform:uppercase;"></div>
 
                         <!-- Équipement requis (masqué — dispo dans les détails) -->
                         <div id="equipmentBadges" style="display:none;position:absolute;top:32px;left:14px;z-index:2;flex-wrap:wrap;gap:4px;justify-content:flex-start;max-width:160px;"></div>
@@ -1577,7 +1577,7 @@
                                     <div id="setIndicator" style="font-size:0.7em;font-weight:900;color:#cbd5e1;letter-spacing:3px;text-transform:uppercase;text-shadow:0 0 8px rgba(96,168,240,0.4);">SÉRIE 1 / 3</div>
                                     <!-- 🏋️ Type de résistance (rempli dynamiquement par JS) -->
                                     <div id="resistanceTypeChip" style="display:none;margin-top:6px;font-size:0.58em;color:#94a3b8;font-weight:800;letter-spacing:2px;text-transform:uppercase;">
-                                        <span style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);color:#c084fc;padding:3px 9px;border-radius:99px;">🏋️ <span id="resistanceTypeText">Poids du corps</span></span>
+                                        <span style="background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.3);color:#67e8f9;padding:3px 9px;border-radius:99px;">🏋️ <span id="resistanceTypeText">Poids du corps</span></span>
                                     </div>
                                     <div id="setProgressDots" style="display:flex;gap:5px;justify-content:center;margin-top:8px;"></div>
                                 </div>
@@ -1724,12 +1724,12 @@
                     <hr style="margin:6px 0;border:none;border-top:1px solid rgba(255,255,255,0.1);">
                     <div id="muscuOnlyOpts">
                     <div id="optsAvancees">
-                    <div style="padding:4px 14px 2px;font-size:0.68em;color:#64748b;font-weight:800;letter-spacing:1px;text-transform:uppercase;">Pour aller plus loin</div>
+                    <div style="padding:4px 14px 2px;font-size:0.68em;color:#8391a7;font-weight:800;letter-spacing:1px;text-transform:uppercase;">Pour aller plus loin</div>
                     <button onclick="triggerDropSet();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;">Série dégressive <span style="font-size:0.78em;color:#94a3b8;">(baisse le poids et continue)</span></button>
                     <button onclick="triggerRestPause();toggleWorkoutOptionsPanel();" style="display:block;width:100%;padding:10px 14px;text-align:left;border:none;background:none;cursor:pointer;font-size:0.9em;border-radius:10px;color:#e2e8f0;"><svg viewBox="0 0 24 24" width="18" height="18" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 4 h4 v16 h-4 Z M14 4 h4 v16 h-4 Z"/></svg> Mini-pause <span style="font-size:0.78em;color:#94a3b8;">(15 s puis encore quelques reps)</span></button>
                     <hr style="margin:6px 0;border:none;border-top:1px solid rgba(255,255,255,0.1);">
                     </div>
-                    <div style="padding:6px 14px 4px;font-size:0.75em;color:#94a3b8;font-weight:700;">C'était dur ? <span id="optsRpeAide" style="font-weight:600;color:#64748b;">(3 = facile, 10 = à fond)</span></div>
+                    <div style="padding:6px 14px 4px;font-size:0.75em;color:#94a3b8;font-weight:700;">C'était dur ? <span id="optsRpeAide" style="font-weight:600;color:#8391a7;">(3 = facile, 10 = à fond)</span></div>
                     <div id="optsRpeEnfant" style="display:none;gap:4px;padding:0 10px 8px;">
                         <button onclick="setInlineRPE(3);toggleWorkoutOptionsPanel();" style="flex:1;padding:8px 0;border-radius:8px;border:1px solid rgba(96,168,240,0.5);background:rgba(96,168,240,0.12);color:#93c5fd;font-size:0.8em;font-weight:800;cursor:pointer;">Facile</button>
                         <button onclick="setInlineRPE(6);toggleWorkoutOptionsPanel();" style="flex:1;padding:8px 0;border-radius:8px;border:1px solid rgba(251,191,36,0.5);background:rgba(251,191,36,0.12);color:#fbbf24;font-size:0.8em;font-weight:800;cursor:pointer;">Moyen</button>
@@ -1769,8 +1769,8 @@
                             <div class="progress-stat-value" id="completedCount" style="font-size:1.4em;font-weight:900;color:#cbd5e1;font-variant-numeric:tabular-nums;text-shadow:0 0 10px rgba(96,168,240,0.4);">0</div>
                             <div class="progress-stat-label" style="font-size:0.55em;color:#94a3b8;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;margin-top:3px;">Complétés</div>
                         </div>
-                        <div class="progress-stat" style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.3);border-radius:10px;padding:10px 8px;text-align:center;">
-                            <div class="progress-stat-value" id="remainingCount" style="font-size:1.4em;font-weight:900;color:#c084fc;font-variant-numeric:tabular-nums;text-shadow:0 0 10px rgba(168,85,247,0.4);">0</div>
+                        <div class="progress-stat" style="background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.3);border-radius:10px;padding:10px 8px;text-align:center;">
+                            <div class="progress-stat-value" id="remainingCount" style="font-size:1.4em;font-weight:900;color:#67e8f9;font-variant-numeric:tabular-nums;text-shadow:0 0 10px rgba(34,211,238,0.4);">0</div>
                             <div class="progress-stat-label" style="font-size:0.55em;color:#94a3b8;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;margin-top:3px;">Restants</div>
                         </div>
                         <div class="progress-stat" style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.3);border-radius:10px;padding:10px 8px;text-align:center;">
@@ -1867,7 +1867,7 @@
             <div id="preparationView" class="hidden">
                 <div class="card" style="background:linear-gradient(165deg,#020510,#0D0D0D);border:1px solid rgba(34,211,238,0.25);position:relative;overflow:hidden;">
                     <!-- Halo + scanlines subtils -->
-                    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(34,211,238,0.12),transparent 60%),radial-gradient(ellipse 60% 40% at 50% 115%,rgba(168,85,247,0.08),transparent 60%);pointer-events:none;"></div>
+                    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(34,211,238,0.12),transparent 60%),radial-gradient(ellipse 60% 40% at 50% 115%,rgba(96,168,240,0.08),transparent 60%);pointer-events:none;"></div>
                     <div style="position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0,transparent 3px,rgba(34,211,238,0.018) 3px,rgba(34,211,238,0.018) 4px);pointer-events:none;"></div>
 
                     <div style="padding:22px 18px;position:relative;z-index:1;">
@@ -1875,7 +1875,7 @@
                         <div style="text-align:center;margin-bottom:22px;">
                             <div style="font-family:'Rajdhani',sans-serif;font-size:0.62em;color:#60a8f0;font-weight:700;letter-spacing:2.5px;margin-bottom:7px;">Ta séance est prête</div>
                             <h2 style="font-family:'Rajdhani',sans-serif;color:#fff;font-size:1.45em;font-weight:700;letter-spacing:1.5px;margin:0 0 9px;text-shadow:0 0 14px rgba(34,211,238,0.3);">PRÉPARE-TOI</h2>
-                            <p id="prepWorkoutName" style="display:inline-block;font-size:0.68em;font-weight:800;color:#c084fc;margin:0;letter-spacing:1px;text-transform:uppercase;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);border-radius:99px;padding:6px 14px;">
+                            <p id="prepWorkoutName" style="display:inline-block;font-size:0.68em;font-weight:800;color:#67e8f9;margin:0;letter-spacing:1px;text-transform:uppercase;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.3);border-radius:99px;padding:6px 14px;">
                                 Séance Intelligente
                             </p>
                         </div>
@@ -2231,7 +2231,7 @@
                 <button onclick="awakMesExercices()" class="awk-hist-chip" style="flex:0 0 auto;padding:8px 14px;">Mes exercices</button>
                 <button onclick="if(window.awakCreerExercice)awakCreerExercice()" class="awk-hist-chip" style="flex:0 0 auto;padding:8px 14px;border-style:dashed;color:#67e8f9;">+ Créer</button>
                 <button onclick="resetFilters()" class="awk-hist-chip" style="flex:0 0 auto;padding:8px 14px;">Tout voir</button>
-                <span id="awakExoCompte" style="margin-left:auto;font-size:0.7em;color:#64748b;font-weight:700;"></span>
+                <span id="awakExoCompte" style="margin-left:auto;font-size:0.7em;color:#8391a7;font-weight:700;"></span>
             </div>
 
             <div class="card" style="padding:10px !important;">
@@ -2647,7 +2647,7 @@
             <!-- ═══════════ GROUPE 3 · AUDIO & NOTIFICATIONS ═══════════ -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleSettingsAccordion(this)">
-                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Audio &amp; notifications</span><span style="display:block;font-size:0.76em;color:#a3b1c2;font-weight:600;margin-top:3px;letter-spacing:0;">Voix du coach, sons, rappels</span></div>
+                    <div class="accordion-title" style="display:block;"><span style="display:block;font-weight:800;">Audio &amp; notifications</span><span style="display:block;font-size:0.76em;color:#a3b1c2;font-weight:600;margin-top:3px;letter-spacing:0;">Décompte vocal, musique, rappels</span></div>
                     <div class="accordion-icon">▼</div>
                 </div>
                 <div class="accordion-body">
@@ -2659,6 +2659,16 @@
                              Fonctionnalité désactivée plutôt que de laisser un réglage qui ment.
                              speak() et speakCountdown() sont neutralisées côté JS : les ~50
                              appels existants restent en place sans rien produire. -->
+
+                        <!-- v1593 : décompte vocal des 5 dernières secondes d'un exercice au temps -->
+                        <div class="settings-sub">
+                            <button id="awakVoixDecompteBtn" role="switch" aria-checked="true" onclick="awakBasculerVoixDecompte()" style="min-height:0;width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:11px 12px;border-radius:12px;cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);color:#e2e8f0;">
+                                <span style="flex:1;min-width:0;"><span style="display:block;font-size:14px;font-weight:800;color:#f1f5f9;">Décompte vocal</span>
+                                <span style="display:block;font-size:12px;color:#94a3b8;margin-top:1px;">« 5, 4, 3, 2, 1 » à voix haute à la fin d'un exercice au temps</span></span>
+                                <span class="awk-vd-piste" style="flex-shrink:0;width:44px;height:26px;border-radius:99px;position:relative;transition:background .2s;background:#22d3ee;">
+                                <span class="awk-vd-bille" style="position:absolute;top:3px;left:21px;width:20px;height:20px;border-radius:50%;background-color:rgb(248,250,252);transition:left .2s;"></span></span>
+                            </button>
+                        </div>
 
                         <!-- v1472 : Musique en séance -->
                         <div class="settings-sub">
@@ -2952,7 +2962,7 @@
             <div style="display:flex;flex-direction:column;gap:14px;">
                 <div>
                     <label style="display:block;font-weight:700;font-size:0.85em;color:#9ca3af;margin-bottom:6px;">Exercice</label>
-                    <select id="frcExercise" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.12);font-size:1em;">
+                    <select id="frcExercise" aria-label="Exercice" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.12);font-size:1em;">
                         <option value="Développé couché">Développé couché</option>
                         <option value="Squat">Squat</option>
                         <option value="Soulevé de terre">Soulevé de terre</option>
@@ -2964,28 +2974,28 @@
                 <div style="display:flex;gap:10px;">
                     <div style="flex:1;">
                         <label style="display:block;font-weight:700;font-size:0.85em;color:#9ca3af;margin-bottom:6px;">Sexe</label>
-                        <select id="frcSex" onchange="this.dataset.touche=1" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.12);font-size:1em;">
+                        <select id="frcSex" aria-label="Sexe" onchange="this.dataset.touche=1" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.12);font-size:1em;">
                             <option value="homme">Homme</option>
                             <option value="femme">Femme</option>
                         </select>
                     </div>
                     <div style="flex:1;">
                         <label id="frcBodyweightLabel" style="display:block;font-weight:700;font-size:0.85em;color:#9ca3af;margin-bottom:6px;">Poids corps (lbs)</label>
-                        <input id="frcBodyweight" type="number" inputmode="decimal" placeholder="75" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.12);font-size:1em;box-sizing:border-box;">
+                        <input id="frcBodyweight" aria-label="Poids de corps" type="number" inputmode="decimal" placeholder="75" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.12);font-size:1em;box-sizing:border-box;">
                     </div>
                 </div>
 
                 <div style="display:flex;gap:10px;">
                     <div style="flex:1;">
                         <label id="frcWeightLabel" style="display:block;font-weight:700;font-size:0.85em;color:#9ca3af;margin-bottom:6px;">Charge (lbs)</label>
-                        <input id="frcWeight" type="number" inputmode="decimal" placeholder="100" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.12);font-size:1em;box-sizing:border-box;">
+                        <input id="frcWeight" aria-label="Charge soulevée" type="number" inputmode="decimal" placeholder="100" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.12);font-size:1em;box-sizing:border-box;">
                     </div>
                     <div style="flex:1;">
                         <label style="display:block;font-weight:700;font-size:0.85em;color:#9ca3af;margin-bottom:6px;">Répétitions</label>
-                        <input id="frcReps" type="number" inputmode="numeric" placeholder="1" value="1" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.12);font-size:1em;box-sizing:border-box;">
+                        <input id="frcReps" aria-label="Répétitions" type="number" inputmode="numeric" placeholder="1" value="1" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.12);font-size:1em;box-sizing:border-box;">
                     </div>
                 </div>
-                <div style="font-size:0.75em;color:#6b7280;margin-top:-6px;">Pour les tractions, entre la charge ajoutée (0 si poids du corps seul).</div>
+                <div style="font-size:0.75em;color:#8391a7;margin-top:-6px;">Pour les tractions, entre la charge ajoutée (0 si poids du corps seul).</div>
 
                 <button onclick="computeForceReelle()" style="width:100%;padding:14px;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;border:none;border-radius:14px;font-weight:800;cursor:pointer;font-size:1em;letter-spacing:0.5px;">
                     Analyser ma force
@@ -3012,17 +3022,17 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
                     <div>
                         <span style="display: block; font-weight: 600; margin-bottom: 8px; color: #e2e8f0;">Exercice</span>
-                        <select id="rm-exercise" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 1em;">
+                        <select id="rm-exercise" aria-label="Exercice" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 1em;">
                             <option value="">Sélectionner...</option>
                         </select>
                     </div>
                     <div>
                         <span data-weight-unit style="display: block; font-weight: 600; margin-bottom: 8px; color: #e2e8f0;">Poids soulevé (lbs)</span>
-                        <input type="number" id="rm-weight" placeholder="Ex: 135" step="5" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 1em;">
+                        <input type="number" id="rm-weight" aria-label="Poids soulevé" placeholder="Ex: 135" step="5" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 1em;">
                     </div>
                     <div>
                         <span style="display: block; font-weight: 600; margin-bottom: 8px; color: #e2e8f0;">Répétitions réussies</span>
-                        <input type="number" id="rm-reps" placeholder="Ex: 8" min="1" max="20" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 1em;">
+                        <input type="number" id="rm-reps" aria-label="Répétitions réussies" placeholder="Ex: 8" min="1" max="20" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 1em;">
                     </div>
                 </div>
 
@@ -3080,12 +3090,12 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
                     <div>
                         <span data-weight-unit style="display: block; font-weight: 600; margin-bottom: 8px; color: #e2e8f0;">Poids cible (lbs)</span>
-                        <input type="number" id="plateTargetWeight" placeholder="Ex: 225" step="5"
+                        <input type="number" id="plateTargetWeight" aria-label="Poids cible" placeholder="Ex: 225" step="5"
                                style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 1.2em; font-weight: 600;">
                     </div>
                     <div>
                         <span style="display: block; font-weight: 600; margin-bottom: 8px; color: #e2e8f0;">Type de barre</span>
-                        <select id="plateBarType" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 1em;">
+                        <select id="plateBarType" aria-label="Type de barre" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); font-size: 1em;">
                             <option value="45">Olympique (45 lbs)</option>
                             <option value="35">Standard (35 lbs)</option>
                             <option value="15">Curl (15 lbs)</option>
@@ -3500,18 +3510,18 @@
             <div class="modal-body">
                 <p style="color: #94a3b8; margin-bottom: 20px;">Enchaîne 2 ou 3 exercices sans repos entre eux. Parfait pour intensifier l'entraînement !</p>
 
-                <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #16a34a;">Nom du superset</span>
+                <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #67e8f9;">Nom du superset</span>
                 <input type="text" id="supersetName" placeholder="Ex: Pecs + Dos" style="width: 100%; padding: 12px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px; margin-bottom: 15px;">
 
                 <!-- Filtres exercices superset -->
                 <div class="wkt-filter-box" style="background: #fff8f6; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px; margin-bottom: 15px;">
-                    <div style="font-size: 0.8em; font-weight: 700; color: #16a34a; margin-bottom: 8px;">🔍 Filtrer les exercices dans les listes</div>
+                    <div style="font-size: 0.8em; font-weight: 700; color: #67e8f9; margin-bottom: 8px;">Filtrer les exercices dans les listes</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
                         <input type="text" id="supersetSearchFilter" placeholder="Rechercher..." oninput="updateSupersetOptions()"
                                style="padding: 8px; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; font-size: 0.85em;">
                         <select id="supersetMuscleFilter" onchange="updateSupersetOptions()"
                                 style="padding: 8px; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; font-size: 0.85em;">
-                            <option value="">💪 Tous muscles</option>
+                            <option value="">Tous muscles</option>
                             <option value="Pectoraux">Pectoraux</option>
                             <option value="Dos">Dos</option>
                             <option value="Épaules">Épaules</option>
@@ -3530,7 +3540,7 @@
                         <select id="supersetEquipFilter" onchange="updateSupersetOptions()"
                                 style="padding: 8px; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; font-size: 0.85em;">
                             <option value="__mine">Mon matériel</option>
-                            <option value="">🏋️ Tous équip.</option>
+                            <option value="">Tous équip.</option>
                             <option value="Poids du corps">Poids du corps</option>
                             <option value="Haltères">Haltères</option>
                             <option value="Barre">Barre</option>
@@ -3544,7 +3554,7 @@
                         </select>
                         <select id="supersetDiffFilter" onchange="updateSupersetOptions()"
                                 style="padding: 8px; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; font-size: 0.85em;">
-                            <option value="">📊 Tous niveaux</option>
+                            <option value="">Tous niveaux</option>
                             <option value="Débutant">Débutant</option>
                             <option value="Intermédiaire">Intermédiaire</option>
                             <option value="Avancé">Avancé</option>
@@ -3557,11 +3567,11 @@
                 </div>
 
                 <button onclick="addSupersetExercise()" class="btn btn-secondary" style="width: 100%; margin-bottom: 20px;">
-                    ➕ Ajouter un exercice (max 3)
+                    + Ajouter un exercice (max 3)
                 </button>
 
                 <div style="background: #FFF3E0; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                    <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #16a34a;">⏱️ Configuration</span>
+                    <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #67e8f9;">Configuration</span>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div>
                             <span style="display: block; margin-bottom: 5px; color: #94a3b8; font-size: 0.9em;">Sets par exercice</span>
@@ -3575,7 +3585,7 @@
                 </div>
 
                 <button onclick="startSuperset()" class="btn" style="width: 100%;">
-                    🚀 Démarrer le superset
+                    Démarrer le superset
                 </button>
             </div>
         </div>
@@ -3591,18 +3601,18 @@
             <div class="modal-body">
                 <p style="color: #94a3b8; margin-bottom: 20px;">Crée un circuit de 4 à 6 exercices à répéter plusieurs fois. Excellent pour le cardio et la force !</p>
 
-                <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #10b981;">Nom du circuit</span>
-                <input type="text" id="circuitName" placeholder="Ex: Full Body Blast" style="width: 100%; padding: 12px; border: 2px solid #6ee7b7; border-radius: 10px; margin-bottom: 15px; background: #f0fdf4; color: #065f46;">
+                <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #67e8f9;">Nom du circuit</span>
+                <input type="text" id="circuitName" placeholder="Ex: Full Body Blast" style="width: 100%; padding: 12px; border: 2px solid rgba(34,211,238,0.3); border-radius: 10px; margin-bottom: 15px; background: rgba(255,255,255,0.03); color: #e2e8f0;">
 
                 <!-- Filtres exercices circuit -->
-                <div class="wkt-filter-box" style="background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 10px; padding: 12px; margin-bottom: 15px;">
-                    <div style="font-size: 0.8em; font-weight: 700; color: #10b981; margin-bottom: 8px;">🔍 Filtrer les exercices dans les listes</div>
+                <div class="wkt-filter-box" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(34,211,238,0.2); border-radius: 10px; padding: 12px; margin-bottom: 15px;">
+                    <div style="font-size: 0.8em; font-weight: 700; color: #67e8f9; margin-bottom: 8px;">Filtrer les exercices dans les listes</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
                         <input type="text" id="circuitSearchFilter" placeholder="Rechercher..." oninput="updateCircuitOptions()"
-                               style="padding: 8px; border: 1px solid #6ee7b7; border-radius: 6px; font-size: 0.85em; background: #ecfdf5; color: #065f46;">
+                               style="padding: 8px; border: 1px solid rgba(34,211,238,0.3); border-radius: 6px; font-size: 0.85em; background: rgba(255,255,255,0.03); color: #e2e8f0;">
                         <select id="circuitMuscleFilter" onchange="updateCircuitOptions()"
-                                style="padding: 8px; border: 1px solid #6ee7b7; border-radius: 6px; font-size: 0.85em; background: #ecfdf5; color: #065f46;">
-                            <option value="">💪 Tous muscles</option>
+                                style="padding: 8px; border: 1px solid rgba(34,211,238,0.3); border-radius: 6px; font-size: 0.85em; background: rgba(255,255,255,0.03); color: #e2e8f0;">
+                            <option value="">Tous muscles</option>
                             <option value="Pectoraux">Pectoraux</option>
                             <option value="Dos">Dos</option>
                             <option value="Épaules">Épaules</option>
@@ -3619,9 +3629,9 @@
                             <option value="Trapèzes">Trapèzes</option>
                         </select>
                         <select id="circuitEquipFilter" onchange="updateCircuitOptions()"
-                                style="padding: 8px; border: 1px solid #6ee7b7; border-radius: 6px; font-size: 0.85em; background: #ecfdf5; color: #065f46;">
+                                style="padding: 8px; border: 1px solid rgba(34,211,238,0.3); border-radius: 6px; font-size: 0.85em; background: rgba(255,255,255,0.03); color: #e2e8f0;">
                             <option value="__mine">Mon matériel</option>
-                            <option value="">🏋️ Tous équip.</option>
+                            <option value="">Tous équip.</option>
                             <option value="Poids du corps">Poids du corps</option>
                             <option value="Haltères">Haltères</option>
                             <option value="Barre">Barre</option>
@@ -3634,8 +3644,8 @@
                             <option value="Banc">Banc</option>
                         </select>
                         <select id="circuitDiffFilter" onchange="updateCircuitOptions()"
-                                style="padding: 8px; border: 1px solid #6ee7b7; border-radius: 6px; font-size: 0.85em; background: #ecfdf5; color: #065f46;">
-                            <option value="">📊 Tous niveaux</option>
+                                style="padding: 8px; border: 1px solid rgba(34,211,238,0.3); border-radius: 6px; font-size: 0.85em; background: rgba(255,255,255,0.03); color: #e2e8f0;">
+                            <option value="">Tous niveaux</option>
                             <option value="Débutant">Débutant</option>
                             <option value="Intermédiaire">Intermédiaire</option>
                             <option value="Avancé">Avancé</option>
@@ -3648,11 +3658,11 @@
                 </div>
 
                 <button onclick="addCircuitExercise()" class="btn btn-secondary" style="width: 100%; margin-bottom: 20px;">
-                    ➕ Ajouter un exercice (max 6)
+                    + Ajouter un exercice (max 6)
                 </button>
 
-                <div style="background: #ecfdf5; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                    <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #10b981;">⏱️ Configuration</span>
+                <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #67e8f9;">Configuration</span>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div>
                             <span style="display: block; margin-bottom: 5px; color: #94a3b8; font-size: 0.9em;">Nombre de rounds</span>
@@ -3665,8 +3675,8 @@
                     </div>
                 </div>
 
-                <button onclick="startCircuit()" class="btn" style="width: 100%; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                    🚀 Démarrer le circuit
+                <button onclick="startCircuit()" class="btn" style="width: 100%; background: linear-gradient(135deg, #22d3ee 0%, #0891b2 100%);">
+                    Démarrer le circuit
                 </button>
             </div>
         </div>
@@ -3676,17 +3686,17 @@
     <div class="modal" id="amrapModal">
         <div class="modal-content wkt-builder" style="max-width: 700px;">
             <div class="modal-header">
-                <h2>⏱️ Créer un AMRAP</h2>
+                <h2>Créer un AMRAP</h2>
                 <button class="close-btn" onclick="closeAMRAPModal()">×</button>
             </div>
             <div class="modal-body">
-                <p style="color: #94a3b8; margin-bottom: 20px;"><strong>As Many Rounds As Possible</strong> - Faites le maximum de tours en temps limité !</p>
+                <p style="color: #94a3b8; margin-bottom: 20px;"><strong>As Many Rounds As Possible</strong> - Fais le maximum de tours en temps limité !</p>
 
-                <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #ef4444;">Nom du AMRAP</span>
-                <input type="text" id="amrapName" placeholder="Ex: 20min Challenge" style="width: 100%; padding: 12px; border: 2px solid #fca5a5; border-radius: 10px; margin-bottom: 15px; background: #fff5f5; color: #7f1d1d;">
+                <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #67e8f9;">Nom de l'AMRAP</span>
+                <input type="text" id="amrapName" placeholder="Ex: 20min Challenge" style="width: 100%; padding: 12px; border: 2px solid rgba(34,211,238,0.3); border-radius: 10px; margin-bottom: 15px; background: rgba(255,255,255,0.03); color: #e2e8f0;">
 
-                <div style="background: #fee2e2; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                    <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #ef4444;">⏱️ Durée totale</span>
+                <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                    <span style="display: block; margin-bottom: 10px; font-weight: bold; color: #67e8f9;">Durée totale</span>
                     <select id="amrapDuration" style="width: 100%; padding: 12px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px;">
                         <option value="600">10 minutes</option>
                         <option value="900">15 minutes</option>
@@ -3696,14 +3706,14 @@
                 </div>
 
                 <!-- Filtres exercices AMRAP -->
-                <div class="wkt-filter-box" style="background: #fff5f5; border: 1px solid #fecaca; border-radius: 10px; padding: 12px; margin-bottom: 15px;">
-                    <div style="font-size: 0.8em; font-weight: 700; color: #ef4444; margin-bottom: 8px;">🔍 Filtrer les exercices dans les listes</div>
+                <div class="wkt-filter-box" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(34,211,238,0.2); border-radius: 10px; padding: 12px; margin-bottom: 15px;">
+                    <div style="font-size: 0.8em; font-weight: 700; color: #67e8f9; margin-bottom: 8px;">Filtrer les exercices dans les listes</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
                         <input type="text" id="amrapSearchFilter" placeholder="Rechercher..." oninput="updateAMRAPOptions()"
-                               style="padding: 8px; border: 1px solid #fca5a5; border-radius: 6px; font-size: 0.85em; background: #fee2e2; color: #7f1d1d;">
+                               style="padding: 8px; border: 1px solid rgba(34,211,238,0.3); border-radius: 6px; font-size: 0.85em; background: rgba(255,255,255,0.03); color: #e2e8f0;">
                         <select id="amrapMuscleFilter" onchange="updateAMRAPOptions()"
-                                style="padding: 8px; border: 1px solid #fca5a5; border-radius: 6px; font-size: 0.85em; background: #fee2e2; color: #7f1d1d;">
-                            <option value="">💪 Tous muscles</option>
+                                style="padding: 8px; border: 1px solid rgba(34,211,238,0.3); border-radius: 6px; font-size: 0.85em; background: rgba(255,255,255,0.03); color: #e2e8f0;">
+                            <option value="">Tous muscles</option>
                             <option value="Pectoraux">Pectoraux</option>
                             <option value="Dos">Dos</option>
                             <option value="Épaules">Épaules</option>
@@ -3720,9 +3730,9 @@
                             <option value="Trapèzes">Trapèzes</option>
                         </select>
                         <select id="amrapEquipFilter" onchange="updateAMRAPOptions()"
-                                style="padding: 8px; border: 1px solid #fca5a5; border-radius: 6px; font-size: 0.85em; background: #fee2e2; color: #7f1d1d;">
+                                style="padding: 8px; border: 1px solid rgba(34,211,238,0.3); border-radius: 6px; font-size: 0.85em; background: rgba(255,255,255,0.03); color: #e2e8f0;">
                             <option value="__mine">Mon matériel</option>
-                            <option value="">🏋️ Tous équip.</option>
+                            <option value="">Tous équip.</option>
                             <option value="Poids du corps">Poids du corps</option>
                             <option value="Haltères">Haltères</option>
                             <option value="Barre">Barre</option>
@@ -3735,8 +3745,8 @@
                             <option value="Banc">Banc</option>
                         </select>
                         <select id="amrapDiffFilter" onchange="updateAMRAPOptions()"
-                                style="padding: 8px; border: 1px solid #fca5a5; border-radius: 6px; font-size: 0.85em; background: #fee2e2; color: #7f1d1d;">
-                            <option value="">📊 Tous niveaux</option>
+                                style="padding: 8px; border: 1px solid rgba(34,211,238,0.3); border-radius: 6px; font-size: 0.85em; background: rgba(255,255,255,0.03); color: #e2e8f0;">
+                            <option value="">Tous niveaux</option>
                             <option value="Débutant">Débutant</option>
                             <option value="Intermédiaire">Intermédiaire</option>
                             <option value="Avancé">Avancé</option>
@@ -3748,11 +3758,11 @@
                     <!-- Exercise slots will be added dynamically -->
                 </div>
                 <button onclick="addAMRAPExercise()" class="btn btn-secondary" style="width: 100%; margin-bottom: 20px;">
-                    ➕ Ajouter un exercice (max 5)
+                    + Ajouter un exercice (max 5)
                 </button>
 
-                <button onclick="startAMRAP()" class="btn" style="width: 100%; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
-                    🚀 Démarrer AMRAP
+                <button onclick="startAMRAP()" class="btn" style="width: 100%; background: linear-gradient(135deg, #22d3ee 0%, #0891b2 100%);">
+                    Démarrer AMRAP
                 </button>
             </div>
         </div>
@@ -3962,38 +3972,39 @@
     <!-- v1327 : Chart.js chargé à la demande (awakChargerChart dans app.js) -->
 
     <!-- App scripts — order matters -->
-    <script src="js/native.js?v=1585"></script>
-    <script src="js/essai.js?v=1585"></script>
-    <script src="js/exercises.js?v=1585"></script>
-    <script src="js/exercise-names.js?v=1585"></script>
-    <script src="data/items.js?v=1585"></script>
-    <script src="js/item-icons.js?v=1585"></script>
-    <script src="js/skill-tree.js?v=1585"></script>
-    <script src="js/nav-icons.js?v=1585"></script>
-    <script src="js/adventure.js?v=1585"></script>
-    <script src="js/economy.js?v=1585"></script>
-    <script src="js/challenges.js?v=1585"></script>
-    <script src="js/family-boss.js?v=1585"></script>
-    <script src="js/family-network.js?v=1585"></script>
-    <script src="js/family-challenge.js?v=1585"></script>
-    <script src="js/family-goal.js?v=1585"></script>
-    <script src="js/family-feed.js?v=1585"></script>
-    <script src="js/pre-workout-mood.js?v=1585"></script>
-    <script src="js/group-workout.js?v=1585"></script>
-    <script src="js/youth-safety.js?v=1585"></script>
-    <script src="js/kids-programs.js?v=1585"></script>
-    <script src="js/senior-programs.js?v=1585"></script>
-    <script src="js/adaptive.js?v=1585"></script>
-    <script src="js/pain-mode.js?v=1585"></script>
-    <script src="js/recovery-mode.js?v=1585"></script>
-    <script src="js/exercise-visuals.js?v=1585"></script>
-    <script src="js/strength-standards.js?v=1585"></script>
-    <script src="js/system-cards.js?v=1585"></script>
-    <script src="js/share-card.js?v=1585"></script>
-    <script src="js/story-events.js?v=1585"></script>
-    <script src="js/final-boss.js?v=1585"></script>
-    <script src="js/disciplines.js?v=1585"></script>
-    <script src="js/eveil.js?v=1585"></script>
+    <script src="js/native.js?v=1616"></script>
+    <script src="js/essai.js?v=1616"></script>
+    <script src="js/exercises.js?v=1616"></script>
+    <script src="js/exercise-names.js?v=1616"></script>
+    <script src="data/items.js?v=1616"></script>
+    <script src="js/item-icons.js?v=1616"></script>
+    <script src="js/skill-tree.js?v=1616"></script>
+    <script src="js/nav-icons.js?v=1616"></script>
+    <script src="js/adventure.js?v=1616"></script>
+    <script src="js/economy.js?v=1616"></script>
+    <script src="js/challenges.js?v=1616"></script>
+    <script src="js/family-boss.js?v=1616"></script>
+    <script src="js/family-network.js?v=1616"></script>
+    <script src="js/family-challenge.js?v=1616"></script>
+    <script src="js/family-goal.js?v=1616"></script>
+    <script src="js/family-feed.js?v=1616"></script>
+    <script src="js/pre-workout-mood.js?v=1616"></script>
+    <script src="js/group-workout.js?v=1616"></script>
+    <script src="js/duo.js?v=1616"></script>
+    <script src="js/youth-safety.js?v=1616"></script>
+    <script src="js/kids-programs.js?v=1616"></script>
+    <script src="js/senior-programs.js?v=1616"></script>
+    <script src="js/adaptive.js?v=1616"></script>
+    <script src="js/pain-mode.js?v=1616"></script>
+    <script src="js/recovery-mode.js?v=1616"></script>
+    <script src="js/exercise-visuals.js?v=1616"></script>
+    <script src="js/strength-standards.js?v=1616"></script>
+    <script src="js/system-cards.js?v=1616"></script>
+    <script src="js/share-card.js?v=1616"></script>
+    <script src="js/story-events.js?v=1616"></script>
+    <script src="js/final-boss.js?v=1616"></script>
+    <script src="js/disciplines.js?v=1616"></script>
+    <script src="js/eveil.js?v=1616"></script>
     <script>
     /* 🔄 DÉVERROUILLAGE DE L'ORIENTATION
        Sur Android, l'orientation d'une PWA installée est figée à l'installation
@@ -4015,59 +4026,59 @@
       });
     })();
     </script>
-    <script src="js/app.js?v=1585"></script>
-    <script src="js/calendar-tab.js?v=1585"></script>
-    <script src="js/routine-blocks.js?v=1585"></script>
-    <script src="js/routine-builder.js?v=1585"></script>
-    <script src="js/routine-print.js?v=1585"></script>
-    <script src="js/icons.js?v=1585"></script>
-    <script src="js/no-emoji.js?v=1585"></script>
-    <script src="js/stat-noms.js?v=1585"></script>
-    <script src="js/fenetres.js?v=1585"></script>
-    <script src="js/seuil.js?v=1585"></script>
-    <script src="js/qrcode.js?v=1585"></script>
-    <script src="js/partage-seance.js?v=1585"></script>
-    <script src="js/salle.js?v=1585"></script>
-    <script src="js/sports.js?v=1585"></script>
-    <script src="js/strength-balance.js?v=1585"></script>
-    <script src="js/analyse.js?v=1585"></script>
-    <script src="js/limitations.js?v=1585"></script>
-    <script src="js/custom-exercises.js?v=1585"></script>
-    <script src="js/awakening-tree.js?v=1585"></script>
-    <script src="js/ui-kit.js?v=1585"></script>
-    <script src="js/feature-map.js?v=1585"></script>
-    <script src="js/visite.js?v=1585"></script>
-    <script src="js/weekly-recap.js?v=1585"></script>
-    <script src="js/workout-games.js?v=1585"></script>
-    <script src="js/kids-games.js?v=1585"></script>
-    <script src="js/bilan-4sem.js?v=1585"></script>
-    <script src="js/home-pro.js?v=1585"></script>
-    <script src="js/echelle.js?v=1585"></script>
-    <script src="js/seance-ecran.js?v=1585"></script>
-    <script src="js/regle-mesures.js?v=1585"></script>
-    <script src="js/photos-mesures.js?v=1585"></script>
-    <script src="js/back-button.js?v=1585"></script>
-    <script src="js/gestures.js?v=1585"></script>
-    <script src="js/rift-visuals.js?v=1585"></script>
-    <script src="js/musique.js?v=1585"></script>
-    <script src="js/family-sky.js?v=1585"></script>
-    <script src="js/family-week.js?v=1585"></script>
-    <script src="js/session-ux.js?v=1585"></script>
-    <script src="js/progress-tab.js?v=1585"></script>
-    <script src="js/progres-onglets.js?v=1585"></script>
-    <script src="js/dev-outils.js?v=1585"></script>
-    <script src="js/ressenti.js?v=1585"></script>
-    <script src="js/mission-semaine.js?v=1585"></script>
-    <script src="js/xp-fin.js?v=1585"></script>
-    <script src="js/fin-seance.js?v=1585"></script>
-    <script src="js/import-csv.js?v=1585"></script>
-    <script src="js/reglage-machine.js?v=1585"></script>
-    <script src="js/mon-defi.js?v=1585"></script>
-    <script src="js/health-sync.js?v=1585"></script>
-    <script src="js/regle.js?v=1585"></script>
-    <script src="js/run-gps.js?v=1585"></script>
-    <script src="js/run-coach.js?v=1585"></script>
-    <script src="js/backup.js?v=1585"></script>
+    <script src="js/app.js?v=1616"></script>
+    <script src="js/calendar-tab.js?v=1616"></script>
+    <script src="js/routine-blocks.js?v=1616"></script>
+    <script src="js/routine-builder.js?v=1616"></script>
+    <script src="js/routine-print.js?v=1616"></script>
+    <script src="js/icons.js?v=1616"></script>
+    <script src="js/no-emoji.js?v=1616"></script>
+    <script src="js/stat-noms.js?v=1616"></script>
+    <script src="js/fenetres.js?v=1616"></script>
+    <script src="js/seuil.js?v=1616"></script>
+    <script src="js/qrcode.js?v=1616"></script>
+    <script src="js/partage-seance.js?v=1616"></script>
+    <script src="js/salle.js?v=1616"></script>
+    <script src="js/sports.js?v=1616"></script>
+    <script src="js/strength-balance.js?v=1616"></script>
+    <script src="js/analyse.js?v=1616"></script>
+    <script src="js/limitations.js?v=1616"></script>
+    <script src="js/custom-exercises.js?v=1616"></script>
+    <script src="js/awakening-tree.js?v=1616"></script>
+    <script src="js/ui-kit.js?v=1616"></script>
+    <script src="js/feature-map.js?v=1616"></script>
+    <script src="js/visite.js?v=1616"></script>
+    <script src="js/weekly-recap.js?v=1616"></script>
+    <script src="js/workout-games.js?v=1616"></script>
+    <script src="js/kids-games.js?v=1616"></script>
+    <script src="js/bilan-4sem.js?v=1616"></script>
+    <script src="js/home-pro.js?v=1616"></script>
+    <script src="js/echelle.js?v=1616"></script>
+    <script src="js/seance-ecran.js?v=1616"></script>
+    <script src="js/regle-mesures.js?v=1616"></script>
+    <script src="js/photos-mesures.js?v=1616"></script>
+    <script src="js/back-button.js?v=1616"></script>
+    <script src="js/gestures.js?v=1616"></script>
+    <script src="js/rift-visuals.js?v=1616"></script>
+    <script src="js/musique.js?v=1616"></script>
+    <script src="js/family-sky.js?v=1616"></script>
+    <script src="js/family-week.js?v=1616"></script>
+    <script src="js/session-ux.js?v=1616"></script>
+    <script src="js/progress-tab.js?v=1616"></script>
+    <script src="js/progres-onglets.js?v=1616"></script>
+    <script src="js/dev-outils.js?v=1616"></script>
+    <script src="js/ressenti.js?v=1616"></script>
+    <script src="js/mission-semaine.js?v=1616"></script>
+    <script src="js/xp-fin.js?v=1616"></script>
+    <script src="js/fin-seance.js?v=1616"></script>
+    <script src="js/import-csv.js?v=1616"></script>
+    <script src="js/reglage-machine.js?v=1616"></script>
+    <script src="js/mon-defi.js?v=1616"></script>
+    <script src="js/health-sync.js?v=1616"></script>
+    <script src="js/regle.js?v=1616"></script>
+    <script src="js/run-gps.js?v=1616"></script>
+    <script src="js/run-coach.js?v=1616"></script>
+    <script src="js/backup.js?v=1616"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>
@@ -4173,14 +4184,32 @@
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                             // Nouvelle version dispo — activer immédiatement
                             newWorker.postMessage && newWorker.postMessage({ type: 'SKIP_WAITING' });
+                            // v1586 : appliquée toute seule au prochain retour dans l'app (jamais en séance)
+                            window._awakMajPrete = true;
                             if (window.showToast) {
-                                showToast('✨ Nouvelle version installée — recharge pour en profiter', 'info', 5000);
+                                showToast('Nouvelle version prête : elle s\'appliquera à ton prochain retour dans l\'app.', 'info', 5000);
                             }
                         }
                     });
                 });
             }).catch(console.warn);
 
+            // v1586 : l'app installée n'a pas de bouton « recharger » → la mise à jour
+            // s'applique quand on revient dans l'app, sauf pendant une séance.
+            document.addEventListener('visibilitychange', function () {
+                try {
+                    if (document.visibilityState !== 'visible' || !window._awakMajPrete) return;
+                    if (document.body.classList.contains('in-session')) return;
+                    if (window.AwakRun && AwakRun.actif && AwakRun.actif()) return;          // course GPS en cours
+                    // une fenêtre plein écran ouverte (jeu, minuteur, saisie…) : on attend
+                    var _occupe = [].some.call(document.body.children, function (el) {
+                        var cs = getComputedStyle(el); return cs.position === 'fixed' && cs.display !== 'none' && el.offsetHeight > window.innerHeight * 0.6 && el.id !== 'mobileNav';
+                    });
+                    if (_occupe) return;
+                    window._awakMajPrete = false;
+                    window.location.reload();
+                } catch (e) {}
+            });
             // Recharger automatiquement quand le nouveau SW prend le contrôle
             let _swRefreshing = false;
             navigator.serviceWorker.addEventListener('controllerchange', () => {
@@ -4199,7 +4228,7 @@
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                     <div>
                         <div style="font-size:1.15em;font-weight:900;color:#0F1014;" id="swapModalTitle">🔄 Remplacer l'exercice</div>
-                        <div style="font-size:0.82em;color:#6b7280;margin-top:3px;" id="swapModalSub">Même muscle · équipement similaire en priorité</div>
+                        <div style="font-size:0.82em;color:#8391a7;margin-top:3px;" id="swapModalSub">Même muscle · équipement similaire en priorité</div>
                     </div>
                     <button type="button" class="swap-x" aria-label="Fermer" onclick="closeSwapModal()" style="flex-shrink:0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:50%;width:44px;height:44px;font-size:1.2em;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;">✕</button>
                 </div>

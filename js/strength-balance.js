@@ -489,7 +489,7 @@
         + '<svg viewBox="0 0 200 298" style="width:100%;max-width:150px;height:auto;display:block;margin:0 auto;">'
         + '<image href="images/body/' + img + '?v=858" x="0" y="0" width="200" height="298" preserveAspectRatio="none" opacity="0.7"/>'
         + zones + '</svg>'
-        + '<div style="font-size:0.62em;color:#64748b;font-weight:800;letter-spacing:1px;margin-top:2px;">' + titre + '</div></div>';
+        + '<div style="font-size:0.62em;color:#8391a7;font-weight:800;letter-spacing:1px;margin-top:2px;">' + titre + '</div></div>';
     }
     var leg = function (c, t) {
       return '<span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:9px;height:9px;border-radius:3px;background:' + c + ';"></span>' + t + '</span>';
@@ -521,7 +521,7 @@
     if (a.trouves.length) {
       liste += titre('DÉJÀ COMPTÉS (' + a.trouves.length + '/' + a.requis + ')', '#22d3ee');
       a.trouves.forEach(function (t) {
-        liste += puce('<strong style="color:#e8f0f8;">' + esc(nomEx(t.exercice)) + '</strong> <span style="color:#64748b;">· ' + esc(t.lift.muscle) + '</span>', '#22d3ee');
+        liste += puce('<strong style="color:#e8f0f8;">' + esc(nomEx(t.exercice)) + '</strong> <span style="color:#8391a7;">· ' + esc(t.lift.muscle) + '</span>', '#22d3ee');
       });
     }
     if (a.rejetes && a.rejetes.length) {
@@ -539,14 +539,14 @@
     liste += titre('À FAIRE : ' + manque + ' PARMI CEUX-CI', '#67e8f9');
     sugg.forEach(function (m) {
       var L = lift(SUGG[m]);
-      liste += puce('<strong style="color:#e8f0f8;">' + esc(L ? L.nom : m) + '</strong> <span style="color:#64748b;">· ' + esc(m) + '</span>', '#67e8f9');
+      liste += puce('<strong style="color:#e8f0f8;">' + esc(L ? L.nom : m) + '</strong> <span style="color:#8391a7;">· ' + esc(m) + '</span>', '#67e8f9');
     });
     return '<div style="padding:10px 4px 4px;">'
       + '<div style="text-align:center;font-size:0.95em;font-weight:800;color:#e8f0f8;margin-bottom:8px;">Pas encore assez de données</div>'
       + '<div style="text-align:center;font-size:0.8em;color:#94a3b8;line-height:1.5;">L\'analyse compare tes muscles entre eux : il faut au moins '
       + a.requis + ' mouvements de référence avec une charge. Il t\'en manque <strong style="color:#67e8f9;">' + manque + '</strong>.</div>'
       + '<div style="font-size:0.8em;color:#cbd5e1;line-height:1.45;">' + liste + '</div>'
-      + '<div style="font-size:0.72em;color:#64748b;margin-top:12px;line-height:1.45;">Une série compte si elle a 12 répétitions ou moins. Les haltères se notent par haltère.</div>'
+      + '<div style="font-size:0.72em;color:#8391a7;margin-top:12px;line-height:1.45;">Une série compte si elle a 12 répétitions ou moins. Les haltères se notent par haltère.</div>'
       + '</div>';
   }
 
@@ -583,7 +583,7 @@
     } else if (a.retards.length) {
       c += '<button onclick="AwakBalance.corriger()" style="width:100%;margin-top:14px;min-height:auto;padding:13px;border-radius:12px;cursor:pointer;border:none;'
         + 'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;font-weight:900;font-size:0.86em;">Corriger mes retards</button>'
-        + '<div style="font-size:0.68em;color:#64748b;text-align:center;margin-top:6px;line-height:1.4;">Pendant 4 semaines, la séance intelligente donne la priorité à '
+        + '<div style="font-size:0.68em;color:#8391a7;text-align:center;margin-top:6px;line-height:1.4;">Pendant 4 semaines, la séance intelligente donne la priorité à '
         + esc(a.retards.slice(0, 3).map(function (g) { return g.muscle; }).join(', ')) + '.</div>';
     }
 
@@ -601,7 +601,7 @@
           + (o.outil === 'p' && a.bw > 0
               ? 'lest ' + nb(Math.max(0, o.actuel - a.bw)) + ' → <strong style="color:#fbbf24;">' + nb(Math.max(0, o.attendu - a.bw)) + ' ' + u + '</strong>'
               : charge(o.outil, o.actuel, u) + ' → <strong style="color:#fbbf24;">' + charge(o.outil, o.attendu, u) + '</strong>')
-          + ' <span style="color:#64748b;">(1RM estimé)</span></div>';
+          + ' <span style="color:#8391a7;">(1RM estimé)</span></div>';
       }
       c += carte('<div style="display:flex;align-items:center;gap:8px;">'
         + '<span style="flex:1;min-width:0;font-size:0.84em;font-weight:800;color:#e8f0f8;">' + esc(g.muscle) + '</span>'
@@ -610,11 +610,11 @@
         + '<div style="position:relative;height:6px;background:rgba(255,255,255,0.06);border-radius:4px;margin-top:7px;">'
         +   '<div style="position:absolute;left:0;top:0;bottom:0;width:' + w + '%;background:' + col + ';border-radius:4px;"></div>'
         +   '<div style="position:absolute;left:66.6%;top:-3px;bottom:-3px;width:2px;background:rgba(255,255,255,0.35);"></div></div>'
-        + '<div style="font-size:0.64em;color:#64748b;margin-top:5px;">' + esc(g.lifts.map(function (t) { return t.lift.nom; })
+        + '<div style="font-size:0.64em;color:#8391a7;margin-top:5px;">' + esc(g.lifts.map(function (t) { return t.lift.nom; })
             .filter(function (x, i, arr) { return arr.indexOf(x) === i; }).join(' · ')) + '</div>'
         + detail, g.statut === 'retard' ? 'border-color:rgba(251,191,36,0.3);' : '');
     });
-    c += '<div style="font-size:0.66em;color:#64748b;line-height:1.45;">100 % = ton niveau moyen (trait blanc). Sous 85 % : en retard. Au-dessus de 115 % : point fort.</div>';
+    c += '<div style="font-size:0.66em;color:#8391a7;line-height:1.45;">100 % = ton niveau moyen (trait blanc). Sous 85 % : en retard. Au-dessus de 115 % : point fort.</div>';
 
     // 5. Paires
     if (a.paires.length) {
@@ -656,7 +656,7 @@
       c += titre('PAS ENCORE ÉVALUÉS');
       c += carte('<div style="font-size:0.74em;color:#94a3b8;line-height:1.5;">' + a.absents.map(function (m) {
         var L = lift(SUGG[m]);
-        return '<strong style="color:#cbd5e1;">' + esc(m) + '</strong>' + (L ? ' <span style="color:#64748b;">(' + esc(L.nom) + ')</span>' : '');
+        return '<strong style="color:#cbd5e1;">' + esc(m) + '</strong>' + (L ? ' <span style="color:#8391a7;">(' + esc(L.nom) + ')</span>' : '');
       }).join('<br>') + '</div>');
     }
 
@@ -668,7 +668,7 @@
         return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px;">'
           + '<span style="font-size:0.6em;color:#cbd5e1;font-weight:800;">' + x.indice + '</span>'
           + '<div style="width:100%;max-width:26px;height:' + Math.max(4, x.indice * 0.45) + 'px;background:#22d3ee;border-radius:4px 4px 0 0;opacity:' + (x === pts[pts.length - 1] ? 1 : 0.5) + ';"></div>'
-          + '<span style="font-size:0.56em;color:#64748b;">' + moisLib(x.m, true) + '</span></div>';
+          + '<span style="font-size:0.56em;color:#8391a7;">' + moisLib(x.m, true) + '</span></div>';
       }).join('') + '</div>');
     }
 

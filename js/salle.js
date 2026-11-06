@@ -274,11 +274,11 @@
         +     (x.manque ? ' · <span style="color:#f87171;">pas disponible ici</span>' : '') + '</span>'
         + '</span>'
         + '<span style="flex-shrink:0;font-size:0.72em;font-weight:800;color:' + a + ';">' + x.rx.txt + '</span>'
-        + '<span style="flex-shrink:0;font-size:0.6em;color:#64748b;width:44px;text-align:right;">' + Math.round(x.rx.repos / 15) * 15 + ' s</span>'
+        + '<span style="flex-shrink:0;font-size:0.6em;color:#8391a7;width:44px;text-align:right;">' + Math.round(x.rx.repos / 15) * 15 + ' s</span>'
         + '</div>';
     }).join('');
     return '<div style="margin:2px 0 8px;padding:6px 12px 10px;border-radius:12px;background:rgba(255,255,255,0.025);border:1px solid ' + a + '33;">'
-      + '<div style="display:flex;justify-content:space-between;font-size:0.56em;color:#64748b;font-weight:800;letter-spacing:1px;padding:4px 0;"><span>EXERCICE</span><span>SÉRIES · REPOS</span></div>'
+      + '<div style="display:flex;justify-content:space-between;font-size:0.56em;color:#8391a7;font-weight:800;letter-spacing:1px;padding:4px 0;"><span>EXERCICE</span><span>SÉRIES · REPOS</span></div>'
       + lignes
       + '<button onclick="startGymDay(\'' + progId + '\',\'' + dayKey + '\')" style="margin-top:10px;width:100%;padding:11px;border:none;border-radius:11px;cursor:pointer;font-weight:900;font-size:0.84em;background:' + a + ';color:#0b1220;display:flex;align-items:center;justify-content:center;gap:7px;">' + ic('eclair', 15, '#0b1220') + 'Lancer cette séance</button>'
       + '</div>';
@@ -355,7 +355,7 @@
         + '</div>';
     }).join('');
     return '<div style="display:grid;gap:10px;">'
-      + '<div style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:2px;margin-bottom:2px;">PROGRAMMES EN SALLE</div>'
+      + '<div style="font-size:0.6em;color:#8391a7;font-weight:900;letter-spacing:2px;margin-bottom:2px;">PROGRAMMES EN SALLE</div>'
       + '<div style="font-size:0.76em;color:#b4c0cf;margin:-4px 0 4px;line-height:1.4;">Touche un programme pour voir ses séances.</div>'
       + (ado ? '<div style="font-size:0.76em;color:#fcd34d;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);border-radius:11px;padding:10px 12px;line-height:1.45;">Ces séances utilisent des charges : fais-les avec un adulte qui connaît les mouvements.</div>' : '')
       + bandeauLieu + prochHTML + cartes + '</div>';

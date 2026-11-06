@@ -197,13 +197,13 @@
       var liste = reels.slice(0, 12).map(function (e) {
         var det = (e.sets ? e.sets + ' × ' : '') + ((e.mode === 'timer' || e.mode === 'temps') ? (e.duration ? e.duration + ' s' : '') : (e.reps || ''));
         return '<div style="display:flex;justify-content:space-between;gap:8px;font-size:0.76em;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span style="color:#e2e8f0;text-align:left;">' + esc(nom(e._baseName || e.name)) + '</span><span style="color:#94a3b8;white-space:nowrap;">' + esc(det) + '</span></div>';
-      }).join('') + (reels.length > 12 ? '<div style="font-size:0.7em;color:#64748b;padding-top:4px;">+ ' + (reels.length - 12) + ' autres</div>' : '');
+      }).join('') + (reels.length > 12 ? '<div style="font-size:0.7em;color:#8391a7;padding-top:4px;">+ ' + (reels.length - 12) + ' autres</div>' : '');
       fenetre('awakPartageModal',
         '<div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:1.05em;font-weight:900;color:#fff;margin-bottom:4px;">' + ic('groupe', 18, '#93c5fd') + (data.de ? 'Séance de ' + esc(data.de) : 'Séance partagée') + '</div>'
         + '<div style="font-size:0.76em;color:#94a3b8;margin-bottom:12px;">' + esc(data.t || '') + ' · ' + reels.length + ' exercice' + (reels.length > 1 ? 's' : '') + (data.d ? ' · ' + data.d + ' min' : '') + '</div>'
         + '<div style="text-align:left;background:rgba(255,255,255,0.03);border-radius:12px;padding:8px 12px;margin-bottom:12px;max-height:40vh;overflow-y:auto;">' + liste + '</div>'
         + (inconnus ? '<div style="font-size:0.68em;color:#fbbf24;margin-bottom:10px;">' + inconnus + ' exercice' + (inconnus > 1 ? 's' : '') + ' personnalisé' + (inconnus > 1 ? 's' : '') + ' de ton ami, sans image ni consignes chez toi.</div>' : '')
-        + '<div style="font-size:0.68em;color:#64748b;margin-bottom:12px;">Tes charges et ton matériel sont utilisés, pas ceux de ton ami.</div>'
+        + '<div style="font-size:0.68em;color:#8391a7;margin-bottom:12px;">Tes charges et ton matériel sont utilisés, pas ceux de ton ami.</div>'
         + '<div style="display:grid;gap:8px;">'
         +   '<button onclick="AwakPartage.commencer()" style="' + BTN + 'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;">' + ic('eclair', 17, '#fff') + 'Commencer maintenant</button>'
         +   '<button onclick="AwakPartage.garder()" style="' + BTN2 + '">' + ic('liste', 15) + 'Garder dans mes routines</button>'

@@ -60,7 +60,7 @@
         var st = document.createElement('style');
         st.textContent = '.awk-tuile{filter:invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6);}'
           + '.awk-carte{background:#0b0f16 !important;border-radius:14px;}'
-          + '.awk-carte .leaflet-control-attribution{background:rgba(5,7,11,0.7) !important;color:#64748b !important;font-size:9px !important;}'
+          + '.awk-carte .leaflet-control-attribution{background:rgba(5,7,11,0.7) !important;color:#8391a7 !important;font-size:9px !important;}'
           + '.awk-carte .leaflet-control-attribution a{color:#94a3b8 !important;}'
           + '@keyframes awkPouls{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.6);opacity:0}}'
           + '.awk-moi-wrap{background:none !important;border:none !important;}'
@@ -423,16 +423,16 @@
       + 'border-top:1px solid rgba(255,255,255,0.06);background:transparent;color:#e2e8f0;font-family:inherit;text-align:left;cursor:pointer;">'
       + '<span style="color:' + ACCENT + ';flex-shrink:0;">' + ico((ACTIVITES[s.type] || ACTIVITES.course).ico, 18) + '</span>'
       + '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.84em;font-weight:800;">' + km(s.distance) + ' km · ' + hms(s.duree) + '</span>'
-      + '<span style="display:block;font-size:0.68em;color:#64748b;">' + d.toLocaleDateString('fr-CA', { day: 'numeric', month: 'short' }) + ' · ' + allure(s.distance > 50 ? s.duree / (s.distance / 1000) : 0) + ' /km'
+      + '<span style="display:block;font-size:0.68em;color:#8391a7;">' + d.toLocaleDateString('fr-CA', { day: 'numeric', month: 'short' }) + ' · ' + allure(s.distance > 50 ? s.duree / (s.distance / 1000) : 0) + ' /km'
       + (s.coach && s.coach.titre ? ' · ' + esc(s.coach.titre) : '') + '</span></span>'
-      + '<span style="color:#475569;">›</span></button>';
+      + '<span style="color:#7c8aa0;">›</span></button>';
   }
   function recordsHTML(hist) {
     var rec = records(hist);
     if (!rec.longue) return '';
     var cell = function (t, v) {
       return '<div style="flex:1;min-width:0;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:11px;padding:9px 6px;text-align:center;">'
-        + '<div style="font-size:0.9em;font-weight:900;color:#fbbf24;">' + v + '</div><div style="font-size:0.6em;color:#64748b;font-weight:800;margin-top:2px;">' + t + '</div></div>';
+        + '<div style="font-size:0.9em;font-weight:900;color:#fbbf24;">' + v + '</div><div style="font-size:0.6em;color:#8391a7;font-weight:800;margin-top:2px;">' + t + '</div></div>';
     };
     return '<div style="font-size:0.6em;letter-spacing:1.6px;color:#fbbf24;font-weight:900;margin:16px 0 8px;">MES RECORDS</div>'
       + '<div style="display:flex;gap:6px;">'
@@ -483,7 +483,7 @@
     var hero = C ? C.rendreAujourdhui() : '';
     var sec = function (t) { return '<div style="font-size:0.6em;letter-spacing:1.6px;color:#94a3b8;font-weight:900;margin:16px 0 8px;">' + t + '</div>'; };
     var noteGPS = (N() && N().geo.arrierePlan())
-      ? '<div style="font-size:0.66em;color:#64748b;margin-top:8px;text-align:center;">Le GPS continue écran verrouillé.</div>'
+      ? '<div style="font-size:0.66em;color:#8391a7;margin-top:8px;text-align:center;">Le GPS continue écran verrouillé.</div>'
       // v1275 : une seule ligne courte ; l'explication complète est dans la visite guidée
       : '<div style="font-size:0.72em;color:#a3b1c2;margin-top:8px;text-align:center;">Écran allumé pendant la sortie · ta musique peut jouer</div>';
     var contenu = hero
@@ -499,7 +499,7 @@
       + (C ? C.rendreFormeCompacte() : '')
       + (dernieres ? sec('DERNIÈRES SORTIES') + dernieres : '')
       + '<button onclick="var h=document.getElementById(\'awakRunHome\');if(h)h.remove();if(typeof startCardioTimer===\'function\')startCardioTimer()" '
-      +   'style="display:block;margin:16px auto 0;min-height:auto;padding:8px 12px;border:none;background:transparent;cursor:pointer;font-family:inherit;font-size:0.74em;font-weight:800;color:#64748b;text-decoration:underline;">'
+      +   'style="display:block;margin:16px auto 0;min-height:auto;padding:8px 12px;border:none;background:transparent;cursor:pointer;font-family:inherit;font-size:0.74em;font-weight:800;color:#8391a7;text-decoration:underline;">'
       +   'Sans GPS : tapis, vélo stationnaire, natation…</button>';
     var ov;
     if (hote) { ov = hote; ov.innerHTML = contenu; }
@@ -749,7 +749,7 @@
       + '<span id="awakRunSig" style="font-size:0.7em;font-weight:800;"></span></div>'
       + '<div style="text-align:center;margin:18px 0 6px;">'
       +   '<div id="awakRunDist" style="font-family:var(--font-display);font-size:4.4em;font-weight:900;line-height:1;letter-spacing:-1px;">0.00</div>'
-      +   '<div style="font-size:0.72em;color:#64748b;font-weight:800;letter-spacing:2px;">KILOMÈTRES</div></div>'
+      +   '<div style="font-size:0.72em;color:#8391a7;font-weight:800;letter-spacing:2px;">KILOMÈTRES</div></div>'
       + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0;">'
       +   bloc('awakRunTemps', 'TEMPS') + bloc('awakRunAllure', 'ALLURE /KM') + bloc('awakRunMoy', 'MOYENNE /KM')
       + '</div>'
@@ -768,12 +768,12 @@
     document.getElementById('awakRunStop').onclick = demanderFin;
     R._carte = null; R._nbTrace = 0; R._nbCarte = -1; R._centre = false;
     var tr0 = document.getElementById('awakRunTrace');
-    if (tr0) tr0.innerHTML = '<div style="height:240px;display:flex;align-items:center;justify-content:center;color:#475569;font-size:0.72em;">Chargement de la carte…</div>';
+    if (tr0) tr0.innerHTML = '<div style="height:240px;display:flex;align-items:center;justify-content:center;color:#7c8aa0;font-size:0.72em;">Chargement de la carte…</div>';
     chargerCarte(function (ok) {
       if (!R) return;
       var hote = document.getElementById('awakRunTrace');
       R._lfPret = !!(ok && hote);
-      if (R._lfPret && !R.pos && hote) hote.innerHTML = '<div style="height:240px;display:flex;align-items:center;justify-content:center;color:#475569;font-size:0.72em;">Recherche de ta position…</div>';
+      if (R._lfPret && !R.pos && hote) hote.innerHTML = '<div style="height:240px;display:flex;align-items:center;justify-content:center;color:#7c8aa0;font-size:0.72em;">Recherche de ta position…</div>';
       R._nbTrace = 0;
       maj();
     });
@@ -782,7 +782,7 @@
   function bloc(id, t) {
     return '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:13px;padding:11px 4px;text-align:center;">'
       + '<div id="' + id + '" style="font-family:var(--font-display);font-size:1.45em;font-weight:900;font-variant-numeric:tabular-nums;">–</div>'
-      + '<div style="font-size:0.56em;color:#64748b;font-weight:800;letter-spacing:1px;margin-top:2px;">' + t + '</div></div>';
+      + '<div style="font-size:0.56em;color:#8391a7;font-weight:800;letter-spacing:1px;margin-top:2px;">' + t + '</div></div>';
   }
 
   function maj() {
@@ -1048,7 +1048,7 @@
     var splits = (s.splits || []).map(function (x, k) {
       var w = maxS ? Math.max(18, Math.round(x / maxS * 100)) : 50;
       return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:0.74em;">'
-        + '<span style="width:38px;color:#64748b;font-weight:800;">km ' + (k + 1) + '</span>'
+        + '<span style="width:38px;color:#8391a7;font-weight:800;">km ' + (k + 1) + '</span>'
         + '<span style="flex:1;height:14px;background:rgba(255,255,255,0.04);border-radius:5px;overflow:hidden;">'
         +   '<span style="display:block;height:100%;width:' + w + '%;background:' + (x === minS ? '#fbbf24' : ACCENT) + ';opacity:0.85;border-radius:5px;"></span></span>'
         + '<span style="width:48px;text-align:right;color:#e2e8f0;font-weight:800;font-variant-numeric:tabular-nums;">' + hms(x) + '</span></div>';
@@ -1059,14 +1059,14 @@
     ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
     var st = function (v, t) {
       return '<div style="flex:1;min-width:0;text-align:center;"><div style="font-family:var(--font-display);font-size:1.3em;font-weight:900;">' + v + '</div>'
-        + '<div style="font-size:0.58em;color:#64748b;font-weight:800;letter-spacing:1px;">' + t + '</div></div>';
+        + '<div style="font-size:0.58em;color:#8391a7;font-weight:800;letter-spacing:1px;">' + t + '</div></div>';
     };
     ov.innerHTML = '<div style="width:100%;max-width:480px;max-height:92vh;overflow-y:auto;box-sizing:border-box;background:#0d1117;border:1px solid rgba(34,211,238,0.25);border-radius:20px 20px 0 0;padding:12px 16px calc(18px + env(safe-area-inset-bottom));">'
       + '<div style="width:40px;height:4px;background:rgba(255,255,255,0.15);border-radius:99px;margin:0 auto 12px;"></div>'
       + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
       +   '<span style="color:' + ACCENT + ';">' + ico(a.ico, 24) + '</span>'
       +   '<div style="flex:1;min-width:0;"><div style="font-size:1.05em;font-weight:900;color:#fff;">' + a.nom + ' · ' + km(s.distance) + ' km</div>'
-      +   '<div style="font-size:0.7em;color:#64748b;">' + new Date(s.date).toLocaleString('fr-CA', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) + '</div></div>'
+      +   '<div style="font-size:0.7em;color:#8391a7;">' + new Date(s.date).toLocaleString('fr-CA', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) + '</div></div>'
       +   '<button onclick="document.getElementById(\'awakRunDetail\').remove()" aria-label="Fermer" style="width:36px;height:36px;min-height:auto;padding:0;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;">' + ico('<path d="M6 6l12 12M18 6L6 18"/>', 16) + '</button>'
       + '</div>'
       + (nouveaux && nouveaux[0] === '__premiere'
@@ -1080,7 +1080,7 @@
       + '<div style="display:flex;gap:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:13px;padding:12px 6px;">'
       +   st(hms(s.duree), 'TEMPS') + st(allure(moy), 'ALLURE /KM') + st(moy ? (3600 / moy).toFixed(1).replace('.', ',') : '–', 'KM/H') + '</div>'
       + (window.AwakCoachRun ? AwakCoachRun.rendreBilan(s) + AwakCoachRun.rendreAnalyse(s) : '')
-      + (s.pausesAuto ? '<div style="font-size:0.66em;color:#64748b;margin-top:8px;">Pause auto ' + s.pausesAuto + ' fois · durée totale ' + hms(s.dureeTotale || s.duree) + '</div>' : '')
+      + (s.pausesAuto ? '<div style="font-size:0.66em;color:#8391a7;margin-top:8px;">Pause auto ' + s.pausesAuto + ' fois · durée totale ' + hms(s.dureeTotale || s.duree) + '</div>' : '')
       + '<div id="awakRunDetailCarte" style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:14px;margin:10px 0;overflow:hidden;">' + trace(TR.complets(s), 340, 200, ACCENT) + '</div>'
       + (splits ? '<div style="font-size:0.6em;letter-spacing:1.6px;color:#94a3b8;font-weight:900;margin:12px 0 8px;">TEMPS PAR KILOMÈTRE</div>' + splits : '')
       + (s.coupures ? '<div style="font-size:0.7em;color:#fbbf24;margin-top:8px;">Signal GPS interrompu ' + s.coupures + ' fois : la distance peut être légèrement sous-estimée.</div>' : '')
@@ -1090,7 +1090,7 @@
           + '<div style="font-size:0.66em;color:#94a3b8;line-height:1.5;margin-top:7px;">'
           +   '<b style="color:#cbd5e1;">Strava :</b> sur strava.com, « + » puis Importer une activité › Fichier.<br>'
           +   '<b style="color:#cbd5e1;">Garmin Connect :</b> sur connect.garmin.com, icône d\'import puis Importer des données.</div>'
-          : (s.traceRetire ? '<div style="font-size:0.66em;color:#64748b;margin-top:10px;">Tracé allégé pour libérer de la mémoire : les chiffres de cette sortie sont conservés.</div>' : ''))
+          : (s.traceRetire ? '<div style="font-size:0.66em;color:#8391a7;margin-top:10px;">Tracé allégé pour libérer de la mémoire : les chiffres de cette sortie sont conservés.</div>' : ''))
       + '<div style="display:flex;gap:8px;margin-top:10px;">'
       +   '<button onclick="AwakRun.supprimer(' + i + ')" style="flex:1;min-height:auto;padding:12px;border-radius:12px;cursor:pointer;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;font-weight:800;font-size:0.8em;">Supprimer</button>'
       +   '<button onclick="document.getElementById(\'awakRunDetail\').remove();AwakRun.ouvrir()" style="flex:2;min-height:auto;padding:12px;border-radius:12px;cursor:pointer;background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.4);color:#a5f3fc;font-weight:800;font-size:0.8em;">Mes sorties</button>'

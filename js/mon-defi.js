@@ -212,12 +212,12 @@
     if (w) {
       var app = w.exercises.slice(1).map(function (e) { return e.name; });
       h += '<div style="border-left:3px solid ' + BLEU + ';padding:2px 0 2px 10px;margin:12px 0 10px;">'
-        + '<div style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:1.4px;">PROCHAINE SÉANCE · ' + esc(S.nom.toUpperCase()) + '</div>'
+        + '<div style="font-size:0.6em;color:#8391a7;font-weight:900;letter-spacing:1.4px;">PROCHAINE SÉANCE · ' + esc(S.nom.toUpperCase()) + '</div>'
         + '<div style="font-size:0.86em;font-weight:900;color:#fff;">' + esc(d.exo) + ' : ' + S.series + ' × ' + S.reps + ' à ' + w._charge + ' ' + unite() + '</div>'
         + (app.length ? '<div style="font-size:0.7em;color:#94a3b8;line-height:1.45;">Puis ' + esc(app.join(', ')) + ' (3 × 10)</div>' : '')
         + '</div>'
         + '<div style="display:flex;gap:8px;">' + bouton('AwakMonDefi.lancer()', 'Lancer la séance', true) + '</div>'
-        + '<div style="font-size:0.62em;color:#64748b;line-height:1.45;margin-top:8px;">Vise 3 séances par semaine. Une semaine sur 4 est plus légère pour récupérer.</div>';
+        + '<div style="font-size:0.62em;color:#8391a7;line-height:1.45;margin-top:8px;">Vise 3 séances par semaine. Une semaine sur 4 est plus légère pour récupérer.</div>';
     }
     return carte(h, BLEU);
   }
@@ -295,7 +295,7 @@
       + '<label style="' + LBL + '">EXERCICE</label><select id="awakDefiExo">' + options + '</select>'
       + '<div id="awakDefiDepart"></div>'
       + '<label style="' + LBL + '">TON MAX ACTUEL (' + unite().toUpperCase() + ')</label><input id="awakDefiMax" type="number" inputmode="decimal" min="1" placeholder="Charge soulevée une fois">'
-      + '<div id="awakDefiMaxInfo" style="font-size:0.64em;color:#64748b;line-height:1.45;margin-top:5px;"></div>'
+      + '<div id="awakDefiMaxInfo" style="font-size:0.64em;color:#8391a7;line-height:1.45;margin-top:5px;"></div>'
       + '<label style="' + LBL + '">CHARGE VISÉE (' + unite().toUpperCase() + ')</label><input id="awakDefiCible" type="number" inputmode="decimal" min="1" placeholder="Par exemple ' + (kg() ? '70' : '150') + '">'
       + '<label style="' + LBL + '">POUR QUAND ? (FACULTATIF)</label><input id="awakDefiDate" type="date">'
       + '<div id="awakDefiDuree" style="font-size:0.72em;color:#cbd5e1;margin-top:8px;"></div>'
@@ -320,7 +320,7 @@
         ? ''
         : '<label style="' + LBL + '">TA MEILLEURE SÉRIE RÉCENTE</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
           + '<input id="awakDefiSerieW" type="number" inputmode="decimal" min="1" placeholder="Charge (' + unite() + ')"><input id="awakDefiSerieR" type="number" inputmode="numeric" min="1" max="15" placeholder="Répétitions"></div>'
-          + '<div style="font-size:0.64em;color:#64748b;margin-top:5px;">Aucune série trouvée sur cet exercice : on part de celle-ci.</div>';
+          + '<div style="font-size:0.64em;color:#8391a7;margin-top:5px;">Aucune série trouvée sur cet exercice : on part de celle-ci.</div>';
     };
     var majSerie = function () {
       var w = parseFloat((ov.querySelector('#awakDefiSerieW') || {}).value) || 0, r = Math.min(10, parseInt((ov.querySelector('#awakDefiSerieR') || {}).value, 10) || 0);

@@ -273,7 +273,7 @@
     }
     return '<button onclick="AwakPainOpen()" style="width:100%;padding:12px 15px;border:1px solid rgba(255,255,255,0.12);border-radius:14px;cursor:pointer;background:rgba(255,255,255,0.03);color:#cbd5e1;font-weight:700;font-size:0.84em;text-align:left;display:flex;align-items:center;gap:10px;">'
       + '<svg viewBox="0 0 24 24" width="20" height="20" style="flex-shrink:0;" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="#ef4444"/></svg>'
-      + '<span style="flex:1;">J\'ai mal quelque part<br><span style="font-size:0.82em;color:#64748b;font-weight:600;">Adapte la séance en évitant une zone douloureuse</span></span>'
+      + '<span style="flex:1;">J\'ai mal quelque part<br><span style="font-size:0.82em;color:#8391a7;font-weight:600;">Adapte la séance en évitant une zone douloureuse</span></span>'
       + '</button>';
   }
 
@@ -318,7 +318,7 @@
             ? '<div id="mmpBodyHost" style="margin:12px 0 4px;">' + window._mmpBodyBlock() + '</div>'
               + '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:6px 0 14px;">' + extraChips + '</div>'
             : '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:16px 0;">' + chips + '</div>')
-      + '<div style="font-size:0.72em;color:#64748b;line-height:1.4;margin-bottom:14px;">Les séances générées éviteront ces zones, y compris les exercices qui les sollicitent indirectement. Pense à consulter un professionnel si la douleur est forte ou dure.</div>'
+      + '<div style="font-size:0.72em;color:#8391a7;line-height:1.4;margin-bottom:14px;">Les séances générées éviteront ces zones, y compris les exercices qui les sollicitent indirectement. Pense à consulter un professionnel si la douleur est forte ou dure.</div>'
       + '<div style="padding:10px 12px;margin-bottom:14px;border-radius:11px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);">'
       +   '<div style="font-size:0.76em;color:#7dd3fc;font-weight:700;margin-bottom:4px;">🛡️ Blessure ou pause forcée ?</div>'
       +   '<div style="font-size:0.72em;color:#94a3b8;line-height:1.4;margin-bottom:8px;">Le mode récupération gèle ta progression RPG le temps de guérir — aucune perte d\'XP.</div>'

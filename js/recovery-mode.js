@@ -140,7 +140,7 @@
       +   '✅ Ton personnage, ton arbre et ton rang restent visibles.<br>'
       +   '✅ Tu reprends quand tu veux, exactement où tu t\'étais arrêté.'
       + '</div>'
-      + '<div style="font-size:0.72em;color:#64748b;line-height:1.4;margin-bottom:16px;">Suis les conseils de ton professionnel de santé pour la reprise. Une reprise en douceur (mode mobilité réduite) peut aider.</div>'
+      + '<div style="font-size:0.72em;color:#8391a7;line-height:1.4;margin-bottom:16px;">Suis les conseils de ton professionnel de santé pour la reprise. Une reprise en douceur (mode mobilité réduite) peut aider.</div>'
       + '<button onclick="AwakRecoveryConfirm()" style="width:100%;padding:13px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#38bdf8,#0ea5e9);color:#fff;font-weight:800;font-size:0.9em;margin-bottom:8px;">Activer le mode récupération</button>'
       + '<button onclick="document.getElementById(\'awakRecoveryModal\').remove()" style="width:100%;padding:11px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.82em;">Annuler</button>'
       + '</div>';

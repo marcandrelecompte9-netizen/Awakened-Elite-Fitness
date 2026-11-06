@@ -108,7 +108,7 @@
       if (d.prog.length) {
         h += d.prog.map(function (t) { return ligne(esc(nom(t.nom)), '+' + t.pct + ' %', C.clair); }).join('');
         if (d.stables) h += '<div style="font-size:0.7em;color:' + C.gris + ';margin-top:5px;">' + d.stables + ' autre' + (d.stables > 1 ? 's' : '') + ' exercice' + (d.stables > 1 ? 's' : '') + ' stable' + (d.stables > 1 ? 's' : '') + '.</div>';
-        h += '<div style="font-size:0.64em;color:#64748b;margin-top:4px;">Meilleure série des 4 dernières semaines comparée aux 4 d\'avant.</div>';
+        h += '<div style="font-size:0.64em;color:#8391a7;margin-top:4px;">Meilleure série des 4 dernières semaines comparée aux 4 d\'avant.</div>';
       } else if (d.stables) {
         h += '<div style="font-size:0.76em;color:#cbd5e1;line-height:1.45;">' + d.stables + ' exercice' + (d.stables > 1 ? 's' : '') + ' suivi' + (d.stables > 1 ? 's' : '') + ', stable' + (d.stables > 1 ? 's' : '') + ' pour l\'instant.</div>';
       } else {
@@ -119,7 +119,7 @@
         h += titre('Corps', 'personne');
         h += d.mesures.map(function (m) {
           var e = m.ecart, s = Math.abs(e) < 0.05 ? '= ' + virg(m.b) + ' ' + m.u : (e > 0 ? '+' : '−') + virg(Math.abs(e)) + ' ' + m.u;
-          return ligne(esc(m.lbl) + ' <span style="color:#64748b;">' + virg(m.a) + ' → ' + virg(m.b) + '</span>', s, '#e2e8f0');
+          return ligne(esc(m.lbl) + ' <span style="color:#8391a7;">' + virg(m.a) + ' → ' + virg(m.b) + '</span>', s, '#e2e8f0');
         }).join('');
         if (d.photos && d.photos.recentes) {
           h += '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;font-size:0.74em;color:#cbd5e1;">'

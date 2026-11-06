@@ -260,7 +260,7 @@
         +   '<div style="flex:1;min-width:0;"><div style="font-size:1em;font-weight:900;color:#fff;">' + esc(p.name) + '</div>'
         +   '<div style="font-size:0.68em;color:#94a3b8;margin-top:2px;">' + esc(p.desc) + '</div>'
         +   '<div style="display:flex;align-items:center;gap:6px;margin-top:5px;"><span style="display:inline-flex;gap:2px;">' + etoiles + '</span>'
-        +   '<span style="font-size:0.62em;color:' + (nbFaits === tot ? '#fbbf24' : '#64748b') + ';font-weight:800;">' + (nbFaits === tot ? 'Programme réussi !' : nbFaits + ' / ' + tot + ' missions') + '</span></div></div>'
+        +   '<span style="font-size:0.62em;color:' + (nbFaits === tot ? '#fbbf24' : '#8391a7') + ';font-weight:800;">' + (nbFaits === tot ? 'Programme réussi !' : nbFaits + ' / ' + tot + ' missions') + '</span></div></div>'
         +   '<span style="flex-shrink:0;color:#93c5fd;transition:transform .2s;transform:rotate(' + (ouvert ? '90' : '0') + 'deg);">›</span>'
         + '</div>'
         + missions

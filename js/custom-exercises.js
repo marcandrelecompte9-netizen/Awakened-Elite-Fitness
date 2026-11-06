@@ -245,7 +245,7 @@
         '</div>' +
 
         '<div style="flex:1;overflow-y:auto;padding:15px 18px 18px;-webkit-overflow-scrolling:touch;">' +
-          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#64748b;font-weight:900;margin-bottom:6px;">NOM DE L\'EXERCICE</div>' +
+          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#8391a7;font-weight:900;margin-bottom:6px;">NOM DE L\'EXERCICE</div>' +
           '<input type="text" id="awakCxNom" value="' + attr(form.nom) + '" maxlength="46" autocomplete="off" ' +
             'placeholder="Ex. Tirage horizontal à la sangle" oninput="AwakCustomEx.setNom(this.value)" ' +
             'style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(34,211,238,0.3);' +
@@ -253,11 +253,11 @@
             'font-family:inherit;box-sizing:border-box;">' +
           '<div id="awakCxErr" style="display:none;color:#f87171;font-size:0.74em;font-weight:700;margin-top:6px;"></div>' +
 
-          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#22d3ee;font-weight:900;margin:16px 0 7px;">MUSCLE PRINCIPAL <span style="color:#64748b;">· obligatoire</span></div>' +
+          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#22d3ee;font-weight:900;margin:16px 0 7px;">MUSCLE PRINCIPAL <span style="color:#8391a7;">· obligatoire</span></div>' +
           '<div style="display:flex;flex-wrap:wrap;gap:6px;">' + primaires + '</div>' +
 
-          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#a855f7;font-weight:900;margin:16px 0 7px;">MUSCLES SECONDAIRES <span style="color:#64748b;">· facultatif</span></div>' +
-          '<div style="display:flex;flex-wrap:wrap;gap:6px;">' + (secondaires || '<span style="font-size:0.75em;color:#64748b;">Choisis d\'abord un muscle principal.</span>') + '</div>' +
+          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#a855f7;font-weight:900;margin:16px 0 7px;">MUSCLES SECONDAIRES <span style="color:#8391a7;">· facultatif</span></div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:6px;">' + (secondaires || '<span style="font-size:0.75em;color:#8391a7;">Choisis d\'abord un muscle principal.</span>') + '</div>' +
 
           '<div style="font-size:0.58em;letter-spacing:1.6px;color:#60a8f0;font-weight:900;margin:16px 0 7px;">ÉQUIPEMENT</div>' +
           '<div style="display:flex;flex-wrap:wrap;gap:6px;">' + equipChips + '</div>' +
@@ -269,19 +269,19 @@
           '<div style="font-size:0.58em;letter-spacing:1.6px;color:#fbbf24;font-weight:900;margin:16px 0 7px;">DIFFICULTÉ</div>' +
           '<div style="display:flex;flex-wrap:wrap;gap:6px;">' + diffChips + '</div>' +
 
-          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#64748b;font-weight:900;margin:16px 0 7px;">PHOTO <span style="color:#475569;">· facultatif</span></div>' +
+          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#8391a7;font-weight:900;margin:16px 0 7px;">PHOTO <span style="color:#7c8aa0;">· facultatif</span></div>' +
           apercu +
 
-          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#64748b;font-weight:900;margin:16px 0 7px;">' +
-            'INSTRUCTIONS <span style="color:#475569;">· facultatif, une étape par ligne</span></div>' +
+          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#8391a7;font-weight:900;margin:16px 0 7px;">' +
+            'INSTRUCTIONS <span style="color:#7c8aa0;">· facultatif, une étape par ligne</span></div>' +
           '<textarea id="awakCxInstr" rows="4" oninput="AwakCustomEx.setInstructions(this.value)" ' +
             'placeholder="Dos droit, gainage serré&#10;Tirer les coudes vers l\'arrière&#10;Descendre lentement" ' +
             'style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);' +
             'color:#e8f0f8;border-radius:11px;padding:11px 13px;font-size:0.82em;font-weight:600;' +
             'font-family:inherit;box-sizing:border-box;resize:vertical;line-height:1.5;">' + esc(form.instructions) + '</textarea>' +
 
-          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#64748b;font-weight:900;margin:16px 0 7px;">' +
-            'NOTE PERSONNELLE <span style="color:#475569;">· facultatif</span></div>' +
+          '<div style="font-size:0.58em;letter-spacing:1.6px;color:#8391a7;font-weight:900;margin:16px 0 7px;">' +
+            'NOTE PERSONNELLE <span style="color:#7c8aa0;">· facultatif</span></div>' +
           '<textarea id="awakCxNote" rows="2" oninput="AwakCustomEx.setNote(this.value)" ' +
             'placeholder="Ex. commencer léger, l\'épaule droite tire un peu" ' +
             'style="width:100%;background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.25);' +

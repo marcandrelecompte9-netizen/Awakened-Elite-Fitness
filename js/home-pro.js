@@ -635,7 +635,7 @@
           '<span class="ahp-ic">' + ico(x[0], 18, x[1]) + '</span>' +
           '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.9em;font-weight:700;color:#f1f5f9;">' + x[2] + '</span>' +
           '<span style="display:block;font-size:0.76em;color:#a3b1c2;margin-top:2px;">' + x[3] + '</span></span>' +
-          '<span style="color:#475569;font-size:1.2em;">›</span></button>';
+          '<span style="color:#7c8aa0;font-size:1.2em;">›</span></button>';
     }).join('');
     ov.innerHTML = '<div style="width:100%;max-width:480px;background:#12161c;border:1px solid rgba(255,255,255,0.08);border-radius:18px 18px 0 0;padding:16px 16px calc(env(safe-area-inset-bottom,0px) + 18px);box-sizing:border-box;">' +
         '<div style="width:40px;height:4px;background:rgba(255,255,255,0.12);border-radius:99px;margin:0 auto 12px;"></div>' +

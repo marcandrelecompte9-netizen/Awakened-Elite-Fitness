@@ -2109,7 +2109,7 @@ function storyShowEvent(evt) {
                         ${pages[pageIdx] || ''}
                     </div>
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;">
-                        <div style="font-size:0.6em;color:#64748b;letter-spacing:1px;">
+                        <div style="font-size:0.6em;color:#8391a7;letter-spacing:1px;">
                             ${pages.length > 1 ? (pageIdx + 1) + ' / ' + pages.length : ''}
                         </div>
                         <button id="storyEvtNext" style="background:${color}22;border:1px solid ${color}66;color:${color};

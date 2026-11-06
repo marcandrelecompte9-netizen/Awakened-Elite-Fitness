@@ -283,9 +283,9 @@
             var d = new Date(b.exportedAt), n = Object.keys(b.data || {}).length;
             return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:6px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid ' + (b.avant ? 'rgba(251,191,36,0.35)' : 'rgba(255,255,255,0.08)') + ';">'
               + '<div style="flex:1;min-width:0;"><div style="font-size:0.84em;font-weight:800;color:#fff;">' + d.toLocaleDateString('fr-CA', { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' }) + '</div>'
-              + '<div style="font-size:0.66em;color:' + (b.avant ? '#fbbf24' : '#64748b') + ';">' + (b.avant ? 'Avant restauration · ' : '') + n + ' entrées</div></div>'
+              + '<div style="font-size:0.66em;color:' + (b.avant ? '#fbbf24' : '#8391a7') + ';">' + (b.avant ? 'Avant restauration · ' : '') + n + ' entrées</div></div>'
               + '<button data-copie="' + b.id + '" style="flex-shrink:0;min-height:auto;padding:7px 12px;border-radius:10px;cursor:pointer;font-weight:800;font-size:0.74em;background:rgba(96,168,240,0.12);border:1px solid rgba(96,168,240,0.4);color:' + CLAIR + ';">Restaurer</button></div>';
-          }).join('') : '<div style="text-align:center;color:#64748b;font-size:0.8em;padding:16px;">Aucune copie pour l\'instant. La première est faite demain.</div>')
+          }).join('') : '<div style="text-align:center;color:#8391a7;font-size:0.8em;padding:16px;">Aucune copie pour l\'instant. La première est faite demain.</div>')
         + '<button onclick="document.getElementById(\'backupManagerModal\').remove()" style="width:100%;margin-top:10px;min-height:auto;padding:12px;border-radius:12px;cursor:pointer;font-weight:800;font-size:0.84em;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;">Fermer</button>'
         + '</div>';
       document.body.appendChild(ov);
@@ -329,9 +329,9 @@
       +     '<input type="file" accept=".json,application/json" style="display:none;" onchange="AwakSauvegarde.depuisFichier(this.files[0]);this.value=\'\';"></label>'
       +   btn('AwakSauvegarde.copies()', ico('liste', 18, '#cbd5e1') + 'Copies sur ce téléphone', false)
       + '</div>'
-      + '<div style="font-size:0.66em;color:#64748b;margin-top:10px;">Données de l\'app : ' + mo(o) + ' sur environ 5 Mo</div>'
+      + '<div style="font-size:0.66em;color:#8391a7;margin-top:10px;">Données de l\'app : ' + mo(o) + ' sur environ 5 Mo</div>'
       + '<div style="height:4px;border-radius:99px;background:rgba(255,255,255,0.07);margin-top:4px;overflow:hidden;"><div style="height:100%;width:' + pct.toFixed(0) + '%;background:' + (pct > 80 ? '#f87171' : BLEU) + ';"></div></div>'
-      + '<div id="awakEspaceGrand" style="font-size:0.66em;color:#64748b;margin-top:8px;"></div>';
+      + '<div id="awakEspaceGrand" style="font-size:0.66em;color:#8391a7;margin-top:8px;"></div>';
     // v1308 : la grande mémoire (tracés GPS complets, photos de progression)
     try {
       if (navigator.storage && navigator.storage.estimate) navigator.storage.estimate().then(function (e) {

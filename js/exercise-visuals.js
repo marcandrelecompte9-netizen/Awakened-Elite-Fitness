@@ -1522,9 +1522,9 @@ function _buildLazyImg(src, name, extraStyle) {
   var onerr = "console.warn('[IMG 404] introuvable:', this.getAttribute('src'));"
             + "this.style.display='none';"
             + "var p=this.parentElement;"
-            + "if(p){p.innerHTML='<div style=\\'padding:22px 14px;text-align:center;color:#64748b;font-size:0.78em;line-height:1.5;\\'>"
+            + "if(p){p.innerHTML='<div style=\\'padding:22px 14px;text-align:center;color:#8391a7;font-size:0.78em;line-height:1.5;\\'>"
             + "<div style=\\'font-size:2em;margin-bottom:6px;opacity:0.5;\\'>🖼️</div>"
-            + "Image indisponible<div style=\\'font-size:0.85em;color:#475569;margin-top:3px;\\'>' + (this.getAttribute('alt')||'') + '</div></div>';}";
+            + "Image indisponible<div style=\\'font-size:0.85em;color:#7c8aa0;margin-top:3px;\\'>' + (this.getAttribute('alt')||'') + '</div></div>';}";
   return '<img src="' + safeSrc + '" alt="' + safeName + '" style="' + baseStyle + '" loading="lazy" decoding="async" onerror="' + onerr + '"/>';
 }
 

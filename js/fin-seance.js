@@ -176,7 +176,7 @@
     d.id = 'awakFinDetails';
     d.style.cssText = 'margin:0 0 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);';
     d.innerHTML = '<summary style="cursor:pointer;list-style:none;padding:12px 14px;font-size:0.8em;font-weight:800;color:#cbd5e1;display:flex;align-items:center;justify-content:space-between;">'
-      + '<span>Détails de la séance</span><span style="font-size:0.85em;color:#64748b;">muscles, volume, calories…</span></summary><div data-fin-corps style="padding:4px 12px 2px;"></div>';
+      + '<span>Détails de la séance</span><span style="font-size:0.85em;color:#8391a7;">muscles, volume, calories…</span></summary><div data-fin-corps style="padding:4px 12px 2px;"></div>';
     premier.parentNode.insertBefore(d, premier);
     var corps = d.querySelector('[data-fin-corps]');
     SECONDAIRES.forEach(function (id) { var el = document.getElementById(id); if (el) corps.appendChild(el); });

@@ -678,12 +678,12 @@ function renderAdventureDisabled() {
         <div style="font-size:0.6em;color:rgba(168,85,247,0.5);font-weight:700;text-transform:uppercase;letter-spacing:4px;margin-bottom:16px;">⚠ SYSTÈME ⚠</div>
         <div style="font-size:3em;margin-bottom:14px;">⚔️</div>
         <h2 style="color:white;font-size:1.15em;font-weight:900;margin-bottom:8px;">Mode Chasseur</h2>
-        <p style="color:#475569;font-size:0.82em;line-height:1.6;margin-bottom:22px;">Active le mode aventure pour recevoir des défis du Système, obtenir des équipements et bâtir ton chasseur.</p>
+        <p style="color:#7c8aa0;font-size:0.82em;line-height:1.6;margin-bottom:22px;">Active le mode aventure pour recevoir des défis du Système, obtenir des équipements et bâtir ton chasseur.</p>
         <div style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.12);border-radius:14px;padding:14px;margin-bottom:20px;text-align:left;display:flex;flex-direction:column;gap:10px;">
             ${[['📜','Défis imposés','Accomplis-les ou subis les conséquences'],['🎒','Équipements','Gagne des items en t\'entraînant (max 2/jour)'],['🛡️','Sets légendaires','Complète des sets pour des bonus surpuissants']].map(([icon,title,desc])=>`
             <div style="display:flex;gap:10px;align-items:center;">
                 <span style="font-size:1.2em;">${icon}</span>
-                <div><div style="font-size:0.82em;font-weight:700;color:#e2e8f0;">${title}</div><div style="font-size:0.7em;color:#475569;">${desc}</div></div>
+                <div><div style="font-size:0.82em;font-weight:700;color:#e2e8f0;">${title}</div><div style="font-size:0.7em;color:#7c8aa0;">${desc}</div></div>
             </div>`).join('')}
         </div>
         <button onclick="setAdventureEnabled(true);renderAdventureTab();" style="width:100%;padding:15px;border-radius:14px;border:none;cursor:pointer;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;font-size:0.95em;font-weight:800;box-shadow:0 4px 24px rgba(124,58,237,0.4);">
@@ -874,7 +874,7 @@ function renderFamilyTab() {
 
     // Filet de sécurité
     if (!constCard && !familyCard && !nudgeCard && !challengeCard && !goalCard && !feedCard && !duoGamesCard && !coopCard) {
-        html += '<div style="padding:20px;text-align:center;color:#64748b;font-size:0.85em;">Rien à afficher pour le moment.</div>';
+        html += '<div style="padding:20px;text-align:center;color:#8391a7;font-size:0.85em;">Rien à afficher pour le moment.</div>';
     }
 
     container.innerHTML = html;
@@ -954,7 +954,7 @@ function showItemDetail(itemId, context, invId) {
             </div>
             <button onclick="document.getElementById('itemDetailModal').remove()" style="width:30px;height:30px;border-radius:50%;background:#111;border:1px solid #1a1a1a;color:#334155;font-size:0.95em;cursor:pointer;flex-shrink:0;">✕</button>
         </div>
-        <div style="font-size:0.78em;color:#475569;margin-bottom:14px;line-height:1.6;">${item.description}</div>
+        <div style="font-size:0.78em;color:#7c8aa0;margin-bottom:14px;line-height:1.6;">${item.description}</div>
         <div style="background:#0a0a0a;border-radius:14px;padding:12px;margin-bottom:12px;border:1px solid #1a1a1a;">
             <div style="font-size:0.56em;color:#1e293b;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Statistiques</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
@@ -1083,7 +1083,7 @@ function awkComparaisonHTML(item, invId) {
             <div style="font-size:2em;line-height:1;">${it.icon}</div>
             <div style="font-size:12.5px;font-weight:800;color:#f1f5f9;margin-top:6px;line-height:1.2;">${it.name}</div>
             <div style="font-size:11px;color:${ri.color};font-weight:700;margin-top:2px;">${(ri.labelFull || '').charAt(0) + (ri.labelFull || '').slice(1).toLowerCase()}</div>
-            <div style="font-size:11px;margin-top:5px;line-height:1.35;font-weight:700;">${st || '<span style="color:#64748b;">Aucune stat</span>'}</div>
+            <div style="font-size:11px;margin-top:5px;line-height:1.35;font-weight:700;">${st || '<span style="color:#8391a7;">Aucune stat</span>'}</div>
             ${it.passive ? `<div style="font-size:10.5px;color:${it.cursed ? '#d8b4fe' : '#a3b1c2'};margin-top:5px;line-height:1.3;">${it.cursed ? 'Malédiction' : 'Passif'} : ${it.passive}</div>` : ''}
         </div>`;
     };
@@ -1091,7 +1091,7 @@ function awkComparaisonHTML(item, invId) {
         const v = D.d[k], c = v > 0 ? HAUT : v < 0 ? BAS : EGAL;
         return `<div style="display:grid;grid-template-columns:minmax(70px,auto) 1fr auto auto;gap:8px;align-items:center;padding:6px 0;border-top:1px solid rgba(255,255,255,0.05);font-variant-numeric:tabular-nums;">
             <span style="font-size:12px;font-weight:800;color:#94a3b8;">${k}</span>
-            <span style="font-size:13px;color:#cbd5e1;font-weight:700;">${D.a.T[k]} <span style="color:#475569;">→</span> <b style="color:#f1f5f9;">${D.b.T[k]}</b></span>
+            <span style="font-size:13px;color:#cbd5e1;font-weight:700;">${D.a.T[k]} <span style="color:#7c8aa0;">→</span> <b style="color:#f1f5f9;">${D.b.T[k]}</b></span>
             <span style="font-size:11px;color:${v ? c : EGAL};text-align:right;">${v ? effet[k](v) : ''}</span>
             <span style="min-width:44px;text-align:right;font-size:13.5px;font-weight:900;color:${c};">${fl(v)} ${v > 0 ? '+' : ''}${v}</span>
         </div>`;
@@ -1105,7 +1105,7 @@ function awkComparaisonHTML(item, invId) {
         <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:8px;">◈ COMPARAISON</div>
         <div style="display:flex;gap:8px;align-items:stretch;">
             ${carteObj(D.actuel, 'Équipé', false)}
-            <div style="flex-shrink:0;display:flex;align-items:center;color:#475569;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+            <div style="flex-shrink:0;display:flex;align-items:center;color:#7c8aa0;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
             ${carteObj(item, 'Celui-ci', true)}
         </div>
         <div style="margin-top:10px;background:#0a0e18;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:8px 12px 4px;">
@@ -1113,7 +1113,7 @@ function awkComparaisonHTML(item, invId) {
                 <span style="font-size:11px;color:#94a3b8;font-weight:800;letter-spacing:1px;text-transform:uppercase;">Ton équipement complet</span>
                 <span style="font-size:13px;font-weight:900;color:${tc};">${D.total > 0 ? '+' : ''}${D.total} au total</span>
             </div>
-            ${lignes || '<div style="font-size:12px;color:#64748b;padding:6px 0;">Aucune différence de stats.</div>'}
+            ${lignes || '<div style="font-size:12px;color:#8391a7;padding:6px 0;">Aucune différence de stats.</div>'}
         </div>
         ${sets}
     </div>`;
@@ -1199,7 +1199,7 @@ function showItemPopup(item, invId, equippedSlot) {
                             const effColor = neg ? '#f87171' : '#67e8f9';
                             return `
                             <div style="background:#0a0e18;border:1px solid ${neg?'rgba(239,68,68,0.25)':'rgba(255,255,255,0.06)'};border-radius:10px;padding:6px 4px;text-align:center;">
-                                <div style="font-size:0.55em;color:#64748b;font-weight:800;letter-spacing:0.5px;">${k}</div>
+                                <div style="font-size:0.55em;color:#8391a7;font-weight:800;letter-spacing:0.5px;">${k}</div>
                                 <div style="font-size:1em;color:${statColor};font-weight:900;line-height:1.1;">${neg?'':'+'}${v}</div>
                                 ${effectText ? `<div style="font-size:0.48em;color:${effColor};font-weight:700;margin-top:2px;letter-spacing:0.3px;">${effectText}</div>` : ''}
                             </div>
@@ -1404,7 +1404,7 @@ function openInventoryCleanupModal() {
                     <div style="text-align:center;padding:30px 20px;color:#94a3b8;font-size:0.85em;">
                         <div style="font-size:2.4em;margin-bottom:8px;opacity:0.6;">✨</div>
                         <div style="font-weight:700;">Inventaire propre !</div>
-                        <div style="font-size:0.85em;color:#64748b;margin-top:4px;">Aucun item à nettoyer.</div>
+                        <div style="font-size:0.85em;color:#8391a7;margin-top:4px;">Aucun item à nettoyer.</div>
                     </div>
                 `}
 
@@ -1681,7 +1681,7 @@ function showRPGEquipmentModal(defaultTab) {
         const _rangR = r => rarityOrder.indexOf(r);
         itemsList.sort((a, b) => (equippedIds.has(b.entry.id) - equippedIds.has(a.entry.id)) || (_rangR(b.item.rarity) - _rangR(a.item.rarity)));
         const _statsTxt = (item) => Object.entries(item.stats || {}).filter(([, v]) => v).map(([k, v]) =>
-            `<span style="color:${v < 0 ? '#f87171' : '#cbd5e1'};">${v > 0 ? '+' : ''}${v} ${k}</span>`).join('<span style="color:#475569;"> · </span>');
+            `<span style="color:${v < 0 ? '#f87171' : '#cbd5e1'};">${v > 0 ? '+' : ''}${v} ${k}</span>`).join('<span style="color:#7c8aa0;"> · </span>');
         const grid = itemsList.length === 0
             ? `<div style="text-align:center;color:${EQ_TXT2};font-size:14px;padding:26px 10px;">${allItems.length ? 'Aucun objet pour ce filtre.' : 'Ton inventaire est vide. Entraîne-toi pour gagner des objets (2 par jour au maximum).'}</div>`
             : `<div style="display:flex;flex-direction:column;gap:6px;">
@@ -1696,7 +1696,7 @@ function showRPGEquipmentModal(defaultTab) {
                 const _dq = (!isEq && typeof awkDeltaEquip === 'function') ? awkDeltaEquip(item, entry.id) : null;
                 const _cmp = !_dq ? '' : !_dq.actuel
                     ? `<span style="flex-shrink:0;font-size:11px;font-weight:800;color:#60a5fa;border:1px solid rgba(96,165,250,0.4);border-radius:99px;padding:2px 7px;">Libre</span>`
-                    : _dq.total ? `<span style="flex-shrink:0;font-size:12px;font-weight:900;color:${_dq.total > 0 ? '#60a5fa' : '#f87171'};font-variant-numeric:tabular-nums;">${_dq.total > 0 ? '▴ +' : '▾ '}${_dq.total}</span>` : '<span style="flex-shrink:0;font-size:12px;font-weight:800;color:#64748b;">=</span>';
+                    : _dq.total ? `<span style="flex-shrink:0;font-size:12px;font-weight:900;color:${_dq.total > 0 ? '#60a5fa' : '#f87171'};font-variant-numeric:tabular-nums;">${_dq.total > 0 ? '▴ +' : '▾ '}${_dq.total}</span>` : '<span style="flex-shrink:0;font-size:12px;font-weight:800;color:#8391a7;">=</span>';
                 const etat = isEq
                     ? `<span style="flex-shrink:0;font-size:11px;font-weight:800;color:#04121f;background:${EQ_C};border-radius:99px;padding:3px 8px;">Équipé</span>`
                     : block
@@ -1712,7 +1712,7 @@ function showRPGEquipmentModal(defaultTab) {
                     <div style="flex:1;min-width:0;">
                         <div style="font-size:14px;font-weight:800;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</div>
                         <div style="font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                            <span style="color:${r2.color};font-weight:700;">${rar}</span><span style="color:#64748b;"> · ${emp}</span>${item.cursed ? '<span style="color:#c084fc;font-weight:700;"> · Maudit</span>' : ''}
+                            <span style="color:${r2.color};font-weight:700;">${rar}</span><span style="color:#8391a7;"> · ${emp}</span>${item.cursed ? '<span style="color:#c084fc;font-weight:700;"> · Maudit</span>' : ''}
                         </div>
                         ${block ? `<div style="font-size:11px;margin-top:2px;color:${EQ_TXT2};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${block.label}</div>`
                             : (st ? `<div style="font-size:11px;margin-top:2px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums;">${st}</div>` : '')}
@@ -1888,7 +1888,7 @@ window.tryEquipWithFeedback = function(invId, onSuccess) {
             <div style="font-size:0.95em;font-weight:800;color:white;margin-bottom:10px;">${result.itemName || ''}</div>
             <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:14px;padding:12px 14px;margin-bottom:14px;">
                 <div style="font-size:0.78em;font-weight:700;color:#f87171;margin-bottom:4px;">⛔ ${result.label}</div>
-                <div style="font-size:0.7em;color:#475569;line-height:1.6;">${result.detail}</div>
+                <div style="font-size:0.7em;color:#7c8aa0;line-height:1.6;">${result.detail}</div>
             </div>
             <div style="font-size:0.7em;color:#334155;margin-bottom:14px;line-height:1.55;">
                 ${isMuscle

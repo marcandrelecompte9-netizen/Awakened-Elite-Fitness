@@ -36,7 +36,7 @@
       + '.awk-regle-esp{flex-shrink:0;height:1px;}'
       + '.awk-regle-t{flex-shrink:0;width:' + LARG + 'px;height:100%;position:relative;scroll-snap-align:center;}'
       + '.awk-regle-t i{position:absolute;left:50%;top:0;width:2px;margin-left:-1px;background:rgba(148,163,184,0.45);border-radius:0 0 2px 2px;}'
-      + '.awk-regle-t b{position:absolute;left:50%;top:34px;transform:translateX(-50%);font-size:11px;font-weight:800;color:#64748b;white-space:nowrap;}'
+      + '.awk-regle-t b{position:absolute;left:50%;top:34px;transform:translateX(-50%);font-size:11px;font-weight:800;color:#8391a7;white-space:nowrap;}'
       + '.awk-regle-centre{position:absolute;left:50%;top:0;bottom:0;width:3px;margin-left:-1.5px;background:' + COUL + ';border-radius:2px;box-shadow:0 0 10px rgba(96,168,240,0.8);pointer-events:none;}'
       + '.awk-regle-piste{-webkit-mask-image:linear-gradient(90deg,transparent,#000 40px,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(90deg,transparent,#000 40px,#000 calc(100% - 40px),transparent);}';
     document.head.appendChild(st);
@@ -81,7 +81,7 @@
       +   '</div>'
       +   '<button type="button" class="awk-regle-btn" data-dir="1" aria-label="Plus">' + ICO_PLUS + '</button>'
       + '</div>'
-      + (o.aide ? '<div style="text-align:center;font-size:0.7em;color:#64748b;margin-top:8px;">' + o.aide + '</div>' : '')
+      + (o.aide ? '<div style="text-align:center;font-size:0.7em;color:#8391a7;margin-top:8px;">' + o.aide + '</div>' : '')
       + '</div>';
   }
 

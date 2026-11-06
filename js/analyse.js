@@ -154,7 +154,7 @@
       }).join('');
       h += '<div style="margin-bottom:16px;">' + titre('À reprendre', C.ambre, 'chrono')
         + '<div style="display:flex;flex-wrap:wrap;gap:6px;">' + puces + '</div>'
-        + '<div style="font-size:0.64em;color:#64748b;margin-top:6px;line-height:1.4;">Orange : à reprendre (5 à 9 jours). Rouge : négligé (10 jours et plus). Grisé : encore en récupération.</div></div>';
+        + '<div style="font-size:0.64em;color:#8391a7;margin-top:6px;line-height:1.4;">Orange : à reprendre (5 à 9 jours). Rouge : négligé (10 jours et plus). Grisé : encore en récupération.</div></div>';
     }
 
     // 4. Équilibre de force (résumé — AwakBalance est la seule source)
@@ -189,7 +189,7 @@
       }).join('');
       h += '<div style="margin-bottom:8px;">' + titre('Volume travaillé', C.bleu, 'halter')
         + '<div style="' + CARTE + '">' + lignes
-        + '<div style="font-size:0.62em;color:#64748b;margin-top:6px;line-height:1.4;">Niveau gagné par les séries faites. Mesure le travail, pas la force.</div></div></div>';
+        + '<div style="font-size:0.62em;color:#8391a7;margin-top:6px;line-height:1.4;">Niveau gagné par les séries faites. Mesure le travail, pas la force.</div></div></div>';
     }
     return h;
   }
@@ -287,7 +287,7 @@
             + '<span style="font-size:0.76em;color:#e2e8f0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(nom(t.nom)) + '</span>'
             + '<span style="font-size:0.72em;font-weight:800;color:' + k + ';white-space:nowrap;">' + f + '</span></div>';
         }).join('')
-          + '<div style="font-size:0.62em;color:#64748b;margin-top:7px;line-height:1.4;">Meilleure série estimée (charge × répétitions), ou répétitions au poids du corps.</div></div>';
+          + '<div style="font-size:0.62em;color:#8391a7;margin-top:7px;line-height:1.4;">Meilleure série estimée (charge × répétitions), ou répétitions au poids du corps.</div></div>';
       } else {
         h += '<div style="' + CARTE + 'margin-bottom:0;font-size:0.74em;color:' + C.gris + ';line-height:1.45;">Refais les mêmes exercices sur quelques semaines : je te montrerai lesquels progressent.</div>';
       }
@@ -336,7 +336,7 @@
         var st = function (lab, val) { return '<span style="flex:1;text-align:center;font-size:0.68em;color:' + C.gris + ';"><b style="display:block;font-size:1.2em;color:#e2e8f0;">' + val + '</b>' + lab + '</span>'; };
         h += '<div style="display:flex;gap:6px;margin-bottom:12px;">' + st('défis finis', ccr) + st('programmes', b.progStart) + st('remplacements', b.totalSwaps) + '</div>';
       }
-      h += '<div style="font-size:0.62em;color:#64748b;line-height:1.5;">Basé sur tes 90 derniers jours, calculé sur ton appareil.</div>';
+      h += '<div style="font-size:0.62em;color:#8391a7;line-height:1.5;">Basé sur tes 90 derniers jours, calculé sur ton appareil.</div>';
       return h;
     } catch (e) {
       return '<div style="text-align:center;padding:20px;color:' + C.gris + ';font-size:0.82em;line-height:1.5;">Analyse indisponible pour le moment. Fais quelques séances et reviens.</div>';

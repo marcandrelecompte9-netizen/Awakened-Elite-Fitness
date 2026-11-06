@@ -58,7 +58,7 @@
         _row('muscle', C, "Choisir mes muscles", "Séance ciblée sur les muscles de ton choix", 'showManualMusclePickerModal'),
         _row('halter', C, "Séance libre", "Compose ou lance une séance maintenant", 'switchTab', 'workouts'),
         _row('liste', B, "Mes routines", "Tes routines enregistrées", 'switchTab', 'routines'),
-        _row('grille', B, "Templates", "Routines prêtes à l'emploi", 'showTemplatesModal'),
+        _row('grille', B, "Modèles", "Routines prêtes à l'emploi", 'showTemplatesModal'),
         _row('calendrier', B, "Plan hebdo", "Assigne une routine à chaque jour", 'openWeeklyPlanEditor'),
         _row('cible', B, "Programmes", "Programmes de plusieurs semaines", 'switchTab', 'program'),
         _row('course', C, "Course GPS", "Course, marche ou vélo avec suivi GPS", 'AwakRun.ouvrir'),

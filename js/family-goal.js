@@ -463,7 +463,7 @@
     function bloc(titre, contenu, couleurTitre) {
       return '<div style="margin-bottom:13px;">'
         + '<div style="font-size:0.58em;letter-spacing:1.6px;font-weight:900;margin-bottom:5px;'
-        +   'color:' + (couleurTitre || '#64748b') + ';">' + titre + '</div>'
+        +   'color:' + (couleurTitre || '#8391a7') + ';">' + titre + '</div>'
         + '<div style="font-size:0.8em;color:#cbd5e1;line-height:1.55;">' + contenu + '</div>'
         + '</div>';
     }
@@ -479,7 +479,7 @@
         + '<span style="flex-shrink:0;width:36px;text-align:right;font-size:0.76em;'
         +   'font-weight:900;color:' + couleur + ';">' + part + '%</span>'
         + '</div>';
-    }).join('') || '<div style="font-size:0.78em;color:#64748b;">Personne n\'a encore contribué.</div>';
+    }).join('') || '<div style="font-size:0.78em;color:#8391a7;">Personne n\'a encore contribué.</div>';
 
     var reste = Math.max(0, st.target - st.total);
 
@@ -551,7 +551,7 @@
             + 'border-radius:11px;padding:11px 13px;margin-bottom:14px;font-size:0.78em;'
             + 'color:#bfdbfe;line-height:1.5;">💡 ' + esc(inf.astuce) + '</div>'
           : '')
-      + '<div style="font-size:0.58em;letter-spacing:1.6px;font-weight:900;color:#64748b;margin-bottom:8px;">CONTRIBUTIONS</div>'
+      + '<div style="font-size:0.58em;letter-spacing:1.6px;font-weight:900;color:#8391a7;margin-bottom:8px;">CONTRIBUTIONS</div>'
       + contrib
       + '</div>'
       // Actions : changer ou arrêter l'objectif
@@ -601,7 +601,7 @@
         + '<span style="flex:1;font-size:0.82em;color:#e5e7eb;font-weight:600;">' + esc(m.name) + '</span>'
         + '<span style="font-size:0.82em;color:#94a3b8;">' + _fmt(_dispVal(st.type, m.value)) + _dispUnit(st.type, def) + ' · ' + share + '%</span>'
         + '</div>';
-    }).join('') || '<div style="font-size:0.78em;color:#64748b;padding:6px 0;">' + (st.expired ? 'Aucune contribution.' : 'Aucune contribution pour l\'instant — lancez-vous !') + '</div>';
+    }).join('') || '<div style="font-size:0.78em;color:#8391a7;padding:6px 0;">' + (st.expired ? 'Aucune contribution.' : 'Aucune contribution pour l\'instant — lancez-vous !') + '</div>';
 
     // 🏅 Prochain titre : donne une raison d'aller au bout, au-delà de la barre.
     var titreBloc = '';
@@ -661,7 +661,7 @@
       +   '<div style="font-size:0.74em;color:#94a3b8;">' + (st.expired ? 'Terminé' : st.daysLeft + ' jour' + (st.daysLeft > 1 ? 's' : '') + ' restant' + (st.daysLeft > 1 ? 's' : '')) + '</div></div>'
       +   '<span style="flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;'
       +     'border-radius:50%;border:1px solid rgba(148,163,184,0.35);color:#94a3b8;font-size:0.72em;font-weight:900;">i</span>'
-      +   ((st.expired || st.reached) ? '' : '<button onclick="event.stopPropagation();AwakFamilyGoalCancel()" style="background:none;border:none;color:#64748b;font-size:1.1em;cursor:pointer;padding:4px;">✕</button>')
+      +   ((st.expired || st.reached) ? '' : '<button onclick="event.stopPropagation();AwakFamilyGoalCancel()" style="background:none;border:none;color:#8391a7;font-size:1.1em;cursor:pointer;padding:4px;">✕</button>')
       + '</div>'
       + head
       + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">'
@@ -687,7 +687,7 @@
       })()
       + (st.reward ? '<div style="background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.3);border-radius:10px;padding:9px 11px;margin-bottom:12px;font-size:0.78em;color:#fde68a;font-weight:800;">'
           + (st.reached ? 'Récompense gagnée : ' : 'À la clé : ') + esc(st.reward) + '</div>' : '')
-      + '<div style="font-size:0.72em;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Contributions</div>'
+      + '<div style="font-size:0.72em;color:#8391a7;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Contributions</div>'
       + members
       + titreBloc
       + '</div>';
@@ -739,7 +739,7 @@
     overlay.innerHTML = '<div style="background:linear-gradient(160deg,#0f1520,#0d0d12);border-top:1px solid rgba(34,211,238,0.35);border-radius:22px 22px 0 0;padding:22px;max-width:460px;width:100%;max-height:88vh;overflow-y:auto;">'
       + '<div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:4px;">🎯 Objectif commun</div>'
       + '<div style="font-size:0.78em;color:#94a3b8;margin-bottom:16px;">Choisissez ce que vous voulez accomplir ensemble.</div>'
-      + '<div style="font-size:0.72em;color:#64748b;font-weight:700;margin-bottom:6px;">TYPE</div>'
+      + '<div style="font-size:0.72em;color:#8391a7;font-weight:700;margin-bottom:6px;">TYPE</div>'
       + '<div id="goalTypeGrid" style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px;">' + typeButtons + '</div>'
       + '<div id="goalTargetZone"></div>'
       + '<button onclick="document.getElementById(\'awakGoalModal\').remove()" style="width:100%;padding:11px;border:none;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.05);color:#94a3b8;font-weight:700;font-size:0.82em;margin-top:8px;">Annuler</button>'
@@ -790,12 +790,12 @@
         + '</button>';
     }).join('');
     var _rwAvant = (document.getElementById('goalRewardInput') || {}).value || '';
-    zone.innerHTML = '<div style="font-size:0.72em;color:#64748b;font-weight:700;margin-bottom:6px;">RÉCOMPENSE (facultatif)</div>'
+    zone.innerHTML = '<div style="font-size:0.72em;color:#8391a7;font-weight:700;margin-bottom:6px;">RÉCOMPENSE (facultatif)</div>'
       + '<input id="goalRewardInput" maxlength="60" value="' + esc(_rwAvant) + '" placeholder="Ex. : une sortie au cinéma, une pizza en famille" '
       +   'style="width:100%;box-sizing:border-box;padding:11px 12px;border-radius:11px;border:1px solid rgba(255,255,255,0.14);background:#0b0f17;color:#e2e8f0;font-family:inherit;font-size:0.84em;margin-bottom:14px;">'
-      + '<div style="font-size:0.72em;color:#64748b;font-weight:700;margin-bottom:6px;">OBJECTIF (' + esc(_dispLabel(type, d)) + ' en 30 jours) — touche pour lancer</div>'
+      + '<div style="font-size:0.72em;color:#8391a7;font-weight:700;margin-bottom:6px;">OBJECTIF (' + esc(_dispLabel(type, d)) + ' en 30 jours) — touche pour lancer</div>'
       + '<div style="display:flex;gap:8px;">' + presetBtns + '</div>'
-      + '<div style="font-size:0.66em;color:#64748b;margin-top:8px;line-height:1.4;">👥 Le nombre de membres indiqué est une estimation pour atteindre l\'objectif en 30 jours. Choisis selon la taille de ta famille.</div>';
+      + '<div style="font-size:0.66em;color:#8391a7;margin-top:8px;line-height:1.4;">👥 Le nombre de membres indiqué est une estimation pour atteindre l\'objectif en 30 jours. Choisis selon la taille de ta famille.</div>';
   };
 
   window.AwakFamilyGoalSaveReward = function () {

@@ -68,7 +68,7 @@
       detail: 'Écarte squats, fentes, sauts et presses à cuisses — tout ce qui plie le genou sous charge.',
       test: function (ex) {
         var n = norm(ex.name);
-        return /(squat|fente|lunge|presse a cuisse|leg press|step[- ]?up|jump|saut|burpee|pistol|box)/.test(n);
+        return /(squat|fente|lunge|presse a cuisse|leg press|step[- ]?up|jump|saut|burpee|pistol|box|wall sit|chaise)/.test(n);   // v1594 : + chaise au mur
       }
     },
     {
@@ -254,7 +254,7 @@
           '</div>' +
           '<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;display:inline-flex;' +
             'align-items:center;justify-content:center;font-size:0.7em;font-weight:900;' +
-            (on ? 'background:#22d3ee;color:#04121f;">' + (window.AwakIcon ? window.AwakIcon.get('valide', 13, '#04121f') : '') : 'border:1.5px dashed rgba(148,163,184,0.5);color:#64748b;">+') +
+            (on ? 'background:#22d3ee;color:#04121f;">' + (window.AwakIcon ? window.AwakIcon.get('valide', 13, '#04121f') : '') : 'border:1.5px dashed rgba(148,163,184,0.5);color:#8391a7;">+') +
           '</span>' +
         '</div>';
     }).join('');
@@ -294,7 +294,7 @@
             '<div style="flex:1;min-width:0;"><div style="font-size:0.84em;font-weight:800;color:#e8f0f8;margin-bottom:3px;">Garder mes capacités</div>' +
             '<div style="font-size:0.7em;color:#94a3b8;line-height:1.45;">Pour une condition qui évolue : l\'app ne propose plus de charge plus lourde. Tenir sa charge, c\'est réussir.</div></div>' +
             '<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.7em;font-weight:900;' +
-              (maintien() ? 'background:#a78bfa;color:#04121f;">' + (window.AwakIcon ? window.AwakIcon.get('valide', 13, '#04121f') : '') : 'border:1.5px dashed rgba(148,163,184,0.5);color:#64748b;">+') + '</span>' +
+              (maintien() ? 'background:#a78bfa;color:#04121f;">' + (window.AwakIcon ? window.AwakIcon.get('valide', 13, '#04121f') : '') : 'border:1.5px dashed rgba(148,163,184,0.5);color:#8391a7;">+') + '</span>' +
           '</div>' +
           '<div id="awakLimitImpact" style="margin-top:6px;"></div>' +
           '<div style="margin-top:14px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);' +
@@ -432,8 +432,21 @@
     setTimeout(revoirQuandLibre, 6000);
   }
 
+  // v1603 (duo) : exercice écarté par les limitations d'un AUTRE profil ?
+  function bloquePour(pid, ex) {
+    if (!pid || !ex || !ex.name) return null;
+    var ids = [];
+    try { ids = JSON.parse(localStorage.getItem(CLE + '_' + pid) || '[]') || []; } catch (e) { ids = []; }
+    for (var i = 0; i < LIMITATIONS.length; i++) {
+      if (ids.indexOf(LIMITATIONS[i].id) < 0) continue;
+      try { if (LIMITATIONS[i].test(ex)) return LIMITATIONS[i]; } catch (e) {}
+    }
+    return null;
+  }
+
   window.AwakLimitations = {
     liste: LIMITATIONS,
+    bloquePour: bloquePour,
     get: get,
     actives: actives,
     bloque: bloque,

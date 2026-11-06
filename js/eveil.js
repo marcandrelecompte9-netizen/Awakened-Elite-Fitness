@@ -349,7 +349,7 @@
             return '<button data-val="' + o[0] + '" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.13);color:#e2e8f0;border-radius:12px;padding:13px 14px;font-size:0.88em;font-weight:700;cursor:pointer;text-align:left;transition:border-color 0.2s;">' + o[1] + '</button>';
           }).join('')
         + '</div>'
-        + (idx > 0 ? '<button id="eveilQuizBack" style="margin-top:14px;background:none;border:none;color:#64748b;font-size:0.78em;cursor:pointer;">← Retour</button>' : '')
+        + (idx > 0 ? '<button id="eveilQuizBack" style="margin-top:14px;background:none;border:none;color:#8391a7;font-size:0.78em;cursor:pointer;">← Retour</button>' : '')
         + '</div>';
       ov.querySelectorAll('button[data-val]').forEach(function (b) {
         b.onclick = function () {
@@ -742,7 +742,7 @@
         + '<div style="font-size:0.72em;color:#a855f7;font-weight:700;margin-bottom:10px;">Tu te sens prêt·e à voler de tes propres ailes ?</div>'
         + '<button onclick="awakEveilStop()" style="background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;border-radius:11px;padding:11px 18px;font-size:0.85em;font-weight:800;cursor:pointer;width:100%;margin-bottom:8px;">✨ Je suis prêt·e — passer au plan hebdo</button>'
         + '<button onclick="awakEveilExtend()" style="background:rgba(255,255,255,0.04);border:1px solid rgba(168,85,247,0.4);color:#e2e8f0;border-radius:11px;padding:10px 18px;font-size:0.8em;font-weight:700;cursor:pointer;width:100%;">🌱 Pas encore — 2 semaines de plus, à mon rythme</button>'
-        + '<div style="font-size:0.66em;color:#64748b;line-height:1.45;margin-top:9px;">Aucune pression : prolonger est tout aussi valable. Certains ont besoin de plus de temps, et c\'est parfaitement normal.</div>'
+        + '<div style="font-size:0.66em;color:#8391a7;line-height:1.45;margin-top:9px;">Aucune pression : prolonger est tout aussi valable. Certains ont besoin de plus de temps, et c\'est parfaitement normal.</div>'
         + '</div>';
     }
     var isWork = _isWorkDay(j);
@@ -803,7 +803,7 @@
       + '<span style="font-size:1.7em;">🌅</span>'
       + '<div style="flex:1;min-width:0;"><div style="font-weight:900;color:#fff;font-size:0.95em;">Parcours de l\'Éveil</div>'
       + '<div style="font-size:0.7em;color:#c4b5fd;">Semaine ' + wk + ' / 4 · Jour ' + Math.min(day, 28) + ' / 28</div></div>'
-      + '<button onclick="awakEveilConfirmStop()" style="background:none;border:none;color:#475569;font-size:0.9em;cursor:pointer;padding:4px;">✕</button></div>'
+      + '<button onclick="awakEveilConfirmStop()" style="background:none;border:none;color:#7c8aa0;font-size:0.9em;cursor:pointer;padding:4px;">✕</button></div>'
       + '<div style="height:6px;background:rgba(255,255,255,0.07);border-radius:5px;overflow:hidden;margin-bottom:13px;"><div style="height:100%;width:' + Math.round(Math.min(day, 28) / 28 * 100) + '%;background:linear-gradient(90deg,#a855f7,#7c3aed);border-radius:5px;"></div></div>'
       + (!mood
           ? '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:9px 11px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:11px;">'

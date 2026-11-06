@@ -133,8 +133,8 @@
     if (p) {
       var cell = function (t, v, note) {
         return '<div style="flex:1;min-width:0;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:11px;padding:9px 4px;text-align:center;">'
-          + '<div style="font-size:0.88em;font-weight:900;color:' + (note ? '#475569' : '#e2e8f0') + ';font-variant-numeric:tabular-nums;">' + v + '</div>'
-          + '<div style="font-size:0.58em;color:#64748b;font-weight:800;margin-top:2px;">' + t + '</div></div>';
+          + '<div style="font-size:0.88em;font-weight:900;color:' + (note ? '#7c8aa0' : '#e2e8f0') + ';font-variant-numeric:tabular-nums;">' + v + '</div>'
+          + '<div style="font-size:0.58em;color:#8391a7;font-weight:800;margin-top:2px;">' + t + '</div></div>';
       };
       html += '<div style="font-size:0.7em;color:#94a3b8;margin-bottom:7px;">Temps réalistes aujourd\'hui, d\'après tes sorties récentes</div>'
         + '<div style="display:flex;gap:6px;">'
@@ -143,17 +143,17 @@
         + (p.longue >= 18000 ? cell('MARATHON', hms(p.p42)) : cell('MARATHON', '—', true))
         + '</div>';
       if (p.longue < 18000) {
-        html += '<div style="font-size:0.64em;color:#64748b;margin-top:5px;">'
+        html += '<div style="font-size:0.64em;color:#8391a7;margin-top:5px;">'
           + (p.longue < 10000 ? 'Le demi s\'estime après une sortie de 10 km, le marathon après 18 km.' : 'Le marathon s\'estime après une sortie de 18 km.') + '</div>';
       }
       var v = vma();
       html += '<div style="display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.22);">'
         + '<div style="flex-shrink:0;text-align:center;"><div style="font-size:1.2em;font-weight:900;color:' + ACC + ';">' + v.toFixed(1).replace('.', ',') + '</div>'
-        + '<div style="font-size:0.56em;color:#64748b;font-weight:800;">km/h</div></div>'
+        + '<div style="font-size:0.56em;color:#8391a7;font-weight:800;">km/h</div></div>'
         + '<div style="flex:1;min-width:0;font-size:0.7em;color:#cbd5e1;line-height:1.55;">'
         + '<b style="color:#fff;">Vitesse max (VMA)</b> <span onclick="var e=this.parentNode.querySelector(\'.awk-vma-aide\');e.style.display=e.style.display===\'none\'?\'block\':\'none\'" style="cursor:pointer;color:' + ACC + ';font-weight:900;">(?)</span><br>'
         + '<b style="color:#fff;">Facile</b> ' + allure(allureVMA(0.7)) + ' · <b style="color:#fff;">Soutenue</b> ' + allure(allureVMA(0.85))
-        + ' · <b style="color:#fff;">Rapide</b> ' + allure(allureVMA(1.0)) + ' <span style="color:#64748b;">/km</span>'
+        + ' · <b style="color:#fff;">Rapide</b> ' + allure(allureVMA(1.0)) + ' <span style="color:#8391a7;">/km</span>'
         + '<div class="awk-vma-aide" style="display:none;margin-top:6px;color:#94a3b8;">La vitesse la plus élevée que tu peux tenir environ 6 minutes. Elle sert à calculer tes allures : <b>facile</b> pour l\'endurance (tu peux parler), <b>soutenue</b> pour les séances au seuil, <b>rapide</b> pour le fractionné court.</div></div></div>';
     }
     // Volume hebdo (8 semaines)
@@ -163,10 +163,10 @@
           var h = Math.max(3, Math.round(x.km / max * 56));
           var cour = i === w.length - 1;
           return '<div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;">'
-            + '<span style="font-size:0.55em;color:' + (cour ? '#e2e8f0' : '#64748b') + ';font-weight:800;">' + (x.km ? Math.round(x.km) : '') + '</span>'
+            + '<span style="font-size:0.55em;color:' + (cour ? '#e2e8f0' : '#8391a7') + ';font-weight:800;">' + (x.km ? Math.round(x.km) : '') + '</span>'
             + '<span style="width:100%;height:' + h + 'px;border-radius:4px;background:' + (cour ? ACC : 'rgba(34,211,238,0.35)') + ';"></span></div>';
         }).join('') + '</div>'
-      + '<div style="display:flex;justify-content:space-between;font-size:0.56em;color:#475569;font-weight:800;margin-top:3px;"><span>il y a 8 sem.</span><span>km par semaine</span><span>cette sem.</span></div>';
+      + '<div style="display:flex;justify-content:space-between;font-size:0.56em;color:#7c8aa0;font-weight:800;margin-top:3px;"><span>il y a 8 sem.</span><span>km par semaine</span><span>cette sem.</span></div>';
     var cur = w[7].km, prec = w[6].km;
     if (prec >= 5 && cur > prec * 1.1) {
       html += '<div style="margin-top:8px;padding:9px 11px;border-radius:11px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.35);font-size:0.7em;color:#fde68a;line-height:1.45;">'
@@ -266,7 +266,7 @@
     if (!h) return;
     var R = window.AwakRegle;
     if (sel.mode === 'libre') {
-      h.innerHTML = '<div style="font-size:0.7em;color:#64748b;line-height:1.5;">Cours comme tu veux : temps, distance et allure, annonce à chaque kilomètre.</div>';
+      h.innerHTML = '<div style="font-size:0.7em;color:#8391a7;line-height:1.5;">Cours comme tu veux : temps, distance et allure, annonce à chaque kilomètre.</div>';
     } else if (sel.mode === 'objectif') {
       var seg = function (k, t) {
         var on = sel.kind === k;
@@ -322,7 +322,7 @@
       }).join('')
         + '<label style="display:flex;align-items:center;gap:9px;font-size:0.74em;color:#cbd5e1;margin-top:6px;cursor:pointer;">'
         + '<input type="checkbox" id="awkEchauf" ' + (sel.echauf ? 'checked' : '') + ' style="width:18px;height:18px;accent-color:#22d3ee;"> Échauffement 10 min et retour au calme 5 min</label>'
-        + (v ? '' : '<div style="font-size:0.66em;color:#64748b;margin-top:8px;">Fais une sortie de 3 km ou plus : l\'app calculera ta VMA et tes allures cibles.</div>');
+        + (v ? '' : '<div style="font-size:0.66em;color:#8391a7;margin-top:8px;">Fais une sortie de 3 km ou plus : l\'app calculera ta VMA et tes allures cibles.</div>');
       h.querySelectorAll('[data-tpl]').forEach(function (b) { b.onclick = function () { sel.tpl = b.getAttribute('data-tpl'); rendreCfg(); }; });
       var ec = document.getElementById('awkEchauf'); if (ec) ec.onchange = function () { sel.echauf = ec.checked; };
     } else if (sel.mode === 'fantome') {
@@ -513,7 +513,7 @@
     } else if (cfg.mode === 'fractionne') {
       var P = C.ph[C.i];
       if (C.i < 0) {
-        html = '<div style="font-size:0.62em;color:#64748b;font-weight:900;letter-spacing:1.4px;">' + (TPL[cfg.tpl] || {}).nom + '</div>'
+        html = '<div style="font-size:0.62em;color:#8391a7;font-weight:900;letter-spacing:1.4px;">' + (TPL[cfg.tpl] || {}).nom + '</div>'
           + '<div style="font-size:0.95em;font-weight:900;color:' + VIO + ';margin-top:2px;">' + C.ph[0].nom + ' : départ dès que le GPS est prêt</div>';
       } else if (C.fini || !P) {
         html = '<div style="font-size:0.9em;font-weight:900;color:' + OR + ';">Séance terminée</div>';
@@ -521,11 +521,11 @@
         var col = P.type === 'effort' ? ROSE : (P.type === 'recup' ? ACC : VIO);
         var fait = P.m === 'd' ? x.d - C.d0 : x.t - C.t0, reste = Math.max(0, P.v - fait);
         html = '<div style="display:flex;align-items:center;gap:10px;">'
-          + '<div style="flex:1;min-width:0;"><div style="font-size:0.62em;color:#64748b;font-weight:900;letter-spacing:1.4px;">' + (TPL[cfg.tpl] || {}).nom + '</div>'
+          + '<div style="flex:1;min-width:0;"><div style="font-size:0.62em;color:#8391a7;font-weight:900;letter-spacing:1.4px;">' + (TPL[cfg.tpl] || {}).nom + '</div>'
           + '<div style="font-size:1.25em;font-weight:900;color:' + col + ';">' + P.nom + '</div></div>'
           + '<div style="text-align:right;"><div style="font-family:var(--font-display);font-size:1.7em;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;line-height:1;">'
           + (P.m === 'd' ? Math.round(reste) + '<span style="font-size:0.5em;color:#94a3b8;"> m</span>' : hms(reste)) + '</div>'
-          + '<div style="font-size:0.56em;color:#64748b;font-weight:800;">RESTANT</div></div></div>'
+          + '<div style="font-size:0.56em;color:#8391a7;font-weight:800;">RESTANT</div></div></div>'
           + barre(fait / P.v * 100, col)
           + (P.type === 'effort' && C.allureCible ? '<div style="font-size:0.72em;color:#94a3b8;">Allure visée <b style="color:' + OR + ';">' + allure(C.allureCible) + ' /km</b> · actuelle <b style="color:#fff;">' + allure(x.a) + '</b></div>' : '')
           + '<button onclick="AwakCoachRun.passer()" style="margin-top:8px;min-height:auto;padding:6px 12px;border-radius:9px;cursor:pointer;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;font-size:0.7em;font-weight:800;">Passer cette étape</button>';
@@ -593,11 +593,11 @@
       html += b.efforts.map(function (r, i) {
         var a = r.d > 30 ? r.t / (r.d / 1000) : 0;
         return '<div style="display:flex;gap:8px;font-size:0.74em;padding:5px 0;border-top:1px solid rgba(255,255,255,0.05);">'
-          + '<span style="width:56px;color:#64748b;font-weight:800;">Effort ' + (i + 1) + '</span>'
+          + '<span style="width:56px;color:#8391a7;font-weight:800;">Effort ' + (i + 1) + '</span>'
           + '<span style="flex:1;color:#cbd5e1;">' + (r.d >= 1000 ? kmTxt(r.d) + ' km' : r.d + ' m') + ' en ' + hms(r.t) + '</span>'
           + '<span style="font-weight:900;color:' + (a && Math.abs(a - meil) < 0.5 ? OR : '#e2e8f0') + ';">' + allure(a) + '</span></div>';
       }).join('')
-        + (b.cible ? '<div style="font-size:0.66em;color:#64748b;margin-top:4px;">Allure visée : ' + allure(b.cible) + ' /km</div>' : '');
+        + (b.cible ? '<div style="font-size:0.66em;color:#8391a7;margin-top:4px;">Allure visée : ' + allure(b.cible) + ' /km</div>' : '');
       if (b.efforts.length >= 3) {
         var p1 = b.efforts[0], pn = b.efforts[b.efforts.length - 1];
         var a1 = p1.d > 30 ? p1.t / (p1.d / 1000) : 0, an = pn.d > 30 ? pn.t / (pn.d / 1000) : 0;
@@ -754,14 +754,14 @@
       var fr = fraicheur();
       if (fr && fr.r > 1.3 && P.sem[nx.w].seances[nx.i].type === 'qualite') D.d += ' <b style="color:' + OR + ';">Tu es fatigué : décale-la d\'un jour ou fais-la plus doucement.</b>';
       corps += '<div style="border-left:3px solid ' + D.c + ';padding:2px 0 2px 10px;margin-bottom:10px;">'
-        + '<div style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:1.4px;">PROCHAINE SORTIE</div>'
+        + '<div style="font-size:0.6em;color:#8391a7;font-weight:900;letter-spacing:1.4px;">PROCHAINE SORTIE</div>'
         + '<div style="font-size:0.88em;font-weight:900;color:#fff;">' + D.t + '</div>'
         + '<div style="font-size:0.7em;color:#94a3b8;line-height:1.45;">' + D.d + '</div></div>'
         + '<div style="display:flex;gap:6px;">' + bouton('AwakCoachRun.lancerPlan(' + nx.w + ',' + nx.i + ')', 'Lancer cette sortie', true, OR)
         + bouton('AwakCoachRun.marquerFait(' + nx.w + ',' + nx.i + ')', 'Déjà faite', false) + '</div>'
         // v1400 : renforcement du coureur, une fois par semaine (mollets, fessiers, gainage)
         + '<button onclick="if(typeof startDisciplineSession===\'function\')startDisciplineSession(\'course\',\'renfo\')" style="display:flex;align-items:center;gap:8px;width:100%;margin-top:8px;min-height:auto;padding:9px 11px;border-radius:11px;cursor:pointer;font-family:inherit;text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;">'
-        +   ico('muscle', 16, '#cbd5e1') + '<span style="flex:1;font-size:0.76em;font-weight:800;">Renfo du coureur · 15 min <span style="color:#64748b;font-weight:700;">mollets, fessiers, gainage — 1 fois par semaine</span></span><span style="color:#64748b;">›</span></button>';
+        +   ico('muscle', 16, '#cbd5e1') + '<span style="flex:1;font-size:0.76em;font-weight:800;">Renfo du coureur · 15 min <span style="color:#8391a7;font-weight:700;">mollets, fessiers, gainage — 1 fois par semaine</span></span><span style="color:#8391a7;">›</span></button>';
     } else {
       corps += '<div style="font-size:0.78em;color:' + OR + ';font-weight:800;">Semaine complète. Repos ou footing libre jusqu\'à lundi.</div>';
     }
@@ -802,7 +802,7 @@
     var fr = fraicheur(), p = predictions(), w = semaines(1)[0];
     var cell = function (v, t, c) {
       return '<div style="flex:1;min-width:0;text-align:center;"><div style="font-size:1.05em;font-weight:900;color:' + (c || '#e2e8f0') + ';font-variant-numeric:tabular-nums;">' + v + '</div>'
-        + '<div style="font-size:0.56em;color:#64748b;font-weight:800;letter-spacing:0.5px;margin-top:2px;">' + t + '</div></div>';
+        + '<div style="font-size:0.56em;color:#8391a7;font-weight:800;letter-spacing:0.5px;margin-top:2px;">' + t + '</div></div>';
     };
     return '<div style="font-size:0.6em;letter-spacing:1.6px;color:' + ACC + ';font-weight:900;margin:16px 0 8px;">MA FORME</div>'
       + '<button onclick="AwakRun.formeDetail()" style="display:block;width:100%;text-align:left;min-height:auto;padding:12px;border-radius:14px;cursor:pointer;font-family:inherit;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);color:inherit;">'
@@ -859,7 +859,7 @@
       + titre('SORTIES PAR SEMAINE') + '<div style="display:flex;gap:6px;">' + chip('p', 3, '3', cp.par === 3) + chip('p', 4, '4', cp.par === 4)
       // v1409 : 5 et 6 sorties pour qui court déjà 30 min ou plus
       +   ((cp.niv === '30' || cp.niv === '60') ? chip('p', 5, '5', cp.par === 5) + chip('p', 6, '6', cp.par === 6) : '') + '</div>'
-      + '<div style="font-size:0.68em;color:#64748b;line-height:1.5;margin:12px 0;">'
+      + '<div style="font-size:0.68em;color:#8391a7;line-height:1.5;margin:12px 0;">'
       +   (cp.niv && BASE_SEM[cp.niv] ? '<b style="color:#e2e8f0;">D\'abord ' + BASE_SEM[cp.niv] + ' semaines de marche-course</b> pour arriver à 30 min sans t\'arrêter, puis le plan : ' + (BASE_SEM[cp.niv] + cp.S) + ' semaines en tout. ' : '')
       +   (cp.niv && cp.niv !== '60' && (cp.obj === '42' || cp.obj === '21') ? '<b style="color:' + OR + ';">Conseil : vise d\'abord un 5 km ou un 10 km</b>, puis enchaîne sur le ' + OBJ[cp.obj].nom.toLowerCase() + '. ' : '')
       +   'Chaque semaine : un footing facile, une séance de qualité (fractionné ou seuil) et une sortie longue' + (cp.par >= 4 ? ', plus ' + (cp.par - 3) + ' footing' + (cp.par > 4 ? 's' : '') + ' de plus' : '') + (cp.obj === '42' ? '. Les dernières semaines : blocs à allure marathon et sortie longue qui finit à allure de course' : '') + '. Une semaine sur 4 est allégée pour assimiler.</div>'
@@ -888,14 +888,14 @@
       + P.sem.map(function (S, w) {
           var cur = w === w0;
           return '<div style="margin-top:10px;padding:10px 12px;border-radius:12px;background:' + (cur ? 'rgba(251,191,36,0.06)' : 'rgba(255,255,255,0.02)') + ';border:1px solid ' + (cur ? 'rgba(251,191,36,0.35)' : 'rgba(255,255,255,0.06)') + ';">'
-            + '<div style="font-size:0.66em;font-weight:900;letter-spacing:1.2px;color:' + (cur ? OR : '#64748b') + ';margin-bottom:5px;">SEMAINE ' + (w + 1) + (S.base ? ' · MARCHE-COURSE' : '') + (S.allege ? ' · ALLÉGÉE' : '') + (w === P.S - 1 ? ' · COURSE' : '') + (cur ? ' · EN COURS' : '') + '</div>'
+            + '<div style="font-size:0.66em;font-weight:900;letter-spacing:1.2px;color:' + (cur ? OR : '#8391a7') + ';margin-bottom:5px;">SEMAINE ' + (w + 1) + (S.base ? ' · MARCHE-COURSE' : '') + (S.allege ? ' · ALLÉGÉE' : '') + (w === P.S - 1 ? ' · COURSE' : '') + (cur ? ' · EN COURS' : '') + '</div>'
             + S.seances.map(function (x, i) {
                 var D = descSeance(x), f = !!P.faites[w + '-' + i];
                 return '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:0.76em;">'
                   + '<span style="flex-shrink:0;width:16px;height:16px;border-radius:5px;display:flex;align-items:center;justify-content:center;' + (f ? 'background:' + OR + ';' : 'border:1.5px solid rgba(255,255,255,0.2);') + '">'
                   + (f ? '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#1a1205" stroke-width="3.5" stroke-linecap="round"><path d="M5 12l5 5 9-10"/></svg>' : '') + '</span>'
                   + '<span style="width:3px;height:14px;border-radius:2px;background:' + D.c + ';flex-shrink:0;"></span>'
-                  + '<span style="flex:1;color:' + (f ? '#64748b' : '#e2e8f0') + ';">' + D.t + '</span></div>';
+                  + '<span style="flex:1;color:' + (f ? '#8391a7' : '#e2e8f0') + ';">' + D.t + '</span></div>';
               }).join('') + '</div>';
         }).join('')
       + '<button onclick="AwakCoachRun.arreterPlan()" style="width:100%;margin-top:14px;min-height:auto;padding:11px;border-radius:12px;cursor:pointer;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;font-weight:800;font-size:0.8em;">Arrêter le plan</button>';
@@ -986,7 +986,7 @@
     var bascule = function (id, txt, on, aide) {
       return '<label style="display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(255,255,255,0.05);cursor:pointer;">'
         + '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.8em;color:#e2e8f0;font-weight:700;">' + txt + '</span>'
-        + (aide ? '<span style="display:block;font-size:0.66em;color:#64748b;margin-top:1px;">' + aide + '</span>' : '') + '</span>'
+        + (aide ? '<span style="display:block;font-size:0.66em;color:#8391a7;margin-top:1px;">' + aide + '</span>' : '') + '</span>'
         + '<input type="checkbox" data-c="' + id + '" ' + (on ? 'checked' : '') + ' style="width:20px;height:20px;accent-color:#22d3ee;"></label>';
     };
     var ov = feuille('awkRunPrefs',
@@ -1072,7 +1072,7 @@
     if (!e) return '';
     var pos = Math.max(0, Math.min(100, (e.r - 0.5) / 1.3 * 100));
     return '<div style="margin-bottom:10px;padding:11px 12px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">'
-      + '<div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:1.4px;flex:1;">FRAÎCHEUR</span>'
+      + '<div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:0.6em;color:#8391a7;font-weight:900;letter-spacing:1.4px;flex:1;">FRAÎCHEUR</span>'
       + '<span style="font-size:0.95em;font-weight:900;color:' + e.c + ';">' + e.n + '</span></div>'
       + '<div style="position:relative;height:6px;margin:8px 0 7px;">'
       + '<span style="position:absolute;inset:0;border-radius:99px;background:linear-gradient(90deg,' + VIO + ' 0%,' + ACC + ' 23%,' + ACC + ' 62%,' + OR + ' 62%,' + OR + ' 77%,' + ROUGE + ' 77%);opacity:0.7;"></span>'
@@ -1221,14 +1221,14 @@
     var S = window.AwakSante;
     if (!s.fc) {
       return (S && S.connecte && S.connecte())
-        ? '<div id="awakRunPouls" style="font-size:0.7em;color:#64748b;margin-top:10px;">Pouls de la montre : en attente de synchronisation…</div>'
+        ? '<div id="awakRunPouls" style="font-size:0.7em;color:#8391a7;margin-top:10px;">Pouls de la montre : en attente de synchronisation…</div>'
         : '<div id="awakRunPouls"></div>';
     }
     var f = s.fc, tot = f.zones.reduce(function (a, b) { return a + b; }, 0) || 1;
     return '<div id="awakRunPouls">' + titre('POULS (MONTRE)', ROSE)
       + '<div style="display:flex;gap:6px;margin-bottom:9px;">'
-      + '<div style="flex:1;text-align:center;padding:8px;border-radius:11px;background:rgba(244,114,182,0.07);border:1px solid rgba(244,114,182,0.25);"><div style="font-size:1.1em;font-weight:900;color:#fbcfe8;">' + f.moy + '</div><div style="font-size:0.56em;color:#64748b;font-weight:800;">MOYEN</div></div>'
-      + '<div style="flex:1;text-align:center;padding:8px;border-radius:11px;background:rgba(244,114,182,0.07);border:1px solid rgba(244,114,182,0.25);"><div style="font-size:1.1em;font-weight:900;color:#fbcfe8;">' + f.max + '</div><div style="font-size:0.56em;color:#64748b;font-weight:800;">MAX</div></div></div>'
+      + '<div style="flex:1;text-align:center;padding:8px;border-radius:11px;background:rgba(244,114,182,0.07);border:1px solid rgba(244,114,182,0.25);"><div style="font-size:1.1em;font-weight:900;color:#fbcfe8;">' + f.moy + '</div><div style="font-size:0.56em;color:#8391a7;font-weight:800;">MOYEN</div></div>'
+      + '<div style="flex:1;text-align:center;padding:8px;border-radius:11px;background:rgba(244,114,182,0.07);border:1px solid rgba(244,114,182,0.25);"><div style="font-size:1.1em;font-weight:900;color:#fbcfe8;">' + f.max + '</div><div style="font-size:0.56em;color:#8391a7;font-weight:800;">MAX</div></div></div>'
       + ZONES.map(function (Z, i) {
           var pc = f.zones[i] / tot * 100;
           return '<div style="display:flex;align-items:center;gap:8px;font-size:0.7em;margin-bottom:4px;">'
@@ -1236,7 +1236,7 @@
             + '<span style="flex:1;height:10px;border-radius:5px;background:rgba(255,255,255,0.05);overflow:hidden;"><span style="display:block;height:100%;width:' + pc.toFixed(1) + '%;background:' + Z[3] + ';"></span></span>'
             + '<span style="width:40px;text-align:right;color:#e2e8f0;font-weight:800;">' + (f.zones[i] >= 60 ? Math.round(f.zones[i] / 60) + ' min' : f.zones[i] + ' s') + '</span></div>';
         }).join('')
-      + '<div style="font-size:0.62em;color:#475569;margin-top:4px;">Zones calculées sur un pouls max de ' + f.fcMax + '.</div></div>';
+      + '<div style="font-size:0.62em;color:#7c8aa0;margin-top:4px;">Zones calculées sur un pouls max de ' + f.fcMax + '.</div></div>';
   }
 
   // Tout ce qui s'ajoute au résumé d'une sortie (après le bilan du coach)

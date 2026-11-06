@@ -198,14 +198,14 @@
     return '<div>' +
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">' +
           '<span style="font-size:0.6em;letter-spacing:2px;color:#93c5fd;font-weight:900;">◈ MA SÉANCE</span>' +
-          '<span style="font-size:0.68em;color:#64748b;font-weight:700;">' + n + ' exercice' + (n > 1 ? 's' : '') +
+          '<span style="font-size:0.68em;color:#8391a7;font-weight:700;">' + n + ' exercice' + (n > 1 ? 's' : '') +
             ((n && window.AwakRoutineEditor && window.AwakRoutineEditor.estimer)
               ? ' · ≈ ' + window.AwakRoutineEditor.estimer(routine.exercises) + ' min' : '') + '</span>' +
           '<span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(147,197,253,0.25),transparent);"></span>' +
         '</div>' +
         '<div id="awakBldDrop" style="border:1.5px dashed rgba(255,255,255,0.10);border-radius:14px;padding:10px;min-height:90px;">' +
           corps +
-          '<div style="text-align:center;font-size:0.66em;color:#475569;padding:6px 4px 2px;">' +
+          '<div style="text-align:center;font-size:0.66em;color:#7c8aa0;padding:6px 4px 2px;">' +
             (n ? 'Glisse un exercice ici, ou touche +' : 'Glisse un exercice ici, ou touche + dans le catalogue') +
           '</div>' +
         '</div>' +
@@ -232,7 +232,7 @@
           '<div style="flex:1;min-width:0;">' +
             '<div style="font-size:0.8em;font-weight:800;color:#e8f0f8;overflow:hidden;' +
               'text-overflow:ellipsis;white-space:nowrap;">' + (estFav ? '⭐ ' : '') + (e.custom ? '✎ ' : '') + esc(e.name) + '</div>' +
-            '<div style="display:flex;align-items:center;gap:4px;font-size:0.64em;color:#64748b;margin-top:2px;overflow:hidden;' +
+            '<div style="display:flex;align-items:center;gap:4px;font-size:0.64em;color:#8391a7;margin-top:2px;overflow:hidden;' +
               'text-overflow:ellipsis;white-space:nowrap;">' +
               (window.AwakIcon ? window.AwakIcon.get('muscle', 11, '#64748b') : '') +
               '<span style="overflow:hidden;text-overflow:ellipsis;">' + esc(e.muscle || '') + (eq ? ' · ' + esc(eq) : '') + '</span></div>' +
@@ -257,14 +257,14 @@
     }).join('');
 
     if (!lignes) {
-      lignes = '<div style="text-align:center;padding:22px 10px;color:#64748b;font-size:0.78em;">' +
+      lignes = '<div style="text-align:center;padding:22px 10px;color:#8391a7;font-size:0.78em;">' +
         (ETAT.onglet === 'persos' ? 'Aucun exercice personnalisé. Touche « ✎ Créer un exercice » ci-dessus.'
           : ETAT.onglet === 'favoris' ? 'Aucun favori pour l\'instant.'
           : ETAT.onglet === 'recents' ? 'Aucun exercice récent.'
           : 'Aucun exercice ne correspond.') + '</div>';
     }
     if (tronque) {
-      lignes += '<div style="text-align:center;font-size:0.68em;color:#64748b;padding:8px 4px;">' +
+      lignes += '<div style="text-align:center;font-size:0.68em;color:#8391a7;padding:8px 4px;">' +
         'Affiche les ' + MAX_LISTE + ' premiers sur ' + total + ' — affine la recherche.</div>';
     }
     return { html: lignes, total: total };
@@ -283,7 +283,7 @@
       return '<button data-ong="' + id + '" onclick="AwakBuilder.setOnglet(\'' + id + '\')" style="flex:1;padding:7px 6px;border:none;' +
         'cursor:pointer;font-family:inherit;font-size:0.7em;font-weight:900;letter-spacing:0.3px;' +
         'background:' + (on ? 'rgba(34,211,238,0.18)' : 'transparent') + ';' +
-        'color:' + (on ? '#67e8f9' : '#64748b') + ';">' + txt + '</button>';
+        'color:' + (on ? '#67e8f9' : '#8391a7') + ';">' + txt + '</button>';
     }
 
     function selMuscle() {
@@ -306,7 +306,7 @@
     return '<div class="awak-bld-cat">' +
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">' +
           '<span style="font-size:0.6em;letter-spacing:2px;color:#22d3ee;font-weight:900;">◈ CATALOGUE</span>' +
-          '<span id="awakBldCount" style="font-size:0.68em;color:#64748b;font-weight:700;">' + total + '</span>' +
+          '<span id="awakBldCount" style="font-size:0.68em;color:#8391a7;font-weight:700;">' + total + '</span>' +
           '<span style="flex:1;height:1px;background:linear-gradient(90deg,rgba(34,211,238,0.25),transparent);"></span>' +
         '</div>' +
         '<div style="display:flex;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);' +
@@ -326,7 +326,7 @@
           'style="width:100%;margin-bottom:9px;padding:9px;border-radius:10px;cursor:pointer;' +
           'background:rgba(34,211,238,0.08);border:1.5px dashed rgba(34,211,238,0.4);color:#67e8f9;' +
           'font-size:0.76em;font-weight:800;font-family:inherit;">✎ Créer un exercice</button>' +
-        '<div style="font-size:0.64em;color:#64748b;margin:-2px 2px 7px;">Touche un exercice pour voir son image, ou + pour l\'ajouter.</div>' +
+        '<div style="font-size:0.64em;color:#8391a7;margin:-2px 2px 7px;">Touche un exercice pour voir son image, ou + pour l\'ajouter.</div>' +
         '<div id="awakBldList">' + lignes + '</div>' +
       '</div>';
   }

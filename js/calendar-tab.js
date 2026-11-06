@@ -511,12 +511,12 @@
 
     if (repos.length) {
       rows += '<div style="margin-top:' + (entries.length ? '10px' : '6px') + ';font-size:' + (entries.length ? '0.74em' : '0.9em') +
-          ';color:#64748b;font-weight:600;">Repos' +
+          ';color:#8391a7;font-weight:600;">Repos' +
           (multi || entries.length ? ' : ' + repos.map(function (p) { return esc(p.name || 'Membre'); }).join(', ') : '') +
         '</div>';
     }
     if (!rows) {
-      rows = '<div style="margin-top:6px;color:#64748b;font-size:0.82em;">Aucun membre sélectionné.</div>';
+      rows = '<div style="margin-top:6px;color:#8391a7;font-size:0.82em;">Aucun membre sélectionné.</div>';
     }
 
     var conflits = overlaps(entries);
@@ -602,7 +602,7 @@
     }).join('');
     if (!html) return '';
     return '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">' +
-        '<span style="font-size:0.62em;color:#64748b;font-weight:600;">Semaine</span>' + html + '</div>';
+        '<span style="font-size:0.62em;color:#8391a7;font-weight:600;">Semaine</span>' + html + '</div>';
   }
   function resumeHTML() { return ''; }
 
@@ -635,7 +635,7 @@
       return '<button onclick="awakCalVue(\'' + v + '\')" style="padding:5px 12px;border:none;cursor:pointer;border-radius:99px;' +
         'font-family:inherit;font-size:0.72em;font-weight:700;' +
         'background:' + (on ? 'rgba(255,255,255,0.09)' : 'transparent') + ';' +
-        'color:' + (on ? '#e8f0f8' : '#64748b') + ';">' + txt + '</button>';
+        'color:' + (on ? '#e8f0f8' : '#8391a7') + ';">' + txt + '</button>';
     }
     return '<div style="display:inline-flex;gap:2px;padding:2px;border-radius:99px;background:rgba(255,255,255,0.03);">' +
       b('semaine', 'Semaine') + b('mois', 'Mois') + '</div>';
@@ -694,13 +694,13 @@
               '<div style="min-width:0;flex:1;">' +
                 '<div style="font-size:0.86em;font-weight:700;color:#f1f5f9;">' + esc(lbl) +
                   (e.faite ? ' <span style="color:' + c.base + ';font-size:0.8em;">✓</span>' : '') + '</div>' +
-                (mus ? '<div style="font-size:0.7em;color:#64748b;margin-top:1px;">' + esc(mus) + '</div>' : '') +
+                (mus ? '<div style="font-size:0.7em;color:#8391a7;margin-top:1px;">' + esc(mus) + '</div>' : '') +
               '</div>' +
               (e.heure ? '<span style="flex-shrink:0;font-size:0.76em;font-weight:700;color:#94a3b8;">' + esc(fmtTime(e.heure)) + '</span>' : '') +
             '</div>';
         }).join('');
       } else {
-        corps = '<div style="font-size:0.78em;color:#475569;">Repos</div>';
+        corps = '<div style="font-size:0.78em;color:#7c8aa0;">Repos</div>';
       }
 
       var jourCol = estAujourdhui ? '#22d3ee' : '#94a3b8';
@@ -735,7 +735,7 @@
     var head = JOURS_ENT.map(function (j, i) {
       var we = (i >= 5);
       return '<div style="text-align:center;font-size:0.58em;font-weight:900;letter-spacing:0.5px;padding:5px 0;' +
-        'min-width:0;overflow:hidden;color:' + (we ? '#64748b' : '#94a3b8') + ';">' + j + '</div>';
+        'min-width:0;overflow:hidden;color:' + (we ? '#8391a7' : '#94a3b8') + ';">' + j + '</div>';
     }).join('');
 
     var cells = '';
@@ -764,7 +764,7 @@
       var heureTxt = premiere
         ? '<div style="font-size:0.56em;font-weight:800;color:#7dd3fc;line-height:1;' +
             'white-space:nowrap;overflow:hidden;max-width:100%;">' + esc(fmtTime(premiere)) +
-            (dayEntries.length > 1 ? '<span style="color:#475569;">+</span>' : '') + '</div>'
+            (dayEntries.length > 1 ? '<span style="color:#7c8aa0;">+</span>' : '') + '</div>'
         : '';
 
       var numStyle = isToday
@@ -807,9 +807,9 @@
       legend = '<div style="margin-top:10px;">' +
           (membres ? '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:9px;">' + membres + '</div>' : '') +
           '<div style="display:flex;flex-wrap:wrap;gap:13px;align-items:center;">' +
-            '<span style="display:inline-flex;align-items:center;gap:5px;font-size:0.68em;color:#64748b;font-weight:700;">' +
+            '<span style="display:inline-flex;align-items:center;gap:5px;font-size:0.68em;color:#8391a7;font-weight:700;">' +
               '<span style="width:9px;height:9px;border-radius:50%;border:2px solid #94a3b8;flex-shrink:0;"></span>prévue</span>' +
-            '<span style="display:inline-flex;align-items:center;gap:5px;font-size:0.68em;color:#64748b;font-weight:700;">' +
+            '<span style="display:inline-flex;align-items:center;gap:5px;font-size:0.68em;color:#8391a7;font-weight:700;">' +
               '<span style="width:9px;height:9px;border-radius:50%;background:#94a3b8;flex-shrink:0;"></span>faite</span>' +
           '</div>' +
         '</div>';
@@ -919,7 +919,7 @@
     for (var i = 0; i < 7 + extra; i++) {
       var d = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate() + i);
       var suite = i >= 7;
-      if (i === 7) cols += '<div class="awak-k-sep" style="font-size:0.62em;font-weight:900;letter-spacing:3px;color:#64748b;' +
+      if (i === 7) cols += '<div class="awak-k-sep" style="font-size:0.62em;font-weight:900;letter-spacing:3px;color:#8391a7;' +
         'text-align:center;padding:4px 0 0;">SEMAINE PROCHAINE</div>';
       var auj = memeJour(d, today);
       var passe = d < new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -932,7 +932,7 @@
         '<div style="text-align:center;padding-bottom:' + (auj ? '13px' : '10px') + ';margin-bottom:' + (auj ? '13px' : '10px') + ';' +
           'border-bottom:1px solid ' + (auj ? 'rgba(34,211,238,0.28)' : 'rgba(255,255,255,0.06)') + ';">' +
           '<div style="font-size:' + (auj ? '0.8em' : '0.66em') + ';font-weight:900;letter-spacing:3px;' +
-            'color:' + (auj ? '#67e8f9' : '#64748b') + ';">' + JOURS_ENT[i % 7].toUpperCase() + '</div>' +
+            'color:' + (auj ? '#67e8f9' : '#8391a7') + ';">' + JOURS_ENT[i % 7].toUpperCase() + '</div>' +
           '<div style="font-family:var(--font-display);font-weight:800;line-height:0.95;margin-top:' + (auj ? '6px' : '4px') + ';' +
             'font-size:' + (auj ? '3em' : '1.6em') + ';letter-spacing:-1px;' +
             (auj
@@ -940,7 +940,7 @@
                 'background-clip:text;color:transparent;filter:drop-shadow(0 0 22px rgba(34,211,238,0.45));'
               : 'color:#8a9bb0;') + '">' + d.getDate() + '</div>' +
           (auj && entries.length
-            ? '<div style="font-size:0.6em;color:#64748b;font-weight:700;letter-spacing:1px;margin-top:5px;">'
+            ? '<div style="font-size:0.6em;color:#8391a7;font-weight:700;letter-spacing:1px;margin-top:5px;">'
               + entries.length + ' SÉANCE' + (entries.length > 1 ? 'S' : '') + '</div>'
             : '') +
         '</div>';
@@ -986,7 +986,7 @@
             '</div>';
         }).join('');
       } else {
-        corps = '<div class="awak-k-vide" style="text-align:center;color:#475569;font-weight:600;' +
+        corps = '<div class="awak-k-vide" style="text-align:center;color:#7c8aa0;font-weight:600;' +
           'font-size:' + (auj ? '0.95em' : '0.68em') + ';">Repos</div>';
       }
 
@@ -1065,13 +1065,13 @@
             '<div class="awak-k-title" style="font-family:var(--font-display);font-size:2.1em;font-weight:800;line-height:1.05;' +
               'letter-spacing:0.02em;background:linear-gradient(100deg,#e8f4ff 0%,#67e8f9 45%,#c4b5fd 100%);' +
               '-webkit-background-clip:text;background-clip:text;color:transparent;">CETTE SEMAINE</div>' +
-            '<div id="awakKioskDate" class="awak-k-date" style="font-size:0.76em;color:#64748b;font-weight:700;' +
+            '<div id="awakKioskDate" class="awak-k-date" style="font-size:0.76em;color:#8391a7;font-weight:700;' +
               'letter-spacing:1px;margin-top:5px;text-transform:uppercase;">—</div>' +
           '</div>' +
           '<div style="text-align:right;flex-shrink:0;">' +
             '<div id="awakKioskClock" class="awak-k-clock" style="font-family:var(--font-display);font-size:3.2em;font-weight:900;' +
               'line-height:0.9;color:#e8f4ff;letter-spacing:-1px;text-shadow:0 0 34px rgba(34,211,238,0.5);">--</div>' +
-            '<div id="awakKioskLock" style="font-size:0.64em;color:#475569;margin-top:6px;font-weight:600;"></div>' +
+            '<div id="awakKioskLock" style="font-size:0.64em;color:#7c8aa0;margin-top:6px;font-weight:600;"></div>' +
           '</div>' +
           '<button onclick="awakCalKioskExit()" style="flex-shrink:0;background:rgba(255,255,255,0.05);' +
             'border:1px solid rgba(255,255,255,0.12);color:#94a3b8;border-radius:13px;width:46px;height:46px;' +
@@ -1217,7 +1217,7 @@
       var badgeHeure = e.heure
         ? '<span style="background:' + c.base + ';color:#04121f;padding:2px 9px;border-radius:7px;' +
             'font-size:0.76em;font-weight:900;font-family:var(--font-display);">' + esc(fmtTime(e.heure)) + '</span>'
-        : '<span style="color:#64748b;font-size:0.7em;font-weight:700;">heure non définie</span>';
+        : '<span style="color:#8391a7;font-size:0.7em;font-weight:700;">heure non définie</span>';
 
       var badgeEx = e.exception
         ? '<span style="background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;' +
@@ -1231,7 +1231,7 @@
       // Réglage de l'heure
       var editeur =
         '<div style="margin-top:11px;padding-top:10px;border-top:1px dashed rgba(255,255,255,0.09);">' +
-          '<div style="font-size:0.58em;letter-spacing:1.5px;color:#64748b;font-weight:900;margin-bottom:7px;">RÉGLER L\'HEURE</div>' +
+          '<div style="font-size:0.58em;letter-spacing:1.5px;color:#8391a7;font-weight:900;margin-bottom:7px;">RÉGLER L\'HEURE</div>' +
           '<div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">' +
             '<input type="time" id="awakCalT' + i + '" value="' + esc(e.heure || '') + '" ' +
               'style="background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.3);color:#67e8f9;' +
@@ -1263,7 +1263,7 @@
             '<span style="font-size:0.95em;font-weight:800;color:#e8f0f8;">' + esc(label) + '</span>' +
             sourceChip(s.source) +
           '</div>' +
-          '<div style="font-size:0.58em;letter-spacing:1.5px;color:#64748b;font-weight:900;margin-bottom:6px;">MUSCLES TRAVAILLÉS</div>' +
+          '<div style="font-size:0.58em;letter-spacing:1.5px;color:#8391a7;font-weight:900;margin-bottom:6px;">MUSCLES TRAVAILLÉS</div>' +
           '<div style="display:flex;flex-wrap:wrap;gap:5px;">' + chips + '</div>' +
           editeur +
         '</div>';
@@ -1275,12 +1275,12 @@
     var repos = selList.filter(function (p) { return !actifs[p.id]; });
     if (repos.length) {
       rows += '<div style="background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.05);' +
-          'border-radius:12px;padding:12px 14px;color:#64748b;font-size:0.82em;font-weight:600;">' +
+          'border-radius:12px;padding:12px 14px;color:#8391a7;font-size:0.82em;font-weight:600;">' +
           (window.AwakIcon ? window.AwakIcon.get('repos', 13, '#64748b') : '🛌') + ' Repos : ' + repos.map(function (p) { return esc(p.name || 'Membre'); }).join(', ') + '</div>';
     }
 
     if (!rows) {
-      rows = '<div style="padding:18px 0;text-align:center;color:#64748b;font-size:0.86em;">Aucun membre sélectionné.</div>';
+      rows = '<div style="padding:18px 0;text-align:center;color:#8391a7;font-size:0.86em;">Aucun membre sélectionné.</div>';
     }
 
     // ⚠️ Chevauchement d'horaires

@@ -61,18 +61,18 @@ function generateShareCard(data) {
 
         // Glow vert/violet décoratifs
         const radial1 = ctx.createRadialGradient(W * 0.15, H * 0.12, 0, W * 0.15, H * 0.12, W * 0.5);
-        radial1.addColorStop(0, 'rgba(74,222,128,0.12)');
-        radial1.addColorStop(1, 'rgba(74,222,128,0)');
+        radial1.addColorStop(0, 'rgba(34,211,238,0.12)');
+        radial1.addColorStop(1, 'rgba(34,211,238,0)');
         ctx.fillStyle = radial1;
         ctx.fillRect(0, 0, W, H);
         const radial2 = ctx.createRadialGradient(W * 0.85, H * 0.9, 0, W * 0.85, H * 0.9, W * 0.5);
-        radial2.addColorStop(0, 'rgba(168,85,247,0.12)');
-        radial2.addColorStop(1, 'rgba(168,85,247,0)');
+        radial2.addColorStop(0, 'rgba(96,168,240,0.12)');
+        radial2.addColorStop(1, 'rgba(96,168,240,0)');
         ctx.fillStyle = radial2;
         ctx.fillRect(0, 0, W, H);
 
         // Cadre néon
-        ctx.strokeStyle = 'rgba(74,222,128,0.35)';
+        ctx.strokeStyle = 'rgba(34,211,238,0.35)';
         ctx.lineWidth = 3;
         roundRect(ctx, 30, 30, W - 60, H - 60, 28);
         ctx.stroke();
@@ -82,20 +82,20 @@ function generateShareCard(data) {
 
         // ── En-tête "SYSTÈME" ──
         ctx.textAlign = 'center';
-        ctx.fillStyle = '#4ade80';
+        ctx.fillStyle = '#22d3ee';
         ctx.font = '700 32px Arial';
-        ctx.fillText('⚡ AWAKENED · LE SYSTÈME', cx, y);
+        ctx.fillText('AWAKENED · LE SYSTÈME', cx, y);
         y += isStory ? 90 : 70;
 
         // ── Nom de séance ──
         ctx.fillStyle = '#ffffff';
         ctx.font = '900 ' + (isStory ? '64px' : '56px') + ' Arial';
-        const name = (data.name || 'Séance terminée').toUpperCase();
+        const name = String(data.name || 'Séance terminée').replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu, '').replace(/\s+/g, ' ').trim().toUpperCase();   // v1614 : pas d'emoji
         wrapText(ctx, name, cx, y, W - 160, isStory ? 70 : 62);
         y += isStory ? 80 : 70;
 
         // Date
-        ctx.fillStyle = '#c084fc';
+        ctx.fillStyle = '#93c5fd';
         ctx.font = '600 30px Arial';
         ctx.fillText(data.date || '', cx, y);
         y += isStory ? 110 : 80;
@@ -106,14 +106,14 @@ function generateShareCard(data) {
             const by = y + badgeR;
             // Cercle glow
             const rg = ctx.createRadialGradient(cx, by, 0, cx, by, badgeR + 20);
-            rg.addColorStop(0, 'rgba(168,85,247,0.4)');
-            rg.addColorStop(1, 'rgba(168,85,247,0)');
+            rg.addColorStop(0, 'rgba(96,168,240,0.4)');
+            rg.addColorStop(1, 'rgba(96,168,240,0)');
             ctx.fillStyle = rg;
             ctx.beginPath();
             ctx.arc(cx, by, badgeR + 20, 0, Math.PI * 2);
             ctx.fill();
             // Cercle
-            ctx.strokeStyle = '#a855f7';
+            ctx.strokeStyle = '#60a8f0';
             ctx.lineWidth = 5;
             ctx.beginPath();
             ctx.arc(cx, by, badgeR, 0, Math.PI * 2);
@@ -125,7 +125,7 @@ function generateShareCard(data) {
             ctx.fillText(data.rank.id || data.rank, cx, by + 4);
             ctx.textBaseline = 'alphabetic';
             // Label "RANG"
-            ctx.fillStyle = '#a855f7';
+            ctx.fillStyle = '#60a8f0';
             ctx.font = '700 28px Arial';
             ctx.fillText('RANG', cx, by - badgeR - 14);
             y = by + badgeR + (isStory ? 100 : 70);
@@ -133,9 +133,9 @@ function generateShareCard(data) {
 
         // ── Grille de stats ──
         const stats = [
-            { val: data.minutes + '', label: '⏱ MIN', color: '#4ade80' },
-            { val: data.exercises + '', label: '💪 EXOS', color: '#c084fc' },
-            { val: data.kcal + '', label: '🔥 KCAL', color: '#fbbf24' }
+            { val: data.minutes + '', label: 'MIN', color: '#22d3ee' },
+            { val: data.exercises + '', label: 'EXERCICES', color: '#93c5fd' },
+            { val: data.kcal + '', label: 'KCAL', color: '#fbbf24' }
         ];
         // Deuxième rangée : adaptative selon mode jeu.
         // Si jeu actif (rank présent) : XP · Séries · Streak
@@ -143,18 +143,18 @@ function generateShareCard(data) {
         let stats2;
         if (data.rank) {
             stats2 = [
-                { val: '+' + (data.xp || 0), label: '⚡ XP', color: '#4ade80' },
-                { val: data.sets + '', label: '📊 SÉRIES', color: '#06b6d4' },
-                { val: (data.streak || 0) + 'j', label: '🔥 STREAK', color: '#f59e0b' }
+                { val: '+' + (data.xp || 0), label: 'XP', color: '#22d3ee' },
+                { val: data.sets + '', label: 'SÉRIES', color: '#06b6d4' },
+                { val: (data.streak || 0) + 'j', label: 'SÉRIE DE JOURS', color: '#f59e0b' }
             ];
         } else {
             const volShort = (data.volume && data.volume > 0)
                 ? (data.volume >= 1000 ? (Math.round(data.volume / 100) / 10) + 'k' : data.volume + '')
                 : '—';
             stats2 = [
-                { val: data.sets + '', label: '📊 SÉRIES', color: '#06b6d4' },
-                { val: volShort, label: '🏋 VOLUME', color: '#c084fc' },
-                { val: (data.streak || 0) + 'j', label: '🔥 STREAK', color: '#f59e0b' }
+                { val: data.sets + '', label: 'SÉRIES', color: '#06b6d4' },
+                { val: volShort, label: 'VOLUME', color: '#93c5fd' },
+                { val: (data.streak || 0) + 'j', label: 'SÉRIE DE JOURS', color: '#f59e0b' }
             ];
         }
 
@@ -202,14 +202,14 @@ function generateShareCard(data) {
             let px = cx - totalW / 2;
             const pillH = 56;
             pills.forEach((m, i) => {
-                ctx.fillStyle = 'rgba(74,222,128,0.15)';
+                ctx.fillStyle = 'rgba(34,211,238,0.15)';
                 roundRect(ctx, px, y, widths[i], pillH, pillH / 2);
                 ctx.fill();
-                ctx.strokeStyle = 'rgba(74,222,128,0.4)';
+                ctx.strokeStyle = 'rgba(34,211,238,0.4)';
                 ctx.lineWidth = 2;
                 roundRect(ctx, px, y, widths[i], pillH, pillH / 2);
                 ctx.stroke();
-                ctx.fillStyle = '#4ade80';
+                ctx.fillStyle = '#22d3ee';
                 ctx.textAlign = 'center';
                 ctx.fillText(m, px + widths[i] / 2, y + 38);
                 px += widths[i] + gaps;
@@ -227,7 +227,8 @@ function generateShareCard(data) {
         }
 
         // ── Citation du Système ──
-        if (data.quote) {
+        // v1614 : la citation se posait PAR-DESSUS les pastilles de muscles (format carré)
+        if (data.quote && y <= (isStory ? H - 200 : H - 150) - (isStory ? 60 : 50)) {
             ctx.fillStyle = '#cbd5e1';
             ctx.font = 'italic 600 ' + (isStory ? '38px' : '34px') + ' Arial';
             wrapText(ctx, '« ' + data.quote + ' »', cx, isStory ? H - 200 : H - 150, W - 200, 50);

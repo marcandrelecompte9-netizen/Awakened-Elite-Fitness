@@ -80,7 +80,7 @@
       +   '</div>'
       +   '<div style="flex:1;min-width:0;">'
       +     '<input type="range" id="mpwSlider" min="1" max="10" value="' + startVal + '" style="width:100%;cursor:pointer;height:6px;">'
-      +     '<div style="display:flex;justify-content:space-between;margin-top:7px;font-size:0.68em;color:#64748b;font-weight:700;"><span>1</span><span>5</span><span>10</span></div>'
+      +     '<div style="display:flex;justify-content:space-between;margin-top:7px;font-size:0.68em;color:#8391a7;font-weight:700;"><span>1</span><span>5</span><span>10</span></div>'
       +     '<div style="display:flex;gap:5px;margin-top:9px;">'
       +       '<button data-quick="2" class="mpwQuick" style="flex:1;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#fca5a5;border-radius:10px;padding:6px 4px;font-size:0.7em;font-weight:800;cursor:pointer;">Fatigué</button>'
       +       '<button data-quick="5" class="mpwQuick" style="flex:1;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#fbbf24;border-radius:10px;padding:6px 4px;font-size:0.7em;font-weight:800;cursor:pointer;">Correct</button>'

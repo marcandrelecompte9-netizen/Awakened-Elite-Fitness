@@ -177,7 +177,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // ── MODAL SYSTEM : remplace alert() et confirm() natifs ──────────
         function showAlert(message, type = 'info', title = '') {
             const icons = { info: 'ℹ️', success: '✅', error: '❌', warning: '⚠️' };
-            const colors = { info: '#16a34a', success: '#10b981', error: '#ef4444', warning: '#f59e0b' };
+            const colors = { info: '#0891b2', success: '#0891b2', error: '#ef4444', warning: '#f59e0b' };   // v1612 : plus de vert
             const overlay = document.createElement('div');
             overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);animation:fadeIn 0.2s';
             const box = document.createElement('div');
@@ -185,7 +185,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             box.innerHTML = `
                 <div style="font-size:3em;margin-bottom:12px;">${icons[type]||icons.info}</div>
                 ${title ? `<h3 style="margin:0 0 10px;color:#0F1014;font-size:1.2em;">${title}</h3>` : ''}
-                <p style="color:#475569;line-height:1.6;margin:0 0 20px;font-size:0.97em;">${message}</p>
+                <p style="color:#7c8aa0;line-height:1.6;margin:0 0 20px;font-size:0.97em;">${message}</p>
                 <button onclick="this.closest('[data-alert]').remove()" style="background:linear-gradient(135deg,${colors[type]||colors.info},${colors[type]||colors.info}dd);color:white;border:none;padding:12px 32px;border-radius:99px;font-size:1em;font-weight:700;cursor:pointer;width:100%;">OK</button>
             `;
             overlay.setAttribute('data-alert', '1');
@@ -1199,7 +1199,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     + '<span style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:0.7em;color:#94a3b8;overflow:hidden;line-height:1.35;">' + c.description + '</span></span>'
                     + (_termines[c.id] ? '<span title="Étoiles gagnées sur ce défi" style="flex-shrink:0;display:flex;align-items:center;gap:2px;font-size:0.66em;font-weight:900;color:#fbbf24;">' + (window.AwakIcon ? AwakIcon.get('etoile', 13, '#fbbf24') : '') + '×' + _termines[c.id] + '</span>' : '')
                     + (awakDefiRefus(c) ? '<span style="flex-shrink:0;font-size:0.62em;font-weight:800;color:#f59e0b;">Déconseillé</span>' : '<span style="flex-shrink:0;font-size:0.68em;font-weight:800;color:' + c.color + ';">' + c.duration + ' j</span>')
-                    + '<span style="flex-shrink:0;color:#475569;">›</span></button>';
+                    + '<span style="flex-shrink:0;color:#7c8aa0;">›</span></button>';
                 const _listeCompacte = (_actifsL.length ? '<div style="font-size:0.66em;color:#94a3b8;font-weight:800;letter-spacing:1px;margin:18px 0 8px;">AUTRES DÉFIS</div>' : '')
                     + _niveaux.concat(_autresL.map(c => c.difficulty).filter(d => _niveaux.indexOf(d) < 0))
                         .filter((d, i, a) => a.indexOf(d) === i)
@@ -1257,7 +1257,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                           + 'font-size:0.56em;font-weight:800;flex-shrink:0;'
                                           + 'background:' + (_fait ? challenge.color : (_auj ? challenge.color + '30' : 'rgba(255,255,255,0.04)')) + ';'
                                           + 'border:1px solid ' + (_auj ? challenge.color : 'rgba(255,255,255,0.08)') + ';'
-                                          + 'color:' + (_fait ? '#0a0a0a' : (_auj ? challenge.color : '#475569')) + ';">'
+                                          + 'color:' + (_fait ? '#0a0a0a' : (_auj ? challenge.color : '#7c8aa0')) + ';">'
                                           + (_fait ? '✓' : d) + '</span>';
                                     }
                                     return '<div style="margin-bottom:13px;">'
@@ -2453,10 +2453,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         
 
         function startTabata() {
-            showConfirm('20s effort / 10s repos × 8 rounds — Durée : 4 min', function() {
+            showConfirm('20 s d\'effort, 10 s de récupération, 8 rounds — 4 min. Les mouvements respectent tes limitations et le mode silencieux.', function() {
                 cardioMode = 'tabata';
                 startIntervalTraining(20, 10, 8, 'Tabata');
-            }, null, { title: 'Démarrer Tabata ⚡', icon: '⚡', confirmLabel: 'Démarrer' });
+            }, null, { title: 'Démarrer un Tabata', confirmLabel: 'Démarrer' });
         }
 
         function startIntervalTraining(workTime, restTime, rounds, name) {
@@ -2484,13 +2484,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // — Cardio / locomotion —
                 { n: 'High knees',           cat: 'cardio', imp: 'h' },
                 { n: 'Jumping jacks',        cat: 'cardio', imp: 'h' },
-                { n: 'Coups de poing rapides', cat: 'cardio', imp: 'l' },
+                { n: 'Shadow Boxing',        cat: 'cardio', imp: 'l' },   // v1594 : était « Coups de poing rapides » (absent de la base)
                 // — Haut du corps —
                 { n: 'Pompes explosives',    cat: 'haut',  imp: 'h' },
                 { n: 'Pompes',               cat: 'haut',  imp: 'l' },
                 { n: 'Pike push-up',         cat: 'haut',  imp: 'l' },
                 // — Core —
-                { n: 'Planche sauteuse',     cat: 'core',  imp: 'h' },
+                { n: 'Shadow en mouvement',  cat: 'cardio', imp: 'l' },   // v1594 : « Planche sauteuse » absente de la base
                 { n: 'Mountain climbers',    cat: 'core',  imp: 'l' },
                 { n: 'Russian twist',        cat: 'core',  imp: 'l' },
                 { n: 'Planche',              cat: 'core',  imp: 'l' },
@@ -2521,6 +2521,25 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             let _userEqH = [];
             try { _userEqH = (typeof getEquipmentNames === 'function') ? getEquipmentNames() : []; } catch (e) {}
             let _avail = _HIIT_POOL.filter(function (x) { return !x.eq || _userEqH.indexOf(x.eq) !== -1; });
+            // v1594 : réglages appliqués AVANT le tirage (avant : l'écran de préparation
+            // remplaçait après coup → mouvements hors sujet, rounds perdus, rounds en reps).
+            // Limitations, douleurs, mobilité réduite, âge, bannis + sauts écartés en
+            // mode silencieux ou avec la limitation « pas d'impact ».
+            try {
+                let _sansSaut = !!silentMode;
+                try { _sansSaut = _sansSaut || !!(window.AwakLimitations && AwakLimitations.actives().some(l => l.id === 'impact')); } catch (e) {}
+                const _permis = _avail.filter(function (x) {
+                    if (_sansSaut && x.imp === 'h') return false;
+                    const d = exerciseDatabase.find(e => e.name === x.n);
+                    if (!d) return false;
+                    return !awakRaisonRefus(d, { sansNiveau: true });
+                });
+                if (_permis.length >= 3) _avail = _permis;
+                else {
+                    showToast('Pas assez de mouvements permis par tes réglages pour un ' + name + '.', 'warning', 3500);
+                    return;
+                }
+            } catch (e) {}
 
             // Sélection ÉQUILIBRÉE : on pioche en alternant les schémas moteurs,
             // pour ne jamais enchaîner 4 exercices de jambes ni 100 % de sauts.
@@ -2542,7 +2561,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             // Créer workout avec exercices alternés
             const workout = {
-                name: `${name} Training`,
+                name: name,   // v1594 : « Tabata » / « HIIT » (avant : « Tabata Training »)
                 type: 'interval',
                 exercises: []
             };
@@ -2557,7 +2576,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     duration: workTime,
                     instructions: exerciseFromDB ? exerciseFromDB.instructions : ['Donne tout !', 'Maintiens l\'intensité'],
                     tips: `Round ${i + 1}/${rounds}`,
-                    isWorking: true
+                    isWorking: true,
+                    mode: 'timer',          // v1594 : toujours au temps (plus de round en répétitions)
+                    _intervalle: true       // pas de remplacement à l'écran de préparation
                 });
                 
                 // Repos entre rounds (sauf après le dernier)
@@ -2572,8 +2593,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
             }
             
-            const iconMap = { 'HIIT': '🔥', 'Tabata': '⚡' };
-            workout.badgeHTML = `${iconMap[name] || '💪'} ${name} Training`;
+            workout.badgeHTML = name;
             workout.badgeStyle = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
             // ⚡ Cérémonie « Prêt ? → 3-2-1-GO » avant le début (Tabata & HIIT).
             workout._readyGo = (name === 'Tabata' || name === 'HIIT');
@@ -3527,7 +3547,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const bars = weeks.map(function (c, i) {
                     const isLast = (i === weeks.length - 1);
                     const h = Math.max(6, Math.round((c / wmax) * 100));
-                    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><div style="font-size:0.62em;color:' + (isLast ? '#22d3ee' : '#64748b') + ';font-weight:800;">' + c + '</div><div style="width:100%;max-width:24px;height:52px;display:flex;align-items:flex-end;"><div style="width:100%;height:' + h + '%;background:' + (isLast ? '#22d3ee' : 'rgba(34,211,238,0.4)') + ';border-radius:4px 4px 0 0;"></div></div></div>';
+                    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;"><div style="font-size:0.62em;color:' + (isLast ? '#22d3ee' : '#8391a7') + ';font-weight:800;">' + c + '</div><div style="width:100%;max-width:24px;height:52px;display:flex;align-items:flex-end;"><div style="width:100%;height:' + h + '%;background:' + (isLast ? '#22d3ee' : 'rgba(34,211,238,0.4)') + ';border-radius:4px 4px 0 0;"></div></div></div>';
                 }).join('');
                 let strLine = '';
                 const ov = (typeof awakOverallRank === 'function') ? awakOverallRank() : null;
@@ -3549,7 +3569,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     + (ins[0] && ins[0].cta
                         ? '<button onclick="' + ins[0].cta.fn + '" style="margin-top:4px;background:' + ins[0].color + '22;border:1px solid ' + ins[0].color + '55;color:' + ins[0].color + ';border-radius:10px;padding:8px 13px;font-size:0.76em;font-weight:800;cursor:pointer;">' + ins[0].cta.label + ' \u203A</button>'
                         : '')
-                    + '<div style="margin-top:10px;font-size:0.64em;color:#64748b;line-height:1.5;">Basé sur tes 90 derniers jours, calculé en local. Indicatif et bienveillant.</div>'
+                    + '<div style="margin-top:10px;font-size:0.64em;color:#8391a7;line-height:1.5;">Basé sur tes 90 derniers jours, calculé en local. Indicatif et bienveillant.</div>'
                     + '</div>';
             } catch (e) { host.innerHTML = ''; }
         }
@@ -3736,19 +3756,19 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const letters = ['A', 'B', 'C'];
             
             container.innerHTML = supersetExercisesList.map((item, idx) => `
-                <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; border-left: 4px solid #22c55e;">
+                <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; border-left: 4px solid #22d3ee;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <span style="font-weight: bold; color: #22c55e; font-size: 1.2em;">${letters[idx]})</span>
+                        <span style="font-weight: bold; color: #67e8f9; font-size: 1.2em;">${letters[idx]})</span>
                         ${supersetExercisesList.length > 2 ? `
                             <button onclick="removeSupersetExercise(${idx})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                         ` : ''}
                     </div>
-                    <select id="supersetSelect_${idx}" onchange="supersetExercisesList[${idx}].exercise = this.value" style="width: 100%; padding: 10px; border: 1px solid rgba(34,211,238,0.3); border-radius: 10px; margin-bottom: 10px; background: #0D0D0D; color: #e2e8f0;">
+                    <select id="supersetSelect_${idx}" onchange="_awkBuilderChoix('superset', ${idx}, this.value)" style="width: 100%; padding: 10px; border: 1px solid rgba(34,211,238,0.3); border-radius: 10px; margin-bottom: 10px; background: #0D0D0D; color: #e2e8f0;">
                         <option value="">Choisir un exercice...</option>
                     </select>
                     <div style="display: flex; gap: 10px; align-items: center;">
-                        <label style="color: #94a3b8;">Répétitions :</label>
-                        <input type="number" value="${item.reps}" min="1" max="50" 
+                        <label id="supersetLab_${idx}" style="color: #94a3b8;">${item.tenue ? 'Secondes' : 'Répétitions'} :</label>
+                        <input type="number" id="supersetVal_${idx}" value="${item.reps}" min="1" max="${item.tenue ? 300 : 50}" 
                                onchange="supersetExercisesList[${idx}].reps = parseInt(this.value)"
                                style="width: 80px; padding: 8px; border: 2px solid rgba(255,255,255,0.12); border-radius: 10px;">
                     </div>
@@ -3760,6 +3780,32 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
 
         // v1545 : matériel coché (Superset / Circuit / AMRAP)
+        // v1598 : exercices écartés (limitations, mobilité réduite, doublons) retirés des 3 créateurs.
+        // Le matériel manquant n'écarte que sous « Mon matériel » (sinon le filtre choisi décide).
+        function _awkExclureBuilder(ex, equipVal) {
+            try { if (window.awakEstDoublon && window.awakEstDoublon(ex.name)) return true; } catch (e) {}
+            try {
+                const r = window.awakRaisonRefus ? window.awakRaisonRefus(ex, { sansNiveau: true }) : null;
+                if (r && !(String(r) === 'matériel' && equipVal !== '__mine')) return true;
+            } catch (e) {}
+            return false;
+        }
+        // v1598 : choix d'un exercice dans un créateur. Une tenue (planche…) se règle en secondes.
+        window._awkBuilderChoix = function (kind, idx, val) {
+            const L = kind === 'superset' ? supersetExercisesList : kind === 'circuit' ? circuitExercisesList : amrapExercisesList;
+            if (!L || !L[idx]) return;
+            L[idx].exercise = val;
+            const ex = val ? exerciseDatabase.find(e => e.name === val) : null;
+            let tenue = false;
+            try { tenue = !!(ex && window.awakEstIsometrique && window.awakEstIsometrique(ex)); } catch (e) {}
+            if (tenue !== !!L[idx].tenue) {
+                L[idx].tenue = tenue;
+                L[idx].reps = tenue ? ((ex && parseInt(ex.duration, 10)) || 30) : (kind === 'circuit' ? 15 : 10);
+            }
+            const lab = document.getElementById(kind + 'Lab_' + idx), inp = document.getElementById(kind + 'Val_' + idx);
+            if (lab) lab.textContent = (tenue ? 'Secondes' : 'Répétitions') + ' :';
+            if (inp) { inp.value = L[idx].reps; inp.max = tenue ? 300 : 50; }
+        };
         function _awkMonMateriel() { try { return (typeof getSelectedEquipmentNames === 'function' ? getSelectedEquipmentNames() : []) || []; } catch (e) { return []; } }
         function updateSupersetOptions() {
             const searchVal = (document.getElementById('supersetSearchFilter')?.value || '').toLowerCase();
@@ -3773,6 +3819,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (muscleVal && ex.muscle !== muscleVal) return false;
                 if (equipVal === '__mine') { if (!(ex.equipment || ['Poids du corps']).some(e => e === 'Poids du corps' || _awkMonMateriel().includes(e))) return false; } else if (equipVal  && !(ex.equipment || ['Poids du corps']).some(e => e === equipVal)) return false;
                 if (diffVal   && ex.difficulty !== diffVal) return false;
+                if (_awkExclureBuilder(ex, equipVal)) return false;   // v1598
                 return true;
             });
 
@@ -3793,6 +3840,17 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             });
         }
 
+        // v1598 : un passage d'exercice dans un superset / circuit / AMRAP.
+        // Tenue (planche…) → chrono de la durée choisie ; sinon 1 série aux reps choisies.
+        function _awkEntreeTour(ex, item) {
+            if (item && item.tenue) {
+                const sec = Math.max(5, Math.min(300, parseInt(item.reps, 10) || 30));
+                const e = { ...ex, sets: 1, mode: 'timer', duration: sec };
+                delete e.reps;
+                return e;
+            }
+            return { ...ex, reps: item ? item.reps : ex.reps, sets: 1, duration: ex.duration || 60 };
+        }
         function startSuperset() {
             const name = document.getElementById('supersetName').value || 'Mon Superset';
             const sets = parseInt(document.getElementById('supersetSets').value);
@@ -3808,25 +3866,21 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // Create workout
             const exercises = validExercises.map(item => {
                 const ex = exerciseDatabase.find(e => e.name === item.exercise);
-                return {
-                    ...ex,
-                    reps: item.reps,
-                    sets: sets
-                };
+                return { ex: ex, item: item };
             });
             
             // Build workout with exercises and rest periods
             const workoutExercises = [];
             for (let set = 1; set <= sets; set++) {
-                exercises.forEach((ex, idx) => {
-                    // v1546 : 1 série aux reps choisies (avant : chrono de 60 s, reps ignorées)
-                    workoutExercises.push({ ...ex, sets: 1, duration: ex.duration || 60 });
+                exercises.forEach((o, idx) => {
+                    // v1546 : 1 série aux reps choisies ; v1598 : tenue en secondes + tour / lettre
+                    workoutExercises.push({ ..._awkEntreeTour(o.ex, o.item), _tour: set, _lettre: ['A', 'B', 'C'][idx] });
                     // v1546 : A → B sans pause, repos seulement à la fin du tour
                     if (idx === exercises.length - 1 && set < sets) {
                         workoutExercises.push({
                             name: "Repos",
                             duration: rest,
-                            isRest: true, mode: 'timer'
+                            isRest: true, mode: 'timer', _tour: set + 1
                         });
                     }
                 });
@@ -3837,8 +3891,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 mode: 'reps',   // v1546 : reps choisies (une tenue reste chronométrée)
                 name: name,
                 exercises: workoutExercises,
-                badgeHTML: `🔗 Superset : ${name}`,
-                badgeStyle: 'linear-gradient(135deg, #3b82f6 0%, #166534 100%)'
+                _nbTours: sets,   // v1598
+                badgeHTML: `Superset · ${name}`,
+                badgeStyle: 'linear-gradient(135deg, #22d3ee 0%, #0891b2 100%)'
             };
             
             closeSupersetModal();
@@ -3981,21 +4036,21 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!container) return;
             
             container.innerHTML = circuitExercisesList.map((item, idx) => `
-                <div style="background: #ecfdf5; padding: 15px; border-radius: 10px; border-left: 4px solid #10b981;">
+                <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; border-left: 4px solid #22d3ee;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <span style="font-weight: bold; color: #10b981; font-size: 1.2em;">Exercice ${idx + 1}</span>
+                        <span style="font-weight: bold; color: #67e8f9; font-size: 1.2em;">Exercice ${idx + 1}</span>
                         ${circuitExercisesList.length > 4 ? `
                             <button onclick="removeCircuitExercise(${idx})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                         ` : ''}
                     </div>
-                    <select id="circuitSelect_${idx}" onchange="circuitExercisesList[${idx}].exercise = this.value" style="width: 100%; padding: 10px; border: 2px solid #6ee7b7; border-radius: 10px; margin-bottom: 10px; background: rgba(74,222,128,0.12); color: #065f46;">
+                    <select id="circuitSelect_${idx}" onchange="_awkBuilderChoix('circuit', ${idx}, this.value)" style="width: 100%; padding: 10px; border: 1px solid rgba(34,211,238,0.3); border-radius: 10px; margin-bottom: 10px; background: #0D0D0D; color: #e2e8f0;">
                         <option value="">Choisir un exercice...</option>
                     </select>
                     <div style="display: flex; gap: 10px; align-items: center;">
-                        <label style="color: #065f46; font-weight: 600;">Répétitions :</label>
-                        <input type="number" value="${item.reps}" min="1" max="50" 
+                        <label id="circuitLab_${idx}" style="color: #94a3b8; font-weight: 600;">${item.tenue ? 'Secondes' : 'Répétitions'} :</label>
+                        <input type="number" id="circuitVal_${idx}" value="${item.reps}" min="1" max="${item.tenue ? 300 : 50}" 
                                onchange="circuitExercisesList[${idx}].reps = parseInt(this.value)"
-                               style="width: 80px; padding: 8px; border: 2px solid #6ee7b7; border-radius: 10px; background: rgba(74,222,128,0.12); color: #065f46;">
+                               style="width: 80px; padding: 8px; border: 1px solid rgba(34,211,238,0.3); border-radius: 10px; background: #0D0D0D; color: #e2e8f0;">
                     </div>
                 </div>
             `).join('');
@@ -4015,6 +4070,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (muscleVal && ex.muscle !== muscleVal) return false;
                 if (equipVal === '__mine') { if (!(ex.equipment || ['Poids du corps']).some(e => e === 'Poids du corps' || _awkMonMateriel().includes(e))) return false; } else if (equipVal  && !(ex.equipment || ['Poids du corps']).some(e => e === equipVal)) return false;
                 if (diffVal   && ex.difficulty !== diffVal) return false;
+                if (_awkExclureBuilder(ex, equipVal)) return false;   // v1598
                 return true;
             });
 
@@ -4047,20 +4103,21 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             const exercises = validExercises.map(item => {
                 const ex = exerciseDatabase.find(e => e.name === item.exercise);
-                return { ...ex, reps: item.reps };
+                return { ex: ex, item: item };
             });
             
             // Build workout with rounds and rest
             const workoutExercises = [];
             for (let round = 1; round <= rounds; round++) {
-                exercises.forEach((ex, idx) => {
-                    workoutExercises.push({ ...ex, sets: 1, duration: ex.duration || 60 });   // v1546 : reps choisies
+                exercises.forEach((o, idx) => {
+                    // v1546 : reps choisies ; v1598 : tenue en secondes + tour / position
+                    workoutExercises.push({ ..._awkEntreeTour(o.ex, o.item), _tour: round, _pos: idx + 1, _nbPos: exercises.length });
                     if (idx === exercises.length - 1 && round < rounds) {
                         // Rest between rounds
                         workoutExercises.push({
-                            name: "Repos entre rounds",
+                            name: "Repos entre les tours",
                             duration: rest,
-                            isRest: true, mode: 'timer'
+                            isRest: true, mode: 'timer', _tour: round + 1
                         });
                     }
                 });
@@ -4071,8 +4128,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 mode: 'reps',   // v1546
                 name: name,
                 exercises: workoutExercises,
-                badgeHTML: `🔄 Circuit : ${name}`,
-                badgeStyle: 'linear-gradient(135deg, #164e8a 0%, #166534 100%)'
+                _nbTours: rounds,   // v1598
+                badgeHTML: `Circuit · ${name}`,
+                badgeStyle: 'linear-gradient(135deg, #22d3ee 0%, #0891b2 100%)'
             };
             
             closeCircuitModal();
@@ -4208,21 +4266,21 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!container) return;
             
             container.innerHTML = amrapExercisesList.map((item, idx) => `
-                <div style="background: #fee2e2; padding: 15px; border-radius: 10px; border-left: 4px solid #ef4444;">
+                <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; border-left: 4px solid #22d3ee;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <span style="font-weight: bold; color: #ef4444; font-size: 1.2em;">Exercice ${idx + 1}</span>
+                        <span style="font-weight: bold; color: #67e8f9; font-size: 1.2em;">Exercice ${idx + 1}</span>
                         ${amrapExercisesList.length > 3 ? `
                             <button onclick="removeAMRAPExercise(${idx})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                         ` : ''}
                     </div>
-                    <select id="amrapSelect_${idx}" onchange="amrapExercisesList[${idx}].exercise = this.value" style="width: 100%; padding: 10px; border: 1px solid rgba(239,68,68,0.35); border-radius: 10px; margin-bottom: 10px; background: #0D0D0D; color: #e2e8f0;">
+                    <select id="amrapSelect_${idx}" onchange="_awkBuilderChoix('amrap', ${idx}, this.value)" style="width: 100%; padding: 10px; border: 1px solid rgba(34,211,238,0.3); border-radius: 10px; margin-bottom: 10px; background: #0D0D0D; color: #e2e8f0;">
                         <option value="">Choisir un exercice...</option>
                     </select>
                     <div style="display: flex; gap: 10px; align-items: center;">
-                        <label style="color: #7f1d1d; font-weight: 600;">Répétitions :</label>
-                        <input type="number" value="${item.reps}" min="1" max="50" 
+                        <label id="amrapLab_${idx}" style="color: #94a3b8; font-weight: 600;">${item.tenue ? 'Secondes' : 'Répétitions'} :</label>
+                        <input type="number" id="amrapVal_${idx}" value="${item.reps}" min="1" max="${item.tenue ? 300 : 50}" 
                                onchange="amrapExercisesList[${idx}].reps = parseInt(this.value)"
-                               style="width: 80px; padding: 8px; border: 1px solid rgba(239,68,68,0.35); border-radius: 10px; background: #0D0D0D; color: #e2e8f0;">
+                               style="width: 80px; padding: 8px; border: 1px solid rgba(34,211,238,0.3); border-radius: 10px; background: #0D0D0D; color: #e2e8f0;">
                     </div>
                 </div>
             `).join('');
@@ -4242,6 +4300,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (muscleVal && ex.muscle !== muscleVal) return false;
                 if (equipVal === '__mine') { if (!(ex.equipment || ['Poids du corps']).some(e => e === 'Poids du corps' || _awkMonMateriel().includes(e))) return false; } else if (equipVal  && !(ex.equipment || ['Poids du corps']).some(e => e === equipVal)) return false;
                 if (diffVal   && ex.difficulty !== diffVal) return false;
+                if (_awkExclureBuilder(ex, equipVal)) return false;   // v1598
                 return true;
             });
 
@@ -4271,18 +4330,22 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 return;
             }
             
+            // v1598 : l'AMRAP tourne sur le moteur de séance standard (grille, Préc./Suivant,
+            // reprise, écran de fin). Un tour = la liste ; un chrono global l'arrête.
             const exercises = validExercises.map(item => {
                 const ex = exerciseDatabase.find(e => e.name === item.exercise);
-                return { ...ex, reps: item.reps, duration: 60 };
+                return _awkEntreeTour(ex, item);
             });
             
             const workout = {
                 type: 'amrap',
+                mode: 'reps',
                 name: name,
-                duration: duration,
+                _amrapNom: name,
+                _amrapSec: duration,
                 exercises: exercises,
-                badgeHTML: `⏱️ AMRAP : ${name} (${duration/60} min)`,
-                badgeStyle: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+                badgeHTML: `AMRAP · ${name} (${duration/60} min)`,
+                badgeStyle: 'linear-gradient(135deg, #22d3ee 0%, #0891b2 100%)'
             };
             
             closeAMRAPModal();
@@ -4397,131 +4460,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }, 4000);
         }
 
-        // ========== PREDEFINED PLANS SYSTEM ==========
-
-        const predefinedPlans = {
-            'beginner-4weeks': {
-                id: 'beginner-4weeks',
-                name: 'Débutant 4 semaines',
-                emoji: '🌱',
-                duration: 4,
-                frequency: 3,
-                level: 'Débutant',
-                goal: 'Base solide',
-                color: '#10b981',
-                description: 'Crée une base solide avec ce plan progressif de 4 semaines. Idéal pour débuter !',
-                weeks: [
-                    {
-                        weekNumber: 1,
-                        title: 'Apprentissage',
-                        description: 'Maîtrise les mouvements de base',
-                        sessions: [
-                            { day: 'Lundi', name: 'Corps entier initiation', exercises: ['Squats', 'Pompes classiques', 'Planche', 'Fentes avant'], duration: 30 },
-                            { day: 'Mercredi', name: 'Cardio + Core', exercises: ['Jumping jacks', 'Mountain climbers', 'Crunch', 'Planche latérale'], duration: 25 },
-                            { day: 'Vendredi', name: 'Haut du corps', exercises: ['Dips triceps', 'Rowing haltère un bras', 'Superman', 'Planche'], duration: 30 }
-                        ]
-                    },
-                    {
-                        weekNumber: 2,
-                        title: 'Augmentation volume',
-                        description: 'Plus de répétitions et séries',
-                        sessions: [
-                            { day: 'Lundi', name: 'Corps entier progression', exercises: ['Squats', 'Développé militaire', 'Fentes avant', 'Planche', 'Burpees'], duration: 35 },
-                            { day: 'Mercredi', name: 'HIIT débutant', exercises: ['High knees', 'Jump squats', 'Squats', 'Mountain climbers', 'Planche'], duration: 30 },
-                            { day: 'Vendredi', name: 'Split haut/bas', exercises: ['Tractions assistées', 'Dips triceps', 'Squat bulgare', 'Fentes avant', 'Calf Raises debout'], duration: 35 }
-                        ]
-                    },
-                    {
-                        weekNumber: 3,
-                        title: 'Intensification',
-                        description: 'Augmentation de la difficulté',
-                        sessions: [
-                            { day: 'Lundi', name: 'Push/Pull split', exercises: ['Pompes classiques', 'Tractions pronation', 'Développé militaire', 'Barbell Row', 'Fentes avant'], duration: 40 },
-                            { day: 'Mercredi', name: 'Cardio intense', exercises: ['Burpees', 'High knees', 'Mountain climbers', 'Jumping jacks', 'Burpees'], duration: 35 },
-                            { day: 'Vendredi', name: 'Jambes + Core', exercises: ['Squats', 'Hip thrust', 'Glute bridge', 'Crunch', 'Planche', 'Russian twist'], duration: 40 }
-                        ]
-                    },
-                    {
-                        weekNumber: 4,
-                        title: 'Test final',
-                        description: 'Consolidation des acquis',
-                        sessions: [
-                            { day: 'Lundi', name: 'Circuit complet', exercises: ['Burpees', 'Tractions pronation', 'Squats', 'Planche', 'Mountain climbers', 'Fentes avant'], duration: 45 },
-                            { day: 'Mercredi', name: 'HIIT max', exercises: ['Jump squats', 'Dips triceps', 'High knees', 'Burpees', 'Planche'], duration: 40 },
-                            { day: 'Vendredi', name: 'Full body challenge', exercises: ['Squats', 'Pompes classiques', 'Barbell Row', 'Dips triceps', 'Planche', 'Crunch'], duration: 45 }
-                        ]
-                    }
-                ]
-            },
-            'weightloss-8weeks': {
-                id: 'weightloss-8weeks',
-                name: 'Perte de poids 8 semaines',
-                emoji: '🔥',
-                duration: 8,
-                frequency: 5,
-                level: 'Intermédiaire',
-                goal: 'Brûler graisse',
-                color: '#ef4444',
-                description: 'Programme intensif combinant HIIT et musculation pour brûler un maximum de calories',
-                weeks: Array.from({length: 8}, (_, i) => ({
-                    weekNumber: i + 1,
-                    title: i < 2 ? 'Base métabolique' : i < 4 ? 'Intensification' : i < 6 ? 'Peak performance' : 'Maintien',
-                    description: i < 2 ? 'Créer la base' : i < 4 ? 'Augmenter intensité' : i < 6 ? 'Maximum effort' : 'Consolidation',
-                    sessions: [
-                        { day: 'Lundi', name: 'HIIT Total Body', exercises: ['Burpees', 'Jump squats', 'Mountain climbers', i % 2 === 0 ? 'Pompes classiques' : 'Dips triceps', 'High knees'], duration: 35 },
-                        { day: 'Mardi', name: 'Musculation Upper', exercises: [i % 3 === 0 ? 'Pompes classiques' : i % 3 === 1 ? 'Développé couché haltères' : 'Tractions pronation', 'Dips triceps', i % 2 === 0 ? 'Tractions pronation' : 'Barbell Row', 'Superman', 'Planche'], duration: 40 },
-                        { day: 'Jeudi', name: 'HIIT Cardio Blast', exercises: ['Jumping jacks', 'Burpees', 'High knees', 'Mountain climbers', 'Sprint sur place'], duration: 30 },
-                        { day: 'Vendredi', name: 'Musculation Lower', exercises: ['Squats', i % 2 === 0 ? 'Fentes avant' : 'Squat bulgare', 'Hip thrust', 'Calf Raises debout', 'Glute bridge'], duration: 40 },
-                        { day: 'Samedi', name: 'Circuit Metabolic', exercises: ['Burpees', 'Burpees', 'Squats', i % 3 === 0 ? 'Pompes classiques' : i % 3 === 1 ? 'Dips triceps' : 'Tractions pronation', 'Mountain climbers'], duration: 35 }
-                    ]
-                }))
-            },
-            'musclebuilding-12weeks': {
-                id: 'musclebuilding-12weeks',
-                name: 'Prise de masse 12 semaines',
-                emoji: '💪',
-                duration: 12,
-                frequency: 5,
-                level: 'Avancé',
-                goal: 'Construire muscle',
-                color: '#22c55e',
-                description: 'Programme hypertrophie complet pour construire du muscle sur 12 semaines',
-                weeks: Array.from({length: 12}, (_, i) => ({
-                    weekNumber: i + 1,
-                    title: i < 3 ? 'Adaptation' : i < 6 ? 'Volume' : i < 9 ? 'Intensité' : 'Consolidation',
-                    description: i < 3 ? 'Phase adaptation' : i < 6 ? 'Phase volume' : i < 9 ? 'Phase intensité' : 'Maintien gains',
-                    sessions: [
-                        { day: 'Lundi', name: 'Push (Pecs/Épaules/Triceps)', exercises: [i % 3 === 0 ? 'Pompes classiques' : i % 3 === 1 ? 'Développé couché haltères' : 'Développé incliné haltères', 'Dips triceps', i % 2 === 0 ? 'Pompes inclinées' : 'Élévations latérales', 'Extensions triceps corde', 'Développé militaire'], duration: 50 },
-                        { day: 'Mardi', name: 'Pull (Dos/Biceps)', exercises: ['Tractions pronation', i % 2 === 0 ? 'Barbell Row' : 'Rowing haltère un bras', 'Superman', 'Curl biceps haltères', 'Rowing haltère un bras'], duration: 50 },
-                        { day: 'Jeudi', name: 'Legs (Jambes)', exercises: [i % 2 === 0 ? 'Squats' : 'Squat bulgare', 'Fentes avant', 'Hip thrust', 'Calf Raises debout', i % 2 === 0 ? 'Soulevé de terre jambes tendues' : 'Fentes marchées'], duration: 50 },
-                        { day: 'Vendredi', name: 'Upper (Haut corps)', exercises: [i % 3 === 0 ? 'Pompes classiques' : i % 3 === 1 ? 'Développé couché haltères' : 'Dips triceps', 'Tractions pronation', i % 2 === 0 ? 'Dips triceps' : 'Barbell Row', 'Curl biceps', 'Extensions triceps'], duration: 45 },
-                        { day: 'Samedi', name: 'Lower + Core', exercises: ['Squats', 'Glute bridge', i % 2 === 0 ? 'Fentes avant' : 'Squat bulgare', 'Planche', 'Crunch'], duration: 45 }
-                    ]
-                }))
-            },
-            'strength-6weeks': {
-                id: 'strength-6weeks',
-                name: 'Force 6 semaines',
-                emoji: '🏆',
-                duration: 6,
-                frequency: 4,
-                level: 'Avancé',
-                goal: 'Force maximale',
-                color: '#f59e0b',
-                description: 'Programme force pour augmenter ta puissance sur les mouvements composés',
-                weeks: Array.from({length: 6}, (_, i) => ({
-                    weekNumber: i + 1,
-                    title: i < 2 ? 'Base force' : i < 4 ? 'Peak force' : 'Test force',
-                    description: i < 2 ? 'Créer base' : i < 4 ? 'Maximiser force' : 'Tester limites',
-                    sessions: [
-                        { day: 'Lundi', name: 'Squat Focus', exercises: [i % 2 === 0 ? 'Squats' : 'Squats', 'Squat bulgare', i % 2 === 0 ? 'Fentes avant' : 'Squat bulgare', 'Calf Raises debout'], duration: 50 },
-                        { day: 'Mercredi', name: 'Push Focus', exercises: [i % 3 === 0 ? 'Pompes classiques' : i % 3 === 1 ? 'Développé couché haltères' : 'Développé militaire', i % 2 === 0 ? 'Pompes déclinées' : 'Dips triceps', 'Dips triceps', i % 2 === 0 ? 'Pompes diamant' : 'Extensions triceps corde'], duration: 45 },
-                        { day: 'Vendredi', name: 'Pull Focus', exercises: ['Tractions pronation', i % 2 === 0 ? 'Barbell Row' : 'Rowing haltère un bras', 'Superman', 'Rowing haltère un bras'], duration: 45 },
-                        { day: 'Samedi', name: 'Full Power', exercises: ['Squats', i % 2 === 0 ? 'Pompes classiques' : 'Dips triceps', 'Tractions pronation', 'Burpees'], duration: 40 }
-                    ]
-                }))
-            }
-        };
+        // v1591 : predefinedPlans retiré (code mort : n'était lu que par startPlan, jamais appelé)
 
         let activePlan = null;
 
@@ -4550,50 +4489,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             document.getElementById('planDetailsModal').classList.remove('active');
         }
 
-        // Start a plan
-        function startPlan(planId, _confirmeRemplacement) {
-            const plan = predefinedPlans[planId];
-            if (!plan) return;
-            
-            // Check if already have active plan
-            // ⚠️ showConfirm est ASYNCHRONE. L'appeler avec un callback `null`
-            //    affichait la question puis remplaçait le plan JUSTE APRÈS, sans
-            //    attendre la réponse : la progression du plan en cours était
-            //    perdue même en cliquant « Annuler ».
-            const existing = getActivePlan();
-            if (existing && !_confirmeRemplacement) {
-                showConfirm(
-                    `Tu as déjà un plan actif (${existing.name}), avec ${existing.progress || 0}% de progression. ` +
-                    `L'abandonner pour commencer "${plan.name}" ?`,
-                    function () { startPlan(planId, true); },
-                    null,
-                    { title: 'Plan existant', icon: '📅', confirmLabel: 'Abandonner et démarrer', danger: true }
-                );
-                return;   // on attend la réponse
-            }
-
-            activePlan = {
-                ...plan,
-                startDate: new Date().toISOString(),
-                currentWeek: 1,
-                completedSessions: [],
-                progress: 0
-            };
-            
-            saveActivePlan(activePlan);
-            try { awakLogEvent('program_start', { id: planId, name: plan.name }); } catch (e) {}
-            closePlanDetailsModal();
-            
-            showToast(`🎉 Plan "${plan.name}" démarré ! Bonne chance ! 💪`, 'success', 4000);
-            speak('Plan démarré');
-            
-            renderActivePlan();
-            
-            // Scroll to active plan (si le container existe encore)
-            setTimeout(() => {
-                document.getElementById('activePlanContainer')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 300);
-        }
+        // v1591 : startPlan() retiré (code mort : jamais appelé)
 
         // Start session from plan
         function startPlanSession(weekNumber, sessionIndex) {
@@ -5135,17 +5031,17 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         </div>
 
                         <div style="font-size:0.7em;color:#94a3b8;font-weight:700;letter-spacing:1px;margin-bottom:10px;text-transform:uppercase;">◈ Sauvegardes automatiques (${sorted.length})</div>
-                        ${sorted.length === 0 ? `<div style="text-align:center;color:#475569;padding:20px;font-size:0.85em;">Aucune sauvegarde automatique encore.<br/>Elles sont créées chaque jour.</div>`
+                        ${sorted.length === 0 ? `<div style="text-align:center;color:#7c8aa0;padding:20px;font-size:0.85em;">Aucune sauvegarde automatique encore.<br/>Elles sont créées chaque jour.</div>`
                         : sorted.map(b => `
                             <div style="background:#1a1d24;border:1px solid rgba(34,197,94,0.1);border-radius:10px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
                                 <div style="flex:1;min-width:0;">
                                     <div style="font-size:0.82em;color:white;font-weight:700;">${new Date(b.exportedAt).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})}</div>
-                                    <div style="font-size:0.66em;color:#64748b;">${new Date(b.exportedAt).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})} · ${Object.keys(b.data||{}).length} entrées</div>
+                                    <div style="font-size:0.66em;color:#8391a7;">${new Date(b.exportedAt).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})} · ${Object.keys(b.data||{}).length} entrées</div>
                                 </div>
                                 <button onclick="restoreAutoBackup(${b.id})" style="background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:6px 12px;font-size:0.74em;font-weight:700;cursor:pointer;flex-shrink:0;">Restaurer</button>
                             </div>`).join('')}
 
-                        <div style="font-size:0.68em;color:#475569;margin-top:14px;text-align:center;line-height:1.5;">
+                        <div style="font-size:0.68em;color:#7c8aa0;margin-top:14px;text-align:center;line-height:1.5;">
                             💡 Sauvegardes auto quotidiennes (7 dernières)<br/>
                             Données stockées localement sur ton appareil
                         </div>
@@ -5403,7 +5299,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;">
                     ${workedMuscles.length > 0 ? workedMuscles.map(m => `
                         <span style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:#4ade80;padding:3px 9px;border-radius:99px;font-size:0.7em;font-weight:700;">${m} <span style="opacity:0.7;">×${fmtMuscleCount(muscleCount[m])}</span></span>
-                    `).join('') : '<div style="font-size:0.78em;color:#475569;font-style:italic;">Aucun encore cette semaine</div>'}
+                    `).join('') : '<div style="font-size:0.78em;color:#7c8aa0;font-style:italic;">Aucun encore cette semaine</div>'}
                 </div>
 
                 ${neglectedMuscles.length > 0 ? `
@@ -6027,7 +5923,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             <span style="font-weight:900;font-size:0.98em;color:#ffffff;">${r.name}</span>
                             <span style="font-size:0.62em;font-weight:800;color:white;background:${r.color};padding:2px 7px;border-radius:99px;">${r.level}</span>
                         </div>
-                        <div style="font-size:0.74em;color:#64748b;line-height:1.4;margin-top:3px;">${r.desc}</div>
+                        <div style="font-size:0.74em;color:#8391a7;line-height:1.4;margin-top:3px;">${r.desc}</div>
                         <div style="font-size:0.68em;color:${r.color};font-weight:800;margin-top:4px;">${r.duration} · ~${exCount} mouvements · varie à chaque fois</div>
                     </div>
                     <div style="font-size:1.3em;color:${r.color};flex-shrink:0;"><svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg></div>
@@ -6047,7 +5943,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             <span style="font-weight:900;font-size:0.98em;color:#ffffff;">Ma Routine</span>
                             <span style="font-size:0.62em;font-weight:800;color:white;background:#a855f7;padding:2px 7px;border-radius:99px;">Perso</span>
                         </div>
-                        <div style="font-size:0.74em;color:#64748b;line-height:1.4;margin-top:3px;">${custom && custom.length ? `Ta routine sur mesure (${custom.length} exercices)` : 'Pas encore créée — appuie sur Personnaliser ci-dessous'}</div>
+                        <div style="font-size:0.74em;color:#8391a7;line-height:1.4;margin-top:3px;">${custom && custom.length ? `Ta routine sur mesure (${custom.length} exercices)` : 'Pas encore créée — appuie sur Personnaliser ci-dessous'}</div>
                     </div>
                     <div style="font-size:1.3em;color:#a855f7;flex-shrink:0;">${custom && custom.length ? '▶' : '＋'}</div>
                 </button>`;
@@ -6188,9 +6084,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         background:${isSel ? 'rgba(168,85,247,0.15)' : 'rgba(255,255,255,0.03)'};
                         border:1px solid ${isSel ? 'rgba(168,85,247,0.5)' : 'rgba(255,255,255,0.08)'};
                         border-radius:10px;cursor:pointer;color:white;">
-                        <span style="font-size:1em;color:${isSel ? '#a855f7' : '#475569'};">${isSel ? '✓' : '+'}</span>
+                        <span style="font-size:1em;color:${isSel ? '#a855f7' : '#7c8aa0'};">${isSel ? '✓' : '+'}</span>
                         <span style="flex:1;font-size:0.8em;font-weight:${isSel ? '800' : '500'};color:${isSel ? '#e2e8f0' : '#94a3b8'};">${ex.name}</span>
-                        <span style="font-size:0.62em;color:#64748b;">${ex.mode === 'reps' ? (ex.reps+' reps') : (ex.duration+'s')}</span>
+                        <span style="font-size:0.62em;color:#8391a7;">${ex.mode === 'reps' ? (ex.reps+' reps') : (ex.duration+'s')}</span>
                     </button>`;
                 }).join('');
 
@@ -6296,6 +6192,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             showConfirm(
                 'Tous les progrès non sauvegardés seront perdus.',
                 () => {
+                    // v1604 : duo — proposer d'enregistrer quand même la séance du partenaire
+                    try {
+                        if (window.AwakDuo && AwakDuo.mode() === 'duo' && AwakDuo.lire() && AwakDuo.aDesSeries()) {
+                            const _d = AwakDuo.lire();
+                            setTimeout(() => showConfirm('Elle sera enregistrée dans son profil avec les séries déjà faites.', () => {
+                                if (AwakDuo.sauverPartenaire()) showToast('Séance de ' + _d.nom + ' enregistrée', 'success', 2500);
+                                try { AwakGroup.finSeance(); } catch (e) {}
+                            }, () => { try { AwakGroup.finSeance(); } catch (e) {} }, {
+                                title: 'Enregistrer la séance de ' + _d.nom + ' ?', confirmLabel: 'Enregistrer', cancelLabel: 'Non'
+                            }), 350);
+                        } else if (window.AwakDuo && AwakDuo.mode() === 'duo' && window.AwakGroup && AwakGroup.finSeance) AwakGroup.finSeance();
+                    } catch (e) {}
                     clearActiveWorkoutState();
                     currentWorkout = null;
                     document.body.classList.remove('in-session');
@@ -8141,7 +8049,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     // Repli NEUTRE (v1221) : plus de personnage dessiné
                     mediaHTML = '<div style="width:100%;height:200px;border-radius:14px;overflow:hidden;">' + awakVisuelNeutre(muscle) + '</div>';
                 } else {
-                    mediaHTML = `<div style="text-align:center;color:#64748b;padding:30px;">Aperçu indisponible</div>`;
+                    mediaHTML = `<div style="text-align:center;color:#8391a7;padding:30px;">Aperçu indisponible</div>`;
                 }
 
                 const existing = document.getElementById('exercisePreviewModal');
@@ -8298,7 +8206,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     }
                 }
                 const n = series(ex);
-                sec += n * travail(ex) + (n - 1) * repos(ex) + 10;
+                sec += n * travail(ex) + (n - 1) * repos(ex) + (workout.type === 'interval' ? 0 : 10);
                 i++;
             }
             return sec;
@@ -8444,6 +8352,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             if (!_fin.some(_reel)) _items.pop();   // pas de repos qui termine la séance
                             _ex.splice(_pos, 0, ..._items);
                             workout = { ...workout, exercises: _ex };
+                            // v1611 : le bloc jeu ajoute ~5 min → la séance générée garde la durée demandée
+                            try { if (workout.type === 'random' && typeof selectedDuration === 'number' && selectedDuration > 0) workout = awakAjusterDuree(workout, selectedDuration); } catch (e) {}
                             try { localStorage.setItem(_cleProfil('awakBlocJeuDernier'), JSON.stringify(_bloc.map(e => e.name))); } catch (e) {}
                             setTimeout(() => { try { showToast('Bloc jeu ajouté : ' + _bloc.map(e => e.name).join(' + '), 'info', 3500); } catch (e) {} }, _awakEnfantAdapte ? 4500 : 900);
                         }
@@ -8509,6 +8419,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             // Update workout name
             document.getElementById('prepWorkoutName').textContent = workout.name || 'Séance d\'entraînement';
+            try { if (window.AwakDuo) AwakDuo.notePrep(); } catch (e) {}   // v1604 : « En duo avec … » / « Solo cette fois »
             
             // Get equipment list
             const equipment = getWorkoutEquipment(workout);
@@ -8616,13 +8527,17 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } catch (e) {}
 
             const _cntEl = document.getElementById('prepExerciseCount');
-            if (_cntEl) _cntEl.textContent = _nMain || exerciseCount;
+            if (_cntEl) _cntEl.textContent = (workout && workout._nbTours > 1)
+                ? workout.exercises.filter(e => e._tour === 1 && !e.isRest).length   // v1598 : exercices d'un tour
+                : (_nMain || exerciseCount);
             // Détail sous le compteur (masqué s'il n'y a ni échauffement ni étirement)
             const _brk = document.getElementById('prepExerciseBreakdown');
             if (_brk) {
                 const parts = [];
                 if (_nEch) parts.push('<span style="color:#fbbf24;">🏃 ' + _nEch + ' échauff.</span>');
                 if (_nEti) parts.push('<span style="color:#a78bfa;">🧘 ' + _nEti + ' étir.</span>');
+                if (workout && workout._nbTours > 1) parts.push('<span style="color:#67e8f9;">× ' + workout._nbTours + ' tours</span>');   // v1598
+                if (workout && workout._amrapSec) parts.push('<span style="color:#67e8f9;">en boucle</span>');
                 _brk.innerHTML = parts.join('<span style="color:#334155;"> · </span>');
                 _brk.style.display = parts.length ? 'block' : 'none';
             }
@@ -8674,7 +8589,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             //    durée d'UNE exécution. Il ignorait les séries, les répétitions
             //    et les temps de repos : une séance demandée à 60 min s'affichait
             //    à 23 min. On estime désormais le déroulé réel.
-            const totalSeconds = awakEstimerSeance(workout);
+            const totalSeconds = (workout && workout._amrapSec) ? workout._amrapSec : awakEstimerSeance(workout);   // v1598
             const minutes = Math.max(1, Math.round(totalSeconds / 60));
             const _dEl = document.getElementById('prepDuration');
             if (_dEl) _dEl.textContent = `${minutes} min`;
@@ -8691,6 +8606,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 return !!(db && (db.type === 'warmup' || db.type === 'stretch'));
             };
             let realExercises = workout.exercises.filter(ex => !ex.isRest && !ex.isInfo && !_estAnnexe(ex));
+            // v1598 : superset / circuit → un seul tour listé, « 2 × 10 » = 2 tours de 10
+            if (workout._nbTours > 1) realExercises = realExercises.filter(ex => !ex._tour || ex._tour === 1);
             // Sécurité : si la séance ne contient QUE de l'échauffement/étirement
             // (ex. routine mobilité), on réaffiche tout plutôt qu'une liste vide.
             if (realExercises.length === 0) {
@@ -8698,7 +8615,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
 
             if (realExercises.length === 0) {
-                exercisesList.innerHTML = '<div style="text-align:center;color:#6b7280;padding:16px;">Aucun exercice</div>';
+                exercisesList.innerHTML = '<div style="text-align:center;color:#8391a7;padding:16px;">Aucun exercice</div>';
             } else {
                 exercisesList.innerHTML = realExercises.map((ex, index) => {
                     const exerciseName = typeof ex === 'string' ? ex : ex.name;
@@ -8710,7 +8627,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (difficulty === 'Intermédiaire') difficultyColor = '#f59e0b';
                     if (difficulty === 'Avancé') difficultyColor = '#ef4444';
 
-                    const setsReps = ex.sets ? (ex.mode === 'timer' ? `${ex.sets} × ${ex.duration || 30} s` : `${ex.sets} × ${ex.reps || ex.recoReps || 10}`) : '';
+                    const _nS = (workout._nbTours > 1 && ex._tour) ? workout._nbTours : ex.sets;   // v1598
+                    const setsReps = _nS ? (ex.mode === 'timer' ? `${_nS} × ${ex.duration || 30} s` : `${_nS} × ${ex.reps || ex.recoReps || 10}`) : '';
                     const _safeName = (exerciseName || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
                     // 📱 MISE EN PAGE VERTICALE : le nom occupe TOUTE la largeur,
@@ -8833,8 +8751,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
             
             // Handle different workout types
-            if (pendingWorkout.type === 'amrap') {
-                // AMRAP needs special handling
+            if (pendingWorkout.type === 'amrap' && !pendingWorkout._amrapSec) {
+                // AMRAP needs special handling (ancien format ; v1598 : les nouveaux passent par le flux standard)
                 currentAMRAPWorkout = {
                     type: 'amrap',
                     name: pendingWorkout.name,
@@ -9435,6 +9353,50 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             _speechQueue.push({ text: text });
             _speechNext();
         }
+
+        // v1593 : DÉCOMPTE VOCAL « 5, 4, 3, 2, 1 » — seulement les 5 dernières secondes
+        // d'un exercice au temps. Indépendant du guidage vocal retiré (v657) : une phrase
+        // d'un mot, lancée juste après un toucher de l'utilisateur (séance démarrée),
+        // ce qui passe dans les navigateurs mobiles. Réglage : Réglages › Audio.
+        function awakVoixDecompteOn() { try { return localStorage.getItem('awakVoixDecompte') !== '0'; } catch (e) { return true; } }
+        let _awakVoixFr = null;
+        function _awakChoisirVoix() {
+            try {
+                const v = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+                _awakVoixFr = v.find(x => /^fr[-_]CA/i.test(x.lang)) || v.find(x => /^fr/i.test(x.lang)) || null;
+            } catch (e) {}
+        }
+        try { if (window.speechSynthesis) { _awakChoisirVoix(); speechSynthesis.onvoiceschanged = _awakChoisirVoix; } } catch (e) {}
+        function awakDireDecompte(n) {
+            try {
+                if (isMuted || !awakVoixDecompteOn() || !window.speechSynthesis || !(n >= 1 && n <= 5)) return;
+                speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(String(n));
+                u.lang = (_awakVoixFr && _awakVoixFr.lang) || 'fr-CA';
+                if (_awakVoixFr) u.voice = _awakVoixFr;
+                u.rate = 1.15; u.pitch = 1; u.volume = 1;
+                speechSynthesis.speak(u);
+            } catch (e) {}
+        }
+        window.awakDireDecompte = awakDireDecompte;
+        window.awakParler = function (t) { try { speak(t, { interrupt: false }); } catch (e) {} };   // v1601 (duo)
+        window.awakBasculerVoixDecompte = function () {
+            const on = !awakVoixDecompteOn();
+            try { localStorage.setItem('awakVoixDecompte', on ? '1' : '0'); } catch (e) {}
+            awakMajVoixDecompte();
+            if (on) awakDireDecompte(3);   // essai immédiat (le toucher autorise la voix)
+            showToast(on ? 'Décompte vocal activé' : 'Décompte vocal désactivé', 'info', 1800);
+        };
+        function awakMajVoixDecompte() {
+            const b = document.getElementById('awakVoixDecompteBtn'); if (!b) return;
+            const on = awakVoixDecompteOn();
+            b.setAttribute('aria-checked', on ? 'true' : 'false');
+            const piste = b.querySelector('.awk-vd-piste'), bille = b.querySelector('.awk-vd-bille');
+            if (piste) piste.style.background = on ? '#22d3ee' : 'rgba(255,255,255,0.15)';
+            if (bille) bille.style.left = on ? '21px' : '3px';
+        }
+        window.awakMajVoixDecompte = awakMajVoixDecompte;
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', awakMajVoixDecompte); else setTimeout(awakMajVoixDecompte, 0);
 
         function speakCountdown(seconds) {
             if (!countdownVoiceEnabled) return;
@@ -10748,7 +10710,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.25);border-radius:10px;padding:9px 12px;margin-bottom:14px;font-size:0.78em;color:#94a3b8;line-height:1.5;">🏋️ ' + equipNote + '</div>'
                 + btns
                 + '<label style="display:flex;align-items:center;gap:10px;margin-top:10px;padding:11px 13px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.3);border-radius:12px;cursor:pointer;font-size:0.85em;color:#e2e8f0;"><input type="checkbox" id="aiPlanYoga" checked style="width:18px;height:18px;accent-color:#a78bfa;cursor:pointer;"> 🪷 Yoga en récupération active (jour de repos)</label>'
-                + '<div style="margin-top:12px;font-size:0.76em;color:#64748b;line-height:1.5;">💡 Astuce : commence chaque jour d\'entraînement par un <strong style="color:#94a3b8;">Réveil matinal</strong> (5 min) pour préparer les articulations.</div>'
+                + '<div style="margin-top:12px;font-size:0.76em;color:#8391a7;line-height:1.5;">💡 Astuce : commence chaque jour d\'entraînement par un <strong style="color:#94a3b8;">Réveil matinal</strong> (5 min) pour préparer les articulations.</div>'
                 + '</div></div>';
             document.body.appendChild(modal);
         }
@@ -10903,7 +10865,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     + emoji + ' ' + name + (launchable ? ' ▶' : '') + '</span>';
             }).join('');
             return '<div style="margin-top:8px;display:flex;flex-wrap:wrap;align-items:center;gap:6px;">'
-                + '<span style="font-size:0.6em;font-weight:900;letter-spacing:1px;color:#64748b;">＋ RITUEL</span>'
+                + '<span style="font-size:0.6em;font-weight:900;letter-spacing:1px;color:#8391a7;">＋ RITUEL</span>'
                 + chips + '</div>';
         }
 
@@ -10970,7 +10932,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             let listHTML;
             if (!existing.length) {
-                listHTML = '<p style="color:#64748b;font-size:0.88em;text-align:center;padding:14px;">Aucun rituel pour l\'instant.</p>';
+                listHTML = '<p style="color:#8391a7;font-size:0.88em;text-align:center;padding:14px;">Aucun rituel pour l\'instant.</p>';
             } else {
                 listHTML = existing.map(function (e) {
                     const d = (typeof getDiscipline === 'function') ? getDiscipline(e.disciplineId) : null;
@@ -11004,15 +10966,15 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
             const canAdd = _ritualDraftDiscipline && _ritualDraftDays.length;
             return ''
-                + '<div style="margin-bottom:18px;"><div style="font-size:0.62em;color:#64748b;font-weight:900;letter-spacing:1.5px;margin-bottom:8px;">MES RITUELS</div>' + listHTML + '</div>'
+                + '<div style="margin-bottom:18px;"><div style="font-size:0.62em;color:#8391a7;font-weight:900;letter-spacing:1.5px;margin-bottom:8px;">MES RITUELS</div>' + listHTML + '</div>'
                 + '<div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:16px;">'
-                + '<div style="font-size:0.62em;color:#64748b;font-weight:900;letter-spacing:1.5px;margin-bottom:10px;">AJOUTER UN RITUEL</div>'
+                + '<div style="font-size:0.62em;color:#8391a7;font-weight:900;letter-spacing:1.5px;margin-bottom:10px;">AJOUTER UN RITUEL</div>'
                 + '<div style="color:#94a3b8;font-size:0.78em;margin-bottom:6px;">Discipline</div>'
                 + '<div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;">' + discHTML + '</div>'
                 + '<div style="color:#94a3b8;font-size:0.78em;margin-bottom:6px;">Jours</div>'
                 + '<div style="display:flex;gap:5px;margin-bottom:16px;">' + daysHTML + '</div>'
                 + '<button onclick="_addRitualFromDraft()" ' + (canAdd ? '' : 'disabled') + ' style="width:100%;padding:13px;border:none;border-radius:12px;font-weight:900;font-size:0.95em;cursor:' + (canAdd ? 'pointer' : 'not-allowed') + ';'
-                + 'background:' + (canAdd ? 'linear-gradient(135deg,#14b8a6,#0d9488)' : 'rgba(255,255,255,0.06)') + ';color:' + (canAdd ? '#fff' : '#475569') + ';">＋ Ajouter le rituel</button>'
+                + 'background:' + (canAdd ? 'linear-gradient(135deg,#14b8a6,#0d9488)' : 'rgba(255,255,255,0.06)') + ';color:' + (canAdd ? '#fff' : '#7c8aa0') + ';">＋ Ajouter le rituel</button>'
                 + '</div>';
         }
 
@@ -12786,10 +12748,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                   +   'display:flex;align-items:center;gap:11px;">'
                   +   '<span style="font-size:1.2em;">📅</span>'
                   +   '<span style="flex:1;min-width:0;">'
-                  +     '<span style="display:block;font-size:0.52em;letter-spacing:1.5px;color:#64748b;font-weight:900;">CETTE SEMAINE</span>'
+                  +     '<span style="display:block;font-size:0.52em;letter-spacing:1.5px;color:#8391a7;font-weight:900;">CETTE SEMAINE</span>'
                   +     '<span style="display:block;font-size:0.76em;color:#94a3b8;">Aucun plan — touche pour organiser ta semaine</span>'
                   +   '</span>'
-                  +   '<span style="color:#64748b;flex-shrink:0;">›</span>'
+                  +   '<span style="color:#8391a7;flex-shrink:0;">›</span>'
                   + '</div>';
                 return;
             }
@@ -12838,7 +12800,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const auj = plan[JOURS[todayIdx]];
             const ligne = (auj && auj.muscles && auj.muscles.length)
                 ? ('<strong style="color:#e2e8f0;">Aujourd\'hui</strong>'
-                   + '<span style="color:#475569;"> · </span>'
+                   + '<span style="color:#7c8aa0;"> · </span>'
                    + '<span style="color:#94a3b8;">' + auj.muscles.slice(0, 3).join(', ')
                    + (auj.muscles.length > 3 ? '…' : '') + '</span>')
                 : '<span style="color:#94a3b8;">Repos aujourd\'hui — profites-en pour récupérer</span>';
@@ -12850,7 +12812,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               +   'border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:13px 14px;margin-bottom:12px;">'
               +   '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:9px;">'
               +     '<span style="font-size:0.56em;letter-spacing:2px;color:#94a3b8;font-weight:900;">◈ CETTE SEMAINE</span>'
-              +     '<span style="font-size:0.6em;color:#475569;">modifier ›</span>'
+              +     '<span style="font-size:0.6em;color:#7c8aa0;">modifier ›</span>'
               +   '</div>'
               +   '<div style="display:flex;gap:6px;margin-bottom:9px;">' + pastilles + '</div>'
               +   '<div style="font-size:0.72em;">' + ligne + '</div>'
@@ -12926,7 +12888,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         const has = dayData && dayData.muscles && dayData.muscles.length > 0;
                         const isToday = i === todayIdx;
                         return `<div style="text-align:center;padding:5px 2px;border-radius:6px;background:${isToday ? 'rgba(34,211,238,0.18)' : (has ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)')};border:1px solid ${isToday ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.06)'};">
-                            <div style="font-size:0.55em;color:${isToday ? '#22d3ee' : (has ? '#cbd5e1' : '#475569')};font-weight:800;">${MANUAL_PLAN_DAY_SHORT[d]}</div>
+                            <div style="font-size:0.55em;color:${isToday ? '#22d3ee' : (has ? '#cbd5e1' : '#7c8aa0')};font-weight:800;">${MANUAL_PLAN_DAY_SHORT[d]}</div>
                             <div style="font-size:0.7em;margin-top:2px;">${has ? '●' : '·'}</div>
                         </div>`;
                     }).join('')}
@@ -13006,11 +12968,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                     <span style="font-size:0.68em;color:#94a3b8;font-weight:800;letter-spacing:0.5px;">🕐 HEURE</span>
                                     <input type="time" value="${dayData.heure || ''}" onchange="setManualPlanTime('${d}', this.value)"
                                            style="background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.3);color:#67e8f9;border-radius:7px;padding:5px 8px;font-size:0.78em;font-weight:800;font-family:inherit;cursor:pointer;">
-                                    ${dayData.heure ? `<button onclick="setManualPlanTime('${d}','')" style="background:none;border:none;color:#64748b;font-size:0.68em;font-weight:700;cursor:pointer;">✕ retirer</button>` : `<span style="font-size:0.66em;color:#475569;font-style:italic;">optionnel</span>`}
+                                    ${dayData.heure ? `<button onclick="setManualPlanTime('${d}','')" style="background:none;border:none;color:#8391a7;font-size:0.68em;font-weight:700;cursor:pointer;">✕ retirer</button>` : `<span style="font-size:0.66em;color:#7c8aa0;font-style:italic;">optionnel</span>`}
                                 </div>
-                                <div style="margin-top:6px;font-size:0.7em;color:#64748b;font-style:italic;">${dayData.muscles.length} muscle${dayData.muscles.length>1?'s':''} sélectionné${dayData.muscles.length>1?'s':''}</div>
+                                <div style="margin-top:6px;font-size:0.7em;color:#8391a7;font-style:italic;">${dayData.muscles.length} muscle${dayData.muscles.length>1?'s':''} sélectionné${dayData.muscles.length>1?'s':''}</div>
                                 ` : `
-                                <div style="margin-top:7px;font-size:0.7em;color:#475569;font-style:italic;">Aucun muscle · jour de repos</div>
+                                <div style="margin-top:7px;font-size:0.7em;color:#7c8aa0;font-style:italic;">Aucun muscle · jour de repos</div>
                                 `}
                             </div>
                             `;
@@ -13647,11 +13609,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             const _dispo = getSelectedEquipmentNames();
                             const _vus = new Set(_ok2.map(e => e.name));
                             _plus = exerciseDatabase.filter(e => e && !e.discipline && (e.type || 'exercise') === 'exercise' && !_vus.has(e.name)
-                                && (typeof awakEquipmentOk !== 'function' || awakEquipmentOk(e, _dispo)) && !awakRaisonRefus(e, { sansNiveau: true }))
+                                && (typeof awakEquipmentOk !== 'function' || awakEquipmentOk(e, _dispo)) && !awakRaisonRefus(e, { sansNiveau: true })
+                                // v1610 : pas d'activité longue en complément (randonnée, marche, course : 51 min au lieu de 30)
+                                && !((parseInt(e.duration, 10) || 0) > 180) && !/randonn|hiking|marche|walk|course|jogging|run\b|vélo|velo|natation|nage|ski|rando/i.test(e.name))
                                 .sort(() => Math.random() - 0.5).slice(0, 12);   // tirage : pas toujours les mêmes
                         } catch (e) {}
                     }
                     availableExercises = _ok2.concat(_plus);
+                    window._awakElargi = _plus.length > 0;   // v1610 : signalé sur « Prépare-toi »
                 }
             } catch (e) {}
 
@@ -13790,7 +13755,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // triceps + épaules). On n'avertit que sur les vrais manques.
             try {
                 const _chosenM = (selectedMuscles && selectedMuscles.length) ? selectedMuscles : [];
-                if (_chosenM.length) {
+                // v1610 : seulement quand TU as choisi les muscles. Sur une séance du Système,
+                // « Avant-bras ne sera pas travaillé » revenait à chaque séance pour rien.
+                if (_chosenM.length && Array.isArray(_overrideMuscles) && _overrideMuscles.length) {
                     const _covered = new Set();
                     selectedExercises.forEach(ex => {
                         const nm = (typeof ex === 'string') ? ex : ex.name;
@@ -13801,10 +13768,29 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         }
                     });
                     const _missing = _chosenM.filter(m => !_covered.has(m));
-                    if (_missing.length > 0) {
-                        _muscleTimeWarning = `${_missing.length} muscle${_missing.length > 1 ? 's ne seront' : ' ne sera'} pas travaillé${_missing.length > 1 ? 's' : ''} cette fois (${_missing.join(', ')}) — la durée choisie ne permet pas de tout couvrir. Allonge la séance ou réduis les muscles.`;
-                        if (typeof showToast === 'function') showToast('⏱️ ' + _muscleTimeWarning, 'warning', 6500);
+                    // v1610 : distinguer « pas le temps » de « aucun exercice permis » (limitations,
+                    // douleurs, mobilité, matériel). Avant : toujours « la durée ne permet pas ».
+                    let _bloques = [];
+                    try {
+                        const _dispoM = getSelectedEquipmentNames();
+                        _bloques = _missing.filter(m => !exerciseDatabase.some(e => e && e.muscle === m && !e.discipline && (e.type || 'exercise') === 'exercise'
+                            && (typeof awakEquipmentOk !== 'function' || awakEquipmentOk(e, _dispoM)) && !awakRaisonRefus(e, { sansNiveau: true })));
+                    } catch (e) {}
+                    const _temps = window._awakElargi ? [] : _missing.filter(m => _bloques.indexOf(m) < 0);   // élargi = limitations, pas le temps
+                    const _msgs = [];
+                    if (!_bloques.length && window._awakElargi) {
+                        const _hors = selectedExercises.filter(ex => { const d = exerciseDatabase.find(e => e.name === (ex.name || ex)); return d && _chosenM.indexOf(d.muscle) < 0; }).length;
+                        if (_hors) _msgs.push(`Peu d'exercices permis pour ${_chosenM.join(', ')} avec tes limitations et ce matériel : ${_hors} exercice${_hors > 1 ? 's' : ''} d'autres muscles complète${_hors > 1 ? 'nt' : ''} la séance.`);
                     }
+                    window._awakElargi = false;
+                    if (_bloques.length) _msgs.push(`Aucun exercice permis pour ${_bloques.join(', ')} avec tes limitations et le matériel de ce lieu : la séance est complétée avec d'autres muscles.`);
+                    if (_temps.length) _msgs.push(`${_temps.length} muscle${_temps.length > 1 ? 's ne seront' : ' ne sera'} pas travaillé${_temps.length > 1 ? 's' : ''} cette fois (${_temps.join(', ')}) — la durée choisie ne permet pas de tout couvrir. Allonge la séance ou réduis les muscles.`);
+                    if (_msgs.length) {
+                        _muscleTimeWarning = _msgs.join(' ');
+                        if (typeof showToast === 'function') showToast(_muscleTimeWarning, 'warning', 6500);
+                    }
+                    // Plus AUCUN muscle choisi n'est travaillé → la séance porte le nom de ce qu'elle contient
+                    if (_missing.length === _chosenM.length) window._awakChoixManuel = false;
                 }
             } catch (e) {}
 
@@ -14165,6 +14151,17 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     est = meilleurEst;
                 }
                 if (ajout) workout._seriesAjustees = ajout;
+                // v1611 : séries déjà au minimum (2) et encore > 3 min de trop (ex. enfant : 15 min
+                // demandées → 20 min) → on retire le dernier exercice principal (et son repos).
+                for (let n = 0; n < 6 && est - cible > 180; n++) {
+                    const restants = principaux.filter(ex => workout.exercises.indexOf(ex) >= 0 && !ex._blocJeu);
+                    if (restants.length <= 2) break;
+                    const der = restants[restants.length - 1];
+                    const i = workout.exercises.indexOf(der);
+                    workout.exercises.splice(i, (workout.exercises[i + 1] && workout.exercises[i + 1].isRest) ? 2 : 1);
+                    est = awakEstimerSeance(workout);
+                    workout._exercicesRetires = (workout._exercicesRetires || 0) + 1;
+                }
                 // v1445 : les partenaires d'un superset automatique suivent les tours du gros mouvement
                 workout.exercises.forEach(ex => { if (ex && ex._ssAuto) { const m = workout.exercises.find(o => o && o.ss === ex.ss && !o._ssAuto); if (m) ex.sets = m.sets; } });
             } catch (e) {}
@@ -14317,7 +14314,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<span style="font-size:1.05em;flex-shrink:0;">💡</span>'
                 + '<span style="flex:1;font-size:0.76em;color:#cbd5e1;line-height:1.45;">Accueil épuré. Affiche plus de cartes (rang, calendrier, coach…) dans <strong style="color:#e2e8f0;">Réglages › Affichage</strong>.</span>'
                 + '<button onclick="switchTab(\'settings\'); if(typeof awakRenderHomeCardsPrefs===\'function\')awakRenderHomeCardsPrefs();" style="flex-shrink:0;padding:8px 12px;background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.4);border-radius:10px;color:#93c5fd;font-weight:800;font-size:0.72em;cursor:pointer;white-space:nowrap;">Personnaliser</button>'
-                + '<button aria-label="Fermer" onclick="try{localStorage.setItem(\'awakHomeHintDismissed\',\'1\');}catch(e){} awakRenderHomeMoreHint();" style="flex-shrink:0;padding:6px 8px;background:transparent;border:none;color:#64748b;font-size:1.1em;cursor:pointer;line-height:1;">×</button>'
+                + '<button aria-label="Fermer" onclick="try{localStorage.setItem(\'awakHomeHintDismissed\',\'1\');}catch(e){} awakRenderHomeMoreHint();" style="flex-shrink:0;padding:6px 8px;background:transparent;border:none;color:#8391a7;font-size:1.1em;cursor:pointer;line-height:1;">×</button>'
                 + '</div>';
         }
         window.awakRenderHomeMoreHint = awakRenderHomeMoreHint;
@@ -14943,7 +14940,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const broken = [];
             if (weight > prs.maxWeight && weight > 0) broken.push({ type:'weight', value:weight, prev:prs.maxWeight });
             if (reps > prs.maxReps && reps > 0)       broken.push({ type:'reps',   value:reps,   prev:prs.maxReps });
-            if (volume > prs.maxVolume)               broken.push({ type:'volume', value:volume, prev:prs.maxVolume });
+            // v1590 : volume = poids × reps d'UNE série. Affiché « 25 lbs × 33 » (avant : « 825 lbs·reps »,
+            // lu comme un poids de 825 lb). Sans charge, c'est le record de reps : pas de doublon.
+            if (weight > 0 && volume > prs.maxVolume) broken.push({ type:'volume', value:volume, prev:prs.maxVolume, w: weight, r: reps });
             return broken;
         }
 
@@ -14958,10 +14957,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try { setTimeout(function () { awakPersonaCoach('pr'); }, 1400); } catch (e) {}
             const showPrs = filtered;
             const main = showPrs[0];
-            const labels = { weight:'POIDS MAX', reps:'REPS MAX', volume:'VOLUME MAX' };
+            const labels = { weight:'POIDS MAX', reps:'REPS MAX', volume:'MEILLEURE SÉRIE' };
             const _u = weightUnit();
-            const units  = { weight:_u,           reps:' reps',    volume:_u + '·reps' };
-            const _dispVal = (p) => p.type === 'reps' ? p.value : fmtWeightVal(p.value);
+            const units  = { weight:' ' + _u,     reps:' reps',    volume:'' };
+            const _dispVal = (p) => p.type === 'reps' ? p.value
+                : p.type === 'volume' ? (fmtWeightVal(p.w) + ' ' + _u + ' × ' + p.r)
+                : fmtWeightVal(p.value);
 
             const banner = document.createElement('div');
             banner.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:10200;pointer-events:none;animation:prBannerSlide 3.5s ease forwards;';
@@ -15253,8 +15254,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 else if (lp) { if (lp.weight) defW = (typeof fmtWeightVal === 'function') ? fmtWeightVal(lp.weight) : lp.weight; if (lp.reps) defR = lp.reps; }
                 else if (exercise.weight) defW = exercise.weight;
             } catch (e) {}
+            // v1591 : la suggestion de progression (« Essaie 30 lbs ») va DIRECTEMENT dans les
+            // séries de travail (avant : seulement dans un champ caché, la grille gardait 25)
+            let wTravail = defW, rTravail = defR;
+            try {
+                if (!(exercise._chargeAffichee > 0)) {
+                    const sug = getProgressiveSuggestion(exKey);
+                    if (sug && sug.type === 'weight' && sug.suggestedW > 0) wTravail = sug.suggestedW;
+                    else if (sug && sug.type === 'reps' && sug.suggestedReps > 0) rTravail = sug.suggestedReps;
+                }
+            } catch (e) {}
             const total = totalSetsPlanned + warmupSetsCount;
-            for (let i = 0; i < total; i++) _gridVals.push({ w: defW, r: defR });
+            for (let i = 0; i < total; i++) _gridVals.push(i < warmupSetsCount ? { w: defW, r: defR } : { w: wTravail, r: rTravail });
         }
 
         // Bas de la fourchette de répétitions visée (« 6-8 » → 6, « 12 » → 12).
@@ -15853,7 +15864,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const badge = document.getElementById('workoutTypeBadge');
             if (badge && badgeHTML) {
                 badge.innerHTML = badgeHTML;
-                badge.style.background = 'linear-gradient(135deg, ' + (couleur || '#a855f7') + ' 0%, ' + (couleur || '#a855f7') + 'dd 100%)';
+                badge.style.background = 'linear-gradient(135deg, ' + (couleur || '#22d3ee') + ' 0%, ' + (couleur || '#0891b2') + 'dd 100%)';
                 badge.style.display = 'block';
             }
         }
@@ -16151,6 +16162,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const rpeVal = getInlineRPE();
             if (currentEx && currentEx.name) {
                 logSessionSet(currentEx._baseName || currentEx.name, currentSetNumber, reps, weight, isWarmup, rpeVal);
+                if (rpeVal && !isWarmup) _currentInlineRPE = null;   // v1613 : une note = une série
             }
 
             // 👥 SÉANCE À PLUSIEURS : proposer la saisie pour les autres
@@ -16308,7 +16320,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (setRestInterval) clearInterval(setRestInterval);
 
             // Prochain exercice pour le bandeau
-            const nextEx = currentWorkout?.exercises[currentExerciseIndex + 1];
+            let nextEx = currentWorkout?.exercises[currentExerciseIndex + 1];
+            // v1589 : repos de fin de tour d'un superset → le moteur est déjà revenu sur le
+            // 1er exercice du groupe : c'est LUI qui reprend après le repos
+            try {
+                const _cur = currentWorkout?.exercises[currentExerciseIndex];
+                if (_cur && _cur.ss && window.AwakSS && AwakSS.isActive && AwakSS.isActive() && AwakSS.st && AwakSS.st.members[0] === currentExerciseIndex && AwakSS.st.round > 1) nextEx = _cur;
+            } catch (e) {}
             const nextExName = nextEx && !nextEx.isRest ? nextEx.name : null;
 
             // Afficher le bandeau de repos (v1370 : en bas, au-dessus de la séance)
@@ -16439,7 +16457,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (cmp) {
                         if (cmp.dir === 'up')      cmpBadge = `<span style="color:#4ade80;font-size:0.82em;font-weight:900;text-shadow:0 0 6px rgba(74,222,128,0.5);" title="Mieux que ${cmp.prev.weight}${useKg ? 'kg' : 'lbs'} × ${cmp.prev.reps}">▲</span>`;
                         else if (cmp.dir === 'down') cmpBadge = `<span style="color:#f87171;font-size:0.82em;font-weight:900;text-shadow:0 0 6px rgba(248,113,113,0.5);" title="Inférieur à ${cmp.prev.weight}${useKg ? 'kg' : 'lbs'} × ${cmp.prev.reps}">▼</span>`;
-                        else if (cmp.dir === 'same') cmpBadge = `<span style="color:#64748b;font-size:0.75em;font-weight:900;" title="Identique à la dernière fois">═</span>`;
+                        else if (cmp.dir === 'same') cmpBadge = `<span style="color:#8391a7;font-size:0.75em;font-weight:900;" title="Identique à la dernière fois">═</span>`;
                     }
                 }
 
@@ -16824,6 +16842,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             (exercises || []).forEach(e => { if (e && e.name) pris[e._baseName || e.name] = 1; });
             const out = [];
             (exercises || []).forEach(ex => {
+                if (ex && ex._intervalle) { out.push(ex); return; }   // v1594 : rounds de Tabata/HIIT déjà filtrés au tirage
                 let r = awakRaisonRefus(ex);
                 if (r && opts.corps && ['limitations', 'douleurs', 'âge'].indexOf(r) < 0) r = null;
                 if (!r) { out.push(ex); return; }
@@ -17141,7 +17160,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // Une zone cliquable (peut contenir plusieurs formes : gauche + droite)
         function _mmpZone(id, shapes) {
             var s = _mmpSafe(id);
-            return '<g id="mmpZone_' + s + '" class="mmp-zone" data-muscle="' + id + '" '
+            return '<g id="mmpZone_' + s + '" class="mmp-zone" data-muscle="' + id + '" role="button" aria-label="' + String(id).replace(/"/g, '') + '" '
                  + 'onclick="' + (_mmpMode === 'pain' ? 'AwakPainToggleMuscle' : 'toggleManualMuscle') + '(\'' + id.replace(/'/g, "\\'") + '\')" '
                  + 'style="cursor:pointer;fill:rgba(148,163,184,0.16);stroke:rgba(148,163,184,0.38);stroke-width:0.8;transition:fill .18s,stroke .18s;">'
                  + shapes + '</g>';
@@ -17200,7 +17219,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             +   '</svg>'
             +   col(R)
             + '</div>'
-            + '<div style="text-align:center;font-size:0.62em;color:#64748b;font-weight:700;margin:-8px 0 10px;letter-spacing:0.3px;">Glisse sur le personnage pour le tourner</div>'
+            + '<div style="text-align:center;font-size:0.62em;color:#8391a7;font-weight:700;margin:-8px 0 10px;letter-spacing:0.3px;">Glisse sur le personnage pour le tourner</div>'
             // v1396 : pas de « Cardio » dans « Où as-tu mal ? » — ce n'est pas
             // une zone du corps, le bouton n'y faisait rien.
             + (_mmpMode === 'pain' ? '' :
@@ -17251,7 +17270,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             +     '<div style="font-weight:900;color:' + (n ? '#f87171' : '#e2e8f0') + ';font-size:0.95em;margin-bottom:2px;">Où as-tu mal ?</div>'
             +     '<div style="font-size:0.76em;color:#94a3b8;line-height:1.4;">' + sub + '</div>'
             +   '</div>'
-            +   '<div style="color:#64748b;font-size:1.2em;flex-shrink:0;">›</div>'
+            +   '<div style="color:#8391a7;font-size:1.2em;flex-shrink:0;">›</div>'
             + '</div></div>';
         }
         window.awakRenderPainCard = awakRenderPainCard;
@@ -17316,7 +17335,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <button onclick="setManualMusclePreset(['Abdominaux','Cardio'])" style="flex:1;min-width:0;padding:6px 4px;border-radius:99px;border:1px solid #2E2F35;background:#1a1b20;font-size:0.62em;font-weight:800;cursor:pointer;color:#cbd5e1;white-space:nowrap;">🏃 Cardio/Abdos</button>
                     </div>
 
-                    <div id="manualMuscleCount" style="text-align:center;font-size:0.85em;color:#6b7280;margin-bottom:14px;">
+                    <div id="manualMuscleCount" style="text-align:center;font-size:0.85em;color:#8391a7;margin-bottom:14px;">
                         Aucun muscle sélectionné
                     </div>
 
@@ -17415,7 +17434,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (el) {
                 if (n === 0) {
                     el.textContent = 'Aucun muscle sélectionné';
-                    el.style.color = '#6b7280';
+                    el.style.color = '#8391a7';
                 } else if (n >= 6) {
                     el.innerHTML = `<span style="color:#f59e0b;">⚠️ Maximum atteint (6/6)</span> : ${_manualSelectedMuscles.join(', ')}`;
                 } else {
@@ -19235,7 +19254,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <div style="background: rgba(251,191,36,0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #fbbf24;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-weight: 600; color: #92400e; font-size: 0.9em;">📝 Note personnelle</span>
-                        <button onclick="hideExerciseNoteForm()" style="background: none; border: none; cursor: pointer; font-size: 1.2em; color: #64748b;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
+                        <button onclick="hideExerciseNoteForm()" style="background: none; border: none; cursor: pointer; font-size: 1.2em; color: #8391a7;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                     </div>
                     <textarea id="noteTextArea" 
                               placeholder="Ex: Bien sentir dans les pecs, descendre plus bas, ce poids est confortable..." 
@@ -19349,8 +19368,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const reached = i <= res.levelIndex;
                 levelBars += `<div style="flex:1;text-align:center;">
                     <div style="height:8px;border-radius:6px;background:${reached ? levelColors[i] : 'rgba(255,255,255,0.1)'};margin-bottom:5px;${reached ? 'box-shadow:0 0 8px '+levelColors[i]+'66;' : ''}"></div>
-                    <div style="font-size:0.62em;font-weight:700;color:${reached ? levelColors[i] : '#6b7280'};letter-spacing:0.3px;">${levelNames[i].toUpperCase()}</div>
-                    <div style="font-size:0.6em;color:#6b7280;margin-top:2px;">${res.thresholds[i]}${unit}</div>
+                    <div style="font-size:0.62em;font-weight:700;color:${reached ? levelColors[i] : '#8391a7'};letter-spacing:0.3px;">${levelNames[i].toUpperCase()}</div>
+                    <div style="font-size:0.6em;color:#8391a7;margin-top:2px;">${res.thresholds[i]}${unit}</div>
                 </div>`;
             }
 
@@ -19382,7 +19401,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <div style="display:flex;gap:6px;margin-top:18px;">${levelBars}</div>
                     ${nextStep}
                 </div>
-                <div style="font-size:0.68em;color:#6b7280;text-align:center;margin-top:10px;line-height:1.4;">
+                <div style="font-size:0.68em;color:#8391a7;text-align:center;margin-top:10px;line-height:1.4;">
                     Estimations basées sur les standards de force reconnus du domaine. Résultat indicatif, non médical.
                 </div>
             `;
@@ -20358,8 +20377,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                         const sessionIdx = t.weeklyPattern[d];
                                         const has = typeof sessionIdx === 'number';
                                         return `<div style="flex:1;min-width:34px;text-align:center;padding:6px 4px;border-radius:6px;background:${has?'rgba(34,211,238,0.12)':'rgba(255,255,255,0.03)'};border:1px solid ${has?'rgba(34,211,238,0.4)':'rgba(255,255,255,0.05)'};">
-                                            <div style="font-size:0.6em;color:${has?'#67e8f9':'#64748b'};font-weight:800;">${ROUTINE_DAY_LABELS[d]}</div>
-                                            <div style="font-size:0.8em;color:${has?'#f1f5f9':'#475569'};font-weight:900;line-height:1;margin-top:3px;">${has?String.fromCharCode(65 + _idxU[sessionIdx]):'—'}</div>
+                                            <div style="font-size:0.6em;color:${has?'#67e8f9':'#8391a7'};font-weight:800;">${ROUTINE_DAY_LABELS[d]}</div>
+                                            <div style="font-size:0.8em;color:${has?'#f1f5f9':'#7c8aa0'};font-weight:900;line-height:1;margin-top:3px;">${has?String.fromCharCode(65 + _idxU[sessionIdx]):'—'}</div>
                                         </div>`;
                                     }).join('')}
                                 </div>
@@ -20425,7 +20444,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <span style="display:block;font-size:0.76em;color:#a3b1c2;line-height:1.45;">${_awakTplDesc(t)}</span>
                         <span style="display:block;font-size:0.7em;color:#8a99ad;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${seances}</span>
                     </span>
-                    <span style="color:#475569;font-size:1.2em;flex-shrink:0;align-self:center;">›</span>
+                    <span style="color:#7c8aa0;font-size:1.2em;flex-shrink:0;align-self:center;">›</span>
                 </button>`;
             }).join('');
         }
@@ -20527,10 +20546,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             const bgColor = routine ? coul + '14' : 'rgba(255,255,255,0.02)';
                             const nomCourt = routine ? String(routine.name || '').replace(/[<>&"]/g, '') : '';
                             return `<div onclick="${routine ? `startRoutineById('${routineId}')` : `openWeeklyPlanEditor('${d}')`}" style="cursor:pointer;background:${bgColor};border:1.5px solid ${borderColor};border-radius:10px;padding:6px 2px 5px;text-align:center;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;">
-                                <div style="font-size:0.52em;color:${isToday?'#22d3ee':'#64748b'};font-weight:800;letter-spacing:0.3px;">${ROUTINE_DAY_LABELS[d].toUpperCase()}</div>
-                                <div style="font-size:0.82em;font-weight:900;color:${isToday?'#22d3ee':(routine?'#f1f5f9':'#475569')};line-height:1;">${date}</div>
+                                <div style="font-size:0.52em;color:${isToday?'#22d3ee':'#8391a7'};font-weight:800;letter-spacing:0.3px;">${ROUTINE_DAY_LABELS[d].toUpperCase()}</div>
+                                <div style="font-size:0.82em;font-weight:900;color:${isToday?'#22d3ee':(routine?'#f1f5f9':'#7c8aa0')};line-height:1;">${date}</div>
                                 <div style="height:18px;display:flex;align-items:center;justify-content:center;">${routine ? awakRoutineIcon(routine, 16) : '<span style="width:12px;height:1.5px;background:#334155;border-radius:2px;display:block;"></span>'}</div>
-                                <div style="font-size:0.46em;font-weight:700;color:${routine?'#cbd5e1':'#475569'};width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px;box-sizing:border-box;">${routine ? nomCourt : 'Repos'}</div>
+                                <div style="font-size:0.46em;font-weight:700;color:${routine?'#cbd5e1':'#7c8aa0'};width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px;box-sizing:border-box;">${routine ? nomCourt : 'Repos'}</div>
                             </div>`;
                         }).join('')}
                     </div>
@@ -20591,7 +20610,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                         </div>
                                     </div>
                                 ` : `
-                                    <div style="background:rgba(148,163,184,0.06);border:1px dashed rgba(148,163,184,0.25);border-radius:10px;padding:8px 11px;margin-bottom:8px;text-align:center;font-size:0.78em;color:#64748b;font-weight:700;">🛌 Jour de repos</div>
+                                    <div style="background:rgba(148,163,184,0.06);border:1px dashed rgba(148,163,184,0.25);border-radius:10px;padding:8px 11px;margin-bottom:8px;text-align:center;font-size:0.78em;color:#8391a7;font-weight:700;">🛌 Jour de repos</div>
                                 `}
 
                                 <button type="button" class="awk-pl-choisir" onclick="awakPlanChoisirRoutine('${d}')">
@@ -20797,7 +20816,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <div style="flex:1;min-width:0;">
                             <div style="font-weight:800;color:white;font-size:0.92em;line-height:1.3;">${_esc(r.name)}</div>
                             ${r.description ? `<div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">${_esc(r.description)}</div>` : ''}
-                            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:5px;font-size:0.65em;color:#64748b;font-weight:600;">
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:5px;font-size:0.65em;color:#8391a7;font-weight:600;">
                                 <span>${exCount} exo${exCount>1?'s':''}</span>
                                 ${_min ? `<span>· ≈ ${_min} min</span>` : ''}
                                 ${_nbSS ? `<span style="color:#fb923c;">· ${_nbSS} superset${_nbSS>1?'s':''}</span>` : ''}
@@ -20813,7 +20832,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         </div>` : `
                         <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:6px;padding:8px 10px;font-size:0.7em;color:#fca5a5;text-align:center;margin-bottom:9px;">⚠ Aucun exercice — édite ou supprime</div>`}
                     <div style="display:flex;gap:6px;">
-                        <button onclick="startRoutine(${idx})" ${exCount === 0 ? 'disabled' : ''} style="flex:1;padding:10px;border-radius:10px;background:${exCount > 0 ? `linear-gradient(135deg,${color},${color}cc)` : 'rgba(255,255,255,0.05)'};border:none;color:${exCount > 0 ? _txtSur(color) : '#475569'}!important;font-weight:800;font-size:0.82em;cursor:${exCount > 0 ? 'pointer' : 'not-allowed'};letter-spacing:0.5px;${exCount > 0 ? `box-shadow:0 3px 10px ${color}30;` : ''}"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:-1px;margin-right:6px;"><path d="M7 4.5v15l13-7.5z"/></svg>Démarrer</button>
+                        <button onclick="startRoutine(${idx})" ${exCount === 0 ? 'disabled' : ''} style="flex:1;padding:10px;border-radius:10px;background:${exCount > 0 ? `linear-gradient(135deg,${color},${color}cc)` : 'rgba(255,255,255,0.05)'};border:none;color:${exCount > 0 ? _txtSur(color) : '#7c8aa0'}!important;font-weight:800;font-size:0.82em;cursor:${exCount > 0 ? 'pointer' : 'not-allowed'};letter-spacing:0.5px;${exCount > 0 ? `box-shadow:0 3px 10px ${color}30;` : ''}"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:-1px;margin-right:6px;"><path d="M7 4.5v15l13-7.5z"/></svg>Démarrer</button>
                         <button onclick="editRoutine(${idx})" style="padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;font-weight:700;font-size:0.78em;cursor:pointer;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button>
                         <button onclick="awakRoutineActions(${idx})" aria-label="Plus d'actions" title="Imprimer, dupliquer, supprimer" style="padding:10px 13px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;font-weight:900;font-size:0.85em;cursor:pointer;min-height:auto;letter-spacing:1px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="display:block;"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
                     </div>
@@ -21103,7 +21122,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     </div>
                     <div style="padding:10px 16px;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;display:flex;gap:6px;">
                         <button onclick="_addExerciseToEditingRoutine()" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:white;border-radius:10px;padding:11px;font-weight:800;font-size:0.82em;cursor:pointer;">＋ Ajouter exercice</button>
-                        <button onclick="_regenerateRoutineExercises()" ${(!routine.muscles || routine.muscles.length === 0) ? 'disabled' : ''} style="flex:1;background:${(routine.muscles && routine.muscles.length) ? 'rgba(168,85,247,0.15)' : 'rgba(255,255,255,0.03)'};border:1px solid ${(routine.muscles && routine.muscles.length) ? 'rgba(168,85,247,0.3)' : 'rgba(255,255,255,0.05)'};color:${(routine.muscles && routine.muscles.length) ? '#c084fc' : '#475569'};border-radius:10px;padding:11px;font-weight:800;font-size:0.82em;cursor:${(routine.muscles && routine.muscles.length) ? 'pointer' : 'not-allowed'};">🎲 Régénérer</button>
+                        <button onclick="_regenerateRoutineExercises()" ${(!routine.muscles || routine.muscles.length === 0) ? 'disabled' : ''} style="flex:1;background:${(routine.muscles && routine.muscles.length) ? 'rgba(168,85,247,0.15)' : 'rgba(255,255,255,0.03)'};border:1px solid ${(routine.muscles && routine.muscles.length) ? 'rgba(168,85,247,0.3)' : 'rgba(255,255,255,0.05)'};color:${(routine.muscles && routine.muscles.length) ? '#c084fc' : '#7c8aa0'};border-radius:10px;padding:11px;font-weight:800;font-size:0.82em;cursor:${(routine.muscles && routine.muscles.length) ? 'pointer' : 'not-allowed'};">🎲 Régénérer</button>
                     </div>
                 </div>
             `;
@@ -21121,13 +21140,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
             const exs = routine.exercises || [];
             if (exs.length === 0) {
-                return '<div style="text-align:center;padding:30px 18px;color:#475569;font-size:0.82em;font-style:italic;">Aucun exercice. Ajoute-en !</div>';
+                return '<div style="text-align:center;padding:30px 18px;color:#7c8aa0;font-size:0.82em;font-style:italic;">Aucun exercice. Ajoute-en !</div>';
             }
             return exs.map((ex, i) => `
                 <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:10px 12px;margin-bottom:7px;display:flex;align-items:center;gap:9px;">
                     <div style="flex:1;min-width:0;">
                         <div style="font-weight:700;color:white;font-size:0.85em;">${ex.name}</div>
-                        <div style="font-size:0.65em;color:#64748b;margin-top:2px;">${ex.muscle || 'Corps'} · ${ex.sets || 3}×${ex.reps || 10}${ex.mode === 'timer' || ex.mode === 'duration' ? 's' : ''}</div>
+                        <div style="font-size:0.65em;color:#8391a7;margin-top:2px;">${ex.muscle || 'Corps'} · ${ex.sets || 3}×${ex.reps || 10}${ex.mode === 'timer' || ex.mode === 'duration' ? 's' : ''}</div>
                     </div>
                     <button onclick="_removeExerciseFromEditing(${i})" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;border-radius:6px;padding:6px 10px;font-size:0.7em;font-weight:700;cursor:pointer;flex-shrink:0;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                 </div>
@@ -21236,12 +21255,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
 
         function _renderExPickerList(items) {
-            if (!items.length) return '<div style="text-align:center;padding:24px;color:#475569;font-size:0.82em;font-style:italic;">Aucun exercice trouvé</div>';
+            if (!items.length) return '<div style="text-align:center;padding:24px;color:#7c8aa0;font-size:0.82em;font-style:italic;">Aucun exercice trouvé</div>';
             return items.slice(0, 80).map(ex => `
                 <div onclick="_pickExerciseForRoutine('${(ex.name||'').replace(/'/g,'\\\'')}')" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:9px 11px;margin-bottom:5px;cursor:pointer;display:flex;align-items:center;gap:8px;">
                     <div style="flex:1;min-width:0;">
                         <div style="font-weight:700;color:white;font-size:0.82em;">${ex.name}</div>
-                        <div style="font-size:0.62em;color:#64748b;margin-top:1px;">${ex.muscle || 'Corps'} · ${ex.difficulty || ''}</div>
+                        <div style="font-size:0.62em;color:#8391a7;margin-top:1px;">${ex.muscle || 'Corps'} · ${ex.difficulty || ''}</div>
                     </div>
                     <div style="color:#67e8f9;font-size:1em;flex-shrink:0;">＋</div>
                 </div>
@@ -21391,7 +21410,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             cursor:pointer;flex-shrink:0;line-height:1;">×</button>
                     </div>
                     <div style="flex:1;overflow-y:auto;padding:16px 20px 20px;-webkit-overflow-scrolling:touch;">
-                        <div style="font-size:0.6em;letter-spacing:1.5px;color:#64748b;font-weight:900;margin-bottom:7px;">NOM DE LA ROUTINE</div>
+                        <div style="font-size:0.6em;letter-spacing:1.5px;color:#8391a7;font-weight:900;margin-bottom:7px;">NOM DE LA ROUTINE</div>
                         <input type="text" id="awakNewRoutineName" placeholder="Ex. Push lundi, Jambes, Full body…"
                             maxlength="40" autocomplete="off"
                             onkeydown="if(event.key==='Enter'){event.preventDefault();_awakConfirmNewRoutine();}"
@@ -21400,10 +21419,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             font-family:inherit;box-sizing:border-box;">
                         <div id="awakNewRoutineErr" style="display:none;color:#f87171;font-size:0.74em;font-weight:700;margin-top:6px;"></div>
 
-                        <div style="font-size:0.6em;letter-spacing:1.5px;color:#64748b;font-weight:900;margin:16px 0 7px;">ICÔNE</div>
+                        <div style="font-size:0.6em;letter-spacing:1.5px;color:#8391a7;font-weight:900;margin:16px 0 7px;">ICÔNE</div>
                         <div style="display:flex;flex-wrap:wrap;gap:6px;">${emojis}</div>
 
-                        <div style="font-size:0.6em;letter-spacing:1.5px;color:#64748b;font-weight:900;margin:16px 0 7px;">COULEUR</div>
+                        <div style="font-size:0.6em;letter-spacing:1.5px;color:#8391a7;font-weight:900;margin:16px 0 7px;">COULEUR</div>
                         <div style="display:flex;flex-wrap:wrap;gap:9px;">${colors}</div>
 
                         <button onclick="_awakConfirmNewRoutine()"
@@ -21694,7 +21713,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<div id="hofPeople" style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;margin-bottom:12px;"></div>'
                 // Cartes (rendues par awakHallRenderGrid)
                 + '<div id="hofGridWrap"></div>'
-                + '<div style="margin-top:12px;font-size:0.68em;color:#64748b;text-align:center;line-height:1.5;">Le meilleur poids de chaque exercice est en or · touche une personne pour la masquer</div>'
+                + '<div style="margin-top:12px;font-size:0.68em;color:#8391a7;text-align:center;line-height:1.5;">Le meilleur poids de chaque exercice est en or · touche une personne pour la masquer</div>'
                 + '</div>';
             document.body.appendChild(ov);
 
@@ -21721,7 +21740,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const people = document.getElementById('hofPeople');
             if (people) {
                 const chip = (av, label, on, click) => '<button ' + (click ? 'onclick="' + click + '" ' : '') + 'style="flex-shrink:0;display:inline-flex;align-items:center;gap:6px;padding:5px 11px 5px 5px;border-radius:20px;min-height:auto;cursor:pointer;font-size:0.76em;font-weight:800;white-space:nowrap;'
-                    + (on ? 'background:rgba(251,191,36,0.10);border:1px solid rgba(251,191,36,0.35);color:#e2e8f0;' : 'background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);color:#64748b;text-decoration:line-through;') + '">'
+                    + (on ? 'background:rgba(251,191,36,0.10);border:1px solid rgba(251,191,36,0.35);color:#e2e8f0;' : 'background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15);color:#8391a7;text-decoration:line-through;') + '">'
                     + (typeof renderAvatar === 'function' ? renderAvatar(av, 24) : '') + esc(label) + '</button>';
                 people.innerHTML = profiles.map(p => chip(p.avatar || '👤', p.name, hidden.indexOf(p.id) < 0, "awakHallToggleHide('" + p.id + "')")).join('')
                     + columns.filter(c => !c.isProfile).map(c => chip(c.avatar, c.label, true, '')).join('');
@@ -21755,10 +21774,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }
             function fmtVal(v) {
                 const parts = [];
-                if (v.weight) parts.push('<b style="color:#f1f5f9;font-size:1.08em;">' + _hofAff(v.weight) + '</b><span style="color:#64748b;font-size:0.82em;"> ' + unit + '</span>' + (v.weightReps ? '<span style="color:#94a3b8;"> × ' + v.weightReps + '</span>' : ''));
-                else if (v.reps) parts.push('<b style="color:#f1f5f9;font-size:1.08em;">' + v.reps + '</b><span style="color:#64748b;font-size:0.82em;"> reps</span>');
+                if (v.weight) parts.push('<b style="color:#f1f5f9;font-size:1.08em;">' + _hofAff(v.weight) + '</b><span style="color:#8391a7;font-size:0.82em;"> ' + unit + '</span>' + (v.weightReps ? '<span style="color:#94a3b8;"> × ' + v.weightReps + '</span>' : ''));
+                else if (v.reps) parts.push('<b style="color:#f1f5f9;font-size:1.08em;">' + v.reps + '</b><span style="color:#8391a7;font-size:0.82em;"> reps</span>');
                 if (v.time) parts.push('<span style="color:#94a3b8;">' + v.time + ' s</span>');
-                return parts.join(' · ') || '<span style="color:#475569;">—</span>';
+                return parts.join(' · ') || '<span style="color:#7c8aa0;">—</span>';
             }
             const crayon = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
             const couronne = window.AwakIcon ? window.AwakIcon.get('trophee', 14, '#fbbf24') : '';
@@ -21778,13 +21797,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         + (v.isGoal && c.label !== 'Objectif' ? ' <span style="font-size:0.78em;color:#c4b5fd;background:rgba(168,85,247,0.15);border-radius:6px;padding:1px 6px;margin-left:3px;">Objectif</span>' : '') + '</div>'
                         + (top ? '<span style="display:inline-flex;">' + couronne + '</span>' : '')
                         + '<div style="font-size:0.84em;white-space:nowrap;text-align:right;">' + fmtVal(v) + '</div>'
-                        + (click ? '<button onclick="' + click + '" aria-label="Corriger" style="background:transparent;border:1px solid rgba(255,255,255,0.08);color:#64748b;border-radius:8px;width:32px;height:32px;min-height:auto;padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">' + crayon + '</button>' : '')
+                        + (click ? '<button onclick="' + click + '" aria-label="Corriger" style="background:transparent;border:1px solid rgba(255,255,255,0.08);color:#8391a7;border-radius:8px;width:32px;height:32px;min-height:auto;padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">' + crayon + '</button>' : '')
                         + '</div>';
                 }).join('');
                 return '<div style="background:#0d1017;border:1px solid rgba(255,255,255,0.07);border-left:3px solid rgba(251,191,36,0.55);border-radius:12px;padding:10px 12px 5px;margin-bottom:9px;">'
                     + '<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:5px;">'
                     + '<div style="flex:1;min-width:0;font-size:0.88em;font-weight:800;color:#fbbf24;line-height:1.3;">' + esc(g.nom) + '</div>'
-                    + (m ? '<div style="font-size:0.66em;color:#64748b;font-weight:700;white-space:nowrap;">' + esc(m) + '</div>' : '')
+                    + (m ? '<div style="font-size:0.66em;color:#8391a7;font-weight:700;white-space:nowrap;">' + esc(m) + '</div>' : '')
                     + '</div>' + rows + '</div>';
             }).join('');
         }
@@ -22831,7 +22850,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             
             if (measurements.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align:center;padding:22px 16px;color:#64748b;">
+                    <div style="text-align:center;padding:22px 16px;color:#8391a7;">
                         
                         <div style="font-size:0.95em; margin-bottom: 10px;">Aucune mesure enregistrée</div>
                         <div style="font-size:0.72em;">Ajoute tes premières mesures pour suivre ton évolution</div>
@@ -23802,9 +23821,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!suggestion) { banner.style.display = 'none'; return; }
 
             if (suggestion.type === 'weight') {
-                banner.innerHTML = `📈 <strong>Surcharge progressive</strong> — 3 séances à ${suggestion.currentW}${suggestion.unit} (moy. ${suggestion.avgReps} reps). Essaie <strong>${suggestion.suggestedW}${suggestion.unit}</strong> aujourd'hui !`;
+                banner.innerHTML = `<strong>Prêt à monter</strong> — 3 séances à ${suggestion.currentW} ${suggestion.unit} (moy. ${suggestion.avgReps} reps). Essaie <strong>${suggestion.suggestedW} ${suggestion.unit}</strong> aujourd'hui${_gridEnabled() ? ' : c\'est déjà dans tes séries.' : ' !'}`;
             } else {
-                banner.innerHTML = `📈 <strong>Surcharge progressive</strong> — Moy. ${suggestion.avgReps} reps. Vise <strong>${suggestion.suggestedReps} reps</strong> cette série !`;
+                banner.innerHTML = `<strong>Prêt à monter</strong> — Moy. ${suggestion.avgReps} reps. Vise <strong>${suggestion.suggestedReps} reps</strong>${_gridEnabled() ? ' : c\'est déjà dans tes séries.' : ' cette série !'}`;
             }
             banner.style.display = 'block';
 
@@ -24125,11 +24144,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             <style>
                 body { font-family: Arial, sans-serif; padding: 24px; color: #1e293b; }
                 h1 { color: #16a34a; }
-                .meta { color: #64748b; font-size: 0.9em; margin-bottom: 20px; }
+                .meta { color: #8391a7; font-size: 0.9em; margin-bottom: 20px; }
                 .stats { display: flex; gap: 20px; margin-bottom: 24px; }
                 .stat { background: rgba(74,222,128,0.12); border-radius: 10px; padding: 12px 18px; text-align: center; }
                 .stat-val { font-size: 1.6em; font-weight: 900; color: #16a34a; }
-                .stat-lbl { font-size: 0.75em; color: #64748b; }
+                .stat-lbl { font-size: 0.75em; color: #8391a7; }
                 table { width: 100%; border-collapse: collapse; font-size: 0.88em; }
                 th { background: #1d5fa8; color: white; padding: 10px 12px; text-align: left; }
                 td { padding: 9px 12px; border-bottom: 1px solid #e5e7eb; }
@@ -24548,7 +24567,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // ✨ Les muscles PRÊTS pulsent doucement et portent un halo :
                 // ils appellent le regard. Les autres restent mats.
                 const _id = z[1].replace(/'/g, "\\'");
-                svgZones += '<g style="cursor:pointer;fill:' + (mal ? 'url(#corpsMal)' : c) + ';fill-opacity:' + (pret ? '0.55' : (mal ? '0.9' : '0.28'))
+                // v1587 : nom + rôle pour les lecteurs d'écran
+                svgZones += '<g role="button" tabindex="0" aria-label="' + String(z[1]).replace(/"/g, '') + (mal ? ' (douleur)' : (pret ? ' (prêt)' : '')) + '" style="cursor:pointer;fill:' + (mal ? 'url(#corpsMal)' : c) + ';fill-opacity:' + (pret ? '0.55' : (mal ? '0.9' : '0.28'))
                     + ';stroke:' + c + ';stroke-width:' + (pret ? '1.1' : (mal ? '1.4' : '0.8')) + ';stroke-linejoin:round;' + (mal ? 'stroke-dasharray:3 2;' : '') + '" '
                     + (pret ? 'filter="url(#corpsGlow)" ' : '')
                     + 'onclick="awakCorpsToucher(\'' + _id + '\',\'' + z[0].replace(/'/g, "\\'") + '\')">'
@@ -24588,7 +24608,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                           })() + '</span>'
                       +   '<span style="flex:1;min-width:0;font-size:0.74em;font-weight:800;color:#e2e8f0;'
                       +     'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (_loc.name || 'Lieu') + '</span>'
-                      +   '<span style="color:#64748b;flex-shrink:0;">›</span>'
+                      +   '<span style="color:#8391a7;flex-shrink:0;">›</span>'
                       + '</button>'
                       + '<button onclick="showAddLocationModal(\'' + String(_loc.id).replace(/'/g, "\\'") + '\')" '
                       +   'style="flex-shrink:0;padding:9px 11px;border-radius:12px;cursor:pointer;'
@@ -24615,7 +24635,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1585);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1616);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24668,7 +24688,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1585" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1616" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -24709,7 +24729,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // v1219 : « DOS » seul ne disait pas que le bouton retourne le personnage
                 +       '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 0 1-14.3 4.9M4 12A8 8 0 0 1 18.3 7.1"/><path d="M18.5 3v4.3h-4.3M5.5 21v-4.3h4.3"/></svg>'
                 +       (estFace ? 'Voir le dos' : 'Voir de face') + '</button>'
-                +     '<div style="flex:1;font-size:0.6em;color:#64748b;line-height:1.3;">'
+                +     '<div style="flex:1;font-size:0.6em;color:#8391a7;line-height:1.3;">'
                 +       'Touche un muscle vert pour l\'entraîner · glisse pour le tourner</div>'
                 +   '</div>'
                 // ⚡ ACTION PRINCIPALE dans la carte : le geste le plus courant
@@ -24741,7 +24761,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       'Le Système choisit pour toi</span>'
                 +   '</button>'
                 // v1544 : lancement direct (comme l'Accueil) ; le choix des muscles et de la durée reste ici
-                +   '<button onclick="startRandomWorkout()" style="display:block;margin:8px auto 0;min-height:auto;padding:4px 8px;background:none;border:none;cursor:pointer;font-family:inherit;font-size:0.76em;color:#cbd5e1;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(203,213,225,0.35);">Choisir mes muscles ou la durée</button>'
+                // v1595 : vrais boutons secondaires (avant : une ligne soulignée qu'on ne voyait pas).
+                // « Mes muscles » → silhouette puis mode et durée ; « Durée » → le Système choisit
+                // les muscles, tu choisis le mode et la durée. Enfant : le Système choisit tout.
+                +   ((window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) ? '' :
+                    '<div style="display:flex;gap:8px;margin-top:9px;">'
+                +     '<button onclick="showManualMusclePickerModal()" style="flex:1.5;min-width:0;display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 12px;border-radius:13px;cursor:pointer;font-family:inherit;'
+                +       'background:rgba(34,211,238,0.08);border:1.5px solid rgba(34,211,238,0.55);color:#a5f3fc;font-weight:800;font-size:0.84em;">'
+                +       (window.AwakIcon ? AwakIcon.get('muscle', 17, '#67e8f9') : '') + '<span>Choisir mes muscles</span></button>'
+                +     '<button onclick="onMuscleChoiceAI()" style="flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:10px 12px;border-radius:13px;cursor:pointer;font-family:inherit;'
+                +       'background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.14);color:#e2e8f0;font-weight:800;font-size:0.84em;">'
+                +       (window.AwakIcon ? AwakIcon.get('chrono', 16, '#cbd5e1') : '') + '<span>Durée</span></button>'
+                +   '</div>')
                 // v1319 : « Ou : planifier ma semaine » retiré (doublon) : la semaine se
                 // planifie depuis l'Agenda, ou l'accueil › « Ou choisir une autre activité ».
                 + '</div>';
@@ -24818,10 +24849,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // ⚠️ selectedMuscles est un tableau partagé : on le VIDE puis on
                 // le remplit (comme ligne 5176), au lieu de le réassigner —
                 // une réassignation casserait les références détenues ailleurs.
-                if (typeof selectedMuscles !== 'undefined' && Array.isArray(selectedMuscles)) {
-                    selectedMuscles.length = 0;
-                    selectedMuscles.push(muscle);
-                }
+                // v1610 : séance ciblée sur CE muscle, directement (mode + durée).
+                // Avant : la sélection globale était écrasée pour de bon, puis « Qui décide
+                // des muscles ? » s'ouvrait — et « Laisser le Système choisir » ignorait le muscle.
+                window._overrideSessionMuscles = [muscle];
+                window._awakChoixManuel = true;
+                const _t = document.getElementById('awakCorpsTag'); if (_t) _t.remove();
+                if (typeof openWorkoutModeModal === 'function') { openWorkoutModeModal(); return; }
                 if (typeof startRandomWorkout === 'function') { startRandomWorkout(); return; }
                 if (typeof showToast === 'function') showToast('Muscle ciblé : ' + muscle, 'info');
             } catch (e) {}
@@ -25569,7 +25603,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               +   '<div style="height:8px;background:rgba(0,0,0,0.5);border-radius:99px;overflow:hidden;margin-bottom:6px;">'
               +     '<div style="height:100%;width:' + Math.round((sb / Math.max(1, total)) * 100) + '%;'
               +       'background:linear-gradient(90deg,#7f1d1d,#ef4444);border-radius:99px;"></div></div>'
-              +   '<div style="font-size:0.62em;color:#64748b;font-weight:800;letter-spacing:1px;margin-bottom:18px;">'
+              +   '<div style="font-size:0.62em;color:#8391a7;font-weight:800;letter-spacing:1px;margin-bottom:18px;">'
               +     sb + ' / ' + total + ' GARDIENS VAINCUS</div>'
               +   '<button onclick="document.getElementById(\'awakMonarqueModal\').remove()" '
               +     'style="width:100%;padding:13px;border-radius:13px;cursor:pointer;'
@@ -25619,10 +25653,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               +     '· Vaincu, chacun reçoit une récompense selon sa part.'
               +   '</div>'
               +   (b.participants > 0
-                    ? '<div style="font-size:0.68em;color:#64748b;margin-bottom:14px;">'
+                    ? '<div style="font-size:0.68em;color:#8391a7;margin-bottom:14px;">'
                       + b.participants + ' membre' + (b.participants > 1 ? 's ont' : ' a')
                       + ' déjà frappé</div>'
-                    : '<div style="font-size:0.68em;color:#64748b;margin-bottom:14px;">'
+                    : '<div style="font-size:0.68em;color:#8391a7;margin-bottom:14px;">'
                       + 'Personne n\'a encore frappé. Lance une séance.</div>')
               +   '<button onclick="document.getElementById(\'awakFamBossPin\').remove();switchTab(\'family\');" '
               +     'style="width:100%;padding:13px;border-radius:13px;border:none;cursor:pointer;'
@@ -25705,7 +25739,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // ✦ ÉCLAT à 4 branches — écho au ◈ des titres, lisible même
                 // en petit. Deux losanges croisés : l'axe vertical domine,
                 // l'horizontal en retrait donne du relief.
-                marques += '<g style="cursor:pointer;" onclick="awakOpenRiftBriefing(\'' + _rid + '\')">'
+                marques += '<g role="button" aria-label="Faille ' + String(r.name || r.titre || (i + 1)).replace(/["<>]/g, '') + '" style="cursor:pointer;" onclick="awakOpenRiftBriefing(\'' + _rid + '\')">'
                     // zone de clic généreuse : viser au doigt demande une cible large
                     + '<circle cx="' + f(X) + '" cy="' + f(Y) + '" r="26" fill="transparent"/>'
                     + '<circle cx="' + f(X) + '" cy="' + f(Y) + '" r="16" fill="' + c + '" fill-opacity="0.10"/>'
@@ -25945,18 +25979,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             +     'display:flex;align-items:baseline;justify-content:space-between;pointer-events:none;">'
             +     '<div style="font-size:0.56em;letter-spacing:2.5px;color:' + rangCol + ';font-weight:900;">'
             +       '◈ CARTE DE L\'EFFACEMENT</div>'
-            +     '<div style="font-size:0.52em;letter-spacing:1.5px;color:#64748b;font-weight:800;">'
+            +     '<div style="font-size:0.52em;letter-spacing:1.5px;color:#8391a7;font-weight:800;">'
             +       'RANG ' + _rangId + '</div>'
             +   '</div>'
             +   '<div style="position:absolute;bottom:0;left:0;right:0;padding:20px 13px 10px;'
             +     'background:linear-gradient(0deg,rgba(8,9,12,0.85),rgba(8,9,12,0));'
             +     'font-size:0.6em;color:#94a3b8;pointer-events:none;">'
             +     (rifts.length
-                    ? ('<span style="color:#c084fc;font-weight:800;">' + rifts.length + ' brèche'
+                    ? ('<span style="color:#67e8f9;font-weight:800;">' + rifts.length + ' brèche'
                        + (rifts.length > 1 ? 's ouvertes' : ' ouverte') + '</span>'
-                       + '<span style="color:#475569;"> — touche pour entrer</span>')
+                       + '<span style="color:#7c8aa0;"> — touche pour entrer</span>')
                     : '<span style="color:#cbd5e1;">Aucune brèche. ' + (typeof awakProchaineFaille === 'function' ? awakProchaineFaille() : 'La ville respire.') + '</span>')
-            +     (comps.length ? ('<span style="color:#334155;"> · </span><span style="color:#4ade80;">'
+            +     (comps.length ? ('<span style="color:#334155;"> · </span><span style="color:#93c5fd;">'
                     + comps.length + ' ancrage' + (comps.length > 1 ? 's' : '') + '</span>') : '')
             +     '</div>'
 
@@ -26250,7 +26284,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     + 'color:' + (actif ? '#fff' : '#94a3b8') + ';">' + o.t + '</button>';
             }).join('');
             return '<div style="margin-bottom:9px;">'
-                + '<div style="font-size:0.52em;letter-spacing:1.5px;color:#64748b;font-weight:900;margin-bottom:5px;">'
+                + '<div style="font-size:0.52em;letter-spacing:1.5px;color:#8391a7;font-weight:900;margin-bottom:5px;">'
                 +   label + '</div>'
                 + '<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:3px;-webkit-overflow-scrolling:touch;">'
                 +   pastilles + '</div></div>';
@@ -26280,7 +26314,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + chips
                 + '<button onclick="awakResetFilters()" style="flex-shrink:0;padding:5px 10px;border-radius:99px;'
                 +   'cursor:pointer;font-size:0.64em;font-weight:800;background:transparent;'
-                +   'border:1px solid rgba(255,255,255,0.10);color:#64748b;">Tout effacer</button>'
+                +   'border:1px solid rgba(255,255,255,0.10);color:#8391a7;">Tout effacer</button>'
                 + '</div>';
         }
 
@@ -26700,7 +26734,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               +     'tout au poids du corps, sans machine, haltères uniquement… — '
               +     'modifie le matériel de ton lieu : <strong style="color:#94a3b8;">'
               +     'onglet Entraîner › 📍 Lieu d\'entraînement › Gérer</strong>.</div>'
-              +   (blocs.length ? blocs.join('') : '<div style="font-size:0.74em;color:#64748b;">'
+              +   (blocs.length ? blocs.join('') : '<div style="font-size:0.74em;color:#8391a7;">'
               +     'Rien de particulier à signaler.</div>')
               +   '<button onclick="document.getElementById(\'awakPrepInfoModal\').remove()" '
               +     'style="width:100%;padding:12px;margin-top:14px;border-radius:13px;'
@@ -26982,10 +27016,21 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const duration = typeof ex.duration === 'number' ? ex.duration : 60;
                 return sum + duration;
             }, 0);
-            const totalMinutes = Math.ceil(totalSeconds / 60);
+            let totalMinutes = Math.ceil(totalSeconds / 60);
+            // v1615 : durée réelle (séries, répétitions, repos) — avant : somme des durées d'UN passage (17 min pour 30)
+            try { if (typeof awakEstimerSeance === 'function') totalMinutes = Math.max(1, Math.round(awakEstimerSeance(currentWorkout) / 60)); } catch (e) {}
             document.getElementById('totalDuration').textContent = totalMinutes;
             
             currentWorkout.exercises.forEach((exercise, index) => {
+                // v1615 : les intertitres (« Phase 2 : Mobilité articulaire ») ne sont pas des exercices
+                if (exercise.isInfo) {
+                    const h = document.createElement('div');
+                    h.id = `progress-head-${index}`;   // pas « progress-item » : updateExerciseProgressList y cherche une case à cocher
+                    h.style.cssText = 'margin:10px 2px 5px;font-size:0.62em;font-weight:900;letter-spacing:1.4px;color:#67e8f9;text-transform:uppercase;';
+                    h.textContent = String(exercise.name || '').replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').trim();
+                    container.appendChild(h);
+                    return;
+                }
                 const item = document.createElement('div');
                 item.className = 'progress-item';
                 item.id = `progress-item-${index}`;
@@ -27010,7 +27055,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     border = 'rgba(255,255,255,0.07)';
                     iconColor = '#64748b';
                     iconBg = 'rgba(255,255,255,0.05)';
-                    textColor = '#64748b';
+                    textColor = '#8391a7';
                     glow = '';
                 } else if (isCurrent) {
                     bg = 'linear-gradient(90deg,rgba(96,168,240,0.16),rgba(96,168,240,0.04))';
@@ -27032,7 +27077,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
                 const minutes = Math.floor(exercise.duration / 60);
                 const seconds = exercise.duration % 60;
-                const durationText = minutes > 0 ? `${minutes}:${String(seconds).padStart(2, '0')}` : `${seconds}s`;
+                let durationText = minutes > 0 ? `${minutes}:${String(seconds).padStart(2, '0')}` : `${seconds}s`;
+                // v1615 : un exercice en répétitions affiche ses séries (avant : « 1:00 » pour 3 × 8-12)
+                const _nS = parseInt(exercise.sets, 10) || 0;
+                if (!exercise.isRest && exercise.mode === 'reps' && _nS) durationText = _nS + ' × ' + (exercise.recoReps || exercise.reps || 10) + ' reps';
+                else if (!exercise.isRest && _nS > 1) durationText = _nS + ' × ' + durationText;
 
                 // Find exercise type from database to add badge
                 const exerciseFromDB = exerciseDatabase.find(ex => ex.name === exercise.name);
@@ -27043,7 +27092,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (exerciseFromDB.type === 'warmup') {
                         typeBadge = `<span style="display:inline-block;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;padding:1px 5px;border-radius:6px;font-size:0.55em;font-weight:900;letter-spacing:1px;margin-right:5px;text-transform:uppercase;">🏃 ÉCHAUF.</span>`;
                     } else if (exerciseFromDB.type === 'stretch') {
-                        typeBadge = `<span style="display:inline-block;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.4);color:#c4b5fd;padding:1px 5px;border-radius:6px;font-size:0.55em;font-weight:900;letter-spacing:1px;margin-right:5px;text-transform:uppercase;">🧘 ÉTIR.</span>`;
+                        typeBadge = `<span style="display:inline-block;background:rgba(96,168,240,0.15);border:1px solid rgba(96,168,240,0.4);color:#93c5fd;padding:1px 5px;border-radius:6px;font-size:0.55em;font-weight:900;letter-spacing:1px;margin-right:5px;text-transform:uppercase;">🧘 ÉTIR.</span>`;
                     }
                 }
 
@@ -27055,8 +27104,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         ${checkIcon}
                     </div>
                     <div class="progress-item-content" style="flex:1;min-width:0;">
-                        <div class="progress-item-name" style="font-size:0.85em;font-weight:${isCurrent ? '900' : '700'};color:${textColor};line-height:1.3;letter-spacing:${isCurrent ? '0.3px' : '0'};${isCurrent ? 'text-transform:uppercase;text-shadow:0 0 6px rgba(74,222,128,0.3);' : ''}">${typeBadge}${exerciseNameHTML}</div>
-                        <div class="progress-item-duration" style="font-size:0.62em;color:${isCompleted ? 'rgba(74,222,128,0.5)' : isCurrent ? '#4ade80' : '#64748b'};font-weight:700;margin-top:2px;letter-spacing:0.5px;font-variant-numeric:tabular-nums;">⏱ ${durationText}</div>
+                        <div class="progress-item-name" style="font-size:0.85em;font-weight:${isCurrent ? '900' : '700'};color:${textColor};line-height:1.3;letter-spacing:${isCurrent ? '0.3px' : '0'};${isCurrent ? 'text-transform:uppercase;text-shadow:0 0 6px rgba(34,211,238,0.3);' : ''}">${typeBadge}${exerciseNameHTML}</div>
+                        <div class="progress-item-duration" style="font-size:0.62em;color:${isCompleted ? '#64748b' : isCurrent ? '#67e8f9' : '#8391a7'};font-weight:700;margin-top:2px;letter-spacing:0.5px;font-variant-numeric:tabular-nums;">⏱ ${durationText}</div>
                     </div>
                 `;
 
@@ -27099,6 +27148,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 
                 // Update checkbox
                 const checkbox = item.querySelector('.progress-checkbox');
+                if (!checkbox) return;
                 if (index < currentExerciseIndex) {
                     checkbox.textContent = '✓';
                 } else if (index === currentExerciseIndex) {
@@ -27132,6 +27182,72 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             el.textContent = hh > 0
                 ? `${hh}:${pad(mm)}:${pad(ss)}`
                 : `${pad(mm)}:${pad(ss)}`;
+        }
+        // v1598 : libellé de tour (superset / circuit) et chrono global de l'AMRAP
+        function _awakAmrapLibelle() {
+            const w = currentWorkout; if (!w) return '';
+            const r = Math.max(0, w._amrapReste == null ? (w._amrapSec || 0) : w._amrapReste);
+            const t = String(Math.floor(r / 60)).padStart(2, '0') + ':' + String(r % 60).padStart(2, '0');
+            return 'AMRAP · Tour ' + ((w._amrapTours || 0) + 1) + ' · ' + t + ' restant';
+        }
+        function _awakLibelleTour(ex) {
+            const w = currentWorkout;
+            if (!w || !ex) return '';
+            if (w.type === 'amrap' && w._amrapSec) return _awakAmrapLibelle();
+            if (!(w._nbTours > 1) || !ex._tour) return '';
+            if (ex.isRest) return 'Repos · prochain tour : ' + ex._tour + ' sur ' + w._nbTours;
+            return 'Tour ' + ex._tour + ' sur ' + w._nbTours + ' · '
+                + (ex._lettre ? 'Exercice ' + ex._lettre : 'Exercice ' + ex._pos + ' sur ' + ex._nbPos);
+        }
+        function _awakAmrapAssurer() {
+            const w = currentWorkout;
+            if (!w || w.type !== 'amrap' || !w._amrapSec || w._amrapFini) return;
+            if (w._amrapReste == null) w._amrapReste = w._amrapSec;
+            if (amrapTimerInterval) return;
+            amrapTimerInterval = setInterval(() => {
+                const cw = currentWorkout;
+                if (!cw || cw !== w || cw._amrapFini) { clearInterval(amrapTimerInterval); amrapTimerInterval = null; return; }
+                if (isPaused) return;
+                cw._amrapReste--;
+                const en = document.getElementById('exerciseNumber');
+                if (en) en.textContent = _awakAmrapLibelle();
+                const cur = cw.exercises[currentExerciseIndex];
+                if (cw._amrapReste >= 1 && cw._amrapReste <= 5 && !(cur && cur.mode === 'timer')) {
+                    try { awakDireDecompte(cw._amrapReste); } catch (e) {}
+                }
+                if (cw._amrapReste <= 0) _awakAmrapFin();
+            }, 1000);
+        }
+        // « Terminer l'AMRAP » dans le menu ⋯ : enregistre les tours faits sans attendre la fin du temps
+        function _awakAmrapBouton(voir) {
+            const panel = document.getElementById('workoutOptionsPanel');
+            let b = document.getElementById('awakMenuAmrapFin');
+            if (!voir) { if (b) b.style.display = 'none'; return; }
+            if (!panel) return;
+            if (!b) {
+                b = document.createElement('button');
+                b.id = 'awakMenuAmrapFin';
+                b.type = 'button';
+                b.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7"/></svg><span>Terminer l\'AMRAP</span>';
+                b.onclick = function () { panel.style.display = 'none'; _awakAmrapFin(); };
+                const q = document.getElementById('awakMenuQuitter');
+                if (q) panel.insertBefore(b, q); else panel.appendChild(b);
+            }
+            b.style.display = '';
+        }
+        function _awakAmrapFin() {
+            const w = currentWorkout;
+            if (!w || w._amrapFini) return;
+            w._amrapFini = true;
+            _awakAmrapBouton(false);
+            if (amrapTimerInterval) { clearInterval(amrapTimerInterval); amrapTimerInterval = null; }
+            clearInterval(timerInterval);
+            try { if (setRestInterval) { clearInterval(setRestInterval); setRestInterval = null; } hideGlobalRestBanner(); hideRestOverlay(); } catch (e) {}
+            const tours = w._amrapTours || 0, extra = currentExerciseIndex;
+            w.name = (w._amrapNom || w.name) + ' · ' + tours + ' tour' + (tours > 1 ? 's' : '') + (extra ? ' + ' + extra : '');
+            try { speak('Temps écoulé ! ' + tours + ' tour' + (tours > 1 ? 's' : ''), { interrupt: true }); } catch (e) {}
+            currentExerciseIndex = w.exercises.length;
+            startExercise();   // → écran de fin (completeWorkout)
         }
         function startSessionTimer() {
             stopSessionTimer();
@@ -27229,6 +27345,17 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (typeof startSessionTimer === 'function' && workoutStartTime) {
                 if (!_sessionTimerInterval) startSessionTimer();
             }
+            try { if (window.AwakDuo) AwakDuo.monter(); } catch (e) {}   // v1601 : onglets du duo
+            // v1598 : AMRAP — fin de la liste avant la fin du temps = tour suivant
+            if (currentWorkout && currentWorkout.type === 'amrap' && currentWorkout._amrapSec) {
+                if (!currentWorkout._amrapFini && currentExerciseIndex >= currentWorkout.exercises.length) {
+                    currentWorkout._amrapTours = (currentWorkout._amrapTours || 0) + 1;
+                    currentExerciseIndex = 0;
+                    try { showToast('Tour ' + currentWorkout._amrapTours + ' terminé', 'success', 1600); } catch (e) {}
+                }
+                _awakAmrapAssurer();
+                _awakAmrapBouton(!currentWorkout._amrapFini);
+            } else _awakAmrapBouton(false);
             if (currentExerciseIndex >= currentWorkout.exercises.length) {
                 // 🌀 RIFT/HUNT : ne PAS appeler completeWorkout (qui affiche l'écran de fin de séance)
                 // À la place, forcer l'exit propre et retourner au modal combat
@@ -27247,6 +27374,18 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     }, 300);
                     return;
                 }
+                // v1601 : DUO — le partenaire n'a pas fini sa séance → proposer de la continuer ici
+                if (!window._awakDuoFinOk && window.AwakDuo) {
+                    try {
+                        if (AwakDuo.retenirFin(function () {
+                            if (!currentWorkout) return;
+                            window._awakDuoFinOk = true;
+                            currentExerciseIndex = currentWorkout.exercises.length;
+                            startExercise();
+                        })) return;
+                    } catch (e) {}
+                }
+                window._awakDuoFinOk = false;
                 completeWorkout();
                 return;
             }
@@ -27373,9 +27512,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try { _awakTimerChip(exercise); } catch (e) {}
 
             const _prog = getExerciseProgress();
-            document.getElementById('exerciseNumber').textContent = (exercise && (exercise.isRest || exercise.isInfo))
+            document.getElementById('exerciseNumber').textContent = _awakLibelleTour(exercise) || ((exercise && (exercise.isRest || exercise.isInfo))
                 ? `Repos · ${_prog.current}/${_prog.total} exercices`
-                : `Exercice ${_prog.current} sur ${_prog.total}`;
+                : `Exercice ${_prog.current} sur ${_prog.total}`);
             try { updateLiveVolumeChip(); } catch (e) {}   // v1223 : la barre du haut suit chaque exercice
             
             // Safety check for exercise name
@@ -27391,9 +27530,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const _typeAff = (exerciseFromDB && (exercise.type || exerciseFromDB.type)) || '';
             if (exerciseFromDB) {
                 if (_typeAff === 'warmup') {
-                    exerciseNameHTML = `<span style="display:inline-block;background:#fbbf24;color:#0d0d0d;padding:2px 8px;border-radius:20px;font-size:0.52em;margin-right:7px;font-weight:900;letter-spacing:0.5px;vertical-align:middle;">🏃‍♂️ ÉCHAUFFEMENT</span>${exercise.name}`;
+                    exerciseNameHTML = `<span style="display:inline-block;background:#fbbf24;color:#0d0d0d;padding:2px 8px;border-radius:20px;font-size:0.52em;margin-right:7px;font-weight:900;letter-spacing:0.5px;vertical-align:middle;">🏃‍♂️ ÉCHAUFFEMENT</span>${String(exercise.name).replace(/\s*\((é|e)chauffement\)\s*$/i, '').replace(/\s+d['’](é|e)chauffement\s*$/i, '')}`;   // v1611 : pas « échauffement » deux fois
                 } else if (_typeAff === 'stretch') {
-                    exerciseNameHTML = `<span style="display:inline-block;background:#3b82f6;color:#0d0d0d;padding:2px 8px;border-radius:20px;font-size:0.52em;margin-right:7px;font-weight:900;letter-spacing:0.5px;vertical-align:middle;">ÉTIREMENT</span>${exercise.name}`;
+                    exerciseNameHTML = `<span style="display:inline-block;background:#3b82f6;color:#0d0d0d;padding:2px 8px;border-radius:20px;font-size:0.52em;margin-right:7px;font-weight:900;letter-spacing:0.5px;vertical-align:middle;">ÉTIREMENT</span>${String(exercise.name).replace(/\s*\((é|e)tirement\)\s*$/i, '')}`;
                 }
             }
             
@@ -27627,9 +27766,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         const icon = equipIcons[eq] || '🏋️';
                         return `<span style="
                             display:inline-flex;align-items:center;gap:4px;
-                            background:rgba(168,85,247,0.1);
-                            border:1px solid rgba(168,85,247,0.3);
-                            color:#c084fc;
+                            background:rgba(34,211,238,0.08);
+                            border:1px solid rgba(34,211,238,0.3);
+                            color:#67e8f9;
                             padding:3px 8px;
                             border-radius:6px;
                             font-size:0.55em;
@@ -27784,6 +27923,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             let nextExerciseIndex = currentExerciseIndex + 1;
             let nextExercise = null;
             
+            // v1589 : en superset, le suivant est le membre suivant du tour (ou le 1er
+            // exercice du groupe tant qu'il reste des tours), pas l'exercice d'après
+            try { const _ssk = window.AwakSS && AwakSS.prochain ? AwakSS.prochain(currentWorkout, currentExerciseIndex) : -1; if (_ssk >= 0) { nextExercise = currentWorkout.exercises[_ssk]; nextExerciseIndex = currentWorkout.exercises.length; } } catch (e) {}
             while (nextExerciseIndex < currentWorkout.exercises.length) {
                 const candidate = currentWorkout.exercises[nextExerciseIndex];
                 if (!candidate.isRest && !candidate.isInfo) {
@@ -28291,9 +28433,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         // 🧘 Yoga = mode calme : pas de bips/vibrations/décompte agressifs
                         const _calmYoga = currentWorkout && currentWorkout._discipline === 'yoga';
                         if (!_calmYoga) {
-                            playBeep();
+                            { const _exB = currentWorkout && currentWorkout.exercises[currentExerciseIndex]; if (!awakVoixDecompteOn() || isMuted || (_exB && _exB.isRest)) playBeep(); }   // v1593 : la voix remplace le bip (bips en récupération)
                             vibrate(50); // Vibration légère countdown
-                            speakCountdown(timeRemaining); // Voice countdown
+                            { const _exV = currentWorkout && currentWorkout.exercises[currentExerciseIndex]; if (!(_exV && _exV.isRest)) awakDireDecompte(timeRemaining); }   // v1593 : à l'exercice seulement (pas en récupération)
                             // Add visual warning
                             const timerDisplay = document.getElementById('timerDisplay');
                             timerDisplay.classList.add('timer-countdown-warning');
@@ -28582,6 +28724,24 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         function toggleWeightUnit() {
             useKg = !useKg;
             localStorage.setItem('fitproUseKg', useKg);
+            // v1613 : en pleine séance, les séries déjà notées sont dans l'ANCIENNE unité.
+            // Sans conversion, le volume de fin (calculé avec la nouvelle unité) était faux
+            // (100 lb devenaient 100 kg).
+            try {
+                const f = useKg ? (1 / 2.20462) : 2.20462;
+                let conv = false;
+                Object.values(_currentSessionSets || {}).forEach(l => (l || []).forEach(x => {
+                    const w = parseFloat(x.weight);
+                    if (w > 0) { x.weight = Math.round(w * f * 100) / 100; conv = true; }
+                }));
+                if (conv) { try { localStorage.setItem('fitproSessionSets', JSON.stringify(_currentSessionSets)); } catch (e) {} }
+                document.querySelectorAll('#setsGridPanel input.awak-grid-num').forEach(inp => {
+                    if (!/'w'/.test(inp.getAttribute('oninput') || '')) return;   // colonne poids de la grille
+                    inp.placeholder = useKg ? 'kg' : 'lb';
+                    const v = parseFloat(String(inp.value).replace(',', '.'));
+                    if (v > 0) { inp.value = Math.round(v * f * 2) / 2; inp.dispatchEvent(new Event('input', { bubbles: true })); }
+                });
+            } catch (e) {}
             updateWeightUnitLabels();
             showToast(useKg ? '⚖️ Unité : kilogrammes (kg)' : '⚖️ Unité : livres (lbs)', 'info', 2000);
         }
@@ -28621,7 +28781,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     </button>`;
                 }).join('');
                 return `<div style="margin-bottom:14px;">
-                    <div style="font-size:0.7em;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">${cat.label}</div>
+                    <div style="font-size:0.7em;font-weight:800;color:#8391a7;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">${cat.label}</div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">${btns}</div>
                 </div>`;
             }).join('');
@@ -28641,14 +28801,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             overlay.innerHTML = `<div style="background:linear-gradient(160deg,#171922,#0d0d12);border:1px solid rgba(255,255,255,0.10);border-radius:20px 20px 0 0;padding:20px 16px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.6);">
                 <div style="width:40px;height:4px;background:rgba(255,255,255,0.12);border-radius:99px;margin:0 auto 14px;"></div>
                 <h3 style="margin:0 0 4px;color:#f1f5f9;">Salle bondée</h3>
-                <p style="margin:0 0 14px;font-size:0.82em;color:#6b7280;">Coche les équipements <strong>disponibles maintenant</strong> — décoche ce qui est occupé.</p>
+                <p style="margin:0 0 14px;font-size:0.82em;color:#8391a7;">Coche les équipements <strong>disponibles maintenant</strong> — décoche ce qui est occupé.</p>
 
                 <div style="margin-bottom:14px;">
-                    <div style="font-size:0.7em;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">🔧 Machines & Câbles</div>
+                    <div style="font-size:0.7em;font-weight:800;color:#8391a7;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">🔧 Machines & Câbles</div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;" id="busyMachineGrid">${machineGrid}</div>
                     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">
                         <button onclick="selectAllBusyMachines(true)" style="padding:6px;border:1px solid #16a34a;border-radius:10px;background:rgba(34,211,238,0.12);color:#16a34a;font-size:0.75em;font-weight:700;cursor:pointer;">✓ Tout cocher</button>
-                        <button onclick="selectAllBusyMachines(false)" style="padding:6px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;background:rgba(255,255,255,0.03);color:#6b7280;font-size:0.75em;font-weight:700;cursor:pointer;">✗ Tout décocher</button>
+                        <button onclick="selectAllBusyMachines(false)" style="padding:6px;border:1px solid rgba(255,255,255,0.12);border-radius:10px;background:rgba(255,255,255,0.03);color:#8391a7;font-size:0.75em;font-weight:700;cursor:pointer;">✗ Tout décocher</button>
                     </div>
                 </div>
 
@@ -28773,11 +28933,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               +     'background:rgba(255,255,255,0.04);border:1px solid rgba(148,163,184,0.20);">'
               +     '<span style="flex-shrink:0;display:flex;">' + awakLieuIcone(loc.icon, 22) + '</span>'
               +     '<span style="flex:1;min-width:0;">'
-              +       '<span style="display:block;font-size:0.52em;letter-spacing:1.5px;color:#64748b;font-weight:900;">LIEU</span>'
+              +       '<span style="display:block;font-size:0.52em;letter-spacing:1.5px;color:#8391a7;font-weight:900;">LIEU</span>'
               +       '<span style="display:block;font-size:0.82em;font-weight:800;color:#e2e8f0;'
               +         'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (loc.name || 'Lieu') + '</span>'
               +     '</span>'
-              +     '<span style="color:#64748b;font-size:0.95em;flex-shrink:0;">›</span>'
+              +     '<span style="color:#8391a7;font-size:0.95em;flex-shrink:0;">›</span>'
               +   '</button>'
               +   '<button onclick="showAddLocationModal(\'' + String(loc.id).replace(/'/g, "\\'") + '\')" '
               +     'style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;'
@@ -28834,7 +28994,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               +   'border:1px solid rgba(148,163,184,0.22);border-radius:20px;padding:18px;">'
               +   '<div style="width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 16px;"></div>'
               +   '<div style="font-size:0.56em;letter-spacing:2.5px;color:#94a3b8;font-weight:900;margin-bottom:4px;">◈ OÙ T\'ENTRAÎNES-TU ?</div>'
-              +   '<div style="font-size:0.72em;color:#64748b;margin-bottom:14px;line-height:1.45;">'
+              +   '<div style="font-size:0.72em;color:#8391a7;margin-bottom:14px;line-height:1.45;">'
               +     'Le lieu détermine le matériel disponible pour tes séances.</div>'
               +   lignes
               +   '<button onclick="showAddLocationModal()" style="width:100%;padding:12px;margin-top:2px;'
@@ -28843,7 +29003,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               +     '+ Nouveau lieu</button>'
               +   '<button onclick="document.getElementById(\'awakLocPicker\').remove()" '
               +     'style="width:100%;padding:11px;margin-top:8px;border-radius:13px;cursor:pointer;'
-              +     'background:transparent;border:none;color:#64748b;font-size:0.74em;font-weight:800;letter-spacing:1px;">'
+              +     'background:transparent;border:none;color:#8391a7;font-size:0.74em;font-weight:800;letter-spacing:1px;">'
               +     'FERMER</button>'
               + '</div>';
             ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
@@ -28937,7 +29097,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     </button>`;
                 }).join('');
                 return `<div style="margin-bottom:10px;">
-                    <div style="font-size:0.68em;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">${cat.label}</div>
+                    <div style="font-size:0.68em;font-weight:800;color:#8391a7;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">${cat.label}</div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;">${btns}</div>
                 </div>`;
             }).join('');
@@ -29251,7 +29411,24 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         let _currentInlineRPE = null;
 
         function setInlineRPE(n) {
-            _currentInlineRPE = n;
+            // v1613 : « C'était dur ? » se répond APRÈS une série → la note va à la dernière
+            // série de l'exercice. Avant : gardée pour toujours et collée à TOUTES les séries
+            // suivantes (tous exercices, toutes séances), sans aucun retour visible.
+            try {
+                // la DERNIÈRE série validée de la séance (dans un superset, on est déjà passé à B)
+                let der = null, l = [];
+                Object.values(_currentSessionSets || {}).forEach(L => (L || []).forEach(x => { if (!der || (x.ts || 0) > (der.ts || 0)) { der = x; l = L; } }));
+                if (der && (Date.now() - (der.ts || 0)) > 5 * 60000) der = null;   // trop ancienne → prochaine série
+                if (der && !der.warmup) {
+                    der.rpe = n;
+                    try { localStorage.setItem('fitproSessionSets', JSON.stringify(_currentSessionSets)); } catch (e) {}
+                    _currentInlineRPE = null;
+                    showToast('Effort ' + n + '/10 noté pour la série ' + (der.set || l.length), 'info', 1800);
+                } else {
+                    _currentInlineRPE = n;
+                    showToast('Effort ' + n + '/10 : noté avec ta prochaine série', 'info', 1800);
+                }
+            } catch (e) { _currentInlineRPE = n; }
             const colors = ['','#10b981','#10b981','#84cc16','#84cc16','#f59e0b','#f59e0b','#f97316','#ef4444','#ef4444','#dc2626'];
             for (let i=1;i<=10;i++) {
                 const btn = document.getElementById('rpeInlineBtn'+i);
@@ -29269,6 +29446,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (exName) {
                 exerciseRestOverrides[exName] = parseInt(seconds);
                 lsSet('fitproExRestOverrides', JSON.stringify(exerciseRestOverrides));
+                const _lb = { 60: '1 min', 90: '1 min 30', 120: '2 min', 180: '3 min' }[seconds] || (seconds + ' s');
+                try { showToast('Repos de ' + _lb + ' pour ' + exName + ' (gardé pour les prochaines fois)', 'info', 2200); } catch (e) {}   // v1613 : retour visible
             }
         }
 
@@ -29595,6 +29774,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (frcWLbl) frcWLbl.textContent = 'Charge (' + unit + ')';
         }
 
+        // v1615 : le menu ⋯ affiche l'état (avant : « Son », « Vibreur », « Unité » sans savoir s'ils sont actifs)
+        function _awakMajMenuEtats() {
+            const ligne = (id, txt, on) => { const b = document.getElementById(id); if (b) b.innerHTML = '<span style="display:flex;justify-content:space-between;gap:8px;"><span>' + txt + '</span><span style="font-weight:800;color:' + (on ? '#67e8f9' : '#8391a7') + ';">' + (on === null ? '' : '') + '</span></span>'; return b; };
+            const m = ligne('optMuteBtn', 'Son', !isMuted); if (m) m.lastChild.lastChild.textContent = isMuted ? 'coupé' : 'activé';
+            const v = ligne('optVibBtn', 'Vibreur', !isVibOff); if (v) v.lastChild.lastChild.textContent = isVibOff ? 'coupé' : 'activé';
+            const u = ligne('optUnitBtn', 'Unité', true); if (u) u.lastChild.lastChild.textContent = useKg ? 'kg' : 'lb';
+        }
         function toggleMute() {
             isMuted = !isMuted;
             localStorage.setItem('fitproMuted', isMuted);
@@ -30028,6 +30214,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } else
             // 🌀 Si on est dans une Faille ou une Chasse, le skip = abandon
             if (currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt)) {
+                // v1616 : une 2e touche sur « Suivant » empilait une 2e fenêtre « Abandonner ? »
+                if ([...document.querySelectorAll('[id^="cyberconfirm_"]')].some(d => /Abandonner la (Faille|Chasse)/.test(d.textContent || ''))) return;
                 const isRift = currentWorkout._isRift;
                 const label = isRift ? 'cette Faille' : 'cette Chasse';
 
@@ -30396,7 +30584,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             fmtBar.style.cssText = 'display:flex;gap:8px;';
             const mkFmtBtn = (label, fmt) => {
                 const active = fmt === format;
-                return `<button onclick="_openShareCardModal('${fmt}')" style="background:${active?'linear-gradient(135deg,#22d3ee,#0891b2)':'rgba(255,255,255,0.08)'};color:${active?'#fff':'#94a3b8'};border:1px solid ${active?'#4ade80':'rgba(255,255,255,0.15)'};border-radius:10px;padding:9px 16px;font-weight:800;cursor:pointer;font-size:0.82em;letter-spacing:0.5px;">${label}</button>`;
+                return `<button onclick="_openShareCardModal('${fmt}')" style="background:${active?'linear-gradient(135deg,#22d3ee,#0891b2)':'rgba(255,255,255,0.08)'};color:${active?'#fff':'#94a3b8'};border:1px solid ${active?'#22d3ee':'rgba(255,255,255,0.15)'};border-radius:10px;padding:9px 16px;font-weight:800;cursor:pointer;font-size:0.82em;letter-spacing:0.5px;">${label}</button>`;
             };
             fmtBar.innerHTML = mkFmtBtn('▭ Carré', 'square') + mkFmtBtn('▯ Story', 'story');
             overlay.appendChild(fmtBar);
@@ -30404,7 +30592,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // Conteneur image (preview)
             const imgWrap = document.createElement('div');
             imgWrap.style.cssText = 'max-height:62vh;max-width:340px;border-radius:14px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;background:#0a0e16;';
-            imgWrap.innerHTML = '<div style="color:#4ade80;padding:60px;font-size:0.85em;">Génération…</div>';
+            imgWrap.innerHTML = '<div style="color:#67e8f9;padding:60px;font-size:0.85em;">Génération…</div>';
             overlay.appendChild(imgWrap);
 
             // Boutons d'action
@@ -30412,7 +30600,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             actions.style.cssText = 'display:flex;gap:8px;width:100%;max-width:340px;';
             actions.innerHTML = `
                 <button id="shareCardShareBtn" style="flex:1;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;border:none;border-radius:14px;padding:14px;font-weight:800;cursor:pointer;font-size:0.92em;">📤 Partager</button>
-                <button id="shareCardDlBtn" style="flex:1;background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.4);border-radius:14px;padding:14px;font-weight:800;cursor:pointer;font-size:0.92em;">⬇ Enregistrer</button>
+                <button id="shareCardDlBtn" style="flex:1;background:rgba(255,255,255,0.06);color:#e2e8f0;border:1px solid rgba(255,255,255,0.18);border-radius:14px;padding:14px;font-weight:800;cursor:pointer;font-size:0.92em;">⬇ Enregistrer</button>
             `;
             overlay.appendChild(actions);
 
@@ -30605,17 +30793,17 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1585");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1616");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
             const awakStatRows = [
                 { key: 'STR', icon: '⚔️', color: '#ef4444', label: 'Force' },
                 { key: 'AGI', icon: '⚡', color: '#f59e0b', label: 'Agilité' },
-                { key: 'VIT', icon: '💨', color: '#7dd3fc', label: 'Vitesse' },
-                { key: 'END', icon: '💚', color: '#22c55e', label: 'Endurance' },
-                { key: 'PER', icon: '🔮', color: '#06b6d4', label: 'Perception' },
-                { key: 'SEN', icon: '🌀', color: '#a855f7', label: 'Sensorialité' }
+                { key: 'VIT', icon: '💨', color: '#60a5fa', label: 'Vitalité' },
+                { key: 'END', icon: '💚', color: '#f472b6', label: 'Endurance' },
+                { key: 'PER', icon: '🔮', color: '#22d3ee', label: 'Perception' },
+                { key: 'SEN', icon: '🌀', color: '#cbd5e1', label: 'Sens' }
             ];
 
             cardProfile.innerHTML = `
@@ -30682,7 +30870,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _tree = typeof rpgGetSkillTree === 'function' ? rpgGetSkillTree() : [];
                     const _unlockable = window.AwakArbre ? AwakArbre.dispo(profileLevel, unlockedSkills) : _tree.filter(sk => !unlockedSkills.includes(sk.id) && profileLevel >= (sk.req ? sk.req.level : 999)).length;
                     const _badge = _unlockable > 0
-                        ? `<span style="background:#60a8f0;color:#04162b;font-size:0.6em;font-weight:900;padding:3px 8px;border-radius:99px;box-shadow:0 0 12px rgba(74,222,128,0.6);animation:skillPulse 1.8s ease-in-out infinite;white-space:nowrap;">${_unlockable} à débloquer !</span>`
+                        ? `<span style="background:#60a8f0;color:#04162b;font-size:0.6em;font-weight:900;padding:3px 8px;border-radius:99px;box-shadow:0 0 12px rgba(96,168,240,0.6);animation:skillPulse 1.8s ease-in-out infinite;white-space:nowrap;">${_unlockable} à débloquer !</span>`
                         : '';
                     return `
                     <button onclick="rpgShowDetailsPanel()" id="awakBtnCompetences" style="
@@ -30690,7 +30878,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         background:linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02));
                         border:1.5px solid rgba(148,163,184,0.22);border-radius:14px;color:white;
                         cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;
-                        box-shadow:0 0 18px rgba(34,211,238,0.1);transition:transform 0.15s;position:relative;"
+                        box-shadow:0 0 18px rgba(34,211,238,0.1);transition:transform 0.15s;position:relative;overflow:visible;"
                         onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
                         <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.4);color:#67e8f9;">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6"/><path d="M12 8c-3 0-5 2-5 5v2a5 5 0 0 0 10 0v-2c0-3-2-5-5-5z"/><path d="M7 15H4"/><path d="M20 15h-3"/><path d="M9 22h6"/><circle cx="12" cy="13" r="1.5"/></svg>
@@ -31348,8 +31536,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _pts = (typeof statPointsLoad === 'function') ? ((statPointsLoad() || {}).available || 0) : 0;
                     const _rows = [
                         { key: 'STR', color: '#ef4444', label: 'Force' }, { key: 'AGI', color: '#f59e0b', label: 'Agilité' },
-                        { key: 'VIT', color: '#7dd3fc', label: 'Vitalité' }, { key: 'END', color: '#f472b6', label: 'Endurance' },
-                        { key: 'PER', color: '#c084fc', label: 'Perception' }, { key: 'SEN', color: '#a855f7', label: 'Sens' }
+                        { key: 'VIT', color: '#60a5fa', label: 'Vitalité' }, { key: 'END', color: '#f472b6', label: 'Endurance' },
+                        { key: 'PER', color: '#22d3ee', label: 'Perception' }, { key: 'SEN', color: '#cbd5e1', label: 'Sens' }
                     ];
                     cardAttr = document.createElement('div');
                     cardAttr.className = 'card';
@@ -31904,9 +32092,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             <div style="font-size:0.6em;color:rgba(168,85,247,0.6);font-weight:900;text-transform:uppercase;letter-spacing:3px;margin-bottom:3px;">◈ AWAKENING ◈</div>
                             <div style="font-size:1em;font-weight:900;color:white;">Choisis ta voie</div>
                         </div>
-                        <button onclick="document.getElementById('classSelectModal').remove()" style="width:30px;height:30px;border-radius:50%;background:#0a1525;border:1px solid rgba(168,85,247,0.2);color:#475569;font-size:0.95em;cursor:pointer;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
+                        <button onclick="document.getElementById('classSelectModal').remove()" style="width:30px;height:30px;border-radius:50%;background:#0a1525;border:1px solid rgba(168,85,247,0.2);color:#7c8aa0;font-size:0.95em;cursor:pointer;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>
                     </div>
-                    <div style="font-size:0.72em;color:#475569;line-height:1.5;">${current ? 'Classe actuelle : <strong style="color:'+current.color+'">'+current.emoji+' '+current.name+'</strong>' : 'Le Système a évalué tes capacités. Choisis la voie qui te ressemble.'}</div>
+                    <div style="font-size:0.72em;color:#7c8aa0;line-height:1.5;">${current ? 'Classe actuelle : <strong style="color:'+current.color+'">'+current.emoji+' '+current.name+'</strong>' : 'Le Système a évalué tes capacités. Choisis la voie qui te ressemble.'}</div>
                 </div>
                 <div style="flex:1;overflow-y:auto;padding:6px 16px 24px;-webkit-overflow-scrolling:touch;">
                     ${RPG_CLASSES.map(cls => {
@@ -31931,11 +32119,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
                             <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
                                 <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:6px 8px;border:1px solid rgba(255,255,255,0.04);">
-                                    <div style="font-size:0.55em;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">XP Bonus</div>
+                                    <div style="font-size:0.55em;color:#7c8aa0;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">XP Bonus</div>
                                     <div style="font-size:0.78em;font-weight:800;color:${cls.color};">+${Math.round(cls.xpBonus*100)}% sur ${cls.bonusMuscles.length<=3?cls.bonusMuscles.join(', '):'muscles spécialisés'}</div>
                                 </div>
                                 <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:6px 8px;border:1px solid rgba(255,255,255,0.04);">
-                                    <div style="font-size:0.55em;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Stats permanents</div>
+                                    <div style="font-size:0.55em;color:#7c8aa0;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Stats permanents</div>
                                     <div style="font-size:0.78em;font-weight:800;color:${cls.color};">${Object.entries(cls.statBonus).map(([k,v])=>`+${v} ${k}`).join(' · ')}</div>
                                 </div>
                             </div>
@@ -32234,7 +32422,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         const STAT_POINTS_PER_LEVEL = 4;
         const STAT_POINT_STATS = ['STR','AGI','VIT','END','PER','SEN'];
         const STAT_POINT_LABELS = { STR:'⚔️ Force', AGI:'⚡ Agilité', VIT:'💙 Vitalité', END:'💚 Endurance', PER:'👁️ Perception', SEN:'🌀 Sens' };
-        const STAT_POINT_COLORS = { STR:'#ef4444', AGI:'#f59e0b', VIT:'#7dd3fc', END:'#22c55e', PER:'#06b6d4', SEN:'#a855f7' };
+        const STAT_POINT_COLORS = { STR:'#ef4444', AGI:'#f59e0b', VIT:'#60a5fa', END:'#f472b6', PER:'#22d3ee', SEN:'#cbd5e1' };   // v1616 : une seule palette, ni vert ni mauve
 
         function statPointsLoad() {
             try { return JSON.parse(localStorage.getItem('fitproStatPoints') || 'null') || { available:0, allocated:{STR:0,AGI:0,VIT:0,END:0,PER:0,SEN:0}, lastLevel:1 }; }
@@ -33052,7 +33240,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             tapHint.style.cssText = `
                 position: absolute; bottom: 30px; left: 0; right: 0;
                 text-align: center; font-size: 0.75em;
-                color: #475569; letter-spacing: 2px;
+                color: #7c8aa0; letter-spacing: 2px;
                 animation: awakBlink 2s infinite;
             `;
             tapHint.textContent = '— tape pour continuer —';
@@ -33527,7 +33715,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <div style="font-size:0.6em;letter-spacing:6px;color:#06b6d4;text-transform:uppercase;margin-bottom:14px;font-family:'Courier New',monospace;opacity:0;animation:awakBeatIn 0.8s ease 1.15s forwards;">▸ tu es éveillé${_e} ◂</div>
                         <div style="font-size:clamp(1.8em,11vw,3.4em);font-weight:900;letter-spacing:0.04em;white-space:nowrap;color:#fff;animation:awakTitleGlow 2.6s ease 1.3s infinite;">${letters}</div>
                         <div style="margin-top:18px;font-size:0.95em;color:#94a3b8;font-style:italic;opacity:0;animation:awakBeatIn 0.9s ease 1.5s forwards;">Tiens bon. Tu es une Ancre, maintenant.</div>
-                        <div style="margin-top:30px;font-size:0.62em;letter-spacing:2px;color:#475569;opacity:0;animation:awakBeatIn 0.9s ease 2s forwards;">— tape pour continuer —</div>`;
+                        <div style="margin-top:30px;font-size:0.62em;letter-spacing:2px;color:#7c8aa0;opacity:0;animation:awakBeatIn 0.9s ease 2s forwards;">— tape pour continuer —</div>`;
                     setTimeout(() => audio.impact(), 430);
                     if (typeof hapticTap === 'function') setTimeout(() => hapticTap([90,40,180]), 430);
                 }});
@@ -33560,7 +33748,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 epilogue.forEach(ep => {
                     beats.push({ hold: 7500, render: () => {
                         setBeatBg(ep.img, 0.85);
-                        if (!ep.img) { stage.innerHTML = ''; epiCaption.style.opacity = '0'; stage.innerHTML = `<div style="font-size:1.12em;line-height:1.9;color:#e2e8f0;font-family:'Courier New',monospace;text-shadow:0 2px 14px rgba(0,0,0,0.9);animation:awakBeatIn 0.9s ease;">${fmt(ep.text)}</div><div style="margin-top:30px;font-size:0.62em;letter-spacing:2px;color:#475569;opacity:0;animation:awakBeatIn 0.9s ease 1.6s forwards;">— tape pour commencer —</div>`; audio.blip(); return; }
+                        if (!ep.img) { stage.innerHTML = ''; epiCaption.style.opacity = '0'; stage.innerHTML = `<div style="font-size:1.12em;line-height:1.9;color:#e2e8f0;font-family:'Courier New',monospace;text-shadow:0 2px 14px rgba(0,0,0,0.9);animation:awakBeatIn 0.9s ease;">${fmt(ep.text)}</div><div style="margin-top:30px;font-size:0.62em;letter-spacing:2px;color:#7c8aa0;opacity:0;animation:awakBeatIn 0.9s ease 1.6s forwards;">— tape pour commencer —</div>`; audio.blip(); return; }
                         if (titleArt && titleArt.parentNode) titleArt.style.opacity = '0';
                         stage.innerHTML = '';
                         epiCaption.style.opacity = '1';
@@ -33740,7 +33928,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <div style="font-size:0.7em;letter-spacing:2px;color:${c};text-transform:uppercase;font-weight:700;margin-bottom:4px;">${card.cat}</div>
                 <div style="font-size:1.35em;font-weight:900;color:#fff;margin-bottom:16px;text-shadow:0 0 14px ${c}55;">${card.title}</div>
                 <div style="font-size:0.92em;line-height:1.7;color:#cbd5e1;font-style:italic;">« ${card.text} »</div>
-                <div style="margin-top:22px;font-size:0.62em;letter-spacing:2px;color:#475569;animation:awakBlink 2s infinite;">— tape pour fermer —</div>
+                <div style="margin-top:22px;font-size:0.62em;letter-spacing:2px;color:#7c8aa0;animation:awakBlink 2s infinite;">— tape pour fermer —</div>
             `;
 
             // Animations (réutilise awakSystemStyles + ajoute awakCardRise si absent)
@@ -34418,7 +34606,17 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try {
                 const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
                 const key = profileId ? `${RIFT_STORAGE_KEY}_${profileId}` : RIFT_STORAGE_KEY;
+                // v1616 : une Faille s'ouvre pendant qu'on regarde l'onglet Jeu → la carte suit
+                // (avant : toast « Une Faille s'est ouverte » + carte « Aucune brèche »)
+                let _avant = 0; try { _avant = (JSON.parse(localStorage.getItem(key) || '[]') || []).filter(r => r && !r.completed).length; } catch (e) {}
                 localStorage.setItem(key, JSON.stringify(rifts));
+                const _apres = (rifts || []).filter(r => r && !r.completed).length;
+                if (_apres > _avant) setTimeout(() => {
+                    try {
+                        const t = document.getElementById('gameTab');
+                        if (t && t.classList.contains('active') && !document.body.classList.contains('in-session') && typeof renderGameTab === 'function') renderGameTab();
+                    } catch (e) {}
+                }, 400);
             } catch(e) {}
         }
 
@@ -35579,12 +35777,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         + String(e.msg || '').replace(/[<>]/g, '') + '</div>';
                 }
                 if (e.type === 'miss') {
-                    return '<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;font-size:0.72em;color:#64748b;">'
+                    return '<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;font-size:0.72em;color:#8391a7;">'
                         + '<span>⚠️ Aucun dégât</span><span>—</span></div>';
                 }
                 const c = e.type === 'crit' ? '#fbbf24' : '#4ade80';
                 const et = e.type === 'crit' ? '💥 CRITIQUE' : '⚔ Coup';
-                const nom = (e.exo ? ('<span style="color:#64748b;"> · ' + String(e.exo).slice(0, 22) + '</span>') : '')
+                const nom = (e.exo ? ('<span style="color:#8391a7;"> · ' + String(e.exo).slice(0, 22) + '</span>') : '')
                     + (e.faible ? '<span style="color:#fbbf24;font-weight:900;"> · point faible</span>' : '');
                 // 🌫️ BROUILLARD : ce modificateur masque volontairement les HP de
                 // l'ennemi (« Frappe à l'aveugle »). La barre de vie les cachait bien,
@@ -35597,7 +35795,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     const _m = (_r && typeof awakGetRiftModifier === 'function') ? awakGetRiftModifier(_r.modifierId) : null;
                     _fog = !!(_m && _m.hideHp);
                 } catch (err) {}
-                const pv = (!_fog && typeof e.hp === 'number') ? ('<span style="color:#64748b;font-size:0.9em;"> · ' + e.hp + ' PV</span>') : '';
+                const pv = (!_fog && typeof e.hp === 'number') ? ('<span style="color:#8391a7;font-size:0.9em;"> · ' + e.hp + ' PV</span>') : '';
                 return '<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;font-size:0.72em;color:#cbd5e1;">'
                     + '<span style="min-width:0;">' + et + nom + '</span>'
                     + '<b style="color:' + c + ';white-space:nowrap;">-' + e.dmg + (e.killed ? ' ☠️' : '') + pv + '</b></div>';
@@ -35625,7 +35823,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + '<details style="position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;'
                 +   'background-color:#0a0d14;'
                 +   'background-image:linear-gradient(160deg,rgba(10,13,20,0.42),rgba(10,13,20,0.58)), '
-                +     'url(images/combat_bg_v1.webp?v=1585);'
+                +     'url(images/combat_bg_v1.webp?v=1616);'
                 +   'background-size:cover,cover;background-position:center,center;'
                 +   'background-repeat:no-repeat,no-repeat;'
                 +   'border:1px solid rgba(125,211,252,0.28);'
@@ -35900,7 +36098,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                     <span style="color:${diff.color};">${diff.emoji}</span>
                                 </div>
                             </div>
-                            <div style="color:#64748b;font-size:1.2em;flex-shrink:0;">›</div>
+                            <div style="color:#8391a7;font-size:1.2em;flex-shrink:0;">›</div>
                         </div>
                     </div>`;
                 }).join('')}
@@ -35973,7 +36171,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
                      L'emoji flotte au-dessus, le rang et le type sont côte à côte. -->
-                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1585);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#07070b;background-image:linear-gradient(180deg,rgba(7,7,11,0.30) 0%,rgba(7,7,11,0.80) 65%,rgba(7,7,11,0.96) 100%), url(images/faille_ouverte.webp?v=1616);background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;padding:26px 22px 22px;border-bottom:1px solid ${theme.color}30;text-align:center;position:relative;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${theme.color},transparent);"></div>
                     <!-- ⚠️ EMOJI RETIRÉ (v1024) : un emoji système de 3,4 em au
                          centre du briefing cassait le ton — et son rendu change
@@ -36052,12 +36250,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:11px;">
                             <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">TON POWER</div>
                             <div style="font-size:1.1em;font-weight:900;color:white;">${playerPower.toLocaleString('fr-FR')}</div>
-                            ${rift.recommendedPower > 0 ? `<div style="font-size:0.62em;color:#64748b;margin-top:2px;">recommandé : ${rift.recommendedPower.toLocaleString('fr-FR')}</div>` : ''}
+                            ${rift.recommendedPower > 0 ? `<div style="font-size:0.62em;color:#8391a7;margin-top:2px;">recommandé : ${rift.recommendedPower.toLocaleString('fr-FR')}</div>` : ''}
                         </div>
                         <div style="background:rgba(255,255,255,0.03);border:1px solid ${theme.color}40;border-radius:10px;padding:11px;">
                             <div style="font-size:0.6em;color:#94a3b8;font-weight:800;letter-spacing:1.5px;margin-bottom:4px;">ATTRIBUT</div>
                             <div style="font-size:1.1em;font-weight:900;color:${theme.color};">${rift.primaryStat}</div>
-                            <div style="font-size:0.62em;color:#64748b;margin-top:2px;">${playerStats[rift.primaryStat] || 0} pts actuels</div>
+                            <div style="font-size:0.62em;color:#8391a7;margin-top:2px;">${playerStats[rift.primaryStat] || 0} pts actuels</div>
                         </div>
                     </div>
                     <!-- Vagues prévues -->
@@ -36085,7 +36283,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                 <span style="font-size:0.85em;color:#94a3b8;font-weight:700;">Choisir qui envoyer · ${nDispo} disponible${nDispo>1?'s':''}</span>
                             </button>`;
                         } else {
-                            return `<div style="width:100%;margin-top:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#64748b;border-radius:10px;padding:11px;font-size:0.72em;text-align:center;">Délégation indisponible — ${check.reason}</div>`;
+                            return `<div style="width:100%;margin-top:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#8391a7;border-radius:10px;padding:11px;font-size:0.72em;text-align:center;">Délégation indisponible — ${check.reason}</div>`;
                         }
                     })()}
                         </div>
@@ -36327,7 +36525,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:540px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;display:flex;flex-direction:column;">
                 <!-- Header : vague actuelle -->
-                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1585);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
+                <div style="background-color:#0a0b12;background-image:linear-gradient(180deg,rgba(10,11,18,0.35) 0%,rgba(10,11,18,0.75) 60%,rgba(10,11,18,0.97) 100%),radial-gradient(60% 50% at 50% 45%,${theme.color}40,transparent 70%),url(images/faille_ouverte.webp?v=1616);background-size:cover,cover,cover;background-position:center;padding:16px 20px 18px;border-bottom:1px solid ${theme.color}35;border-radius:20px 20px 0 0;overflow:hidden;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                         <span style="font-size:0.6em;color:${theme.color};font-weight:900;letter-spacing:2px;">⚔ VAGUE ${rift.currentWaveIdx + 1} / ${rift.waves.length}${currentWave.isBoss ? ' · BOSS' : ''}</span>
                         <button onclick="awakAbandonRift()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:10px;padding:5px 10px;font-size:0.7em;font-weight:800;cursor:pointer;">✕ Fuir</button>
@@ -37599,7 +37797,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.style.cssText = 'background:rgba(0,0,0,0.95);backdrop-filter:blur(12px);';
 
             modal.innerHTML = `
-            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1585');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div class="modal-content awak-bg-image" style="max-width:480px;background-color:#000;background-image:linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(10,14,24,0.88) 42%,rgba(15,16,20,0.97) 100%), url('images/faille_fermee_bg.webp?v=1616');background-size:cover,100% auto;background-position:center,center top;background-repeat:no-repeat,no-repeat;border:1px solid ${theme.color}50;padding:0;border-radius:20px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
                 <!-- Bannière FAILLE FERMÉE -->
                 <div style="background:linear-gradient(135deg,${theme.color}30,${theme.color}10);padding:30px 22px;text-align:center;position:relative;border-bottom:1px solid ${theme.color}30;">
@@ -37658,7 +37856,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         return `<div style="margin-top:12px;background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(251,191,36,0.03));border:1.5px solid rgba(251,191,36,0.4);border-radius:14px;padding:14px;animation:awakFadeIn 0.6s ease 0.45s both;">
                             <div style="font-size:0.58em;color:#fbbf24;font-weight:900;letter-spacing:2px;margin-bottom:8px;">MINÉRAUX EXTRAITS</div>
                             <div style="display:flex;flex-direction:column;gap:6px;">${rows}</div>
-                            <div style="font-size:0.62em;color:#64748b;margin-top:8px;font-style:italic;">À vendre au marchand contre de l'or.</div>
+                            <div style="font-size:0.62em;color:#8391a7;margin-top:8px;font-style:italic;">À vendre au marchand contre de l'or.</div>
                         </div>`;
                     })() : ''}
 
@@ -38360,7 +38558,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:440px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header victoire -->
-                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1585);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}30,${type.color}10);padding:26px 22px;text-align:center;border-bottom:1px solid ${type.color}30;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1616);background-size:cover;background-position:center;">
                     <div style="font-size:0.65em;color:${type.color};font-weight:900;letter-spacing:3px;margin-bottom:6px;">${monster.isAlpha ? '◇ ALPHA VAINCU ◇' : '◇ CHASSE RÉUSSIE ◇'}</div>
                     <!-- ⚠️ Emoji système remplacé par un losange (v1041) : dernier
                          emoji géant des écrans de chasse. -->
@@ -38531,7 +38729,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = `
             <div class="modal-content" style="max-width:480px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${type.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
                 <!-- Header thématique -->
-                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1585);background-size:cover;background-position:center;">
+                <div style="background:linear-gradient(135deg,${type.color}25,${type.color}05);padding:24px 22px;border-bottom:1px solid ${type.color}30;text-align:center;background-image:linear-gradient(135deg,${type.color}55,${type.color}18),url(images/faille_ouverte.webp?v=1616);background-size:cover;background-position:center;">
                     <!-- ⚠️ Emoji système remplacé par un losange (v1029) : un visage
                          fâché dans un écran de chasse casse le ton, et son
                          rendu change d'un téléphone à l'autre. -->
@@ -39715,7 +39913,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const MT = E.MINERAL_TYPES;
             const ids = Object.keys(minerals).filter(id => minerals[id] > 0 && MT[id]);
             if (ids.length === 0) {
-                return `<div style="text-align:center;color:#64748b;font-size:0.85em;padding:30px 10px;">Tu n'as aucun minéral à vendre.<br><span style="font-size:0.85em;">Ferme des Failles pour en extraire.</span></div>`;
+                return `<div style="text-align:center;color:#8391a7;font-size:0.85em;padding:30px 10px;">Tu n'as aucun minéral à vendre.<br><span style="font-size:0.85em;">Ferme des Failles pour en extraire.</span></div>`;
             }
             const total = E.getMineralsTotalValue();
             const rows = ids.map(id => {
@@ -39738,7 +39936,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const E = window.AwakEconomy;
             const gold = E.getGold();
             const shop = E.getConsumableShop();
-            if (!shop.length) return `<div style="text-align:center;color:#64748b;padding:30px;">Aucun consommable disponible.</div>`;
+            if (!shop.length) return `<div style="text-align:center;color:#8391a7;padding:30px;">Aucun consommable disponible.</div>`;
             return shop.map(c => {
                 const owned = (typeof awakConsumablesGetCount === 'function') ? awakConsumablesGetCount(c.id) : 0;
                 const afford = gold >= c.price;
@@ -39746,11 +39944,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <div style="display:flex;align-items:center;gap:10px;">
                         <span style="font-size:1.6em;">${c.icon}</span>
                         <div style="flex:1;min-width:0;">
-                            <div style="color:white;font-weight:800;font-size:0.86em;">${c.name}${owned>0?` <span style="color:#64748b;font-size:0.85em;">×${owned}</span>`:''}</div>
+                            <div style="color:white;font-weight:800;font-size:0.86em;">${c.name}${owned>0?` <span style="color:#8391a7;font-size:0.85em;">×${owned}</span>`:''}</div>
                             <div style="font-size:0.68em;color:#94a3b8;line-height:1.4;">${c.description||''}</div>
                         </div>
                     </div>
-                    <button onclick="_merchantBuyConsumable('${c.id}')" ${afford?'':'disabled'} style="width:100%;margin-top:9px;background:${afford?'rgba(251,191,36,0.12)':'rgba(255,255,255,0.04)'};border:1px solid ${afford?'rgba(251,191,36,0.4)':'rgba(255,255,255,0.08)'};color:${afford?'#fbbf24':'#475569'};border-radius:8px;padding:9px;font-size:0.78em;font-weight:800;cursor:${afford?'pointer':'not-allowed'};">${window.awakOrIcon ? awakOrIcon() : ''} ${c.price} or</button>
+                    <button onclick="_merchantBuyConsumable('${c.id}')" ${afford?'':'disabled'} style="width:100%;margin-top:9px;background:${afford?'rgba(251,191,36,0.12)':'rgba(255,255,255,0.04)'};border:1px solid ${afford?'rgba(251,191,36,0.4)':'rgba(255,255,255,0.08)'};color:${afford?'#fbbf24':'#7c8aa0'};border-radius:8px;padding:9px;font-size:0.78em;font-weight:800;cursor:${afford?'pointer':'not-allowed'};">${window.awakOrIcon ? awakOrIcon() : ''} ${c.price} or</button>
                 </div>`;
             }).join('');
         }
@@ -39794,7 +39992,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     ${setHtml}
                     ${(() => { try { const _bl = (!bought && typeof getEquipBlockReason === 'function') ? getEquipBlockReason(item) : null; return _bl ? `<div style="font-size:0.68em;color:#fbbf24;margin-top:7px;font-weight:700;">Pas encore équipable : ${_bl.label}</div>` : ''; } catch (e) { return ''; } })()}
                     ${item.description ? `<div style="font-size:0.64em;color:#94a3b8;margin-top:7px;font-style:italic;line-height:1.3;">${item.description}</div>` : ''}
-                    <button onclick="_merchantBuyEquipment('${entry.id}')" ${(bought||!afford)?'disabled':''} style="width:100%;margin-top:9px;background:${bought?'rgba(34,197,94,0.1)':afford?`${r.color}22`:'rgba(255,255,255,0.04)'};border:1px solid ${bought?'rgba(34,197,94,0.3)':afford?r.color+'66':'rgba(255,255,255,0.08)'};color:${bought?'#4ade80':afford?r.color:'#475569'};border-radius:8px;padding:9px;font-size:0.78em;font-weight:800;cursor:${(bought||!afford)?'not-allowed':'pointer'};">${bought?'✓ ACHETÉ':`${window.awakOrIcon ? awakOrIcon() : ''} ${entry.price} or`}</button>
+                    <button onclick="_merchantBuyEquipment('${entry.id}')" ${(bought||!afford)?'disabled':''} style="width:100%;margin-top:9px;background:${bought?'rgba(34,197,94,0.1)':afford?`${r.color}22`:'rgba(255,255,255,0.04)'};border:1px solid ${bought?'rgba(34,197,94,0.3)':afford?r.color+'66':'rgba(255,255,255,0.08)'};color:${bought?'#4ade80':afford?r.color:'#7c8aa0'};border-radius:8px;padding:9px;font-size:0.78em;font-weight:800;cursor:${(bought||!afford)?'not-allowed':'pointer'};">${bought?'✓ ACHETÉ':`${window.awakOrIcon ? awakOrIcon() : ''} ${entry.price} or`}</button>
                 </div>`;
             }).join('');
             return `<div style="font-size:0.66em;color:#94a3b8;text-align:center;margin-bottom:10px;font-style:italic;">Stock renouvelé chaque semaine · adapté à ton rang (${shop.rank})</div>${rows}`;
@@ -39830,7 +40028,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     </div>
                     <div style="font-size:0.66em;color:#94a3b8;line-height:1.4;margin-bottom:9px;">${d.desc}</div>
                     <div style="display:flex;gap:4px;margin-bottom:10px;">${pips}</div>
-                    <button onclick="_merchantBuyMastery('${id}')" ${(isMax||!afford)?'disabled':''} style="width:100%;background:${isMax?'rgba(34,197,94,0.1)':afford?`${d.color}22`:'rgba(255,255,255,0.04)'};border:1px solid ${isMax?'rgba(34,197,94,0.3)':afford?d.color+'66':'rgba(255,255,255,0.08)'};color:${isMax?'#4ade80':afford?d.color:'#475569'};border-radius:8px;padding:10px;font-size:0.78em;font-weight:800;cursor:${(isMax||!afford)?'not-allowed':'pointer'};">${isMax?'✓ MAÎTRISE COMPLÈTE':`${window.awakOrIcon ? awakOrIcon() : ''} Niveau ${lvl+1} · ${nextPrice} or`}</button>
+                    <button onclick="_merchantBuyMastery('${id}')" ${(isMax||!afford)?'disabled':''} style="width:100%;background:${isMax?'rgba(34,197,94,0.1)':afford?`${d.color}22`:'rgba(255,255,255,0.04)'};border:1px solid ${isMax?'rgba(34,197,94,0.3)':afford?d.color+'66':'rgba(255,255,255,0.08)'};color:${isMax?'#4ade80':afford?d.color:'#7c8aa0'};border-radius:8px;padding:10px;font-size:0.78em;font-weight:800;cursor:${(isMax||!afford)?'not-allowed':'pointer'};">${isMax?'✓ MAÎTRISE COMPLÈTE':`${window.awakOrIcon ? awakOrIcon() : ''} Niveau ${lvl+1} · ${nextPrice} or`}</button>
                 </div>`;
             }).join('');
             return intro + cards;
@@ -40142,7 +40340,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <div style="font-size:1.8em;opacity:0.4;filter:grayscale(1);">🎭</div>
                         <div style="flex:1;min-width:0;">
                             <div style="font-size:0.6em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ COMPAGNONS</div>
-                            <div style="font-size:0.78em;color:#64748b;font-style:italic;">Un premier Ancrage te trouvera bientôt...</div>
+                            <div style="font-size:0.78em;color:#8391a7;font-style:italic;">Un premier Ancrage te trouvera bientôt...</div>
                             <div style="margin-top:5px;font-size:0.66em;color:#94a3b8;">🌀 ${condLabel}</div>
                         </div>
                     </div>
@@ -40174,7 +40372,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (!c.unlocked) {
                         return `<div onclick="awakOpenCompanionLocked('${c.id}')" style="cursor:pointer;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.1);border-radius:10px;padding:11px 6px;text-align:center;opacity:0.45;">
                             <div style="font-size:1.6em;filter:grayscale(1) brightness(0.5);">🔒</div>
-                            <div style="font-size:0.55em;color:#64748b;font-weight:700;margin-top:3px;letter-spacing:0.5px;">?</div>
+                            <div style="font-size:0.55em;color:#8391a7;font-weight:700;margin-top:3px;letter-spacing:0.5px;">?</div>
                         </div>`;
                     }
                     const isOnMission = onMission.includes(c.id);
@@ -40230,7 +40428,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     ${isOnMission
                         ? `<div style="width:100%;background:rgba(168,85,247,0.12);border:1.5px solid rgba(168,85,247,0.4);color:#c084fc;border-radius:10px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:0.5px;text-align:center;">PARTI FERMER UNE FAILLE<div style="font-size:0.75em;font-weight:600;color:#a78bfa;margin-top:4px;letter-spacing:0;">Indisponible jusqu'à son retour</div></div>`
                         : `<button onclick="awakCompanionToggleActive('${comp.id}');document.getElementById('awakCompanionDetailModal').remove();"
-                        style="width:100%;background:${isActive ? 'rgba(239,68,68,0.15)' : (canActivate ? `linear-gradient(135deg,${comp.color},${comp.color}dd)` : 'rgba(255,255,255,0.05)')};border:${isActive ? '1.5px solid rgba(239,68,68,0.4)' : 'none'};color:${isActive ? '#f87171' : (canActivate ? 'white' : '#64748b')};border-radius:10px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:${(canActivate || isActive) ? 'pointer' : 'not-allowed'};box-shadow:${isActive || !canActivate ? 'none' : `0 4px 16px ${comp.color}40`};">
+                        style="width:100%;background:${isActive ? 'rgba(239,68,68,0.15)' : (canActivate ? `linear-gradient(135deg,${comp.color},${comp.color}dd)` : 'rgba(255,255,255,0.05)')};border:${isActive ? '1.5px solid rgba(239,68,68,0.4)' : 'none'};color:${isActive ? '#f87171' : (canActivate ? 'white' : '#8391a7')};border-radius:10px;padding:14px;font-weight:900;font-size:0.95em;letter-spacing:1px;cursor:${(canActivate || isActive) ? 'pointer' : 'not-allowed'};box-shadow:${isActive || !canActivate ? 'none' : `0 4px 16px ${comp.color}40`};">
                         ${isActive ? '✕ RETIRER DE L\'ÉQUIPE' : (canActivate ? '✓ ACTIVER COMME COMPAGNON' : `⚠ MAX ${COMPANIONS_MAX_ACTIVE} ACTIFS`)}
                     </button>`}
 
@@ -40302,7 +40500,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <div style="height:6px;background:rgba(255,255,255,0.04);border-radius:99px;overflow:hidden;">
                         <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);border-radius:99px;transition:width 0.6s;"></div>
                     </div>
-                    <div style="font-size:0.62em;color:#64748b;margin-top:5px;">${current} / ${goal}</div>
+                    <div style="font-size:0.62em;color:#8391a7;margin-top:5px;">${current} / ${goal}</div>
                 </div>
 
                 <button onclick="document.getElementById('awakCompanionLockedModal').remove()" style="width:100%;margin-top:16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;border-radius:10px;padding:11px;font-weight:700;font-size:0.85em;cursor:pointer;">Fermer</button>
@@ -41733,21 +41931,41 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.className = 'modal active';
             modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);';
 
+            // v1600 : fiche d'objet refaite — en-tête pleine largeur (avant : coincée dans les marges
+            // mobiles !important), halo autour de l'objet, bloc « Effet », bouton Utiliser cyan.
+            const c = item.color || '#22d3ee';
+            const _ic = (n, t, col) => (window.AwakIcon ? window.AwakIcon.get(n, t, col) : '');
+            const _quand = item.duration === 'next_rift' ? 'S\'applique à ta prochaine Faille' : '';
+            const _fermer = "document.getElementById('awakConsumableModal').remove()";
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:400px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${item.color}50;padding:0;overflow-y:auto;overflow-x:hidden;border-radius:20px;max-height:90vh;-webkit-overflow-scrolling:touch;">
-                <div style="background:linear-gradient(135deg,${item.color}25,${item.color}05);padding:24px 22px;text-align:center;border-bottom:1px solid ${item.color}30;">
-                    <div style="font-size:5em;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 14px ${item.color}b0);">${item.icon || item.emoji}</div>
-                    <h2 style="margin:0;color:#f8fafc !important;font-size:1.2em;font-weight:900;">${item.name}</h2>
-                    <div style="margin-top:6px;font-size:0.78em;color:#94a3b8;font-weight:700;">×${count} en stock</div>
+            <div class="modal-content" style="max-width:380px;width:calc(100% - 32px);background:#0b0e15 !important;border:1px solid ${c}55;padding:0 !important;overflow-y:auto;overflow-x:hidden;border-radius:22px;max-height:90vh;-webkit-overflow-scrolling:touch;position:relative;box-shadow:0 24px 60px rgba(0,0,0,0.65),0 0 40px ${c}22;">
+                <button onclick="${_fermer}" aria-label="Fermer" style="position:absolute;top:12px;right:12px;z-index:2;width:36px;height:36px;min-height:0;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;cursor:pointer;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+                <div style="padding:26px 20px 20px;text-align:center;background:radial-gradient(circle at 50% 42%,${c}38,transparent 56%),linear-gradient(180deg,${c}12,transparent 75%) !important;border-bottom:1px solid ${c}26;">
+                    <div style="font-size:0.6em;letter-spacing:2.5px;color:${c};font-weight:900;text-transform:uppercase;">Consommable · Faille</div>
+                    <div style="position:relative;width:150px;height:150px;margin:12px auto 6px;display:flex;align-items:center;justify-content:center;">
+                        <div style="position:absolute;inset:6px;border-radius:50%;border:1px solid ${c}40;box-shadow:inset 0 0 30px ${c}22;"></div>
+                        <div style="position:absolute;inset:22px;border-radius:50%;border:1px dashed ${c}30;"></div>
+                        <div style="position:relative;font-size:5.6em;line-height:1;filter:drop-shadow(0 0 16px ${c}aa);">${item.icon || item.emoji}</div>
+                    </div>
+                    <h2 style="margin:0;color:#f8fafc !important;font-size:1.25em;font-weight:900;letter-spacing:0.3px;">${item.name}</h2>
+                    <div style="display:inline-flex;align-items:center;gap:6px;margin-top:9px;padding:4px 12px;border-radius:99px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);font-size:0.74em;color:#cbd5e1;font-weight:800;">
+                        En stock <span style="color:${c};">×${count}</span>
+                    </div>
                 </div>
-                <div style="padding:20px 22px;">
-                    <div style="color:#cbd5e1;font-size:0.88em;line-height:1.55;font-style:italic;margin-bottom:16px;text-align:center;">${item.description}</div>
+                <div style="padding:18px 20px 20px;">
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-left:3px solid ${c};border-radius:12px;padding:12px 14px;text-align:left;">
+                        <div style="font-size:0.6em;letter-spacing:2px;color:#8391a7;font-weight:900;margin-bottom:5px;">EFFET</div>
+                        <div style="color:#e2e8f0;font-size:0.9em;line-height:1.5;font-weight:600;">${item.description}</div>
+                        ${_quand ? `<div style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:0.74em;color:#a3b1c2;font-weight:700;">${_ic('chrono', 14, '#a3b1c2')}<span>${_quand}</span></div>` : ''}
+                    </div>
 
                     ${activeNow
-                        ? `<div style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.35);border-radius:10px;padding:12px;text-align:center;color:#4ade80;font-weight:800;font-size:0.85em;">✓ Activé pour ta prochaine Faille</div>`
-                        : `<button onclick="awakConsumablesUse('${item.id}');document.getElementById('awakConsumableModal').remove();" style="width:100%;background:linear-gradient(135deg,${item.color},${item.color}dd);border:none;color:white;border-radius:14px;padding:14px;font-weight:900;font-size:0.92em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${item.color}40;">UTILISER</button>`
+                        ? `<div style="margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.35);border-radius:14px;padding:13px;color:#67e8f9;font-weight:800;font-size:0.86em;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7"/></svg><span>Activé pour ta prochaine Faille</span></div>`
+                        : `<button onclick="awakConsumablesUse('${item.id}');${_fermer};" style="width:100%;margin-top:14px;min-height:50px;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#fff;border-radius:14px;padding:13px;font-weight:900;font-size:0.95em;letter-spacing:0.5px;cursor:pointer;box-shadow:0 6px 20px rgba(34,211,238,0.3);">Utiliser</button>`
                     }
-                    <button onclick="document.getElementById('awakConsumableModal').remove()" style="width:100%;margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:10px;padding:10px;font-weight:700;font-size:0.82em;cursor:pointer;">Fermer</button>
+                    <button onclick="${_fermer}" style="width:100%;margin-top:8px;min-height:42px;background:transparent;border:none;color:#8391a7;border-radius:10px;padding:8px;font-weight:700;font-size:0.84em;cursor:pointer;">Fermer</button>
                 </div>
             </div>`;
 
@@ -41804,10 +42022,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const statRows = [
                 { key: 'STR', icon: '⚔️', color: '#ef4444', label: 'Force' },
                 { key: 'AGI', icon: '⚡', color: '#f59e0b', label: 'Agilité' },
-                { key: 'VIT', icon: '💨', color: '#7dd3fc', label: 'Vitesse' },
-                { key: 'END', icon: '💚', color: '#22c55e', label: 'Endurance' },
-                { key: 'PER', icon: '🔮', color: '#06b6d4', label: 'Perception' },
-                { key: 'SEN', icon: '🌀', color: '#a855f7', label: 'Sensorialité' }
+                { key: 'VIT', icon: '💨', color: '#60a5fa', label: 'Vitalité' },
+                { key: 'END', icon: '💚', color: '#f472b6', label: 'Endurance' },
+                { key: 'PER', icon: '🔮', color: '#22d3ee', label: 'Perception' },
+                { key: 'SEN', icon: '🌀', color: '#cbd5e1', label: 'Sens' }
             ];
 
             return `
@@ -41820,16 +42038,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <div style="font-size:0.6em;color:${rank.color};font-weight:900;letter-spacing:2px;margin-bottom:3px;">◈ AWAKENED ANCRAGE</div>
                         <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
                             <span style="font-size:2em;font-weight:900;color:${rank.color};line-height:1;letter-spacing:1px;text-shadow:0 0 12px ${rank.color}60;">${rank.id}</span>
-                            <span style="font-size:0.7em;color:#64748b;font-weight:600;">Niv. ${level}</span>
+                            <span style="font-size:0.7em;color:#8391a7;font-weight:600;">Niv. ${level}</span>
                         </div>
                         <div style="font-size:0.7em;color:#94a3b8;font-weight:600;margin-top:3px;">${rank.desc}</div>
                     </div>
                     <div style="text-align:right;">
-                        <div style="font-size:0.58em;color:#64748b;font-weight:700;letter-spacing:1.5px;">POWER SCORE</div>
+                        <div style="font-size:0.58em;color:#8391a7;font-weight:700;letter-spacing:1.5px;">POWER SCORE</div>
                         <div style="font-size:1.5em;font-weight:900;color:white;letter-spacing:-1px;line-height:1.1;" id="awakPowerScoreDisplay">${progress.power.toLocaleString('fr-FR')}</div>
                         ${availablePoints > 0
                             ? `<button onclick="awakOpenStatPointsModal()" style="margin-top:8px;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:white;padding:5px 11px;border-radius:99px;font-size:0.68em;font-weight:900;cursor:pointer;letter-spacing:0.5px;box-shadow:0 2px 8px rgba(245,158,11,0.4);animation:awakPointsPulse 1.6s ease-in-out infinite;display:inline-flex;align-items:center;gap:4px;">⬆ ${availablePoints} pt${availablePoints>1?'s':''}</button>`
-                            : `<button onclick="awakOpenStatPointsModal()" style="margin-top:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:#64748b;padding:5px 11px;border-radius:99px;font-size:0.66em;font-weight:700;cursor:pointer;letter-spacing:0.5px;">⚙ Stats</button>`
+                            : `<button onclick="awakOpenStatPointsModal()" style="margin-top:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:#8391a7;padding:5px 11px;border-radius:99px;font-size:0.66em;font-weight:700;cursor:pointer;letter-spacing:0.5px;">⚙ Stats</button>`
                         }
                     </div>
                 </div>
@@ -41859,7 +42077,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         ${statRows.map(s => `
                             <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:8px 6px;text-align:center;">
                                 <div style="font-size:1em;line-height:1;margin-bottom:3px;">${s.icon}</div>
-                                <div style="font-size:0.62em;color:#64748b;font-weight:700;letter-spacing:0.5px;">${s.key}</div>
+                                <div style="font-size:0.62em;color:#8391a7;font-weight:700;letter-spacing:0.5px;">${s.key}</div>
                                 <div style="font-size:0.95em;font-weight:900;color:${s.color};line-height:1.2;">${stats[s.key] || 0}</div>
                             </div>
                         `).join('')}
@@ -41916,7 +42134,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const totalAlloue = Object.values(sp.allocated).reduce((a, b) => a + b, 0);
             let totaux = {};
             try { totaux = awakGetTotalStats() || {}; } catch (e) {}
-            const COUL = { STR:'#f87171', AGI:'#fbbf24', VIT:'#60a5fa', END:'#34d399', PER:'#22d3ee', SEN:'#a78bfa' };
+            const COUL = { STR:'#ef4444', AGI:'#f59e0b', VIT:'#60a5fa', END:'#f472b6', PER:'#22d3ee', SEN:'#cbd5e1' };
             const NOM  = { STR:'Force', AGI:'Agilité', VIT:'Vitalité', END:'Endurance', PER:'Perception', SEN:'Sens' };
             const ICO  = { STR:'epee', AGI:'eclair', VIT:'bouclier', END:'coeur', PER:'cible', SEN:'etoile' };
             const SOFT = 80;
@@ -41942,7 +42160,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const btn = (stat, d, actif, c) => `<button data-sp="${stat}" data-d="${d}" aria-label="${d > 0 ? 'Ajouter' : 'Retirer'} un point en ${NOM[stat]}" ${actif ? '' : 'disabled'}
                 style="width:40px;height:40px;min-height:0;padding:0;border-radius:12px;flex-shrink:0;cursor:${actif ? 'pointer' : 'default'};font-family:inherit;
                 display:flex;align-items:center;justify-content:center;touch-action:manipulation;
-                ${d > 0 ? `background:${actif ? c + '22' : 'rgba(255,255,255,0.03)'};border:1px solid ${actif ? c + '88' : 'rgba(255,255,255,0.06)'};color:${actif ? c : '#475569'};`
+                ${d > 0 ? `background:${actif ? c + '22' : 'rgba(255,255,255,0.03)'};border:1px solid ${actif ? c + '88' : 'rgba(255,255,255,0.06)'};color:${actif ? c : '#7c8aa0'};`
                         : `background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:${actif ? '#cbd5e1' : '#334155'};`}">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">${d > 0 ? '<path d="M12 5v14M5 12h14"/>' : '<path d="M5 12h14"/>'}</svg></button>`;
 
@@ -41974,7 +42192,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <div style="flex:1;min-width:0;font-size:11.5px;color:#8d9cb1;">Prochain point : ${ef[1]}</div>
                         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
                             ${btn(stat, -1, b > 0, c)}
-                            <div style="min-width:30px;text-align:center;font-size:16px;font-weight:900;color:${b ? c : '#475569'};font-variant-numeric:tabular-nums;">${b ? '+' + b : '0'}</div>
+                            <div style="min-width:30px;text-align:center;font-size:16px;font-weight:900;color:${b ? c : '#7c8aa0'};font-variant-numeric:tabular-nums;">${b ? '+' + b : '0'}</div>
                             ${btn(stat, 1, dispo > 0, c)}
                         </div>
                     </div>
@@ -43168,7 +43386,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!grid) return;
 
             if (muscles.length === 0) {
-                grid.innerHTML = '<p style="color:#6b7280;text-align:center;font-size:0.9em;padding:20px 0;">Commence une séance pour gagner de l\'XP !</p>';
+                grid.innerHTML = '<p style="color:#8391a7;text-align:center;font-size:0.9em;padding:20px 0;">Commence une séance pour gagner de l\'XP !</p>';
             } else {
                 grid.innerHTML = muscles.map(([muscle, info]) => {
                     const lv = rpgLevelFromXP(info.xp);
@@ -43192,7 +43410,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         <div style="background:#e5e7eb;border-radius:99px;height:6px;overflow:hidden;margin-bottom:4px;">
                             <div style="height:100%;background:${barColor};border-radius:99px;width:${pct}%;transition:width 0.8s ease;"></div>
                         </div>
-                        <div style="font-size:0.72em;color:#6b7280;display:flex;justify-content:space-between;">
+                        <div style="font-size:0.72em;color:#8391a7;display:flex;justify-content:space-between;">
                             <span>${info.xp.toLocaleString('fr-CA')} XP</span>
                             <span>${decaying ? '⚠️ En déclin' : warning ? '⚡ Entraîne-toi demain' : `${Math.floor(daysSince)}j`}</span>
                         </div>
@@ -43414,13 +43632,22 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // ou passer / valider après la fin : la séance s'enregistrait 2 fois et plus,
             // avec XP, coffres, Éveil et histoire en double)
             if (currentWorkout && currentWorkout._completed) return;
+            // v1604 : duo — l'historique du meneur dit avec qui
+            try {
+                if (currentWorkout && window.AwakDuo && AwakDuo.actif() && !currentWorkout._duoNom) {
+                    currentWorkout._duoNom = true;
+                    currentWorkout.name = (currentWorkout.name || 'Séance') + ' · duo avec ' + AwakDuo.lire().nom;
+                }
+            } catch (e) {}
             // v1544 : séance VIDE (aucune série validée, moins de 3 min) → pas enregistrée.
             // Avant : tout passer avec « Suivant » donnait « Bravo », XP, quêtes et exploits.
             try {
                 const _w = currentWorkout;
                 const _nbS = Object.keys(_currentSessionSets || {}).reduce((n, k) => n + ((_currentSessionSets[k] || []).length), 0);
                 const _min = workoutStartTime ? (Date.now() - workoutStartTime) / 60000 : 99;
-                if (_w && !_w._awakVideOk && !_nbS && _min < 3 && !_w._isRift && !_w._isHunt && !_w._isAssaut && !_w._isFinalBoss && typeof showConfirm === 'function') {
+                let _duoSeries = false;   // v1605 : le partenaire du duo a fait ses séries → pas « vide »
+                try { _duoSeries = !!(window.AwakDuo && AwakDuo.actif() && AwakDuo.aDesSeries()); } catch (e) {}
+                if (_w && !_w._awakVideOk && !_nbS && !_duoSeries && _min < 3 && !_w._isRift && !_w._isHunt && !_w._isAssaut && !_w._isFinalBoss && typeof showConfirm === 'function') {
                     if (_w._awakVideOuvert) return;   // v1545 : une seule fenêtre, même après plusieurs touches
                     _w._awakVideOuvert = true;
                     showConfirm('Aucune série n\'a été validée. Cette séance ne sera pas enregistrée.', () => {
@@ -43526,6 +43753,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     if (currentWorkout && window.AwakGroup.isActive() && typeof window.AwakGroup.getParticipants === 'function') {
                         window.AwakGroup.getParticipants().forEach(function (p) {
                             if (p.self || p.kind !== 'profile') return;
+                            if (window.AwakDuo && AwakDuo.actif() && AwakDuo.pid() === p.id) return;   // v1601 : sa propre séance
                             const _deja = window.AwakGroup.getParticipantSets(p.id) || {};
                             (currentWorkout.exercises || []).forEach(function (ex) {
                                 if (!ex || ex.isRest || ex.isInfo) return;
@@ -43537,6 +43765,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             });
                         });
                     }
+                    // v1603 : bilan du partenaire (duo) pour l'écran de fin, AVANT la remise à zéro
+                    let _duoBilan = null;
+                    try { if (window.AwakDuo && AwakDuo.actif()) _duoBilan = AwakDuo.resumePourBilan(); } catch (e) {}
                     const _contribs = window.AwakGroup.profiledContributors();
                     const _dureeGroupe = (typeof workoutStartTime === 'number' && workoutStartTime > 0) ? Math.round((Date.now() - workoutStartTime) / 1000) : 0;
                     const _xpGroupe = [];
@@ -43547,17 +43778,19 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             if (w && !w._durationSec && _dureeGroupe > 0) w._durationSec = _dureeGroupe;
                             if (w) {
                                 saveGroupWorkoutForProfile(p.id, w);
-                                const _xp = awakXPParticipant(p.id, w, currentWorkout);   // v1313
+                                const _xp = awakXPParticipant(p.id, w, (window.AwakGroup.gabaritPour ? window.AwakGroup.gabaritPour(p.id, currentWorkout) : currentWorkout));   // v1313
                                 if (_xp > 0) _xpGroupe.push(p.name + ' +' + _xp + ' XP');
+                                if (_duoBilan && window.AwakDuo && AwakDuo.pid() === p.id) { _duoBilan.xp = _xp; try { AwakDuo.compterMentor(); } catch (e) {} }
                             }
                         } catch(e) {}
                     });
+                    if (_duoBilan && _duoBilan.series) { try { AwakDuo.bilan(_duoBilan); } catch (e) {} }
                     if (_contribs.length && typeof showToast === 'function') {
                         showToast('Séance enregistrée pour ' + _contribs.map(function(c){return c.name;}).join(', ') + (_xpGroupe.length ? ' · ' + _xpGroupe.join(', ') : ''), 'success', 4500);
                     }
                 }
             } catch(e) {}
-            try { if (window.AwakGroup && typeof window.AwakGroup.reset === 'function') window.AwakGroup.reset(); } catch(e) {}
+            try { if (window.AwakGroup && typeof window.AwakGroup.finSeance === 'function') window.AwakGroup.finSeance(); else if (window.AwakGroup && typeof window.AwakGroup.reset === 'function') window.AwakGroup.reset(); } catch(e) {}   // v1603 : le duo reste prêt
             exitFullscreenMode(); // Sortir du plein écran
             // Sauvegarder une copie des séries AVANT le nettoyage par saveSessionSets
             window._completedSessionSets = JSON.parse(JSON.stringify(_currentSessionSets || {}));
@@ -45389,8 +45622,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <div id="celebContent_${p.id}_nutr" style="display:none;">
                     <div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:14px;padding:16px;margin-bottom:12px;">
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-                            <div style="text-align:center;"><div style="font-size:1.2em;font-weight:900;color:#4ade80;">${nutr.calories}</div><div style="font-size:0.62em;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Calories / jour</div></div>
-                            <div style="text-align:center;"><div style="font-size:1.2em;font-weight:900;color:#4ade80;">${nutr.protein}</div><div style="font-size:0.62em;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Protéines</div></div>
+                            <div style="text-align:center;"><div style="font-size:1.2em;font-weight:900;color:#4ade80;">${nutr.calories}</div><div style="font-size:0.62em;color:#8391a7;text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Calories / jour</div></div>
+                            <div style="text-align:center;"><div style="font-size:1.2em;font-weight:900;color:#4ade80;">${nutr.protein}</div><div style="font-size:0.62em;color:#8391a7;text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Protéines</div></div>
                         </div>
                         <div style="font-size:0.82em;color:#94a3b8;line-height:1.5;">${nutr.approach}</div>
                     </div>
@@ -45948,8 +46181,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         circleStyle = 'background:' + color + '2e;border:2px solid ' + color + ';color:' + color + ';box-shadow:0 0 0 4px ' + color + '26;';
                         inner = (i + 1); txtColor = '#fff'; weight = '800';
                     } else {
-                        circleStyle = 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#475569;';
-                        inner = '🔒'; txtColor = '#475569'; weight = '400';
+                        circleStyle = 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#7c8aa0;';
+                        inner = '🔒'; txtColor = '#7c8aa0'; weight = '400';
                     }
                     const lineColor = (i + 1 <= done) ? color : 'rgba(255,255,255,0.12)';
                     const connector = isLast ? '' : '<div style="width:2px;flex:1;min-height:' + (isCurrent ? '44' : '18') + 'px;background:' + lineColor + ';margin:3px 0;"></div>';
@@ -46070,12 +46303,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 return '<div onclick="showDisciplineGuide(\'' + d.id + '\')" title="Comment ça marche ?" style="display:flex;align-items:center;gap:10px;padding:7px 0;cursor:pointer;">'
                     + '<span style="width:30px;height:30px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:' + d.color + '1f;border:1px solid ' + d.color + '44;">' + awakMentorIco({ nickname: d.name, color: d.color }, 16) + '</span>'
                     + '<div style="flex:1;min-width:0;">'
-                    + '<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#fff;font-weight:700;font-size:0.8em;">' + d.name + (d.voie ? ' <span style="color:#64748b;font-weight:600;">· ' + d.voie + '</span>' : '') + '</span><span style="color:' + d.color + ';font-weight:800;font-size:0.78em;">Niv. ' + lv.level + '</span></div>'
+                    + '<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#fff;font-weight:700;font-size:0.8em;">' + d.name + (d.voie ? ' <span style="color:#8391a7;font-weight:600;">· ' + d.voie + '</span>' : '') + '</span><span style="color:' + d.color + ';font-weight:800;font-size:0.78em;">Niv. ' + lv.level + '</span></div>'
                     + '<div style="height:5px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;"><div style="height:100%;width:' + pct + '%;background:' + d.color + ';border-radius:99px;transition:width .3s;"></div></div>'
                     + '</div></div>';
             }).join('');
             return '<div class="card" style="padding:16px 18px;margin-bottom:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">'
-                + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:0.62em;color:#64748b;font-weight:900;letter-spacing:2px;">◈ MES SPORTS</span>'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:0.62em;color:#8391a7;font-weight:900;letter-spacing:2px;">◈ MES SPORTS</span>'
                 + '<span style="font-size:0.7em;color:#94a3b8;">' + totalSessions + ' séance' + (totalSessions > 1 ? 's' : '') + ' au total</span></div>'
                 + rows + '</div>';
         }
@@ -46090,7 +46323,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     + (active ? ('background:' + yc + ';color:#fff;box-shadow:0 2px 8px ' + yc + '66;') : 'background:rgba(255,255,255,0.06);color:#94a3b8;') + '">' + label + '</button>';
             };
             const row = function (lbl, btns) {
-                return '<div style="margin-bottom:9px;"><div style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:1.5px;margin-bottom:5px;">' + lbl + '</div><div style="display:flex;flex-wrap:wrap;gap:6px;">' + btns + '</div></div>';
+                return '<div style="margin-bottom:9px;"><div style="font-size:0.6em;color:#8391a7;font-weight:900;letter-spacing:1.5px;margin-bottom:5px;">' + lbl + '</div><div style="display:flex;flex-wrap:wrap;gap:6px;">' + btns + '</div></div>';
             };
             const durs = [5, 10, 15, 20].map(function (d) { return pill('durationMin', d, d + ' min'); }).join('');
             const focuses = [['reveil', '🌅 Réveil'], ['detente', '🌙 Détente'], ['antistress', '🧠 Anti-stress'], ['dos', '🪑 Dos'], ['hanches', '🤸 Hanches'], ['equilibre', '⚖️ Équilibre'], ['complet', '✨ Complète']].map(function (f) { return pill('focus', f[0], f[1]); }).join('');
@@ -46250,9 +46483,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             // v1228 : dire COMMENT débloquer (≈ 100 XP par séance, 300 par niveau)
                             let _reste = 0;
                             try { const _l = getDisciplineLevel(d.id); _reste = Math.max(1, Math.ceil(((need - 1) * 300 - _l.xp) / 100)); } catch (e) {}
-                            return '<span title="Atteins le niveau ' + need + ' pour débloquer" style="display:inline-flex;flex-direction:column;align-items:flex-start;background:rgba(255,255,255,0.04);color:#64748b;border:1px dashed rgba(255,255,255,0.16);border-radius:12px;padding:6px 12px;font-size:0.74em;font-weight:800;">'
+                            return '<span title="Atteins le niveau ' + need + ' pour débloquer" style="display:inline-flex;flex-direction:column;align-items:flex-start;background:rgba(255,255,255,0.04);color:#8391a7;border:1px dashed rgba(255,255,255,0.16);border-radius:12px;padding:6px 12px;font-size:0.74em;font-weight:800;">'
                                 + '<span style="display:inline-flex;align-items:center;gap:5px;">' + (window.AwakIcon ? AwakIcon.get('porte', 12, '#64748b') : '') + s.name + '</span>'
-                                + '<span style="font-size:0.85em;font-weight:600;color:#64748b;">Niveau ' + need + (_reste ? ' · encore ~' + _reste + ' séance' + (_reste > 1 ? 's' : '') : '') + '</span></span>';
+                                + '<span style="font-size:0.85em;font-weight:600;color:#8391a7;">Niveau ' + need + (_reste ? ' · encore ~' + _reste + ' séance' + (_reste > 1 ? 's' : '') : '') + '</span></span>';
                         }).join('')
                         + '</div>';
                 }
@@ -46263,7 +46496,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     prog = '<div style="margin-top:12px;">'
                         + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">'
                         + '<span style="font-size:0.7em;font-weight:800;color:' + d.color + ';">' + (d.voie || d.name) + ' · Niv. ' + lv.level + '</span>'
-                        + '<span style="font-size:0.62em;color:#64748b;">' + lv.sessions + ' séance' + (lv.sessions > 1 ? 's' : '') + '</span>'
+                        + '<span style="font-size:0.62em;color:#8391a7;">' + lv.sessions + ' séance' + (lv.sessions > 1 ? 's' : '') + '</span>'
                         + '</div>'
                         + '<div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">'
                         + '<div style="height:100%;width:' + pct + '%;background:' + d.color + ';border-radius:99px;transition:width .3s;"></div>'
@@ -46275,7 +46508,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!cards) cards = '<p style="text-align:center;color:#94a3b8;padding:20px;">Aucune discipline disponible.</p>';
             // v1228 : choisir son sport d'abord, la progression ensuite
             return '<div style="display:grid;gap:10px;">'
-                + '<div style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ CHOISIS TON SPORT</div>'
+                + '<div style="font-size:0.6em;color:#8391a7;font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ CHOISIS TON SPORT</div>'
                 + chips + cards
                 + (typeof _renderMyVoies === 'function' ? _renderMyVoies() : '')
                 + '</div>';
@@ -46323,7 +46556,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     + '<span style="flex:1;min-width:0;">'
                     + '<span style="display:block;font-weight:900;color:#fff;font-size:1em;">' + p.name
                     +   (p.reco ? ' <span style="font-size:0.6em;font-weight:800;color:#0b1220;background:' + a + ';border-radius:99px;padding:2px 8px;vertical-align:2px;">Idéal pour commencer</span>' : '') + '</span>'
-                    + '<span style="display:block;font-size:0.62em;color:#64748b;font-weight:700;margin-top:1px;">' + p.en + '</span>'
+                    + '<span style="display:block;font-size:0.62em;color:#8391a7;font-weight:700;margin-top:1px;">' + p.en + '</span>'
                     + '<span style="display:block;font-size:0.68em;color:' + a + ';font-weight:700;margin-top:3px;">' + p.niveau + ' · ' + p.schema + '</span>'
                     + '</span>'
                     + '</div>'
@@ -46331,7 +46564,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     + '</div>';
             }).join('');
             return '<div style="display:grid;gap:10px;">'
-                + '<div style="font-size:0.6em;color:#64748b;font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ PROGRAMMES EN SALLE</div>'
+                + '<div style="font-size:0.6em;color:#8391a7;font-weight:900;letter-spacing:2px;margin-bottom:2px;">◈ PROGRAMMES EN SALLE</div>'
                 + '<div style="font-size:0.7em;color:#94a3b8;margin:-4px 0 4px;line-height:1.4;">Touche une séance pour la lancer directement.</div>'
                 + (_ado ? '<div style="font-size:0.76em;color:#fcd34d;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);border-radius:11px;padding:10px 12px;line-height:1.45;">'
                     + 'Ces séances utilisent des charges : fais-les avec un adulte qui connaît les mouvements.</div>' : '')
@@ -46600,7 +46833,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <div style="margin-bottom:6px;display:flex;justify-content:center;">${(window.AwakIcon && AwakIcon.get) ? AwakIcon.get('repos', 34, '#94a3b8') : ''}</div>
                     <div style="font-size:0.62em;color:#94a3b8;font-weight:900;letter-spacing:2px;margin-bottom:4px;">JOUR DE REPOS</div>
                     <div style="font-size:0.95em;color:white;font-weight:800;">${todaySplit ? todaySplit.name : 'Repos'}</div>
-                    <div style="font-size:0.75em;color:#64748b;margin-top:6px;">Profite de ta récupération. Reviens demain !</div>
+                    <div style="font-size:0.75em;color:#8391a7;margin-top:6px;">Profite de ta récupération. Reviens demain !</div>
                 </div>
             ` : (todaySplit ? `
                 <div class="card" style="padding:18px 20px;background:linear-gradient(135deg,${celeb.color}25,${celeb.color}05);border:1.5px solid ${celeb.color}60;">
@@ -46636,8 +46869,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         const isActive = k === prog.phaseKey;
                         const isPast = (i+1) * 4 < prog.week;
                         return `<div style="background:${isActive ? ph.color+'20' : 'rgba(255,255,255,0.03)'};border:1px solid ${isActive ? ph.color : (isPast ? ph.color+'50' : 'rgba(255,255,255,0.05)')};border-radius:10px;padding:8px 6px;text-align:center;${isPast ? 'opacity:0.65;' : ''}">
-                            <div style="font-size:0.85em;font-weight:900;color:${isActive ? ph.color : (isPast ? ph.color : '#475569')};line-height:1;">${ph.label}</div>
-                            <div style="font-size:0.55em;color:#64748b;margin-top:3px;font-weight:700;">SEM ${ph.weeks}</div>
+                            <div style="font-size:0.85em;font-weight:900;color:${isActive ? ph.color : (isPast ? ph.color : '#7c8aa0')};line-height:1;">${ph.label}</div>
+                            <div style="font-size:0.55em;color:#8391a7;margin-top:3px;font-weight:700;">SEM ${ph.weeks}</div>
                             ${isActive ? '<div style="font-size:0.5em;color:'+ph.color+';font-weight:900;margin-top:2px;letter-spacing:1px;">ACTIVE</div>' : (isPast ? '<div style="font-size:0.65em;color:'+ph.color+';margin-top:1px;">✓</div>' : '')}
                         </div>`;
                     }).join('')}
@@ -46647,7 +46880,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <div style="height:7px;background:rgba(255,255,255,0.05);border-radius:99px;overflow:hidden;margin-bottom:6px;">
                     <div style="height:100%;width:${prog.pct}%;background:linear-gradient(90deg,${prog.phase.color},${prog.phase.color}cc);border-radius:99px;transition:width 0.8s;box-shadow:0 0 8px ${prog.phase.color}60;"></div>
                 </div>
-                <div style="display:flex;justify-content:space-between;font-size:0.65em;color:#64748b;font-weight:700;">
+                <div style="display:flex;justify-content:space-between;font-size:0.65em;color:#8391a7;font-weight:700;">
                     <span>${prog.pct}% complété</span>
                     <span>${prog.sessionsCompleted} séance${prog.sessionsCompleted > 1 ? 's' : ''} faite${prog.sessionsCompleted > 1 ? 's' : ''}</span>
                 </div>
@@ -46677,7 +46910,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         const dayKeys = ['lun','mar','mer','jeu','ven','sam','dim'];
                         const dayKey = dayKeys[i];
                         return `<div style="display:flex;align-items:center;gap:10px;padding:10px 11px;background:${isToday ? celeb.color+'20' : 'rgba(255,255,255,0.02)'};border:1px solid ${isToday ? celeb.color+'60' : 'rgba(255,255,255,0.05)'};border-radius:10px;${isToday ? 'box-shadow:0 0 12px '+celeb.color+'30;' : ''}">
-                            <div style="font-size:0.7em;font-weight:900;color:${isToday ? celeb.color : '#64748b'};width:32px;letter-spacing:1px;flex-shrink:0;">${s.day}</div>
+                            <div style="font-size:0.7em;font-weight:900;color:${isToday ? celeb.color : '#8391a7'};width:32px;letter-spacing:1px;flex-shrink:0;">${s.day}</div>
                             <div style="flex:1;min-width:0;font-size:0.85em;font-weight:${isToday ? '800' : '600'};color:${isRestDay ? '#94a3b8' : 'white'};">${s.name}</div>
                             ${isToday ? `<span style="background:${celeb.color};color:white;padding:2px 8px;border-radius:99px;font-size:0.55em;font-weight:900;letter-spacing:1px;flex-shrink:0;">AUJ.</span>` : ''}
                             ${!isRestDay ? `<button onclick="startCelebrityWorkoutToday('${dayKey}')" style="background:${isToday ? celeb.color : 'rgba(255,255,255,0.05)'};color:${isToday ? 'white' : '#94a3b8'};border:1px solid ${isToday ? celeb.color : 'rgba(255,255,255,0.1)'};border-radius:6px;padding:5px 10px;font-size:0.65em;font-weight:800;cursor:pointer;flex-shrink:0;letter-spacing:0.5px;">▶</button>` : ''}
@@ -46703,7 +46936,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             <div style="background:${celeb.color}15;color:${celeb.color};border:1px solid ${celeb.color}30;padding:3px 9px;border-radius:6px;font-size:0.72em;font-weight:800;flex-shrink:0;">${ex.sets}×${ex.reps != null ? ex.reps : (ex.duration ? ex.duration + ' s' : '')}</div>
                         </div>
                     `).join('')}
-                    ${celeb.exercises.length > 6 ? `<div style="text-align:center;padding:8px;font-size:0.72em;color:#475569;font-style:italic;">+ ${celeb.exercises.length - 6} autres exercices</div>` : ''}
+                    ${celeb.exercises.length > 6 ? `<div style="text-align:center;padding:8px;font-size:0.72em;color:#7c8aa0;font-style:italic;">+ ${celeb.exercises.length - 6} autres exercices</div>` : ''}
                 </div>
             </div>` : ''}
 
@@ -47275,7 +47508,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             div.innerHTML = `
                 <div style="font-size:1.6em;margin-bottom:6px;">${program.emoji}</div>
                 <div style="font-size:0.82em;font-style:italic;color:#e2e8f0;line-height:1.5;">${q}</div>
-                <div style="font-size:0.65em;color:#6b7280;margin-top:6px;font-weight:700;letter-spacing:1px;">— ${program.nickname}</div>
+                <div style="font-size:0.65em;color:#8391a7;margin-top:6px;font-weight:700;letter-spacing:1px;">— ${program.nickname}</div>
             `;
             document.getElementById('restOverlay')?.appendChild(div);
         }
@@ -48440,6 +48673,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 showAlert('Profil introuvable.', 'error', 'Erreur');
                 return;
             }
+            // v1604 : autre profil actif → la séance à plusieurs / le duo repart à zéro
+            // (avant : le nouveau profil restait « partenaire » de lui-même)
+            try { if (profileId !== getCurrentProfileId() && window.AwakGroup && typeof AwakGroup.reset === 'function') AwakGroup.reset(); } catch (e) {}
             
             // 🎮 Données de jeu propres à chaque profil (RPG, items, stats, équipement de gym).
             // Stockées sous profile_<id>_<clé> ; les clés "principales" sont le set de travail du profil actif.
@@ -49306,7 +49542,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             }).join('');
             host.innerHTML = '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px 14px;">' +
                 '<div style="font-size:0.8em;font-weight:800;color:#e2e8f0;margin-bottom:8px;letter-spacing:0.3px;">📊 Volume cette semaine ' +
-                '<span style="color:#64748b;font-weight:600;font-size:0.85em;">· 7 j · pondéré</span></div>' + rows + '</div>';
+                '<span style="color:#8391a7;font-weight:600;font-size:0.85em;">· 7 j · pondéré</span></div>' + rows + '</div>';
         }
 
         // ⚧ Séance focus recommandée selon le sexe (préférences réelles, jamais imposée).
@@ -49418,7 +49654,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             if (!host) return;
             if ((typeof awakUserSex === 'function' ? awakUserSex() : '') !== 'femme') { host.innerHTML = ''; return; }
             const c = awakGetCycle();
-            const fleche = '<span style="flex-shrink:0;color:#64748b;font-size:1.2em;">›</span>';
+            const fleche = '<span style="flex-shrink:0;color:#8391a7;font-size:1.2em;">›</span>';
             if (!c.enabled) {
                 host.innerHTML = '<div onclick="openCycleSetup()" style="' + _CY_CARTE + 'padding:13px 14px;cursor:pointer;display:flex;align-items:center;gap:12px;">'
                     + '<span style="' + _CY_TUILE + '">' + awakCycleLune(null, 22, '#c4b5fd') + '</span>'
@@ -49447,7 +49683,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 + seg.map(function (s) { const on = s[0] === p.phase, cc = AWAK_CYCLE_PHASES[s[0]].color; return '<span style="flex:' + s[1] + ';border-radius:99px;background:' + cc + ';opacity:' + (on ? '1' : '0.28') + ';"></span>'; }).join('')
                 + '<span style="position:absolute;top:-4px;left:calc(' + (((p.dayInCycle - 0.5) / len) * 100).toFixed(1) + '% - 7px);width:14px;height:14px;border-radius:50%;background:#12161c;border:2.5px solid #fff;box-sizing:border-box;"></span>'
                 + '</div>'
-                + '<div style="display:flex;justify-content:space-between;font-size:0.58em;color:#64748b;font-weight:700;"><span>Jour 1</span><span>Jour ' + len + '</span></div>';
+                + '<div style="display:flex;justify-content:space-between;font-size:0.58em;color:#8391a7;font-weight:700;"><span>Jour 1</span><span>Jour ' + len + '</span></div>';
             const pct = Math.round((i.intensity - 1) * 100);
             const intens = pct === 0 ? 'intensité normale' : 'intensité ' + (pct > 0 ? '+' : '') + pct + ' %';
             let action = '';
@@ -49563,7 +49799,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (r.level < 0) {
                     return '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:11px 13px;margin-bottom:8px;display:flex;align-items:center;gap:10px;">'
                         + '<span style="font-size:1.3em;opacity:0.7;">' + l.emoji + '</span>'
-                        + '<div style="flex:1;"><div style="font-weight:700;color:#cbd5e1;font-size:0.85em;">' + l.label + '</div><div style="font-size:0.68em;color:#64748b;">Pas encore de données — logue une série</div></div></div>';
+                        + '<div style="flex:1;"><div style="font-weight:700;color:#cbd5e1;font-size:0.85em;">' + l.label + '</div><div style="font-size:0.68em;color:#8391a7;">Pas encore de données — logue une série</div></div></div>';
                 }
                 const idx = Math.min(4, r.level);
                 const col = AWAK_RANK_COLORS[AWAK_STR_RANKS[idx]];
@@ -49594,7 +49830,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             modal.innerHTML = '<div class="modal-content" style="max-width:460px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:3px solid ' + oCol + ';">'
                 + '<div class="modal-header"><h2 style="font-size:1em;">Standards de Force</h2><button onclick="document.getElementById(\'strengthModal\').remove()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div>'
                 + '<div class="modal-body">' + header + rows
-                + '<div style="margin-top:12px;font-size:0.66em;color:#64748b;line-height:1.5;">1RM estimé via la formule d\'Epley à partir de tes meilleures séries. Standards basés sur la force relative (1RM / poids de corps), adaptés au sexe. Indicatif — ta technique et ta morphologie comptent aussi.</div>'
+                + '<div style="margin-top:12px;font-size:0.66em;color:#8391a7;line-height:1.5;">1RM estimé via la formule d\'Epley à partir de tes meilleures séries. Standards basés sur la force relative (1RM / poids de corps), adaptés au sexe. Indicatif — ta technique et ta morphologie comptent aussi.</div>'
                 + '</div></div>';
             document.body.appendChild(modal);
         }
@@ -49775,7 +50011,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const ring = isToday ? 'box-shadow:0 0 0 2px rgba(34,197,94,0.533);' : '';
 
                 cells += `<div style="flex:1;text-align:center;">
-                    <div style="font-size:0.6em;color:${isToday ? '#4ade80' : '#64748b'};font-weight:800;margin-bottom:4px;">${letters[i]}</div>
+                    <div style="font-size:0.6em;color:${isToday ? '#4ade80' : '#8391a7'};font-weight:800;margin-bottom:4px;">${letters[i]}</div>
                     <div style="height:34px;border-radius:9px;background:${bg};${ring}display:flex;align-items:center;justify-content:center;font-size:0.78em;font-weight:800;color:${col};">${isTrained ? '✓' : d.getDate()}</div>
                 </div>`;
             }
@@ -49820,11 +50056,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     ${lines}
                     <div style="display:flex;gap:8px;margin-top:10px;">
                         <div style="flex:1;background:rgba(255,255,255,0.04);border-radius:9px;padding:7px 9px;">
-                            <div style="font-size:0.58em;color:#64748b;font-weight:800;letter-spacing:0.5px;">INTENSITÉ</div>
+                            <div style="font-size:0.58em;color:#8391a7;font-weight:800;letter-spacing:0.5px;">INTENSITÉ</div>
                             <div style="font-size:0.88em;font-weight:900;color:${tone};">${intensityPct}%</div>
                         </div>
                         <div style="flex:1;background:rgba(255,255,255,0.04);border-radius:9px;padding:7px 9px;">
-                            <div style="font-size:0.58em;color:#64748b;font-weight:800;letter-spacing:0.5px;">DURÉE</div>
+                            <div style="font-size:0.58em;color:#8391a7;font-weight:800;letter-spacing:0.5px;">DURÉE</div>
                             <div style="font-size:0.88em;font-weight:900;color:#e2e8f0;">${d.duration || 30} min</div>
                         </div>
                     </div>
@@ -50307,9 +50543,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               +   '<div style="font-size:0.54em;letter-spacing:2.5px;color:#60a8f0;font-weight:900;">◈ COMPARER</div>'
               +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.1em;'
               +     'font-weight:800;color:#fff;margin:2px 0 14px;">Deux photos</div>'
-              +   '<div style="font-size:0.62em;color:#64748b;font-weight:800;letter-spacing:1px;margin-bottom:5px;">AVANT</div>'
+              +   '<div style="font-size:0.62em;color:#8391a7;font-weight:800;letter-spacing:1px;margin-bottom:5px;">AVANT</div>'
               +   '<select id="awakPickA" style="' + champ + '">' + opts + '</select>'
-              +   '<div style="font-size:0.62em;color:#64748b;font-weight:800;letter-spacing:1px;margin-bottom:5px;">APRÈS</div>'
+              +   '<div style="font-size:0.62em;color:#8391a7;font-weight:800;letter-spacing:1px;margin-bottom:5px;">APRÈS</div>'
               +   '<select id="awakPickB" style="' + champ + '">' + opts + '</select>'
               +   '<button onclick="awakDoPhotoCompare()" '
               +     'style="width:100%;padding:13px;margin-top:6px;border-radius:13px;border:none;cursor:pointer;'
@@ -50408,11 +50644,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1585" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1616" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
-              +     'text-align:center;font-size:0.6em;color:#64748b;font-weight:700;'
+              +     'text-align:center;font-size:0.6em;color:#8391a7;font-weight:700;'
               +     'letter-spacing:0.5px;min-height:14px;"></div>'
               + '</div>';
         }
@@ -50490,7 +50726,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1585);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1616);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -50557,7 +50793,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1585);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1616);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -50588,7 +50824,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                  +   'border:1px solid rgba(255,255,255,0.07);">'
                  +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.05em;'
                  +     'font-weight:900;color:#e2e8f0;line-height:1;">' + val + '</div>'
-                 +   '<div style="font-size:0.5em;letter-spacing:1.5px;color:#64748b;'
+                 +   '<div style="font-size:0.5em;letter-spacing:1.5px;color:#8391a7;'
                  +     'font-weight:800;margin-top:4px;">' + label.toUpperCase() + '</div>'
                  + '</div>';
         }
@@ -50934,15 +51170,23 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const ex = currentWorkout.exercises[currentExerciseIndex];
             if (!ex || ex.isRest || ex.isInfo) return;
             if (!isPaused) togglePause();
+            // v1612 : dernier poids validé de la grille (avant : ancien champ masqué → toujours « ~30 % »)
             const lastWeight = (() => {
+                try {
+                    const l = (_currentSessionSets || {})[ex._baseName || ex.name] || (_currentSessionSets || {})[ex.name] || [];
+                    for (let i = l.length - 1; i >= 0; i--) if (!l[i].warmup && parseFloat(l[i].weight) > 0) return parseFloat(l[i].weight);
+                } catch (e) {}
                 const inp = document.getElementById('quickWeightInput');
                 return inp && inp.value ? parseFloat(inp.value) : null;
             })();
+            const _sansCharge = (ex.equipment || []).every(q => /^(Poids du corps|Aucun|Tapis|Tapis de sol)$/i.test(q));
             const dropWeight = lastWeight ? Math.round(lastWeight * 0.7 * 2)/2 : null;
-            const msg = dropWeight
-                ? `⬇️ Drop Set — Réduire à ${dropWeight} ${useKg?'kg':'lbs'} et faire max reps jusqu'à l'échec !`
-                : `⬇️ Drop Set — Réduire le poids de ~30% et faire max reps jusqu'à l'échec !`;
-            showAlert(msg, 'info', 'Drop Set');
+            const msg = _sansCharge && !lastWeight
+                ? `Sans charge : enchaîne tout de suite une variante plus facile (ex. sur les genoux, amplitude réduite) jusqu'à l'échec.`
+                : dropWeight
+                ? `Baisse à ${dropWeight} ${useKg?'kg':'lb'} (−30 %) et fais le maximum de répétitions, sans repos.`
+                : `Baisse la charge d'environ 30 % et fais le maximum de répétitions, sans repos.`;
+            showAlert(msg, 'info', 'Série dégressive');
             togglePause(); // Reprendre
         }
 
@@ -50953,12 +51197,15 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // Rest-Pause: 15s de repos puis continuer
             if (!isPaused) togglePause();
             let countdown = 15;
-            showToast(`⏸ Rest-Pause — reprise dans ${countdown}s`, 'info', 1000);
+            showToast(`Mini-pause — reprise dans ${countdown} s`, 'info', 1000);
             const ticker = setInterval(() => {
                 countdown--;
+                // v1612 : repris à la main pendant la mini-pause → on s'arrête (avant : la fin
+                // du décompte remettait la séance EN PAUSE)
+                if (!isPaused) { clearInterval(ticker); return; }
                 if (countdown <= 0) {
                     clearInterval(ticker);
-                    togglePause();
+                    if (isPaused) togglePause();
                     vibrate([100,50,100]);
                     showToast('⏸ → Reprends maintenant !', 'success', 2000);
                 } else if (countdown <= 5) {
@@ -51028,6 +51275,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
             // Fermer si clic ailleurs (en dehors du panneau et du bouton menu)
             if (panel.style.display === 'block') {
+                try { _awakMajMenuEtats(); } catch (e) {}   // v1615 : état Son / Vibreur / Unité visible
                 const _mo = document.getElementById('muscuOnlyOpts');
                 if (_mo) _mo.style.display = (currentWorkout && currentWorkout._discipline) ? 'none' : '';
                 // 🧒 v1223 : techniques avancées masquées pour un enfant
@@ -51805,7 +52053,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <div style="background:rgba(255,255,255,0.08);border-radius:99px;height:8px;overflow:hidden;">
                         <div style="height:100%;background:${c.barColor};border-radius:99px;width:${c.ratio}%;transition:width 1s ease;"></div>
                     </div>
-                    <div style="display:flex;justify-content:space-between;font-size:0.65em;color:#6b7280;margin-top:3px;">
+                    <div style="display:flex;justify-content:space-between;font-size:0.65em;color:#8391a7;margin-top:3px;">
                         <span>Toi : ${c.userBest} ${useKg?'kg':'lbs'}</span>
                         <span>${program.nickname} : ${c.starWeight} kg (${c.ratio}%)</span>
                     </div>
@@ -51875,10 +52123,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             };
             const _infoObjectif = function (id) {
                 const t = _OBJ_INFO[id];
-                if (!t) return '<div style="font-size:0.72em;color:#64748b;line-height:1.45;">Choisis un objectif : on t\'explique ce qu\'il change dans tes séances.</div>';
+                if (!t) return '<div style="font-size:0.72em;color:#8391a7;line-height:1.45;">Choisis un objectif : on t\'explique ce qu\'il change dans tes séances.</div>';
                 return '<div style="display:flex;gap:9px;align-items:flex-start;background:rgba(96,168,240,0.06);border:1px solid rgba(96,168,240,0.22);border-radius:12px;padding:10px 12px;">'
                     + '<span style="flex-shrink:0;margin-top:1px;">' + _ico('info', 15, '#93c5fd') + '</span>'
-                    + '<span style="font-size:0.74em;color:#cbd5e1;line-height:1.5;">' + t + ' <span style="color:#64748b;">Modifiable plus tard dans ton profil.</span></span></div>';
+                    + '<span style="font-size:0.74em;color:#cbd5e1;line-height:1.5;">' + t + ' <span style="color:#8391a7;">Modifiable plus tard dans ton profil.</span></span></div>';
             };
             const levelDescs = {
                 beginner: 'Je débute ou je reprends',
@@ -52015,7 +52263,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             + _preset('none', 'personne', 'Rien de spécial', 'Poids du corps uniquement, parfait à la maison.')
                             + _preset('home', 'maison', 'Maison équipée', 'Haltères, élastiques, banc, corde à sauter, barre de traction.')
                             + _preset('gym', 'immeuble', 'Salle de gym', 'Accès complet : barres, machines, cardio.')
-                            + '<div style="font-size:0.7em;color:#64748b;font-weight:800;letter-spacing:1px;margin:14px 0 8px;">OU AJUSTE PRÉCISÉMENT</div>'
+                            + '<div style="font-size:0.7em;color:#8391a7;font-weight:800;letter-spacing:1px;margin:14px 0 8px;">OU AJUSTE PRÉCISÉMENT</div>'
                             + '<div id="_onbEqChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">' + _eqChips + '</div>'
                             + btnPrimary('Continuer', 'window._premOnbNext()');
                     }
@@ -52029,7 +52277,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         + '<h2 style="color:#fff;font-size:1.4em;font-weight:900;margin:0 0 6px;">Combien de séances par semaine\u00a0?</h2>'
                         + '<p style="color:#94a3b8;font-size:0.8em;margin:0 0 14px;">Ton plan de la semaine suivra ce rythme. Tu pourras choisir tes jours dans « Planifier ma semaine ».</p>'
                         + '<div style="display:flex;gap:6px;margin-bottom:22px;">' + _fq + '</div>'
-                        + '<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin-bottom:8px;">Ce que tu aimes faire <span style="font-weight:700;color:#64748b;">(plusieurs choix)</span></div>'
+                        + '<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin-bottom:8px;">Ce que tu aimes faire <span style="font-weight:700;color:#8391a7;">(plusieurs choix)</span></div>'
                         + '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px;">' + _ai + '</div>'
                         + btnPrimary('Continuer', 'window._premOnbNext()');
                 } else if (ecran === 'aime') {
@@ -52299,79 +52547,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         window.showPremiumOnboarding = showPremiumOnboarding;
 
-        // ── ONBOARDING — 4 écrans ─────────────────────────────────────
-        function showOnboarding() {
-            if (localStorage.getItem('fitproOnboardingDone') === '1') return;
-            document.getElementById('_onboardingOverlay')?.remove();
-
-            const screens = [
-                {
-                    emoji: '🏋️', title: 'Bienvenue dans Awakened',
-                    text: 'Ton coach fitness personnel. Lance une séance IA en 1 tap depuis l\'onglet <strong style="color:#16a34a;">Séances</strong> — l\'IA choisit les exercices selon tes muscles, ton niveau et ton historique.',
-                    btn: 'Suivant →'
-                },
-                {
-                    emoji: '📅', title: 'Ton plan hebdomadaire',
-                    text: 'L\'onglet <strong style="color:#16a34a;">Accueil</strong> affiche ton planning de la semaine. Il s\'adapte automatiquement à tes séances complétées et à ton niveau de fatigue.',
-                    btn: 'Suivant →'
-                },
-                {
-                    emoji: '🎮', title: 'Gagne de l\'XP en t\'entraînant',
-                    text: 'Active le <strong style="color:#16a34a;">Mode Jeu</strong> dans Réglages. Chaque série complétée donne de l\'XP, fait monter tes muscles de niveau et débloque des compétences.',
-                    btn: 'Suivant →'
-                },
-                {
-                    emoji: '🌟', title: 'Entraîne-toi comme une star',
-                    text: 'Dans <strong style="color:#16a34a;">Séances → Programmes Stars</strong>, choisis un coach (Le Colosse, L\'Esthète, Reina Carter…). Son plan hebdo et ses exercices s\'activent automatiquement.',
-                    btn: 'C\'est parti ! 🚀'
-                },
-            ];
-
-            let current = 0;
-
-            const ov = document.createElement('div');
-            ov.id = '_onboardingOverlay';
-            ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:99999;display:flex;align-items:flex-end;justify-content:center;';
-
-            function render(idx) {
-                const s = screens[idx];
-                const isLast = idx === screens.length - 1;
-                ov.innerHTML = `
-                    <div style="background:#0D0D0D;border-radius:20px 20px 0 0;padding:30px 24px 36px;width:100%;max-width:480px;border-top:3px solid #16a34a;">
-                        <!-- Indicateurs -->
-                        <div style="display:flex;gap:6px;justify-content:center;margin-bottom:28px;">
-                            ${screens.map((_,i) => `<div style="height:4px;border-radius:99px;flex:1;background:${i<=idx?'#16a34a':'rgba(255,255,255,0.15)'}; transition:background 0.3s;"></div>`).join('')}
-                        </div>
-                        <div style="text-align:center;margin-bottom:24px;">
-                            <div style="font-size:3.5em;margin-bottom:16px;">${s.emoji}</div>
-                            <h2 style="color:white;font-size:1.3em;font-weight:900;margin:0 0 14px;">${s.title}</h2>
-                            <p style="color:#94a3b8;font-size:0.9em;line-height:1.7;margin:0;">${s.text}</p>
-                        </div>
-                        <button onclick="window._onboardNext()" style="width:100%;padding:16px;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;border:none;border-radius:14px;font-size:1em;font-weight:900;cursor:pointer;margin-bottom:12px;">
-                            ${s.btn}
-                        </button>
-                        ${!isLast ? `<button onclick="window._onboardSkip()" style="width:100%;padding:10px;background:transparent;border:none;color:rgba(255,255,255,0.3);font-size:0.85em;cursor:pointer;">Passer</button>` : ''}
-                    </div>`;
-            }
-
-            window._onboardNext = function() {
-                if (current < screens.length - 1) {
-                    current++;
-                    render(current);
-                    haptic.light();
-                } else {
-                    window._onboardSkip();
-                }
-            };
-            window._onboardSkip = function() {
-                localStorage.setItem('fitproOnboardingDone', '1');
-                ov.style.animation = 'restFadeIn 0.3s ease reverse';
-                setTimeout(() => ov.remove(), 280);
-            };
-
-            render(0);
-            document.body.appendChild(ov);
-        }
+        // v1591 : ancien tutoriel 4 écrans (showOnboarding) retiré — plus appelé depuis v1576
 
 
         window.onload = function() {
@@ -52994,8 +53170,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const rows = events.map((evt, idx) => {
                 const seen = localStorage.getItem('awakStoryEvt_' + evt.id) === '1';
                 if (seen) seenCount++;
-                const c = (evt.content && chars[evt.content.speaker]) ? chars[evt.content.speaker] : { color:'#4ade80' };
-                const color = c.color || '#4ade80';
+                const c = (evt.content && chars[evt.content.speaker]) ? chars[evt.content.speaker] : { color:'#60a8f0' };
+                const color = c.color || '#60a8f0';
                 const title = (evt.content && evt.content.title) ? evt.content.title : 'Souvenir';
                 // Étiquette discrète du type d'événement
                 // 📚 HIÉRARCHIE des scènes — le joueur doit distinguer d'un coup d'œil
@@ -53007,7 +53183,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const _TIERS = {
                     faille:   { lbl: '◆ FAILLE NARRATIVE', col: '#f59e0b', ic: '🌀' },
                     chapitre: { lbl: '◆ CHAPITRE',         col: '#22d3ee', ic: '📖' },
-                    echange:  { lbl: 'ÉCHANGE',            col: '#a855f7', ic: '💬' },
+                    echange:  { lbl: 'ÉCHANGE',            col: '#93c5fd', ic: '💬' },
                     fragment: { lbl: 'FRAGMENT',           col: '#64748b', ic: '✦' }
                 };
                 const _T = _TIERS[_tier];
@@ -53018,19 +53194,19 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:${seen?color:'rgba(255,255,255,0.10)'};"></div>
                     <div style="font-size:1.25em;flex-shrink:0;filter:${seen?'none':'grayscale(1)'};opacity:${seen?1:0.5};">${seen ? _T.ic : '🔒'}</div>
                     <div style="flex:1;min-width:0;">
-                        <div style="font-size:0.52em;color:${seen?_T.col:'#475569'};font-weight:900;letter-spacing:2px;">${typeLabel}</div>
-                        <div style="font-weight:800;color:${seen?'#f1f5f9':'#475569'};font-size:0.92em;margin-top:3px;
+                        <div style="font-size:0.52em;color:${seen?_T.col:'#7c8aa0'};font-weight:900;letter-spacing:2px;">${typeLabel}</div>
+                        <div style="font-weight:800;color:${seen?'#f1f5f9':'#7c8aa0'};font-size:0.92em;margin-top:3px;
                                     font-family:var(--font-display),sans-serif;letter-spacing:0.3px;
                                     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${seen ? title : '— — —'}</div>
                     </div>
-                    ${seen ? `<div style="color:${color};font-size:1em;opacity:0.7;flex-shrink:0;">›</div>` : `<div style="font-size:0.55em;color:#475569;letter-spacing:1px;font-weight:800;flex-shrink:0;">VERROUILLÉ</div>`}
+                    ${seen ? `<div style="color:${color};font-size:1em;opacity:0.7;flex-shrink:0;">›</div>` : `<div style="font-size:0.55em;color:#7c8aa0;letter-spacing:1px;font-weight:800;flex-shrink:0;">VERROUILLÉ</div>`}
                 </div>`;
             }).join('');
 
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1585");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1616");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -53066,16 +53242,16 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 18px;"></div>
                 <!-- 📖 En-tête aligné sur le langage visuel du jeu : liseré
                      violet, titre en capitales espacées, compteur à droite. -->
-                <div style="border-left:2px solid #a855f7;padding-left:11px;margin-bottom:16px;
+                <div style="border-left:2px solid #22d3ee;padding-left:11px;margin-bottom:16px;
                             display:flex;align-items:baseline;justify-content:space-between;gap:10px;">
                     <div>
-                        <div style="font-size:0.56em;letter-spacing:2.5px;color:#a855f7;font-weight:900;">◈ ARCHIVES</div>
+                        <div style="font-size:0.56em;letter-spacing:2.5px;color:#22d3ee;font-weight:900;">◈ ARCHIVES</div>
                         <h2 style="margin:2px 0 0;color:white;font-size:1.12em;font-weight:900;
                                    font-family:var(--font-display),sans-serif;letter-spacing:0.5px;">Journal du Chasseur</h2>
                     </div>
                     <div style="text-align:right;flex-shrink:0;">
-                        <div style="font-size:1.25em;font-weight:900;color:#a855f7;line-height:1;">${seenCount}</div>
-                        <div style="font-size:0.5em;letter-spacing:1.5px;color:#64748b;font-weight:800;">SUR ${events.length}</div>
+                        <div style="font-size:1.25em;font-weight:900;color:#22d3ee;line-height:1;">${seenCount}</div>
+                        <div style="font-size:0.5em;letter-spacing:1.5px;color:#8391a7;font-weight:800;">SUR ${events.length}</div>
                     </div>
                 </div>
                 ${_porteBloquee}
@@ -53557,7 +53733,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                                 ? '<span style="font-size:0.66em;font-weight:800;color:#e9d5ff;border:1px solid #e9d5ff88;padding:0 7px;border-radius:99px;">Affinité ½ ' + _st + '</span>' : ''))
                     +   '</div>'
                     +   '<div style="font-size:0.7em;color:#94a3b8;margin-top:1px;">' + (indispo || (c.title + ' · ' + (c.bonus && c.bonus.label ? c.bonus.label : ''))) + '</div>'
-                    +   (indispo ? '' : '<div style="font-size:0.64em;color:#64748b;margin-top:2px;">Stats : <b style="color:#cbd5e1;">' + (c.bonus ? c.bonus.stat : '') + '</b>'
+                    +   (indispo ? '' : '<div style="font-size:0.64em;color:#8391a7;margin-top:2px;">Stats : <b style="color:#cbd5e1;">' + (c.bonus ? c.bonus.stat : '') + '</b>'
                     +     (c.statSecondaire ? ' · secondaire <b style="color:#cbd5e1;">' + c.statSecondaire + '</b>' : '') + '</div>')
                     +   (indispo ? '' : '<div style="display:flex;align-items:center;gap:6px;margin-top:5px;"><span style="font-size:0.64em;color:' + sc + ';font-weight:700;">Endurance ' + stam + '%</span>'
                     +     '<span style="flex:1;max-width:110px;height:4px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;"><span style="display:block;height:100%;width:' + stam + '%;background:' + sc + ';"></span></span></div>')
@@ -53567,7 +53743,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     + '</div>';
             }).join('');
             document.getElementById('awakDelegList').innerHTML = rows ||
-                '<div style="text-align:center;color:#64748b;font-size:0.8em;padding:20px;">Aucun compagnon débloqué.</div>';
+                '<div style="text-align:center;color:#8391a7;font-size:0.8em;padding:20px;">Aucun compagnon débloqué.</div>';
 
             const n = _delegSel.length;
             const foot = document.getElementById('awakDelegFoot');
@@ -53848,7 +54024,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             ${comps.map(c => `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
                                 <span style="font-size:1.1em;">${c.emoji}</span>
                                 <span style="font-size:0.82em;color:#e2e8f0;font-weight:700;">${c.name}</span>
-                                <span style="font-size:0.68em;color:#64748b;">· ${c.title}</span>
+                                <span style="font-size:0.68em;color:#8391a7;">· ${c.title}</span>
                             </div>`).join('')}
                         </div>
 

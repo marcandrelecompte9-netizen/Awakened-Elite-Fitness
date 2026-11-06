@@ -500,7 +500,7 @@ window.AwakFamilyBoss = {
         +   '</div>'
         + '</div></div>';
     }).join('');
-    if (!rows) rows = '<div style="font-size:0.76em;color:#64748b;text-align:center;padding:8px;">Personne n\'a encore frappé. La première séance ouvre le combat !</div>';
+    if (!rows) rows = '<div style="font-size:0.76em;color:#8391a7;text-align:center;padding:8px;">Personne n\'a encore frappé. La première séance ouvre le combat !</div>';
 
     // Bloc victoire / réclamation
     var actionBlock = '';
@@ -595,7 +595,7 @@ window.AwakFamilyBoss = {
             return '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:0.7em;border-bottom:1px solid rgba(255,255,255,0.04);">'
               + '<span style="color:#cbd5e1;">' + _av(e.avatar, 18) + ' <b>' + esc(e.name) + '</b> — ' + e.dmg + ' dmg'
               + (e.combo > 1 ? ' <span style="color:#fbbf24;">🔥×' + e.combo + '</span>' : '') + '</span>'
-              + '<span style="color:#64748b;">' + _timeAgo(e.ts) + '</span>'
+              + '<span style="color:#8391a7;">' + _timeAgo(e.ts) + '</span>'
               + '</div>';
           }).join('');
           return '<div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">'
@@ -603,7 +603,7 @@ window.AwakFamilyBoss = {
             + items + '</div>';
         })()
       + actionBlock
-      + '<div style="margin-top:12px;font-size:0.68em;color:#64748b;text-align:center;line-height:1.4;">Chaque séance terminée inflige des dégâts. Entraînez-vous ensemble pour le terrasser !</div>'
+      + '<div style="margin-top:12px;font-size:0.68em;color:#8391a7;text-align:center;line-height:1.4;">Chaque séance terminée inflige des dégâts. Entraînez-vous ensemble pour le terrasser !</div>'
       + '</div>';
   }
 
