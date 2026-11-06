@@ -279,7 +279,7 @@
     if (localStorage.getItem('awakEveilOffered') === '1') return;
     // v1413 : attend que le guide du jeu / l'intro soient fermés (avant : les deux fenêtres en même temps)
     try {
-      var occupe = ['awakGameGuideOverlay', 'awakEpicIntroOverlay', '_premOnbOverlay', 'storyOverlay'].some(function (i) { return !!document.getElementById(i); })
+      var occupe = ['awakGameGuideOverlay', 'awakEpicIntroOverlay', '_premOnbOverlay', 'storyOverlay', 'awakLimitModal'].some(function (i) { return !!document.getElementById(i); })
         || (global.AwakCine && global.AwakCine.anyOpen && global.AwakCine.anyOpen());
       if (occupe && _offreEssais++ < 240) { setTimeout(eveilMaybeOffer, 700); return; }
     } catch (e) { _awkE(e); }
@@ -326,6 +326,22 @@
     var j0 = mode ? _get() : null;
     var answers = mode && j0 ? Object.assign({}, j0.answers || {}) : {}; var idx = 0;
     var _qs = _questions(mode);
+    // v1627 : réponses déjà connues par l'inscription → pas redemandées (4 questions → 1).
+    // Niveau Débutant = peu ou pas de sport ; jours = rythme choisi (2 à 4) ;
+    // sauts = selon « Pas d'impact / de saut » dans Mes limitations.
+    if (!mode && !_mineur()) {
+      try {
+        var up = (typeof global.getUserProfile === 'function' && global.getUserProfile()) || {};
+        if (up.level === 'beginner') answers.exp = 'jamais';
+        var f = parseInt(up.weeklyGoal, 10);
+        if (f) answers.days = String(Math.max(2, Math.min(4, f)));
+        var lim = (global.AwakLimitations && typeof global.AwakLimitations.get === 'function') ? (global.AwakLimitations.get() || []) : null;
+        if (lim) answers.sauts = lim.indexOf('impact') >= 0 ? 'non' : 'oui';
+      } catch (e) { _awkE(e); }
+      _qs = _qs.filter(function (q) { return answers[q.id] == null; });
+      if (!_qs.length) { ov0Fin(); return; }
+    }
+    function ov0Fin() { eveilStart(answers); }
     var ov = document.createElement('div');
     ov.id = 'eveilQuizModal';
     ov.style.cssText = 'position:fixed;inset:0;background:rgba(4,6,12,0.92);backdrop-filter:blur(6px);z-index:10050;display:flex;align-items:center;justify-content:center;padding:20px;';

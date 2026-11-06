@@ -376,6 +376,7 @@
       var essais = 0;
       var tenter = function () {
         try {
+          if (window._awkLimitesDemandees) return;   // v1627 : déjà demandé dans l'inscription
           var occupe = false;
           try { var up = (typeof getUserProfile === 'function') ? getUserProfile() : null; if (up && !up.setupComplete) occupe = true; } catch (e) { _awkE(e); }
           // v1234 : jamais pour un enfant (< 13 ans) — c'est à l'adulte de le

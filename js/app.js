@@ -24646,7 +24646,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1626);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1627);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24699,7 +24699,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1626" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1627" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -30657,7 +30657,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // 🌫️ Onboarding au tout premier rendu de l'onglet Jeu (une seule fois, tous chemins confondus :
             // activation du mode, clic sur l'onglet, ou boot avec mode déjà actif). Fenêtre explicative PUIS prologue.
             // v1617 : jamais par-dessus une séance en cours (rendu en arrière-plan) — reporté au prochain rendu.
-            if (typeof awakShowGameOnboarding === 'function' && !document.body.classList.contains('in-session')) awakShowGameOnboarding();
+            if (typeof awakShowGameOnboarding === 'function' && !document.body.classList.contains('in-session') && currentTab === 'game') awakShowGameOnboarding();   // v1627 : à la 1re visite de l'onglet Jeu seulement
 
             // 🎭 Finaliser les missions de compagnons terminées
             try { if (typeof awakCheckCompanionMissions === 'function') awakCheckCompanionMissions(); } catch(e) { _awkE(e); }
@@ -30775,7 +30775,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1626");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1627");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -37511,7 +37511,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             } else {
                 const activeTab = document.querySelector('.tab-content.active');
                 if (activeTab && activeTab.id === 'gameTab') switchTab('home');
-                showToast('Mode Jeu désactivé.', 'info', 2000);
+                if (!window._awkInscription) showToast('Mode Jeu désactivé.', 'info', 2000);   // v1627 : pas à l'inscription
             }
         }
 
@@ -44443,7 +44443,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1626';
+                    let ver = 'v0.95.1627';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -44611,7 +44611,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1626" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1627" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -44693,7 +44693,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1626);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1627);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -44760,7 +44760,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1626);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1627);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -46070,6 +46070,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     + (desc ? '<span style="display:block;color:#94a3b8;font-size:0.74em;line-height:1.4;margin-top:2px;">' + desc + '</span>' : '')
                     + '</span></button>';
             };
+            // v1627 : l'accueil choisit aussi la façon de jouer (avant : écran « voie » séparé)
+            const _carteVient = (v, ico, titre, desc, coul) => '<button onclick="window._premOnbVient(\'' + v + '\')" '
+                + 'style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 13px;margin-bottom:9px;background:rgba(255,255,255,0.03);'
+                + 'border:1.5px solid rgba(255,255,255,0.12);border-radius:14px;cursor:pointer;color:#e2e8f0;font-family:inherit;">'
+                + _icoBox(ico, coul)
+                + '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.95em;font-weight:800;">' + titre + '</span>'
+                + '<span style="display:block;color:#94a3b8;font-size:0.74em;line-height:1.4;margin-top:2px;">' + desc + '</span></span>'
+                + _ico('fleche', 18, '#64748b') + '</button>';
             const _GOAL_ICO = { weight_loss: ['flamme', '#fb923c'], muscle_gain: ['muscle', '#60a8f0'], endurance: ['course', '#22d3ee'],
                                 strength: ['halter', '#a78bfa'], fitness: ['eclair', '#fbbf24'], flexibility: ['repos', '#5eead4'], hybride: ['course', '#f472b6'] };
             const goalCards = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">' + Object.entries(userGoals).map(([id, g]) => {
@@ -46129,21 +46137,47 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const _sequence = () => _enfant()
                 // enfant dont l'âge est connu : ni « Qu'est-ce qui t'amène ? » (le jeu / la forme) ni l'âge
                 ? (_sautToi ? ['aime', 'materielEnfant', 'finEnfant'] : ['accueil', 'toi', 'aime', 'materielEnfant', 'finEnfant'])
-                : (_sautToi ? ['accueil', 'objectif', 'rythme', 'corps', 'voie', 'materiel', 'prep', 'fin']
-                            : ['accueil', 'toi', 'objectif', 'rythme', 'corps', 'voie', 'materiel', 'prep', 'fin']);   // v1400 : + rythme (fréquence, activités aimées)
+                // v1627 : 5 écrans au lieu de 9 — accueil = façon de jouer ; objectif + rythme ;
+                // corps + matériel ; limitations (Oui / Non) qui termine. Échauffement : activé
+                // par défaut (Réglages) ; le résumé « Profil prêt » est retiré.
+                : (_sautToi ? ['accueil', 'objectif', 'corps', 'limites']
+                            : ['accueil', 'toi', 'objectif', 'corps', 'limites']);
 
             const frame = (inner, pct) => `
                 <style>@keyframes awakFadeIn { from{opacity:0} to{opacity:1} }</style>
                 <div style="position:relative;width:100%;max-width:440px;height:100%;max-height:100dvh;display:flex;flex-direction:column;padding:max(24px,env(safe-area-inset-top)) 22px calc(24px + env(safe-area-inset-bottom));box-sizing:border-box;">
-                    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(96,168,240,0.13),transparent 60%),radial-gradient(ellipse 60% 40% at 50% 110%,rgba(168,85,247,0.1),transparent 60%);pointer-events:none;"></div>
+                    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(96,168,240,0.13),transparent 60%),radial-gradient(ellipse 60% 40% at 50% 110%,rgba(34,211,238,0.06),transparent 60%);pointer-events:none;"></div>
                     ${pct !== null ? `<div style="display:flex;align-items:center;gap:10px;margin-bottom:22px;position:relative;z-index:2;">
                         ${step > 0 ? `<button onclick="window._premOnbPrev()" aria-label="Retour" style="flex-shrink:0;width:34px;height:34px;min-height:auto;padding:0;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></button>` : ''}
-                        <div style="flex:1;height:3px;background:rgba(255,255,255,0.08);border-radius:99px;"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#3b82f6,#a855f7);border-radius:99px;transition:width 0.4s ease;"></div></div>
+                        <div style="flex:1;height:3px;background:rgba(255,255,255,0.08);border-radius:99px;"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#0891b2,#22d3ee);border-radius:99px;transition:width 0.4s ease;"></div></div>
                     </div>` : ''}
                     <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1;animation:awakFadeIn 0.45s ease;overflow-y:auto;">${inner}</div>
                 </div>`;
 
             const btnPrimary = (label, action) => `<button onclick="${action}" style="width:100%;padding:16px;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;border:none;border-radius:14px;font-size:1em;font-weight:900;letter-spacing:0.5px;cursor:pointer;box-shadow:0 6px 24px rgba(59,130,246,0.3);">${label}</button>`;
+
+            // v1627 : matériel en 3 choix (avant : écran séparé avec la liste détaillée,
+            // toujours réglable dans Réglages › Mes lieux)
+            const _blocMateriel = () => {
+                try { if (!Array.isArray(selectedEquipment) || !selectedEquipment.length) { selectedEquipment = ['bodyweight']; } } catch (e) { selectedEquipment = ['bodyweight']; }
+                const p = (id, ico, titre, desc) => '<button onclick="window._premOnbEquipPreset(\'' + id + '\')" data-preset="' + id + '" style="display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:10px 12px;margin-bottom:7px;background:rgba(255,255,255,0.03);border:1.5px solid ' + (draft._preset === id ? 'rgba(96,168,240,0.7)' : 'rgba(255,255,255,0.1)') + ';border-radius:13px;cursor:pointer;color:#e2e8f0;font-family:inherit;">'
+                    + _icoBox(ico) + '<span style="flex:1;"><span style="display:block;font-weight:800;font-size:0.88em;">' + titre + '</span><span style="display:block;color:#94a3b8;font-size:0.7em;line-height:1.35;margin-top:1px;">' + desc + '</span></span></button>';
+                return '<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin:4px 0 8px;">Ton matériel</div>'
+                    + p('none', 'personne', 'Rien de spécial', 'Poids du corps, parfait à la maison.')
+                    + p('home', 'maison', 'Maison équipée', 'Haltères, élastiques, banc, corde, barre de traction.')
+                    + p('gym', 'immeuble', 'Salle de gym', 'Barres, machines, cardio.')
+                    + '<div style="height:14px;"></div>';
+            };
+            // v1627 : fréquence + activités aimées (avant : écran « Rythme » séparé)
+            const _blocRythme = () => {
+                const _fq = [2, 3, 4, 5, 6].map(n => '<button onclick="window._premOnbFreq(' + n + ')" data-freq="' + n + '" style="flex:1;min-width:0;min-height:48px;padding:10px 0;border-radius:12px;cursor:pointer;font-weight:900;font-size:1.05em;background:rgba(255,255,255,0.04);color:#e2e8f0;border:1.5px solid ' + (draft.freq === n ? _BLEU_BORD : 'rgba(255,255,255,0.1)') + ';">' + n + '</button>').join('');
+                const _AIME = [['muscu', 'Musculation'], ['machines', 'Machines'], ['yoga', 'Yoga'], ['pilates', 'Pilates'], ['course', 'Course'], ['cardio', 'Cardio, HIIT'], ['mobilite', 'Mobilité'], ['boxe', 'Boxe']];
+                const _ai = _AIME.map(a => '<button onclick="window._premOnbAime(\'' + a[0] + '\')" data-aime="' + a[0] + '" style="min-height:auto;padding:9px 13px;border-radius:99px;cursor:pointer;font-weight:800;font-size:0.8em;background:' + (draft.aime.indexOf(a[0]) >= 0 ? 'rgba(96,168,240,0.18)' : 'rgba(255,255,255,0.04)') + ';color:#e2e8f0;border:1.5px solid ' + (draft.aime.indexOf(a[0]) >= 0 ? _BLEU_BORD : 'rgba(255,255,255,0.1)') + ';">' + a[1] + '</button>').join('');
+                return '<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin:0 0 8px;">Séances par semaine</div>'
+                    + '<div style="display:flex;gap:6px;margin-bottom:16px;">' + _fq + '</div>'
+                    + '<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin-bottom:8px;">Ce que tu aimes faire <span style="font-weight:700;color:#8391a7;">(plusieurs choix)</span></div>'
+                    + '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;">' + _ai + '</div>';
+            };
 
             function render() {
                 const seq = _sequence();
@@ -46154,11 +46188,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (ecran === 'accueil') {
                     inner = `
                         <div style="text-align:center;">
-                            <div style="font-family:'Rajdhani',sans-serif;font-size:clamp(2.4em,11vw,3.4em);font-weight:700;letter-spacing:0.18em;color:#fff;text-shadow:0 0 30px rgba(96,168,240,0.5),0 0 60px rgba(168,85,247,0.3);margin-bottom:10px;">AWAKENED</div>
+                            <div style="font-family:'Rajdhani',sans-serif;font-size:clamp(2.4em,11vw,3.4em);font-weight:700;letter-spacing:0.18em;color:#fff;text-shadow:0 0 30px rgba(96,168,240,0.5),0 0 60px rgba(34,211,238,0.25);margin-bottom:10px;">AWAKENED</div>
                             <p style="color:#cbd5e1;font-size:0.92em;line-height:1.7;margin:0 0 30px;">${draft.name ? 'Salut ' + draft.name.replace(/</g, '&lt;') + ' !<br>' : ''}Quelques questions, et l'app s'adapte à toi.</p>
                             <div style="font-size:0.72em;color:#94a3b8;font-weight:800;letter-spacing:1px;margin-bottom:10px;">QU'EST-CE QUI T'AMÈNE ?</div>
-                            ${btnPrimary('Me mettre en forme', "window._premOnbVient('forme')")}
-                            <button onclick="window._premOnbVient('jeu')" style="width:100%;margin-top:10px;padding:15px;background:rgba(167,139,250,0.08);border:1.5px solid rgba(167,139,250,0.45);border-radius:14px;color:#e9d5ff;font-weight:800;font-size:0.95em;cursor:pointer;font-family:inherit;">Le jeu : Failles, rangs, histoire</button>
+                            <div style="text-align:left;">
+                            ${_carteVient('forme', 'halter', 'Me mettre en forme', 'Séances, progression et analyses, sans couche de jeu.', '#60a8f0')}
+                            ${_carteVient('jeu', 'faille', 'Me mettre en forme et jouer', 'Les mêmes séances, plus XP, rangs, Failles, boss et compagnons.', '#22d3ee')}
+                            </div>
+                            <p style="color:#8391a7;font-size:0.72em;margin:10px 0 0;">Tu pourras changer à tout moment dans les Réglages.</p>
                         </div>`;
                 } else if (ecran === 'toi') {
                     inner = _sur('TOI')
@@ -46176,7 +46213,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         + goalCards
                         + '<div id="_premOnbGoalInfo" style="margin-top:9px;">' + _infoObjectif(draft.goal) + '</div>'
                         + '<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin:18px 0 8px;">Ton niveau</div>'
-                        + '<div style="display:flex;gap:6px;margin-bottom:20px;">' + levelCards + '</div>'
+                        + '<div style="display:flex;gap:6px;margin-bottom:18px;">' + levelCards + '</div>'
+                        + _blocRythme()   // v1627 : rythme sur le même écran
                         + btnPrimary('Continuer', 'window._premOnbNext()');
                 } else if (ecran === 'corps') {
                     const _u = weightUnit();
@@ -46197,6 +46235,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             <button onclick="window._premOnbPick('sex','femme',this)" data-pick="sex" data-val="femme" style="padding:13px;background:rgba(255,255,255,0.04);border:1.5px solid ${draft.sex==='femme'?_BLEU_BORD:'rgba(255,255,255,0.12)'};border-radius:12px;color:#fff;font-size:0.9em;font-weight:800;cursor:pointer;">Femme</button>
                         </div>
                         <button onclick="window._premOnbPick('sex','',this)" data-pick="sex" data-val="" style="width:100%;margin:8px 0 22px;padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#94a3b8;font-size:0.78em;font-weight:600;cursor:pointer;">Je préfère ne pas préciser</button>`
+                        + _blocMateriel()   // v1627 : matériel sur le même écran
                         + btnPrimary('Continuer', 'window._premOnbNext()');
                     regles.push('_premOnbPoidsR');
                 } else if (ecran === 'voie') {
@@ -46237,18 +46276,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             + btnPrimary('Continuer', 'window._premOnbNext()');
                     }
                 } else if (ecran === 'rythme') {
-                    // v1400 : le plan de la semaine suit la fréquence voulue (avant : tiré au hasard,
-                    // 3 à 6 jours) et l'appli sait ce que la personne aime faire.
-                    const _fq = [2, 3, 4, 5, 6].map(n => '<button onclick="window._premOnbFreq(' + n + ')" data-freq="' + n + '" style="flex:1;min-width:0;min-height:48px;padding:10px 0;border-radius:12px;cursor:pointer;font-weight:900;font-size:1.05em;background:rgba(255,255,255,0.04);color:#e2e8f0;border:1.5px solid ' + (draft.freq === n ? _BLEU_BORD : 'rgba(255,255,255,0.1)') + ';">' + n + '</button>').join('');
-                    const _AIME = [['muscu', 'Musculation'], ['machines', 'Machines'], ['yoga', 'Yoga'], ['pilates', 'Pilates'], ['course', 'Course'], ['cardio', 'Cardio, HIIT'], ['mobilite', 'Mobilité'], ['boxe', 'Boxe']];
-                    const _ai = _AIME.map(a => '<button onclick="window._premOnbAime(\'' + a[0] + '\')" data-aime="' + a[0] + '" style="min-height:auto;padding:9px 13px;border-radius:99px;cursor:pointer;font-weight:800;font-size:0.8em;background:' + (draft.aime.indexOf(a[0]) >= 0 ? 'rgba(96,168,240,0.18)' : 'rgba(255,255,255,0.04)') + ';color:#e2e8f0;border:1.5px solid ' + (draft.aime.indexOf(a[0]) >= 0 ? _BLEU_BORD : 'rgba(255,255,255,0.1)') + ';">' + a[1] + '</button>').join('');
-                    inner = _sur('TON RYTHME')
-                        + '<h2 style="color:#fff;font-size:1.4em;font-weight:900;margin:0 0 6px;">Combien de séances par semaine\u00a0?</h2>'
-                        + '<p style="color:#94a3b8;font-size:0.8em;margin:0 0 14px;">Ton plan de la semaine suivra ce rythme. Tu pourras choisir tes jours dans « Planifier ma semaine ».</p>'
-                        + '<div style="display:flex;gap:6px;margin-bottom:22px;">' + _fq + '</div>'
-                        + '<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin-bottom:8px;">Ce que tu aimes faire <span style="font-weight:700;color:#8391a7;">(plusieurs choix)</span></div>'
-                        + '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px;">' + _ai + '</div>'
-                        + btnPrimary('Continuer', 'window._premOnbNext()');
+                    inner = _sur('TON RYTHME') + _blocRythme() + btnPrimary('Continuer', 'window._premOnbNext()');
                 } else if (ecran === 'aime') {
                     inner = _sur('CE QUE TU AIMES')
                         + '<h2 style="color:#fff;font-size:1.4em;font-weight:900;margin:0 0 16px;">Qu\'est-ce que tu préfères ?</h2>'
@@ -46257,6 +46285,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         + _carte('goal', 'strength', 'muscle', 'Être fort', 'Pompes, gainage, défis', '#60a8f0')
                         + _carte('goal', 'flexibility', 'repos', 'Être souple', 'Étirements, yoga, équilibre', '#5eead4')
                         + '<div style="height:12px;"></div>' + btnPrimary('Continuer', 'window._premOnbNext()');
+                } else if (ecran === 'limites') {
+                    // v1627 : dernière question ; termine l'inscription. « Oui » ouvre la liste juste après.
+                    inner = _sur('DERNIÈRE QUESTION')
+                        + '<h2 style="color:#fff;font-size:1.4em;font-weight:900;margin:0 0 8px;">As-tu une limitation physique\u00a0?</h2>'
+                        + '<p style="color:#94a3b8;font-size:0.82em;line-height:1.55;margin:0 0 22px;">Une blessure, une articulation fragile, pas de sauts… Les exercices concernés ne te seront jamais proposés. Modifiable dans les Réglages.</p>'
+                        + btnPrimary(draft.mode === 'aventure' ? 'Non, c\'est parti' : 'Non, on commence', 'window._premOnbLimites(false)')
+                        + '<button onclick="window._premOnbLimites(true)" style="width:100%;margin-top:10px;padding:14px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.14);border-radius:14px;color:#e2e8f0;font-weight:800;font-size:0.92em;cursor:pointer;font-family:inherit;">Oui, je les indique</button>';
                 } else if (ecran === 'prep') {
                     inner = _sur('PRÉPARATION')
                         + `<h2 style="color:#fff;font-size:1.4em;font-weight:900;margin:0 0 6px;">Échauffement & étirements</h2>
@@ -46421,7 +46456,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // v1404 : « Qu'est-ce qui t'amène ? » — le jeu → mode Aventure retenu
             window._premOnbVient = function (v) {
                 draft.vient = v;
-                if (v === 'jeu') draft.mode = 'aventure';
+                draft.mode = v === 'jeu' ? 'aventure' : 'fitness';   // v1627 : l'accueil décide de la façon de jouer
                 window._premOnbNext();
             };
             window._premOnbPick = function(field, val, btn) {
@@ -46443,6 +46478,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (b) { b.style.borderColor = on ? 'rgba(96,168,240,0.7)' : 'rgba(255,255,255,0.1)'; b.style.background = on ? 'rgba(96,168,240,0.18)' : 'rgba(255,255,255,0.04)'; }
                 try { haptic.light(); } catch (e) { _awkE(e); }
             };
+            window._premOnbLimites = function (oui) { draft.limites = !!oui; window._premOnbFinish(); };
             window._premOnbSaveName = function() {
                 draft.name = (document.getElementById('_premOnbName')?.value || '').trim();
                 window._premOnbNext();
@@ -46487,7 +46523,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     }
                 } catch(e) { _awkE(e); }
                 // Appliquer la voie choisie (Fitness pur / Aventure)
-                try { if (typeof toggleGameMode === 'function') toggleGameMode(draft.mode === 'aventure' && !awakJeuBloqueAge()); } catch(e) { _awkE(e); }
+                try { window._awkInscription = true; if (typeof toggleGameMode === 'function') toggleGameMode(draft.mode === 'aventure' && !awakJeuBloqueAge()); } catch(e) { _awkE(e); } finally { window._awkInscription = false; }
                 try { updateProfileDisplay(); } catch(e) { _awkE(e); }
                 try { generateWeeklyPlan(); } catch(e) { _awkE(e); }
                 try { haptic.medium(); } catch(e) { _awkE(e); }
@@ -46500,13 +46536,14 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // v1235 : proposé dès que l'écran est libre (après l'histoire et le
                 // tutoriel du jeu), AVANT « Mes limitations ».
                 try { if (!_kid) { localStorage.setItem(_cleProfil('awakEveilPlusTard'), '1'); awakEveilQuandLibre(); } } catch (e) { _awkE(e); }
-                // v1575 : « Mes limitations » proposé aussi au PREMIER profil (avant : seulement via Créer un profil)
+                // v1627 : « Mes limitations » est demandé DANS l'inscription (dernier écran) :
+                // la liste ne s'ouvre que si la personne a répondu Oui.
                 try {
-                    if (!_kid) {
-                        localStorage.setItem('profile_' + getCurrentProfileId() + '_awakLimitAsk', '1');
-                        if (window.AwakLimitations && AwakLimitations.proposerSiNouveau) AwakLimitations.proposerSiNouveau();
-                    }
+                    if (!_kid) { localStorage.removeItem('profile_' + getCurrentProfileId() + '_awakLimitAsk'); window._awkLimitesDemandees = true; }   // déjà demandé ici
+                    if (!_kid && draft.limites && window.AwakLimitations && AwakLimitations.ouvrir) setTimeout(() => { try { AwakLimitations.ouvrir(); } catch (e) { _awkE(e); } }, 500);
                 } catch (e) { _awkE(e); }
+                // v1627 : pas de Carte du Système le jour de l'inscription (marquée vue pour aujourd'hui)
+                try { if (typeof getDailySystemCard === 'function') localStorage.setItem('awakSystemCardSeen', getDailySystemCard().dateKey); } catch (e) { _awkE(e); }
                 // 🔐 v1296 : mot de passe de suppression proposé dès que l'écran est libre
                 try { if (!awakSecIsSet()) awakSecQuandLibre(); } catch (e) { _awkE(e); }
             };
@@ -47175,7 +47212,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1626");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1627");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
