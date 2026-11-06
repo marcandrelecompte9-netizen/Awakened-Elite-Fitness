@@ -13934,6 +13934,32 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // gros mouvement d'une autre région (ou de l'antagoniste : poussée ↔ tirage).
         //   1) les accessoires déjà choisis sont collés à un gros mouvement ;
         //   2) tant que la durée estimée le permet, on en ajoute (muscles du jour).
+        // v1625 : préférence « Supersets : Auto / Non » (bouton sous Choisir mes muscles / Durée).
+        // Non → aucun jumelage automatique ; les exercices ajoutés pour remplir la durée
+        // restent des exercices seuls.
+        function awakSSAutoActif() {
+            try { return localStorage.getItem(_cleProfilLecture('awakSupersetsAuto')) !== '0'; } catch (e) { _awkE(e); return true; }
+        }
+        function _awakSSAutoContenu() {
+            const on = awakSSAutoActif();
+            return (window.AwakIcon ? AwakIcon.get('lien', 16, on ? '#67e8f9' : '#64748b') : '')
+                + '<span style="flex:1;min-width:0;">Supersets automatiques<span style="display:block;font-size:0.82em;font-weight:600;color:#8391a7;margin-top:1px;">'
+                + (on ? 'Un accessoire pendant le repos des gros mouvements' : 'Un exercice à la fois') + '</span></span>'
+                + '<span style="flex-shrink:0;padding:4px 11px;border-radius:99px;font-weight:900;font-size:0.9em;'
+                + (on ? 'background:rgba(34,211,238,0.15);border:1px solid rgba(34,211,238,0.5);color:#67e8f9;">Auto' : 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#94a3b8;">Non')
+                + '</span>';
+        }
+        window.awakBasculerSSAuto = function () {
+            try {
+                const on = !awakSSAutoActif();
+                localStorage.setItem(_cleProfil('awakSupersetsAuto'), on ? '1' : '0');
+                const b = document.getElementById('awakSSAutoBtn');
+                if (b) { b.innerHTML = _awakSSAutoContenu(); b.setAttribute('aria-pressed', on ? 'true' : 'false'); }
+                if (typeof showToast === 'function') showToast(on ? 'Supersets automatiques activés' : 'Supersets automatiques désactivés', 'info', 1800);
+            } catch (e) { _awkE(e); }
+        };
+        window.awakSSAutoActif = awakSSAutoActif;
+
         function awakSupersetsAuto(workout, minutes, pool, muscles) {
             try {
                 if (!workout || !Array.isArray(workout.exercises) || !(minutes > 0) || minutes > 75) return workout;
@@ -13981,7 +14007,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 if (minutes <= 30) unites.forEach(u => u.ex.forEach(e => { if (!u.fixe && (parseInt(e.sets, 10) || 0) > 3 && !e._pilier) { e.sets = 3; if (e.plannedSets) e.plannedSets = 3; } }));
                 // 1) accessoires déjà présents
                 // (séances ≤ 45 min ; à 60 min, la structure classique est gardée et on n'ajoute que s'il reste du temps)
-                if (minutes <= 45) unites.filter(u => !u.fixe && u.ex.length === 1 && estPrinc(u.ex[0])).forEach(u => {
+                const _sansSS = !awakSSAutoActif();   // v1625
+                if (minutes <= 45 && !_sansSS) unites.filter(u => !u.fixe && u.ex.length === 1 && estPrinc(u.ex[0])).forEach(u => {
                     const j = unites.findIndex(v => v !== u && !v.fixe && v.ex.length === 1 && estAcc(v.ex[0]) && compatible(u.ex[0], v.ex[0]));
                     if (j < 0) return;
                     const v = unites.splice(j, 1)[0];
@@ -14058,7 +14085,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 for (let tour = 0; tour < 8 && nbEx() < maxEx && !_nbFixe; tour++) {
                     let fait = false;
                     // a) partenaire pour un gros mouvement seul
-                    for (const u of unites) {
+                    for (const u of (_sansSS ? [] : unites)) {
                         if (u.fixe || u.ex.length !== 1 || !estPrinc(u.ex[0])) continue;
                         const best = choisir(accPour([u.ex[0]])); if (!best) continue;
                         const p = fabriquer(best, 'isolation'), m = u.ex[0], sav = { ss: m.ss, sets: m.sets };
@@ -14078,7 +14105,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                         }
                     }
                     // c) 3ᵉ exercice d'un superset (tri-set) : un accessoire de plus
-                    for (const u of unites) {
+                    for (const u of (_sansSS ? [] : unites)) {
                         if (u.fixe || u.ex.length !== 2 || !(comp(u.ex[0]) && GR[u.ex[0].muscle] && GR[u.ex[0].muscle] !== 'core')) continue;
                         const best = choisir(accPour(u.ex)); if (!best) continue;
                         const p = fabriquer(best, 'isolation');
@@ -24619,7 +24646,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1624);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1625);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24672,7 +24699,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1624" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1625" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -24714,7 +24741,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 0 1-14.3 4.9M4 12A8 8 0 0 1 18.3 7.1"/><path d="M18.5 3v4.3h-4.3M5.5 21v-4.3h4.3"/></svg>'
                 +       (estFace ? 'Voir le dos' : 'Voir de face') + '</button>'
                 +     '<div style="flex:1;font-size:0.6em;color:#8391a7;line-height:1.3;">'
-                +       'Touche un muscle vert pour l\'entraîner · glisse pour le tourner</div>'
+                +       'Touche un muscle prêt (cyan) pour l\'entraîner · glisse pour le tourner</div>'
                 +   '</div>'
                 // ⚡ ACTION PRINCIPALE dans la carte : le geste le plus courant
                 // conclut le bloc, juste sous l'état du corps qui l'informe.
@@ -24756,7 +24783,11 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +     '<button onclick="onMuscleChoiceAI()" style="flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:10px 12px;border-radius:13px;cursor:pointer;font-family:inherit;'
                 +       'background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.14);color:#e2e8f0;font-weight:800;font-size:0.84em;">'
                 +       (window.AwakIcon ? AwakIcon.get('chrono', 16, '#cbd5e1') : '') + '<span>Durée</span></button>'
-                +   '</div>')
+                +   '</div>'
+                // v1625 : supersets automatiques Auto / Non (retenu par profil)
+                +   '<button id="awakSSAutoBtn" onclick="awakBasculerSSAuto()" aria-pressed="' + (awakSSAutoActif() ? 'true' : 'false') + '" style="width:100%;margin-top:8px;display:flex;align-items:center;gap:9px;min-height:40px;padding:8px 12px;border-radius:12px;cursor:pointer;font-family:inherit;'
+                +     'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;font-weight:700;font-size:0.8em;text-align:left;">'
+                +     _awakSSAutoContenu() + '</button>')
                 // v1319 : « Ou : planifier ma semaine » retiré (doublon) : la semaine se
                 // planifie depuis l'Agenda, ou l'accueil › « Ou choisir une autre activité ».
                 + '</div>';
@@ -30744,7 +30775,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1624");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1625");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -44412,7 +44443,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1624';
+                    let ver = 'v0.95.1625';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -44580,7 +44611,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1624" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1625" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -44662,7 +44693,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1624);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1625);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -44729,7 +44760,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1624);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1625);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47142,7 +47173,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1624");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1625");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
