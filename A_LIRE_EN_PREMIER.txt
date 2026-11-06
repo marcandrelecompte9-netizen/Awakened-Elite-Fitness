@@ -68,7 +68,7 @@ réécrivant du code qu'elle ne comprenait pas. Pour éviter ça :
 
 Il y a DEUX numéros de version DÉCOUPLÉS :
 
-A) VERSION AFFICHÉE = "v0.90 · awakened" dans index.html.
+A) VERSION AFFICHÉE = "v0.95.NNNN · awakened" dans index.html (NNNN = numéro de build, monte à chaque build).
    → NE PAS LA CHANGER sans instruction explicite de l'utilisateur.
 
 B) VERSION TECHNIQUE DU CACHE = un compteur SÉPARÉ qui force la mise à
@@ -93,7 +93,7 @@ Sortie : /mnt/user-data/outputs/
        sed -i "s/awakened-v851/awakened-v852/g" sw.js
        sed -i "s/?v=851/?v=852/g" index.html js/app.js sw.js
   4. Vérifier : 39 occurrences de ?v=NNN dans index.html, version
-     affichée toujours v0.90
+     affichée v0.95.NNNN (même numéro que le build)
   5. Nettoyer : rm -f *.bak* js/*.bak* data/*.bak*
   6. DEUX zips :
        awakened-vNNN.zip        = complet (~76 Mo, toutes les images)
@@ -316,7 +316,7 @@ IMAGES MANQUANTES — 14 exercices (10 Pilates livrés en v909) + 18 scènes nar
   8. ÉTAT TECHNIQUE ACTUEL
 ───────────────────────────────────────────────────────────────────────
 
-  • Version affichée : v0.90 · awakened
+  • Version affichée : v0.95.NNNN · awakened (suit le numéro de build)
   • Cache technique  : v1079  (prochain build = v1080)
   • Exercices        : 452 (base) · 713 (avec disciplines)
   • Objets           : 397  (11 sets, tous complétables)

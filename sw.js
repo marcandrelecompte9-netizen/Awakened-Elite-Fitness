@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v1620';
+const CACHE_NAME = 'awakened-v1621';
 // v1586 : images d'exercices dans un cache DURABLE, jamais vidé à une mise à jour
 // (avant : chaque déploiement les effaçait → retéléchargées, absentes hors ligne)
 const IMG_CACHE = 'awakened-images';
@@ -101,11 +101,11 @@ const ASSETS = [
   './js/pain-mode.js',
   './js/recovery-mode.js',
   './data/items.js',
-  './manifest.json?v=1620',
-  './icons/icon-192.png?v=1620',
-  './icons/icon-512.png?v=1620',
-  './icons/icon-192-maskable.png?v=1620',
-  './icons/icon-512-maskable.png?v=1620',
+  './manifest.json?v=1621',
+  './icons/icon-192.png?v=1621',
+  './icons/icon-512.png?v=1621',
+  './icons/icon-192-maskable.png?v=1621',
+  './icons/icon-512-maskable.png?v=1621',
   // icon-1024.png : asset de soumission aux stores, volontairement hors du
   // précache (487 Ko). Reste dans manifest.json, récupérable à la demande.
   './images/banner_v3.webp',
