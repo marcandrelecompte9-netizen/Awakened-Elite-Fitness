@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v1643';
+const CACHE_NAME = 'awakened-v1644';
 // v1586 : images d'exercices dans un cache DURABLE, jamais vidé à une mise à jour
 // (avant : chaque déploiement les effaçait → retéléchargées, absentes hors ligne)
 const IMG_CACHE = 'awakened-images';
@@ -102,11 +102,11 @@ const ASSETS = [
   './js/pain-mode.js',
   './js/recovery-mode.js',
   './data/items.js',
-  './manifest.json?v=1643',
-  './icons/icon-192.png?v=1643',
-  './icons/icon-512.png?v=1643',
-  './icons/icon-192-maskable.png?v=1643',
-  './icons/icon-512-maskable.png?v=1643',
+  './manifest.json?v=1644',
+  './icons/icon-192.png?v=1644',
+  './icons/icon-512.png?v=1644',
+  './icons/icon-192-maskable.png?v=1644',
+  './icons/icon-512-maskable.png?v=1644',
   // icon-1024.png : asset de soumission aux stores, volontairement hors du
   // précache (487 Ko). Reste dans manifest.json, récupérable à la demande.
   './images/banner_v3.webp',
@@ -177,7 +177,7 @@ const UI_IMAGES = [
   './images/tree_bg.webp',
 ];
 // Clé de cache d'une image : sans « ?v=NNNN ». Avant, chaque build changeait l'URL
-// (salle_bg_v5.webp?v=1621 → ?v=1643) et ajoutait une copie de plus dans le cache
+// (salle_bg_v5.webp?v=1621 → ?v=1644) et ajoutait une copie de plus dans le cache
 // durable, sans jamais la retirer.
 function cleImage(url) { return url.split('?')[0]; }
 function estImage(url) { return /\/images\/|\.(webp|png|jpe?g|svg|gif)(\?|$)/i.test(url); }

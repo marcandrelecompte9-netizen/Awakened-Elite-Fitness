@@ -2068,6 +2068,7 @@ function storyPickEvent() {
 function storyShowEvent(evt) {
     if (!evt || !evt.content) return;
     if (typeof window.AwakCine !== 'undefined' && window.AwakCine.defer(function () { storyShowEvent(evt); })) return;
+    if (_storyEnFaille()) { _storyAttendreFinFaille(function () { storyShowEvent(evt); }); return; }   // v1644
     if (evt.id && _storyEnFile[evt.id]) {
         delete _storyEnFile[evt.id]; storyEventMarkSeen(evt.id);
         try { localStorage.setItem(_STORY_K_SEANCE, String(storyBuildContext().workouts || 0)); } catch (e) { _awkE(e); }
@@ -2169,10 +2170,25 @@ function storyShowEvent(evt) {
 
 // ── POINT D'ENTRÉE : à appeler après une séance / un événement ─────
 // Affiche au plus UN événement éligible. Marque comme vu.
+// v1644 : pas de scène d'histoire au milieu d'une Faille / Chasse (entre deux vagues,
+// la séance se termine et relançait l'histoire). On attend la sortie de la Faille.
+let _storyAttenteFaille = null;
+function _storyEnFaille() {
+    try { return typeof window.awakFailleEnCours === 'function' && window.awakFailleEnCours(true); } catch (e) { return false; }
+}
+function _storyAttendreFinFaille(fn) {
+    if (_storyAttenteFaille) return;   // une attente déjà en cours la relancera
+    _storyAttenteFaille = setInterval(function () {
+        if (_storyEnFaille()) return;
+        clearInterval(_storyAttenteFaille); _storyAttenteFaille = null;
+        setTimeout(fn, 2500);   // laisse l'écran de récompense se fermer
+    }, 3000);
+}
 function storyCheckEvents(opts) {
     try {
         // Jeu désactivé → aucun événement narratif / cinématique.
         if (typeof rpgEnabled === 'function' && !rpgEnabled()) return false;
+        if (_storyEnFaille()) { _storyAttendreFinFaille(function () { storyCheckEvents({ delay: 400 }); }); return false; }
         // Ne pas chevaucher un autre overlay narratif
         if (document.getElementById('storyOverlay') ||
             document.getElementById('storyEventOverlay') ||
