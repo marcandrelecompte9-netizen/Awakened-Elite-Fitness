@@ -9513,6 +9513,21 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             return userProfile;
         }
 
+        // v1634 : rythme (séances / semaine) et activités aimées dans Mon profil
+        const _AWAK_AIME = [['muscu', 'Musculation'], ['machines', 'Machines'], ['yoga', 'Yoga'], ['pilates', 'Pilates'], ['course', 'Course'], ['cardio', 'Cardio, HIIT'], ['mobilite', 'Mobilité'], ['boxe', 'Boxe']];
+        let _awakPfEtat = { freq: 3, aime: [] };
+        function _awakPfRythme(profile) {
+            _awakPfEtat = { freq: Math.max(2, Math.min(6, parseInt(profile && profile.weeklyGoal, 10) || 3)), aime: ((profile && profile.aime) || []).slice() };
+            const f = document.getElementById('awakPfFreq'), a = document.getElementById('awakPfAime');
+            if (f) f.innerHTML = [2, 3, 4, 5, 6].map(n => '<button type="button" class="awk-pf-pastille' + (_awakPfEtat.freq === n ? ' on' : '') + '" onclick="awakPfFreq(' + n + ')">' + n + '</button>').join('');
+            if (a) a.innerHTML = _AWAK_AIME.map(x => '<button type="button" class="awk-pf-pastille' + (_awakPfEtat.aime.indexOf(x[0]) >= 0 ? ' on' : '') + '" onclick="awakPfAime(\'' + x[0] + '\')">' + x[1] + '</button>').join('');
+        }
+        window.awakPfFreq = function (n) { _awakPfEtat.freq = n; document.querySelectorAll('#awakPfFreq .awk-pf-pastille').forEach(b => b.classList.toggle('on', +b.textContent === n)); };
+        window.awakPfAime = function (k) {
+            const i = _awakPfEtat.aime.indexOf(k); if (i >= 0) _awakPfEtat.aime.splice(i, 1); else _awakPfEtat.aime.push(k);
+            const lbl = (_AWAK_AIME.find(x => x[0] === k) || [])[1];
+            document.querySelectorAll('#awakPfAime .awk-pf-pastille').forEach(b => { if (b.textContent === lbl) b.classList.toggle('on', _awakPfEtat.aime.indexOf(k) >= 0); });
+        };
         function showProfileSetup() {
             const modal = document.getElementById('profileSetupModal');
             const profile = getUserProfile();
@@ -9541,6 +9556,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try { awakPfMajMobilite(); } catch (e) { _awkE(e); }
             document.getElementById('profileGoal').value = profile.goal;
             document.getElementById('profileLevel').value = profile.level;
+            try { _awakPfRythme(profile); } catch (e) { _awkE(e); }   // v1634
             document.getElementById('profileAge').value = profile.age;
             // 🎭 Grille d'avatars : on pré-sélectionne celui du profil actif,
             // sinon le picker afficherait la sélection du dernier profil créé.
@@ -9702,7 +9718,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             let _ancienProfil = {};   // v1400 : garder rythme et activités aimées · v1575 : âge et poids
             try { _ancienProfil = (typeof getUserProfile === 'function' && getUserProfile()) || userProfile || {}; } catch (e) { _ancienProfil = userProfile || {}; }
             userProfile = {
-                weeklyGoal: _ancienProfil.weeklyGoal, aime: _ancienProfil.aime,
+                // v1634 : modifiables dans Mon profil
+                weeklyGoal: document.getElementById('awakPfFreq') ? _awakPfEtat.freq : _ancienProfil.weeklyGoal,
+                aime: document.getElementById('awakPfAime') ? _awakPfEtat.aime.slice() : _ancienProfil.aime,
                 name: _nomFinal,
                 goal: document.getElementById('profileGoal').value,
                 level: document.getElementById('profileLevel').value,
@@ -24646,7 +24664,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1633);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1634);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24699,7 +24717,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1633" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1634" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -30775,7 +30793,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1633");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1634");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -44443,7 +44461,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1633';
+                    let ver = 'v0.95.1634';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -44611,7 +44629,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1633" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1634" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -44693,7 +44711,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1633);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1634);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -44760,7 +44778,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1633);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1634);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -46187,12 +46205,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             // v1627 : fréquence + activités aimées (avant : écran « Rythme » séparé)
             const _blocRythme = () => {
                 const _fq = [2, 3, 4, 5, 6].map(n => '<button onclick="window._premOnbFreq(' + n + ')" data-freq="' + n + '" style="flex:1;min-width:0;min-height:48px;padding:10px 0;border-radius:12px;cursor:pointer;font-weight:900;font-size:1.05em;background:rgba(255,255,255,0.04);color:#e2e8f0;border:1.5px solid ' + (draft.freq === n ? _BLEU_BORD : 'rgba(255,255,255,0.1)') + ';">' + n + '</button>').join('');
-                const _AIME = [['muscu', 'Musculation'], ['machines', 'Machines'], ['yoga', 'Yoga'], ['pilates', 'Pilates'], ['course', 'Course'], ['cardio', 'Cardio, HIIT'], ['mobilite', 'Mobilité'], ['boxe', 'Boxe']];
-                const _ai = _AIME.map(a => '<button onclick="window._premOnbAime(\'' + a[0] + '\')" data-aime="' + a[0] + '" style="min-height:auto;padding:9px 13px;border-radius:99px;cursor:pointer;font-weight:800;font-size:0.8em;background:' + (draft.aime.indexOf(a[0]) >= 0 ? 'rgba(96,168,240,0.18)' : 'rgba(255,255,255,0.04)') + ';color:#e2e8f0;border:1.5px solid ' + (draft.aime.indexOf(a[0]) >= 0 ? _BLEU_BORD : 'rgba(255,255,255,0.1)') + ';">' + a[1] + '</button>').join('');
+                // v1634 : « Ce que tu aimes faire » retiré de l'inscription → Mon profil
                 return '<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin:0 0 8px;">Séances par semaine</div>'
-                    + '<div style="display:flex;gap:6px;margin-bottom:16px;">' + _fq + '</div>'
-                    + '<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin-bottom:8px;">Ce que tu aimes faire <span style="font-weight:700;color:#8391a7;">(plusieurs choix)</span></div>'
-                    + '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;">' + _ai + '</div>';
+                    + '<div style="display:flex;gap:6px;margin-bottom:20px;">' + _fq + '</div>';
             };
 
             function render() {
@@ -47240,7 +47255,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1633");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1634");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
