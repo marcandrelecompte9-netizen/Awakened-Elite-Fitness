@@ -34,7 +34,10 @@
     { fichier: 'on_brule_le_sol.mp3', titre: 'On brûle le sol', type: 'entrainement' },
     { fichier: 'reine_de_sueur.mp3', titre: 'Reine de sueur', type: 'entrainement' },
     // v1640 : type 'zen' — seule musique des séances calmes (yoga, pilates, mobilité, sérénité), en boucle
-    { fichier: 'zen.mp3', titre: 'Yoga', type: 'zen' }
+    { fichier: 'zen.mp3', titre: 'Yoga', type: 'zen' },
+    // v1641 : type 'matin' — seulement pendant le Réveil matinal
+    { fichier: 'softening_light.mp3', titre: 'Softening Light', type: 'matin' },
+    { fichier: 'rise_and_shine.mp3', titre: 'Rise and Shine', type: 'matin' }
   ];
 
   var CLE = 'awakMusique';
@@ -138,23 +141,27 @@
       return ex.length > 0 && ex.every(function (e) { return TYPES_ZEN.indexOf(e.type) >= 0; });
     } catch (e) { return false; }
   }
+  function seanceMatin() {
+    try { var w = enSeance && window.AwakSSBridge && window.AwakSSBridge.getWorkout(); return !!(w && (w.type === 'morning' || w.fromMorning)); } catch (e) { return false; }
+  }
   function exclus() { var e = reglages().exclus; return Array.isArray(e) ? e : []; }
   // Morceaux proposés par les interrupteurs (hors combat, sans les retraits) : liste des Réglages
   function candidats() {
     var r = reglages(); if (r.externe) return [];
     var jeu = r.jeu && modeJeu();
-    return AWAK_MUSIQUES.filter(function (m) { return SPECIAUX.indexOf(m.type) < 0 && m.type !== 'zen' && (m.type === 'jeu' ? jeu : !!r.entrainement); })
+    return AWAK_MUSIQUES.filter(function (m) { return SPECIAUX.indexOf(m.type) < 0 && m.type !== 'zen' && m.type !== 'matin' && (m.type === 'jeu' ? jeu : !!r.entrainement); })
       .concat(r.perso ? PERSO : []);
   }
   function liste() {
     var r = reglages(); if (r.externe) return [];   // « J'écoute ma musique dans une autre app »
+    if (seanceMatin()) return r.entrainement ? AWAK_MUSIQUES.filter(function (m) { return m.type === 'matin'; }) : [];   // v1641
     var zen = seanceZen();
     if (zen) return r.entrainement ? AWAK_MUSIQUES.filter(function (m) { return m.type === 'zen'; }) : [];
     var jeu = r.jeu && modeJeu(), ctx = modeJeu() ? contexte() : null, ex = exclus();
     // v1493 : en combat (Faille, Faille unique, combat final), pas de musique d'entraînement
     return AWAK_MUSIQUES.filter(function (m) {
         if (SPECIAUX.indexOf(m.type) >= 0) return jeu && permisCombat(m.type, ctx, m);
-        if (m.type === 'zen') return false;
+        if (m.type === 'zen' || m.type === 'matin') return false;
         if (m.type === 'jeu') return jeu;
         return !!r.entrainement && !ctx;
       })
@@ -287,7 +294,7 @@
       var m = courant(); if (!m) return;
       var fin = enFinal();
       navigator.mediaSession.metadata = new MediaMetadata(fin ? { title: 'Combat final', artist: 'Awakened' }
-        : { title: m.titre, artist: 'Awakened', album: m.type === 'perso' ? 'Mes musiques' : m.type === 'entrainement' ? 'Entraînement' : m.type === 'zen' ? 'Détente' : 'Musiques du jeu' });
+        : { title: m.titre, artist: 'Awakened', album: m.type === 'perso' ? 'Mes musiques' : m.type === 'entrainement' ? 'Entraînement' : m.type === 'zen' ? 'Détente' : m.type === 'matin' ? 'Réveil' : 'Musiques du jeu' });
       navigator.mediaSession.setActionHandler('play', lecture);
       navigator.mediaSession.setActionHandler('pause', pause);
       navigator.mediaSession.setActionHandler('nexttrack', suivante);
@@ -322,7 +329,7 @@
   }
   function eq(on) { return '<span class="awk-eq' + (on ? ' on' : '') + '" aria-hidden="true"><i></i><i></i><i></i></span>'; }
   function mmss(t) { t = Math.max(0, Math.floor(+t || 0)); return Math.floor(t / 60) + ':' + ('0' + (t % 60)).slice(-2); }
-  function source(m) { return !m ? '' : m.type === 'perso' ? 'Mes musiques' : m.type === 'entrainement' ? 'Entraînement' : m.type === 'zen' ? 'Détente' : m.type === 'jeu' ? 'Musiques du jeu' : 'Awakened'; }
+  function source(m) { return !m ? '' : m.type === 'perso' ? 'Mes musiques' : m.type === 'entrainement' ? 'Entraînement' : m.type === 'zen' ? 'Détente' : m.type === 'matin' ? 'Réveil' : m.type === 'jeu' ? 'Musiques du jeu' : 'Awakened'; }
   // Progression et temps : mis à jour dans tous les lecteurs affichés
   function majProgression() {
     if (!audio) return;
@@ -417,6 +424,7 @@
       // Le combat peut être reconnu un instant plus tard : basculer sur son morceau
       setTimeout(function () {
         // v1640 : séance calme reconnue après coup → basculer sur la musique zen
+        if (enSeance && reglages().auto && seanceMatin()) { var zm = courant(); if (!zm || zm.type !== 'matin') { preparerFile(); jouerIndex(0); } return; }   // v1641
         if (enSeance && reglages().auto && seanceZen()) { var z = courant(); if (!z || z.type !== 'zen') { preparerFile(); jouerIndex(0); } return; }
         if (!enSeance || !reglages().auto || !contexte()) return;
         var c = courant(); if (c && SPECIAUX.indexOf(c.type) >= 0) return;
