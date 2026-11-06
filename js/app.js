@@ -24664,7 +24664,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1634);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1635);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24717,7 +24717,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1634" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1635" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -30793,7 +30793,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1634");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1635");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -44461,7 +44461,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1634';
+                    let ver = 'v0.95.1635';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -44629,7 +44629,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1634" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1635" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -44711,7 +44711,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1634);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1635);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -44778,7 +44778,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1634);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1635);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -46159,8 +46159,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 // corps + matériel ; limitations (Oui / Non) qui termine. Échauffement : activé
                 // par défaut (Réglages) ; le résumé « Profil prêt » est retiré.
                 // v1628 : l'âge AVANT le choix du jeu (un enfant n'y a pas accès : pas d'écran « accueil »)
-                : (_sautToi ? ['accueil', 'objectif', 'corps', 'limites']
-                            : ['toi', 'accueil', 'objectif', 'corps', 'limites']);
+                // v1635 : le matériel retrouve sa page (préréglages + liste détaillée)
+                : (_sautToi ? ['accueil', 'objectif', 'corps', 'materiel', 'limites']
+                            : ['toi', 'accueil', 'objectif', 'corps', 'materiel', 'limites']);
 
             const frame = (inner, pct) => `
                 <style>@keyframes awakFadeIn { from{opacity:0} to{opacity:1} }</style>
@@ -46189,18 +46190,6 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             + 'border:2px solid ' + (on ? 'rgba(34,211,238,0.95)' : 'rgba(255,255,255,0.1)') + ';box-shadow:' + (on ? '0 0 12px rgba(34,211,238,0.45)' : 'none') + ';">'
                             + '<img src="' + awakPortraitSrc(k) + '" alt="" style="width:100%;height:100%;object-fit:cover;object-position:50% 25%;display:block;" onerror="this.parentNode.style.display=\'none\'"></button>'; }).join('')
                     + '</div>';
-            };
-            // v1627 : matériel en 3 choix (avant : écran séparé avec la liste détaillée,
-            // toujours réglable dans Réglages › Mes lieux)
-            const _blocMateriel = () => {
-                try { if (!Array.isArray(selectedEquipment) || !selectedEquipment.length) { selectedEquipment = ['bodyweight']; } } catch (e) { selectedEquipment = ['bodyweight']; }
-                const p = (id, ico, titre, desc) => '<button onclick="window._premOnbEquipPreset(\'' + id + '\')" data-preset="' + id + '" style="display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:10px 12px;margin-bottom:7px;background:rgba(255,255,255,0.03);border:1.5px solid ' + (draft._preset === id ? 'rgba(96,168,240,0.7)' : 'rgba(255,255,255,0.1)') + ';border-radius:13px;cursor:pointer;color:#e2e8f0;font-family:inherit;">'
-                    + _icoBox(ico) + '<span style="flex:1;"><span style="display:block;font-weight:800;font-size:0.88em;">' + titre + '</span><span style="display:block;color:#94a3b8;font-size:0.7em;line-height:1.35;margin-top:1px;">' + desc + '</span></span></button>';
-                return '<div style="font-size:0.72em;color:#94a3b8;font-weight:800;margin:4px 0 8px;">Ton matériel</div>'
-                    + p('none', 'personne', 'Rien de spécial', 'Poids du corps, parfait à la maison.')
-                    + p('home', 'maison', 'Maison équipée', 'Haltères, élastiques, banc, corde, barre de traction.')
-                    + p('gym', 'immeuble', 'Salle de gym', 'Barres, machines, cardio.')
-                    + '<div style="height:14px;"></div>';
             };
             // v1627 : fréquence + activités aimées (avant : écran « Rythme » séparé)
             const _blocRythme = () => {
@@ -46269,7 +46258,6 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             <button onclick="window._premOnbPick('sex','femme',this)" data-pick="sex" data-val="femme" style="padding:13px;background:rgba(255,255,255,0.04);border:1.5px solid ${draft.sex==='femme'?_BLEU_BORD:'rgba(255,255,255,0.12)'};border-radius:12px;color:#fff;font-size:0.9em;font-weight:800;cursor:pointer;">Femme</button>
                         </div>
                         <button onclick="window._premOnbPick('sex','',this)" data-pick="sex" data-val="" style="width:100%;margin:8px 0 22px;padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#94a3b8;font-size:0.78em;font-weight:600;cursor:pointer;">Je préfère ne pas préciser</button>`
-                        + _blocMateriel()   // v1627 : matériel sur le même écran
                         + btnPrimary('Continuer', 'window._premOnbNext()');
                     regles.push('_premOnbPoidsR');
                 } else if (ecran === 'voie') {
@@ -46290,7 +46278,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             + _preset('kidball', 'cible', 'Un ballon ou une corde', 'Pour des jeux encore plus variés.')
                             + '<div style="height:12px;"></div>' + btnPrimary('Continuer', 'window._premOnbNext()');
                     } else {
-                        const _eqCommon = ['bodyweight','dumbbells','barbell','resistance','kettlebell','bench','parallelbars','machine','trx','jumprope','swissball','abwheel','treadmill','yogamat','yogablock','yogastrap'];
+                        const _eqCommon = ['bodyweight','dumbbells','barbell','resistance','kettlebell','bench','parallelbars','machine','trx','jumprope','swissball','medicineball','abwheel','sandbag','battleropes','treadmill','bike','rower','elliptical','yogamat','yogablock','yogastrap'];   // v1635 : + vélo, rameur, elliptique, médecine-ball, sac de sable, cordes
                         // v1403 : « Boxe » cochée à l'écran Rythme → proposer le sac de frappe
                         try { if (draft && (draft.aime || []).indexOf('boxe') >= 0) _eqCommon.splice(1, 0, 'punchbag'); } catch (e) { _awkE(e); }
                         const _eqChips = _eqCommon.map(function (id) {
@@ -47255,7 +47243,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1634");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1635");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
