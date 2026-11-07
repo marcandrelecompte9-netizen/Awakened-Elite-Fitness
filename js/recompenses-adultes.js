@@ -122,7 +122,8 @@
     Object.keys(d).forEach(function (pid) {
       (d[pid] || []).forEach(function (r) {
         // v1697 : nouvelle semaine → la récompense hebdo repart à zéro
-        if (r.hebdo && r.semaine !== cleSemaine()) { r.semaine = cleSemaine(); r.etat = 'cours'; r.vuAtteinte = false; r.vuObtenue = true; ch = true; }
+        // v1701 : atteinte mais pas encore prise (conjoint pas encore passé) → gardée jusqu'à ce qu'elle soit prise
+        if (r.hebdo && r.semaine !== cleSemaine() && r.etat !== 'atteinte') { r.semaine = cleSemaine(); r.etat = 'cours'; r.vuAtteinte = false; r.vuObtenue = true; ch = true; }
         if (r.etat === 'cours' && avance(pid, r) >= r.cible) { r.etat = 'atteinte'; r.atteinteLe = Date.now(); r.vuAtteinte = false; ch = true; }
       });
     });
@@ -185,6 +186,8 @@
               : fini ? '<b style="color:#fde68a;">Objectif atteint !</b> ' + (r.offreur ? esc(nomDe(r.offreur)) + ' a été prévenu.' : '')
               : Math.min(n, r.cible) + ' / ' + unite(r, r.cible) + (r.hebdo ? ' cette semaine' : '') + ' · encore ' + unite(r, r.cible - n)) + '</div>'
           + (fini && !r.offreur ? '<button onclick="AwakRecomp.prendre(\'' + r.id + '\')" style="' + PLEIN + 'padding:10px;margin-top:10px;">Je me l\'offre</button>' : '')
+          // v1701 : le conjoint tarde (ou n'utilise plus l'app) → on peut se l'offrir soi-même
+          + (fini && r.offreur ? '<button onclick="AwakRecomp.prendre(\'' + r.id + '\')" style="' + BTN + 'display:block;margin:8px 0 0;padding:6px 0;font-size:0.74em;background:transparent;color:#94a3b8;border:none;text-decoration:underline;">Je me l\'offre moi-même</button>' : '')
           + '</div>';
       }).join('') : '<div style="padding:14px;border-radius:12px;background:#141821;color:#94a3b8;font-size:0.84em;text-align:center;">Aucun objectif pour l\'instant.</div>')
       + '<button onclick="AwakRecomp.editer()" style="' + PLEIN + 'margin-top:6px;">+ Nouvel objectif</button>'
@@ -258,15 +261,19 @@
   // ── Obtenir ──
   function prendre(id) {
     var d = lire(), r = mes(d, pidActif()).filter(function (x) { return x.id === id; })[0]; if (!r) return;
-    r.etat = 'obtenue'; r.obtenueLe = Date.now(); r.vuObtenue = true; if (r.hebdo) r.fois = (r.fois || 0) + 1; ecrire(d);
+    r.etat = 'obtenue'; r.obtenueLe = Date.now(); r.vuObtenue = true; if (r.hebdo) r.fois = (r.fois || 0) + 1; nouvelleSemaine(r); ecrire(d);
     bravo('Bravo !', 'Tu t\'es mérité', r.nom, 'Profites-en, tu l\'as gagné séance après séance.');
     rafraichir();
   }
   function offrir(pid, id) {
     var d = lire(), r = mes(d, pid).filter(function (x) { return x.id === id; })[0]; if (!r) return;
-    r.etat = 'obtenue'; r.obtenueLe = Date.now(); r.vuObtenue = false; if (r.hebdo) r.fois = (r.fois || 0) + 1; ecrire(d);
+    r.etat = 'obtenue'; r.obtenueLe = Date.now(); r.vuObtenue = false; if (r.hebdo) r.fois = (r.fois || 0) + 1; nouvelleSemaine(r); ecrire(d);
     toast(nomDe(pid) + ' sera félicité à sa prochaine ouverture de l\'app');
     ouvrir(); rafraichir();
+  }
+  // v1701 : prise en retard (semaine déjà finie) → la semaine en cours repart tout de suite
+  function nouvelleSemaine(r) {
+    if (r.hebdo && r.semaine !== cleSemaine()) { r.semaine = cleSemaine(); r.etat = 'cours'; r.vuAtteinte = false; }
   }
   function refaire(id) {
     var d = lire(), r = mes(d, pidActif()).filter(function (x) { return x.id === id; })[0]; if (!r) return;
@@ -327,6 +334,8 @@
   window.AwakRecomp = {
     ouvrir: ouvrir, fermer: fermer, editer: editer, prendre: prendre, offrir: offrir, refaire: refaire,
     annoncer: annoncer, bandeauAccueil: bandeauAccueil, _lire: lire,
+    // v1701 : profil supprimé → ses objectifs partent, et ce qu'il devait offrir revient à « Je me l'offre »
+    oublier: function (pid) { try { var d = lire(); delete d[pid]; Object.keys(d).forEach(function (o) { (d[o] || []).forEach(function (r) { if (r.offreur === pid) r.offreur = null; }); }); ecrire(d); } catch (e) { _e(e); } },
     pack: ajouterPack, _packs: function () { _packsOuverts = true; ouvrir(); },
     _hebdo: function (v) { if (_ed && _ed.hebdo !== v) { _ed.hebdo = v; _ed.cible = _ed.mode === 'minutes' ? (v ? 150 : 300) : (v ? 4 : 20); dessinerEd(); } },
     _sugg: function (i) { var s = (_ed && _ed.hebdo ? SUGG_SEM : SUGG)[i]; if (s && _ed) { _ed.nom = s.nom; _ed.mode = s.mode; _ed.cible = s.cible; dessinerEd(); } },
