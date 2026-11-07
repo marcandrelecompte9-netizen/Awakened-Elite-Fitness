@@ -8943,3 +8943,11 @@ button[onclick^="awakAutreActivite("], button[onclick^="awakChoisirPlanning("], 
 /* pendant la séance de yoga (cercle de respiration), le cadre garde ses proportions 2:3 */
 body.awak-souffle #exerciseView #exerciseVisualContent.awak-vis-img > div.awak-vis-carre.awak-anim { width: 20vh !important; aspect-ratio: 2 / 3 !important; }
 body.awak-souffle #exerciseView .awak-vis-carre.awak-anim .awak-anim-btn span { display: none; }
+/* v1657 : écran « Prépare-toi » épuré */
+#preparationView .card.awak-prep { box-shadow: none !important; }
+#preparationView .card.awak-prep #awakPartagerBtn { color: #cbd5e1 !important; }
+#preparationView .card.awak-prep .btn-secondary:not(#awakPartagerBtn) { color: #8b95a5 !important; }
+#prepEquipText:not(:empty)::before, #prepExerciseBreakdown:not(:empty)::before { content: "\00a0·\00a0"; }
+body.dark-mode #startPreparedBtn, #startPreparedBtn { background: #22d3ee !important; color: #062a33 !important; box-shadow: none !important; }
+#preparationView .card.awak-prep #awakPartagerBtn { background: transparent !important; border: 1px solid rgba(255,255,255,0.1) !important; }
+#preparationView .card.awak-prep .btn-secondary:not(#awakPartagerBtn) { background: transparent !important; border: none !important; }

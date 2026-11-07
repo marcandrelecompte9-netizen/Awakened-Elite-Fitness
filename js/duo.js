@@ -715,7 +715,7 @@
     if (!pret) { if (el) el.remove(); return; }
     if (!el) {
       var nomEl = document.getElementById('prepWorkoutName');
-      var hote = nomEl && nomEl.parentNode; if (!hote) return;
+      var hote = nomEl && nomEl.parentNode && nomEl.parentNode.parentNode; if (!hote) return;   // v1657 : sous l'en-tête
       el = document.createElement('div'); el.id = 'prepDuoNote';
       hote.appendChild(el);
     }

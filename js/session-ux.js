@@ -53,11 +53,12 @@
   function chip(groupe, val, label, actif, couleur) {
     var c = couleur || BLEU;
     return '<button type="button" onclick="AwakSessUX._choisir(\'' + groupe + '\',' + val + ')" '
-      + 'style="flex:1;min-width:0;padding:10px 4px;border-radius:11px;cursor:pointer;font-weight:800;font-size:0.78em;'
+      + 'style="flex:1;min-width:0;padding:9px 4px;border-radius:99px;cursor:pointer;font-weight:700;font-size:0.78em;'
       + 'white-space:nowrap;touch-action:manipulation;'
+      // v1657 : pastilles calmes — une seule couleur pour le choix actif
       + (actif
-        ? 'background:' + c + '26;border:1.5px solid ' + c + ';color:#fff;'
-        : 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;')
+        ? 'background:#22d3ee;border:1px solid #22d3ee;color:#062a33;'
+        : 'background:#1a1e26;border:1px solid #1a1e26;color:#9aa4b2;')
       + '">' + label + '</button>';
   }
 
@@ -68,7 +69,7 @@
     hote.style.display = 'block';
     var act = activiteCardio();
     var h = '';
-    h += '<div style="background:rgba(96,168,240,0.05);border:1px solid rgba(96,168,240,0.22);border-radius:14px;padding:13px 13px 12px;margin-bottom:16px;">';
+    h += '<div style="padding:0;margin-bottom:18px;">';   // v1657 : plus de cadre
     h += blocCycle();   // v1570
     // Forme
     h += '<div style="display:flex;align-items:center;gap:7px;font-size:0.74em;font-weight:800;color:' + CLAIR + ';margin-bottom:8px;">'
@@ -105,8 +106,8 @@
             var on = c.name === act.name;
             return '<button type="button" onclick="AwakSessUX._activite(' + CARDIO.indexOf(c) + ')" '
               + 'style="padding:8px 11px;border-radius:99px;cursor:pointer;font-weight:800;font-size:0.72em;white-space:nowrap;touch-action:manipulation;'
-              + (on ? 'background:' + BLEU + '26;border:1.5px solid ' + BLEU + ';color:#fff;'
-                    : 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;')
+              + (on ? 'background:#22d3ee;border:1px solid #22d3ee;color:#062a33;'
+                    : 'background:#1a1e26;border:1px solid #1a1e26;color:#9aa4b2;')
               + '">' + c.court + '</button>';
           }).join('')
         + '</div>';
