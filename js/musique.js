@@ -315,6 +315,41 @@
     rep: '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/><path d="M11.5 10.2 13 9v6" stroke-width="1.8"/></svg>'
   };
   // v1662 : bouton « Répéter » — garde le même morceau en boucle (réglage mémorisé)
+  // v1668 : titre trop long → il défile (aller-retour lent) au lieu d'être coupé par « … »
+  function defilerTitre(el, txt) {
+    if (!el) return;
+    if (el.dataset.txt === txt) return;   // même titre : on ne relance pas le défilement
+    el.dataset.txt = txt;
+    el.style.textOverflow = 'clip';
+    el.innerHTML = '';
+    var inn = document.createElement('span');
+    inn.className = 'awk-mus-defil'; inn.textContent = txt;
+    inn.style.display = 'inline-block'; inn.style.paddingRight = '2px';
+    el.appendChild(inn);
+    var mesurer = function () {
+      try {
+        var i2 = el.querySelector('.awk-mus-defil'); if (!i2 || !el.clientWidth) return;
+        var trop = i2.scrollWidth - el.clientWidth;
+        var cle = trop > 4 ? Math.round(trop) : 0;
+        if (String(cle) === i2.dataset.trop) return; i2.dataset.trop = String(cle);
+        if (cle) {
+          i2.style.setProperty('--awk-defil', (-cle - 6) + 'px');
+          i2.style.animation = 'awkMusDefil ' + Math.max(6, Math.round(cle / 18 + 4)) + 's ease-in-out infinite';
+        } else { i2.style.animation = 'none'; }
+      } catch (e) { _awkE(e); }
+    };
+    requestAnimationFrame(mesurer); setTimeout(mesurer, 1200);
+    try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(mesurer); } catch (e) { _awkE(e); }
+    // la barre peut être cachée / réduite au moment du rendu : on remesure quand sa taille change
+    if (!el._awkRO && typeof ResizeObserver === 'function') { el._awkRO = new ResizeObserver(mesurer); el._awkRO.observe(el); }
+    else if (el._awkRO) { el._awkRO.disconnect(); el._awkRO = new ResizeObserver(mesurer); el._awkRO.observe(el); }
+    if (!document.getElementById('awkMusDefilStyle')) {
+      var st = document.createElement('style'); st.id = 'awkMusDefilStyle';
+      st.textContent = '@keyframes awkMusDefil{0%,18%{transform:translateX(0)}50%,68%{transform:translateX(var(--awk-defil))}100%{transform:translateX(0)}}'
+        + '@media (prefers-reduced-motion: reduce){.awk-mus-defil{animation:none!important}}';
+      document.head.appendChild(st);
+    }
+  }
   function basculerRepeter() {
     var r = reglages(); r.repeter = !r.repeter; sauver(r);
     try { var c = courant(); if (audio) audio.loop = r.repeter || !!(c && c.type === 'zen'); } catch (e) { _awkE(e); }
@@ -373,7 +408,7 @@
       b.innerHTML = '<span class="awk-mus-poch" style="width:34px;height:34px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;'
         +   'background:linear-gradient(135deg,rgba(34,211,238,0.22),rgba(96,165,250,0.12));color:#67e8f9;">' + eq(false) + '</span>'
         + '<span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;">'
-        +   '<span class="awk-mus-titre" style="font-size:12.5px;font-weight:800;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>'
+        +   '<span class="awk-mus-titre" style="display:block;font-size:12.5px;font-weight:800;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>'
         +   '<span style="font-size:10.5px;font-weight:700;color:#8391a7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><span class="awk-mus-src"></span> · <span class="awk-mus-temps">0:00</span></span>'
         + '</span>'
         + '<button data-a="prec" aria-label="Musique précédente" style="' + btn + '">' + IC.prec + '</button>'
@@ -400,7 +435,7 @@
     var m = courant(), joue = audio && !audio.paused;
     // v1517 : combat final — aucun titre, seulement lecture / pause
     var fin = enFinal();
-    b.querySelector('.awk-mus-titre').textContent = fin ? '' : (m ? m.titre : 'Musique');
+    defilerTitre(b.querySelector('.awk-mus-titre'), fin ? '' : (m ? m.titre : 'Musique'));
     var src = b.querySelector('.awk-mus-src'); if (src) src.textContent = fin ? '' : (m ? source(m) : 'Prête à jouer');
     var info = src && src.parentElement; if (info) info.style.visibility = fin ? 'hidden' : 'visible';
     b.querySelectorAll('button[data-a="prec"],button[data-a="suiv"],button[data-a="rep"]').forEach(function (x) { x.style.display = fin ? 'none' : 'flex'; });
