@@ -133,9 +133,17 @@
   var DISC_ZEN = ['yoga', 'pilates', 'mobilite', 'serenite'];
   var TYPES_ZEN = ['stretch', 'mobility', 'yoga', 'breath', 'breathing', 'cooldown'];
   var libreZen = false;   // v1678 : étirements libres (onglet Étirer), hors séance
+  // v1682 : étirements de fin de séance (exercices marqués _etir) → musique calme
+  function etirFin() {
+    try {
+      if (!enSeance || !window.AwakSSBridge) return false;
+      var w = window.AwakSSBridge.getWorkout(), ex = w && w.exercises && w.exercises[window.AwakSSBridge.getExIdx()];
+      return !!(ex && ex._etir);
+    } catch (e) { return false; }
+  }
   function seanceZen() {
     try {
-      if (libreZen) return true;
+      if (libreZen || etirFin()) return true;
       if (!enSeance) return false;
       var w = window.AwakSSBridge && window.AwakSSBridge.getWorkout();
       if (!w) return false;
@@ -146,7 +154,7 @@
   }
   function seanceEtirement() {
     try {
-      if (libreZen) return true;
+      if (libreZen || etirFin()) return true;
       var w = enSeance && window.AwakSSBridge && window.AwakSSBridge.getWorkout();
       if (!w || DISC_ZEN.indexOf(w._discipline) >= 0) return false;
       if (w._etirementsSeul) return true;
@@ -510,6 +518,16 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', brancher); else brancher();
   // L'écran de séance peut être reconstruit : remettre la barre si elle a disparu
   setInterval(function () { if (enSeance && liste().length && !document.getElementById('awakMusBar')) { barre(); majBarre(); } }, 1500);
+  // v1682 : on arrive sur les étirements de fin de séance → bascule vers les morceaux calmes
+  var etaitEtirFin = false;
+  setInterval(function () {
+    var e = etirFin();
+    if (e && !etaitEtirFin && reglages().auto && !reglages().externe && audio && !audio.paused) {
+      var c = courant();
+      if (!c || (c.type !== 'zen' && c.type !== 'matin')) { fonduVers(0, 1200, function () { preparerFile(); jouerIndex(0); }); }
+    }
+    etaitEtirFin = e;
+  }, 1000);
 
   // ── Réglages > Audio & notifications > Musique ──
   function rendreReglages() {

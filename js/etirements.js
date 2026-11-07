@@ -59,10 +59,33 @@
     X('Rotation du tronc au bâton', 'Obliques', T, 'e', 40, ['Debout, bâton sur les épaules', 'Bassin fixe', 'Tourne le buste à gauche puis à droite', 'Lentement'], 'Pas d\'élan.'),
     X('Inclinaison latérale au bâton', 'Obliques', T, 'e', 40, ['Bâton tenu bras tendus au-dessus de la tête', 'Penche-toi d\'un côté', 'Tiens, puis change de côté'], 'Reste dans le plan, pas vers l\'avant.')
   ];
+  // v1682 : étirements au poids du corps en plus (plus de choix avec « Autres » et en fin de séance)
+  function P(nom, muscle, duree, instr, conseil) {
+    return { name: nom, muscle: muscle, difficulty: 'Débutant', type: 'stretch', equipment: ['Poids du corps'],
+      description: 'Étirement au poids du corps.', instructions: instr, tips: conseil, duration: duree };
+  }
+  var PDC = [
+    P('Aiguille (thread the needle)', 'Épaules', 40, ['À quatre pattes', 'Glisse un bras sous l\'autre, paume vers le haut', 'Pose l\'épaule et la tempe au sol', 'Change de côté'], 'Étire l\'arrière de l\'épaule et le haut du dos.'),
+    P('Mains jointes dans le dos', 'Épaules', 30, ['Debout, mains jointes derrière toi', 'Bras tendus, ouvre la poitrine', 'Monte doucement les mains', 'Épaules basses'], 'Étire l\'avant des épaules.'),
+    P('Étirement latéral assis', 'Obliques', 30, ['Assis en tailleur', 'Une main au sol à côté de toi', 'L\'autre bras passe au-dessus de la tête', 'Penche-toi de ce côté, puis change de côté'], 'Les deux fesses restent au sol.'),
+    P('Barrière à genoux (gate pose)', 'Obliques', 35, ['À genoux, une jambe tendue sur le côté', 'Main sur la jambe tendue', 'L\'autre bras passe au-dessus de la tête', 'Penche vers la jambe tendue, change de côté'], 'Hanches face à l\'avant.'),
+    P('Biceps mains au sol', 'Biceps', 30, ['À genoux, mains au sol devant toi', 'Tourne les doigts vers les genoux, paumes au sol', 'Recule doucement les fesses', 'Bras tendus'], 'Étire aussi les avant-bras.'),
+    P('Triceps au mur', 'Triceps', 30, ['Face au mur, coude plié au-dessus de la tête', 'Avant-bras contre le mur', 'Avance la poitrine vers le mur', 'Change de bras'], 'Ne cambre pas le bas du dos.'),
+    P('Sphinx', 'Abdominaux', 40, ['Sur le ventre, avant-bras au sol', 'Coudes sous les épaules', 'Soulève la poitrine', 'Bassin et jambes relâchés'], 'Plus doux que le cobra.'),
+    P('Quadriceps couché sur le côté', 'Quadriceps', 35, ['Couché sur le côté', 'Attrape le pied du dessus', 'Tire le talon vers la fesse', 'Change de côté'], 'Genoux l\'un sur l\'autre, bassin en avant.'),
+    P('Ischios allongé jambe tendue', 'Ischio-jambiers', 40, ['Allongé sur le dos', 'Lève une jambe tendue', 'Mains derrière la cuisse, tire doucement', 'Change de jambe'], 'L\'autre jambe reste au sol.'),
+    P('Chien tête en bas pédalé', 'Mollets', 40, ['Mains et pieds au sol, bassin haut', 'Plie un genou, pousse l\'autre talon vers le sol', 'Alterne lentement'], 'Pousse le sol avec les mains.'),
+    P('Inclinaison de la tête', 'Trapèzes', 30, ['Assis ou debout, dos droit', 'Penche l\'oreille vers l\'épaule', 'La main du même côté tire doucement la tête', 'Change de côté'], 'L\'autre épaule reste basse.'),
+    P('Fléchisseurs du poignet', 'Avant-bras', 30, ['Bras tendu devant toi, paume vers le haut', 'L\'autre main tire les doigts vers le bas', 'Garde le coude tendu', 'Change de bras'], 'Utile après la prise et les tractions.'),
+    P('Grenouille', 'Adducteurs', 45, ['À quatre pattes, écarte les genoux', 'Pieds dans l\'axe des genoux', 'Recule doucement les hanches', 'Appui sur les avant-bras'], 'Va lentement, sans forcer.'),
+    P('Pectoraux au sol en rotation', 'Pectoraux', 40, ['Sur le ventre, un bras en croix', 'Pousse avec l\'autre main et roule sur le côté', 'Plie la jambe du dessus pour t\'appuyer', 'Change de côté'], 'Bras tendu, paume au sol.')
+  ];
   try {
     if (typeof exerciseDatabase !== 'undefined' && Array.isArray(exerciseDatabase)) {
       var noms = {}; exerciseDatabase.forEach(function (e) { if (e && e.name) noms[e.name] = 1; });
-      NOUVEAUX.forEach(function (e) { if (!noms[e.name]) exerciseDatabase.push(e); });
+      NOUVEAUX.concat(PDC).forEach(function (e) { if (!noms[e.name]) exerciseDatabase.push(e); });
+      // v1682 : la fin de séance pioche dans exerciseDatabaseMuscu (copie faite au démarrage)
+      if (Array.isArray(window.exerciseDatabaseMuscu)) { var nm = {}; window.exerciseDatabaseMuscu.forEach(function (e) { if (e && e.name) nm[e.name] = 1; }); PDC.forEach(function (e) { if (!nm[e.name]) window.exerciseDatabaseMuscu.push(e); }); }
     }
   } catch (e) { if (window._awkE) _awkE(e); }
 
@@ -81,7 +104,7 @@
     if (/change de (côté|jambe|bras|pied)|chaque côté|chaque jambe|chaque bras/.test(t)) return true;
     if (ex._genre === 'r') return false;   // rouleau / balle : les deux côtés ensemble sauf si dit autrement
     return /^(Biceps|Triceps|Épaules|Quadriceps|Ischio-jambiers|Mollets|Fessiers|Avant-bras|Adducteurs|Obliques)$/.test(ex.muscle || '')
-      && !/passage d'épaules|deux|papillon|pince|pont|ouverture|respiration|cobra|enfant/i.test(ex.name || '');
+      && !/passage d'épaules|deux|papillon|pince|pont|ouverture|respiration|cobra|enfant|mains jointes|mains au sol|grenouille|pédalé|sphinx/i.test(ex.name || '');
   }
   // Muscles de la dernière séance (raccourci)
   function musclesDerniere() {
