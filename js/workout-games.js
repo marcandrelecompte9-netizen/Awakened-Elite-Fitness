@@ -1326,6 +1326,20 @@
     // v1567 : la partie aussi chez le PARTENAIRE (profil de l'appareil) : ses
     // répétitions et son résultat. Pas d'XP pour lui (seul le profil actif joue).
     try { enregistrerPartenaire(minutes); } catch (e) { _awkE(e); }
+    // v1693 : étoiles des enfants — le joueur (profil enfant) et le partenaire enfant d'un jeu à deux
+    try {
+      if (partie.comptee && window.AwakEtoiles) {
+        var _et = [], _n = 0;
+        _n = AwakEtoiles.gagnerSeance(minutes, partie.debut, partie.jeu.name);
+        if (_n) _et.push('+' + _n + ' étoile' + (_n > 1 ? 's' : ''));
+        var _pp = partie.jeu.duo ? ((partie.duo && partie.duo[1] && partie.duo[1].id) || (partenaireChoisi && !partenaireChoisi.invite ? partenaireChoisi.id : null)) : null;
+        if (_pp && _pp !== monIdJeu()) {
+          var _m = AwakEtoiles.gagnerPour(_pp, minutes, String(partie.debut) + ':' + _pp, partie.jeu.name);
+          if (_m) { var _nom = ''; try { _nom = ((window.getAllProfiles ? getAllProfiles() : []).filter(function (x) { return x.id === _pp; })[0] || {}).name || ''; } catch (e) { _awkE(e); } _et.push((_nom || 'Partenaire') + ' +' + _m + ' étoile' + (_m > 1 ? 's' : '')); }
+        }
+        if (_et.length && typeof window.showToast === 'function') setTimeout(function () { window.showToast(_et.join(' · '), 'success', 4000); }, 900);
+      }
+    } catch (e) { _awkE(e); }
     afficherFin(minutes, totalReps);
   }
 
