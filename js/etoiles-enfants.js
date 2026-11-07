@@ -282,6 +282,7 @@
     if (oui) {
       if (f.solde < q.cout) { toast('Pas assez d\'étoiles pour cette récompense', 'info'); return; }
       f.solde -= q.cout; noter(f, -q.cout, 'Récompense : ' + q.nom, 'recompense');
+      f.annonces = f.annonces || []; f.annonces.push({ nom: q.nom, t: Date.now() });   // v1690 : message de félicitations à l'enfant
       toast(nomDe(q.pid) + ' obtient « ' + q.nom + ' »');
     } else {
       noter(f, 0, 'Pas maintenant : ' + q.nom, 'refus');
@@ -461,6 +462,34 @@
     } catch (e) { _e(e); }
   }, 20000);
 
+  // v1690 : « Félicitations, tu te mérites … » à l'ouverture du profil de l'enfant
+  function annoncer() {
+    try {
+      var pid = pidActif(); if (!pid || !suivi(pid) || document.getElementById('awakEtoilesBravo')) return;
+      if (document.body.classList.contains('in-session')) return;
+      var d = lire(), f = d.enfants[pid]; if (!f || !f.annonces || !f.annonces.length) return;
+      var a = f.annonces[0];
+      var o = document.createElement('div'); o.id = 'awakEtoilesBravo';
+      o.style.cssText = 'position:fixed;inset:0;z-index:12500;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:22px;';
+      var pluie = ''; for (var i = 0; i < 7; i++) pluie += '<span style="display:inline-flex;animation:awkBravoEt 1.6s ease-in-out ' + (i * 0.12).toFixed(2) + 's infinite;">' + etoile(i === 3 ? 44 : 26) + '</span>';
+      o.innerHTML = '<style>@keyframes awkBravoEt{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.12)}}</style>'
+        + '<div role="dialog" aria-label="Félicitations" style="width:100%;max-width:380px;text-align:center;padding:26px 20px 20px;border-radius:22px;background:linear-gradient(160deg,#241b06,#0d0f13);border:1.5px solid rgba(251,191,36,0.55);box-shadow:0 0 50px rgba(251,191,36,0.25);">'
+        + '<div style="display:flex;align-items:flex-end;justify-content:center;gap:6px;margin-bottom:14px;">' + pluie + '</div>'
+        + '<div style="font-size:1.45em;font-weight:900;color:#fff;margin-bottom:6px;font-family:var(--font-display),sans-serif;">Félicitations !</div>'
+        + '<div style="font-size:0.95em;color:#fde68a;line-height:1.45;margin-bottom:6px;">Tu te mérites</div>'
+        + '<div style="font-size:1.2em;font-weight:900;color:#fff;line-height:1.3;margin-bottom:10px;">« ' + esc(a.nom) + ' »</div>'
+        + '<div style="font-size:0.8em;color:#cbd5e1;line-height:1.45;margin-bottom:18px;">Ta demande est acceptée. Tu as bien travaillé pour l\'avoir !</div>'
+        + '<button onclick="AwakEtoiles._bravoOk()" style="' + PLEIN + '">Merci !</button></div>';
+      document.body.appendChild(o);
+      try { if (navigator.vibrate) navigator.vibrate([80, 60, 80]); } catch (e) { /* rien */ }
+    } catch (e) { _e(e); }
+  }
+  function bravoOk() {
+    try { var pid = pidActif(), d = lire(), f = d.enfants[pid]; if (f && f.annonces) { f.annonces.shift(); ecrire(d); } } catch (e) { _e(e); }
+    var o = document.getElementById('awakEtoilesBravo'); if (o) o.remove();
+    setTimeout(annoncer, 300);   // une autre récompense acceptée ? on l'annonce aussi
+  }
+
   // v1688 : barre du bas d'un ENFANT — « Étoiles » à la place de « Progrès »
   function majNav() {
     try {
@@ -476,13 +505,14 @@
         document.head.appendChild(st);
       }
       if (e) e.style.display = k ? '' : 'none';
+      if (k) setTimeout(annoncer, 1200);   // v1690
       if (k) { var a = document.querySelector('.tab-content.active'); if (a && a.id === 'historyTab' && typeof window.switchTab === 'function') window.switchTab('home');
         if (a && (a.id === 'courseTab' || a.id === 'etirementsTab') && typeof window.switchTab === 'function') window.switchTab('workouts'); }
     } catch (x) { _e(x); }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', majNav); else majNav();
   window.AwakEtoiles = {
-    majNav: majNav,
+    majNav: majNav, annoncer: annoncer, _bravoOk: bravoOk,
     gagnerSeance: gagnerSeance, gagnerPour: gagnerPour, pourMinutes: pourMinutes, estimation: estimation, bandeauParent: bandeauParent,
     oublier: function (pid) { try { var d = lire(); delete d.enfants[pid]; d.demandes = d.demandes.filter(function (q) { return q.pid !== pid; }); ecrire(d); } catch (e) { _e(e); } },
     carteEnfant: carteEnfant, carteParent: carteParent,
