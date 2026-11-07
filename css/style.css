@@ -3705,7 +3705,7 @@
         body.dark-mode .progress-item.completed .progress-item-name { color: #4ade80 !important; }
         body.dark-mode .progress-item.current .progress-item-name   { color: #4ade80 !important; }
         body.dark-mode .progress-item-duration                      { color: #8391a7 !important; }
-        body.dark-mode .progress-item.current .progress-item-duration { color: #4ade80 !important; }
+        body.dark-mode .progress-item.current .progress-item-duration { color: #93c5fd !important; }
         body.dark-mode .progress-stat-label { color: #94a3b8 !important; }
         body.dark-mode .progress-stats {
             background: rgba(34,211,238,0.08) !important;
@@ -8917,3 +8917,6 @@ button[onclick^="awakAutreActivite("], button[onclick^="awakChoisirPlanning("], 
     background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.45); color: #a5f3fc; font-weight: 800; font-size: 0.9em; }
 /* v1599 : arbre de compétences — le rond appuyé garde sa position (avant : le scale global écrasait le translate) */
 .awk-bulle:active { transform: translate(-50%,-29px) scale(0.96) !important; }
+/* v1648 : la durée / les répétitions ne s'affichent plus sous le nom pendant la séance —
+   elles sont à côté de chaque exercice dans « Programme » (menu ···). */
+#exerciseView #repsRangeChip { display: none !important; }
