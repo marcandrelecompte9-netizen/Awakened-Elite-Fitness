@@ -152,6 +152,7 @@
     ],
     family: [
       // Famille à plusieurs
+      { c: function () { var b = $('#familyContainer button[onclick^="AwakEtoiles.ouvrirParent"]'); return b ? b.parentElement.parentElement : null; }, t: 'Étoiles des enfants', d: 'Chaque séance d\'un enfant rapporte 1 étoile, puis 1 de plus toutes les 15 minutes. « + Étoiles » pour féliciter autre chose (une tâche, un effort). « Gérer » : accepter ou non les récompenses demandées, voir l\'historique et choisir les récompenses.' },
       { c: function () { return $('#awakFamSemaine'); }, t: 'Notre semaine', d: 'Combien de séances chacun a faites cette semaine. Touche le résumé en haut à droite pour voir jour par jour, ou un membre pour l\'encourager. « Bouger ensemble » : 15 minutes pour toute la famille, au même rythme.' },
       { c: cielFamille, t: 'Votre ciel', d: 'Chaque étoile est un membre de ta famille. Elle s\'allume et grossit quand il s\'entraîne. Toi, tu es au centre.' },
       { c: function () { var c = cielFamille(); return c ? c.querySelector('svg') : null; }, t: 'Touche une étoile', d: 'Pour encourager, jouer ou lancer un défi à ce membre. Ton étoile au centre lance un défi d\'équipe.' },

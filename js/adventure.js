@@ -861,6 +861,8 @@ function renderFamilyTab() {
         if (_sky) { try { html += (_sky.apresEnfant || _sky.apres)(); } catch (e) { _awkE(e); } }
     } else {
         // v1295 : « Notre semaine » — qui a bougé, jour par jour, avant le ciel
+        // v1683 : étoiles des enfants (récompenses) — en tête pour le parent
+        try { if (window.AwakEtoiles) html += AwakEtoiles.carteParent(); } catch (e) { _awkE(e); }
         try { if (window.AwakFamilyWeek) html += window.AwakFamilyWeek.render(); } catch (e) { _awkE(e); }
         html += constCard;
         if (_sky) { try { html += _sky.apres(); } catch (e) { _awkE(e); } }
