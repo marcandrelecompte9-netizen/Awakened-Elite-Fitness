@@ -406,21 +406,22 @@
   // Appelé au démarrage d'un exercice : arme le groupe si besoin.
   SS.sync = function () {
     try {
+      // v1671 : le bandeau restait affiché hors superset (ancienne séance, échauffement)
       var b = B();
-      if (!b) { SS.st = null; return; }
+      if (!b) { SS.st = null; SS.clearBanner(); return; }
       var w = b.getWorkout();
-      if (!w || !w.exercises) { SS.st = null; return; }
+      if (!w || !w.exercises) { SS.st = null; SS.clearBanner(); return; }
       var i = b.getExIdx();
       var ex = w.exercises[i];
-      if (!ex || !ex.ss) { SS.st = null; return; }
+      if (!ex || !ex.ss || ex.isRest || ex.isInfo || ex._echauff) { SS.st = null; SS.clearBanner(); return; }
       if (_fini(w, ex.ss)) { SS.st = null; SS.clearBanner(); return; }   // v1560
 
       var mem = groupMembers(w.exercises, i);
-      if (mem.length < 2) { SS.st = null; return; }
+      if (mem.length < 2) { SS.st = null; SS.clearBanner(); return; }
 
-      // Nouveau groupe (ou groupe différent) → on repart au tour 1
-      if (!SS.st || SS.st.g !== ex.ss) {
-        SS.st = { g: ex.ss, members: mem, round: 1, total: parseInt(ex.sets, 10) || 3 };
+      // Nouveau groupe (ou groupe différent, ou autre séance) → on repart au tour 1
+      if (!SS.st || SS.st.g !== ex.ss || SS.st.w !== w) {
+        SS.st = { g: ex.ss, members: mem, round: 1, total: parseInt(ex.sets, 10) || 3, w: w };
       } else {
         SS.st.members = mem;
       }
@@ -480,10 +481,10 @@
   // Bandeau « SUPERSET A/B » au-dessus de l'exercice
   SS.banner = function () {
     try {
-      var host = document.getElementById('exerciseName');
-      if (!host || !SS.st) return;
       var old = document.getElementById('awakSSBanner');
       if (old) old.remove();
+      var host = document.getElementById('exerciseName');
+      if (!host || !SS.st) return;
       var b = B(); if (!b) return;
       var pos = SS.st.members.indexOf(b.getExIdx());
       if (pos < 0) return;

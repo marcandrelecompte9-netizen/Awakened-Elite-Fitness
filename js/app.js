@@ -24845,7 +24845,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1671);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1673);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24898,7 +24898,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1671" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1673" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25709,7 +25709,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const cle = Math.round(r.width) + 'x' + H;
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1671)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1673)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center top';
                 } catch (e) { _awkE(e); }
@@ -27626,6 +27626,9 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             } catch (e) { _awkE(e); }
             // ↔️ Nouveau exercice → on réinitialise le marqueur de 2ᵉ côté (étirements bilatéraux)
             window._bilateralSecondSide = false;
+            // v1671 : bandeau superset d'un autre exercice / d'une ancienne séance
+            try { const _exS = currentWorkout && currentWorkout.exercises[currentExerciseIndex]; if (!(_exS && _exS.ss) && window.AwakSS && AwakSS.clearBanner) AwakSS.clearBanner(); } catch (e) { _awkE(e); }
+            try { if (window.awakEchauffReglage) awakEchauffReglage(); } catch (e) { _awkE(e); }   // v1672 : durée de l'échauffement réglable
             // ⚡ Repos de superset en cours (exercice minuté) : on l'annule
             if (window._awakSSRestInt) { clearInterval(window._awakSSRestInt); window._awakSSRestInt = null; }
             // ⏱ Compteur de séries minutées : repart à 1 pour chaque exercice
@@ -30714,6 +30717,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             if (btn) btn.style.display = 'none';
             // 🛟 L'overlay de pause ne doit JAMAIS survivre à l'abandon.
             if (typeof awakHidePauseOverlay === 'function') awakHidePauseOverlay();
+            try { if (window.AwakSS) { AwakSS.st = null; if (AwakSS.clearBanner) AwakSS.clearBanner(); } } catch (e) { _awkE(e); }   // v1671
             // 💾 Figer l'état AVANT de tout réinitialiser, pour permettre la reprise.
             // (currentWorkout va être mis à null plus bas ; on sauve donc d'abord.)
             try {
@@ -31143,7 +31147,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1671");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1673");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -44811,7 +44815,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1671';
+                    let ver = 'v0.95.1673';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -44979,7 +44983,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1671" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1673" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45061,7 +45065,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1671);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1673);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45128,7 +45132,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1671);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1673);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47593,7 +47597,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1671");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1673");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -48811,6 +48815,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
         let _awkEchauffCb = null;
         function awakEchauffGate(w, cb) {
             _awkEchauffCb = cb;
+            try { if (window.AwakSS && AwakSS.clearBanner) AwakSS.clearBanner(); } catch (e) { _awkE(e); }   // v1672
             const jeu = (typeof rpgEnabled === 'function' && rpgEnabled());
             const eq = (typeof getSelectedEquipmentNames === 'function') ? getSelectedEquipmentNames() : [];
             const machines = AWAK_MACHINES_ECHAUFF.filter(m => eq.includes(m));
@@ -48859,7 +48864,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     + '<div style="font-size:0.78em;color:#8b95a5;font-weight:700;margin-bottom:8px;">Machine</div>'
                     + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">' + machines.map((m, i) => pas(st.m === m, m, 'awakEchMachChoix(' + i + ')')).join('') + '</div>'
                     + '<div style="font-size:0.78em;color:#8b95a5;font-weight:700;margin-bottom:8px;">Durée</div>'
-                    + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">' + [3, 5, 7, 10].map(n => pas(st.min === n, n + ' min', 'awakEchMachDuree(' + n + ')')).join('') + '</div>'
+                    + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">' + [3, 5, 7, 10, 15, 20].map(n => pas(st.min === n, n + ' min', 'awakEchMachDuree(' + n + ')')).join('') + '</div>'
                     + '<button onclick="awakEchMachGo()" style="' + _awkBtnPlein + '">Commencer l\'échauffement</button>'
                     + '<button onclick="awakEchauffGate(currentWorkout, _awkEchauffCbGarde)" style="' + _awkBtnVide + '">Retour</button>');
                 window._awkEchMachListe = machines;
@@ -48879,6 +48884,33 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 equipment: [st.m], _isCardioWarmup: true,
                 instructions: [st.min + ' minutes de ' + st.m.toLowerCase(), 'Commence doucement, augmente le rythme peu à peu', 'Tu dois pouvoir parler, mais avec un peu d\'effort']
             }]);
+        };
+        // v1672 : pendant l'échauffement, on peut allonger / raccourcir le temps
+        // (machine : ±1 min ; mouvement au poids du corps : ±15 s)
+        function _awkEchMachine(ex) { return !!(ex && (ex._isCardioWarmup || AWAK_MACHINES_ECHAUFF.indexOf(ex.name) >= 0 || (ex.muscle === 'Cardio' && (ex.duration || 0) >= 120))); }
+        window.awakEchauffReglage = function () {
+            document.getElementById('awakEchRegl')?.remove();
+            const w = currentWorkout, ex = w && w.exercises[currentExerciseIndex];
+            if (!ex || !(ex._echauff || ex._isCardioWarmup) || ex.isInfo || ex.isRest || ex.mode === 'reps') return;
+            const td = document.getElementById('timerDisplay'); if (!td || !td.parentNode) return;
+            const pas = _awkEchMachine(ex) ? 60 : 15, lib = pas === 60 ? '1 min' : '15 s';
+            const b = (d, t) => '<button onclick="awakEchauffAjuster(' + d + ')" style="min-height:auto;padding:6px 10px;border-radius:99px;background:rgba(2,5,16,0.72);border:1px solid rgba(34,211,238,0.45);color:#e2e8f0;font-weight:800;font-size:0.72em;cursor:pointer;font-family:inherit;touch-action:manipulation;">' + t + '</button>';
+            const d = document.createElement('div');
+            d.id = 'awakEchRegl';
+            d.style.cssText = 'position:absolute;top:62px;left:12px;z-index:6;display:flex;gap:6px;';
+            d.innerHTML = b(-pas, '− ' + lib) + b(pas, '+ ' + lib);
+            td.parentNode.appendChild(d);
+        };
+        window.awakEchauffAjuster = function (delta) {
+            const w = currentWorkout, ex = w && w.exercises[currentExerciseIndex];
+            if (!ex) return;
+            const avant = timeRemaining;
+            timeRemaining = Math.max(10, timeRemaining + delta);
+            const reel = timeRemaining - avant;
+            ex.duration = Math.max(10, (ex.duration || 0) + reel);
+            if (w._echauffDuree) w._echauffDuree = Math.max(0, w._echauffDuree + reel);
+            if (ex._isCardioWarmup && ex.instructions && /^\d+ minutes de /.test(ex.instructions[0] || '')) ex.instructions[0] = Math.round(ex.duration / 60) + ' minutes de ' + String(ex.name).toLowerCase();
+            try { updateTimerDisplay(); } catch (e) { _awkE(e); }
         };
         // Suivi du bloc : bonus d'XP quand on en sort après l'avoir vraiment fait
         function awakEchauffSuivi() {
