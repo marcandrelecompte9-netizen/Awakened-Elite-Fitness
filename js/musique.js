@@ -132,8 +132,10 @@
   // v1640 : séance calme → seulement la musique zen, en boucle
   var DISC_ZEN = ['yoga', 'pilates', 'mobilite', 'serenite'];
   var TYPES_ZEN = ['stretch', 'mobility', 'yoga', 'breath', 'breathing', 'cooldown'];
+  var libreZen = false;   // v1678 : étirements libres (onglet Étirer), hors séance
   function seanceZen() {
     try {
+      if (libreZen) return true;
       if (!enSeance) return false;
       var w = window.AwakSSBridge && window.AwakSSBridge.getWorkout();
       if (!w) return false;
@@ -652,5 +654,10 @@
     fonduVers(Math.min(1, volCible() + 0.3), 2500);
   }
 
-  window.AwakMusique = { intensifier: intensifier, climaxFinal: climaxFinal, _audio: function () { return audio; }, ajouterPerso: ajouterPerso, retirerPerso: retirerPerso, perso: function () { return PERSO.slice(); }, liste: liste, tous: function () { return AWAK_MUSIQUES.slice(); }, lecture: lecture, pause: pause, suivante: suivante, precedente: precedente, arreter: arreter, reglages: reglages, rendreReglages: rendreReglages, joue: function () { return !!(audio && !audio.paused); }, courant: courant };
+  function zenLibre(on) {
+    libreZen = !!on;
+    if (on) { if (liste().length && reglages().auto) { preparerFile(); jouerIndex(0); } }
+    else arreter();
+  }
+  window.AwakMusique = { zenLibre: zenLibre, basculer: function () { if (libreZen && !courant()) { preparerFile(); jouerIndex(0); return; } basculer(); }, intensifier: intensifier, climaxFinal: climaxFinal, _audio: function () { return audio; }, ajouterPerso: ajouterPerso, retirerPerso: retirerPerso, perso: function () { return PERSO.slice(); }, liste: liste, tous: function () { return AWAK_MUSIQUES.slice(); }, lecture: lecture, pause: pause, suivante: suivante, precedente: precedente, arreter: arreter, reglages: reglages, rendreReglages: rendreReglages, joue: function () { return !!(audio && !audio.paused); }, courant: courant };
 })();

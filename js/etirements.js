@@ -276,6 +276,14 @@
     var n = L.liste[L.i]; L.reste = n ? (n.duration || 30) : 0; bip(); dessinerLecteur();
     if (!n) { clearInterval(L.timer); L.timer = null; }
   }
+  function majMusique() {
+    var b = document.querySelector('#awakEtirLibre .awk-el-mus'); if (!b) return;
+    var j = false; try { j = !!(window.AwakMusique && AwakMusique.joue()); } catch (e) { /* rien */ }
+    b.innerHTML = j
+      ? '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>'
+      : '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+    b.style.color = j ? '#22d3ee' : '#e2e8f0';
+  }
   function bip() { try { if (navigator.vibrate) navigator.vibrate(60); } catch (e) { /* rien */ } }
   var API = {
     rendreOnglet: rendre,
@@ -305,13 +313,17 @@
       o.style.cssText = 'position:fixed;inset:0;z-index:10500;background:#0b0d12;display:flex;flex-direction:column;';
       o.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;padding:calc(12px + env(safe-area-inset-top)) 16px 8px;">'
         + '<div style="color:#8b95a5;font-size:0.8em;font-weight:700;">Étirements libres</div>'
-        + '<button onclick="AwakEtir.fermerLibre()" style="min-height:auto;padding:8px 14px;border-radius:99px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;font-weight:700;cursor:pointer;">Fermer</button></div>'
+        + '<div style="display:flex;gap:8px;align-items:center;">'
+        + '<button class="awk-el-mus" onclick="AwakEtir.musique()" aria-label="Musique" style="min-height:auto;width:38px;height:38px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:99px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;cursor:pointer;"></button>'
+        + '<button onclick="AwakEtir.fermerLibre()" style="min-height:auto;padding:8px 14px;border-radius:99px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;font-weight:700;cursor:pointer;">Fermer</button></div></div>'
         + '<div class="awk-el-corps" style="flex:1;overflow-y:auto;padding:6px 18px 10px;"></div>'
         + '<div style="display:flex;gap:8px;padding:10px 16px calc(14px + env(safe-area-inset-bottom));">'
         + '<button onclick="AwakEtir.precLibre()" style="flex:1;padding:14px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;font-weight:700;cursor:pointer;">Préc.</button>'
         + '<button class="awk-el-pause" onclick="AwakEtir.pauseLibre()" style="flex:1;padding:14px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;font-weight:700;cursor:pointer;">Pause</button>'
         + '<button onclick="AwakEtir.suivLibre()" style="flex:1;padding:14px;border-radius:14px;background:#22d3ee;border:none;color:#062a33;font-weight:800;cursor:pointer;">Suivant</button></div>';
       document.body.appendChild(o);
+      try { if (window.AwakMusique && AwakMusique.zenLibre) AwakMusique.zenLibre(true); } catch (e) { /* rien */ }
+      majMusique(); setTimeout(majMusique, 900);
       dessinerLecteur();
       L.timer = setInterval(function () {
         if (!document.getElementById('awakEtirLibre')) { clearInterval(L.timer); return; }
@@ -323,7 +335,8 @@
     suivLibre: function () { if (L && L.liste[L.i]) etapeSuivante(); },
     precLibre: function () { if (!L) return; if (L.i > 0) L.i--; L.cote = 1; var e = L.liste[L.i]; L.reste = e ? (e.duration || 30) : 0; if (!L.timer) API.libre(); else dessinerLecteur(); },
     pauseLibre: function () { if (!L) return; L.pause = !L.pause; dessinerLecteur(); },
-    fermerLibre: function () { if (L && L.timer) clearInterval(L.timer); L = null; var o = document.getElementById('awakEtirLibre'); if (o) o.remove(); }
+    musique: function () { try { if (window.AwakMusique) AwakMusique.basculer(); } catch (e) { /* rien */ } setTimeout(majMusique, 700); },
+    fermerLibre: function () { try { if (window.AwakMusique && AwakMusique.zenLibre) AwakMusique.zenLibre(false); } catch (e) { /* rien */ } if (L && L.timer) clearInterval(L.timer); L = null; var o = document.getElementById('awakEtirLibre'); if (o) o.remove(); }
   };
   window.AwakEtir = API;
 })();
