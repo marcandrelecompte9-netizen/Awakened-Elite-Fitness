@@ -24847,7 +24847,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1675);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1676);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24900,7 +24900,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1675" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1676" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25711,7 +25711,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const cle = Math.round(r.width) + 'x' + H;
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1675)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1676)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center top';
                 } catch (e) { _awkE(e); }
@@ -31149,7 +31149,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1675");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1676");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -44817,7 +44817,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1675';
+                    let ver = 'v0.95.1676';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -44985,7 +44985,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1675" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1676" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45067,7 +45067,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1675);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1676);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45134,7 +45134,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1675);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1676);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47599,7 +47599,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1675");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1676");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -48828,6 +48828,9 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 + '<button onclick="awakEchauffMachine()" style="' + _awkChoix + (machines.length ? '' : 'opacity:0.5;') + '">'
                 +   '<div style="color:#fff;font-weight:800;">Sur une machine</div>'
                 +   '<div style="color:#8b95a5;font-size:0.78em;margin-top:2px;">' + (machines.length ? machines.join(', ') + ' · 3 à 10 min' : 'Aucune machine dans ton lieu actuel') + '</div></button>'
+                + '<button onclick="awakEchauffAcc()" style="' + _awkChoix + '">'
+                +   '<div style="color:#fff;font-weight:800;">Avec un accessoire</div>'
+                +   '<div style="color:#8b95a5;font-size:0.78em;margin-top:2px;">Élastique, kettlebell, haltères légers, bâton, rouleau · ≈ 5 min</div></button>'
                 + '<button onclick="awakEchauffCorps()" style="' + _awkChoix + '">'
                 +   '<div style="color:#fff;font-weight:800;">Au poids du corps</div>'
                 +   '<div style="color:#8b95a5;font-size:0.78em;margin-top:2px;">Mouvements ciblés sur les muscles de ta séance · ≈ 4 min</div></button>'
@@ -48850,6 +48853,82 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const w = currentWorkout; if (!w) return _awkEchauffFin(null);
             let bloc = [];
             try { bloc = (generateProgressiveWarmup(_awkMusclesSeance(w), 1, 30) || []).map(e => Object.assign({}, e)); } catch (e) { _awkE(e); }
+            _awkEchauffFin(bloc);
+        };
+        // v1676 : échauffement avec accessoire
+        // [nom, accessoire, muscles visés, consignes]
+        const AWAK_ECH_ACC = [
+            ['Écartés à l\'élastique', 'Élastique', ['Épaules', 'Dos', 'Trapèzes'], ['Élastique tenu devant toi, bras tendus', 'Écarte en serrant les omoplates', 'Reviens lentement, rythme régulier']],
+            ['Passages d\'épaules à l\'élastique', 'Élastique', ['Épaules', 'Pectoraux'], ['Prise large, bras tendus', 'Passe l\'élastique au-dessus de la tête jusqu\'au dos', 'Reviens devant, sans plier les coudes']],
+            ['Rotations externes à l\'élastique', 'Élastique', ['Épaules'], ['Coude collé au corps, plié à 90°', 'Tourne l\'avant-bras vers l\'extérieur', 'Lent et contrôlé, change de bras à mi-temps']],
+            ['Marche latérale avec élastique', 'Élastique', ['Fessiers', 'Adducteurs', 'Quadriceps'], ['Élastique au-dessus des genoux', 'Demi-squat, pas chassés sur le côté', 'Garde la tension, change de sens']],
+            ['Pont fessier élastique aux genoux', 'Élastique', ['Fessiers', 'Ischio-jambiers'], ['Allongé, élastique au-dessus des genoux', 'Pousse les genoux vers l\'extérieur', 'Monte le bassin, serre les fessiers']],
+            ['Tirage visage à l\'élastique', 'Élastique', ['Dos', 'Trapèzes', 'Épaules'], ['Élastique accroché à hauteur des yeux', 'Tire vers le visage, coudes hauts', 'Résistance légère']],
+            ['Curl léger à l\'élastique', 'Élastique', ['Biceps', 'Avant-bras'], ['Pieds sur l\'élastique', 'Plie les coudes sans élan', 'Léger : on réveille, on ne fatigue pas']],
+            ['Extension triceps à l\'élastique', 'Élastique', ['Triceps'], ['Élastique tenu derrière la tête', 'Tends les bras vers le haut', 'Coudes fixes, mouvement doux']],
+            ['Halo au kettlebell', 'Kettlebell', ['Épaules', 'Trapèzes', 'Abdominaux'], ['Kettlebell léger tenu par les cornes', 'Fais le tour de la tête, près du crâne', 'Change de sens à mi-temps']],
+            ['Squat gobelet léger avec pause', 'Kettlebell', ['Quadriceps', 'Fessiers', 'Adducteurs'], ['Kettlebell contre la poitrine', 'Descends, pause 2 s en bas, coudes entre les genoux', 'Remonte en douceur']],
+            ['Swing léger au kettlebell', 'Kettlebell', ['Fessiers', 'Ischio-jambiers', 'Dos'], ['Charnière de hanche, dos plat', 'Pousse les hanches pour lancer le kettlebell', 'Charge légère, amplitude progressive']],
+            ['Good morning au kettlebell', 'Kettlebell', ['Ischio-jambiers', 'Dos', 'Fessiers'], ['Kettlebell contre la poitrine', 'Penche le buste en reculant les hanches', 'Dos plat, remonte lentement']],
+            ['Cercles d\'épaules aux haltères légers', 'Haltères', ['Épaules', 'Trapèzes'], ['Haltères légers, bras le long du corps', 'Grands cercles des épaules', 'Change de sens à mi-temps']],
+            ['Fentes marchées légères', 'Haltères', ['Quadriceps', 'Fessiers', 'Ischio-jambiers'], ['Haltères légers dans les mains', 'Grand pas, genou arrière vers le sol', 'Alterne les jambes, sans te presser']],
+            ['Soulevé de terre roumain léger', 'Haltères', ['Ischio-jambiers', 'Fessiers', 'Dos'], ['Haltères devant les cuisses', 'Glisse-les le long des jambes en reculant les hanches', 'Dos plat, remonte en serrant les fessiers']],
+            ['Développé Arnold léger', 'Haltères', ['Épaules', 'Triceps', 'Pectoraux'], ['Haltères devant le visage, paumes vers toi', 'Pousse vers le haut en tournant les paumes', 'Charge très légère']],
+            ['Curl marteau léger', 'Haltères', ['Biceps', 'Avant-bras'], ['Paumes face à face', 'Monte et descends sans élan', 'Léger et régulier']],
+            ['Pompes inclinées sur haltères', 'Haltères', ['Pectoraux', 'Triceps', 'Épaules'], ['Mains sur les haltères posés au sol', 'Descends à mi-course seulement', 'Rythme calme']],
+            ['Passages d\'épaules au bâton', 'Bâton', ['Épaules', 'Pectoraux'], ['Bâton tenu large', 'Passe-le au-dessus de la tête jusqu\'au dos', 'Bras tendus, resserre la prise peu à peu']],
+            ['Rotations du tronc au bâton', 'Bâton', ['Obliques', 'Abdominaux', 'Dos'], ['Bâton sur les épaules', 'Tourne le buste à gauche puis à droite', 'Bassin fixe, sans à-coups']],
+            ['Squat bâton au-dessus de la tête', 'Bâton', ['Quadriceps', 'Fessiers', 'Épaules'], ['Bâton tenu bras tendus au-dessus de la tête', 'Descends en gardant le bâton aligné', 'Amplitude progressive']],
+            ['Charnière de hanche au bâton', 'Bâton', ['Ischio-jambiers', 'Fessiers', 'Dos'], ['Bâton le long du dos : tête, haut du dos, bassin', 'Penche le buste en reculant les hanches', 'Les trois contacts restent sur le bâton']],
+            ['Rouleau quadriceps', 'Rouleau', ['Quadriceps'], ['Allongé sur le ventre, rouleau sous les cuisses', 'Roule de la hanche au-dessus du genou', 'Rythme assez vif pour réveiller']],
+            ['Rouleau haut du dos', 'Rouleau', ['Dos', 'Trapèzes'], ['Rouleau sous le haut du dos, mains derrière la tête', 'Roule entre les omoplates', 'Fesses levées, abdos gainés']],
+            ['Rouleau mollets', 'Rouleau', ['Mollets'], ['Assis, rouleau sous les mollets', 'Soulève les fesses et roule', 'Tourne la jambe pour couvrir les côtés']],
+            ['Rouleau fessiers', 'Rouleau', ['Fessiers', 'Ischio-jambiers'], ['Assis sur le rouleau, cheville sur le genou opposé', 'Roule sur le fessier du côté croisé', 'Change de côté à mi-temps']]
+        ];
+        const AWAK_ECH_ACC_LISTE = ['Élastique', 'Kettlebell', 'Haltères', 'Bâton', 'Rouleau'];
+        window.awakEchauffAcc = function () {
+            const eq = (typeof getSelectedEquipmentNames === 'function') ? getSelectedEquipmentNames() : [];
+            const dejaLa = AWAK_ECH_ACC_LISTE.filter(a => eq.some(q => q === a || (a === 'Élastique' && /lastique/.test(q)) || (a === 'Haltères' && /Haltère/.test(q))));
+            if (!window._awkEchAcc) window._awkEchAcc = dejaLa.length ? dejaLa.slice() : [];
+            const dessiner = () => {
+                const ch = window._awkEchAcc;
+                const pas = (on, t, f) => '<button onclick="' + f + '" style="min-height:auto;padding:9px 14px;border-radius:99px;cursor:pointer;font-family:inherit;font-weight:700;font-size:0.82em;'
+                    + (on ? 'background:#22d3ee;color:#062a33;border:1px solid #22d3ee;' : 'background:#1a1e26;color:#cbd5e1;border:1px solid #1a1e26;') + '">' + t + '</button>';
+                _awkFeuille('awakEchauffSheet',
+                    '<div style="font-size:1.15em;font-weight:800;color:#fff;margin-bottom:4px;">Échauffement avec accessoire</div>'
+                    + '<div style="font-size:0.8em;color:#8b95a5;margin-bottom:14px;">Choisis ce que tu as sous la main. Charges légères : on réveille, on ne fatigue pas.</div>'
+                    + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">' + AWAK_ECH_ACC_LISTE.map((a, i) => pas(ch.indexOf(a) >= 0, a === 'Haltères' ? 'Haltères légers' : a, 'awakEchAccChoix(' + i + ')')).join('') + '</div>'
+                    + '<button onclick="awakEchAccGo()" style="' + _awkBtnPlein + (ch.length ? '' : 'opacity:0.45;') + '">Commencer l\'échauffement</button>'
+                    + '<button onclick="awakEchauffGate(currentWorkout, _awkEchauffCbGarde)" style="' + _awkBtnVide + '">Retour</button>');
+            };
+            window._awkEchAccDessiner = dessiner;
+            dessiner();
+        };
+        window.awakEchAccChoix = function (i) {
+            const a = AWAK_ECH_ACC_LISTE[i], ch = window._awkEchAcc, k = ch.indexOf(a);
+            if (k >= 0) ch.splice(k, 1); else ch.push(a);
+            window._awkEchAccDessiner();
+        };
+        window.awakEchAccGo = function () {
+            const ch = window._awkEchAcc || [];
+            if (!ch.length) { try { showToast('Choisis au moins un accessoire', 'info', 2000); } catch (e) { _awkE(e); } return; }
+            const w = currentWorkout;
+            const cibles = w ? _awkMusclesSeance(w) : [];
+            const dispo = AWAK_ECH_ACC.filter(x => ch.indexOf(x[1]) >= 0).sort(() => Math.random() - 0.5);
+            const pris = [], couverts = {};
+            // 1) couvrir les muscles de la séance ; 2) compléter jusqu'à 5
+            for (let tour = 0; tour < 2 && pris.length < 5; tour++) {
+                dispo.forEach(x => {
+                    if (pris.length >= 5 || pris.indexOf(x) >= 0) return;
+                    const utile = x[2].some(m => cibles.indexOf(m) >= 0 && !couverts[m]);
+                    if (tour === 0 && !utile) return;
+                    pris.push(x); x[2].forEach(m => { couverts[m] = 1; });
+                });
+            }
+            const bloc = [{ name: 'Mise en route', muscle: 'Cardio', mode: 'timer', duration: 60, sets: 1, type: 'warmup', isWarmup: true, equipment: ['Poids du corps'],
+                instructions: ['Marche active ou jumping jacks', 'Monte doucement le rythme', 'Respire, relâche les épaules'] }]
+                .concat(pris.map(x => ({ name: x[0], muscle: x[2][0], mode: 'timer', duration: x[1] === 'Rouleau' ? 45 : 40, sets: 1, type: 'warmup', isWarmup: true,
+                    equipment: [x[1] === 'Haltères' ? 'Haltères' : x[1]], instructions: x[3].slice() })));
             _awkEchauffFin(bloc);
         };
         window.awakEchauffMachine = function () {
