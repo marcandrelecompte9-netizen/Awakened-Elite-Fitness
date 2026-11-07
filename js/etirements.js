@@ -189,8 +189,10 @@
         + '</div>'
         + '<div style="display:flex;gap:8px;margin-top:16px;">'
         +   '<button onclick="AwakEtir.renouveler()" style="flex-shrink:0;padding:14px 14px;border-radius:14px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;font-weight:700;font-size:0.85em;cursor:pointer;">Autres</button>'
-        +   '<button onclick="AwakEtir.lancer()" style="flex:1;padding:14px;border-radius:14px;background:#22d3ee;border:none;color:#062a33;font-weight:800;font-size:0.95em;cursor:pointer;">Commencer</button>'
-        + '</div>';
+        +   '<button onclick="AwakEtir.lancer()" style="flex:1;padding:14px;border-radius:14px;background:#22d3ee;border:none;color:#062a33;font-weight:800;font-size:0.95em;cursor:pointer;">Commencer la séance</button>'
+        + '</div>'
+        + '<button onclick="AwakEtir.libre()" style="width:100%;margin-top:8px;padding:13px;border-radius:14px;background:transparent;border:1px solid rgba(34,211,238,0.45);color:#67e8f9;font-weight:800;font-size:0.9em;cursor:pointer;">Seulement m\'étirer</button>'
+        + '<div style="font-size:0.72em;color:#64748b;text-align:center;margin-top:6px;">Guidé avec minuteur, sans séance : rien n\'est enregistré, pas d\'XP.</div>';
     } else {
       html += '<div style="margin-top:16px;padding:14px;border-radius:12px;background:#141821;color:#8b95a5;font-size:0.8em;text-align:center;">Choisis au moins un muscle pour voir ta séance.</div>';
     }
@@ -198,6 +200,42 @@
     h.innerHTML = html;
   }
 
+  // ── 3. « Seulement m'étirer » : lecteur guidé, hors séance ─────────────
+  var L = null;   // { liste, i, reste, cote, pause, timer }
+  function etapes() { return (window._awkEtirListe || construire()).filter(function (e) { return !e.isInfo; }); }
+  function imageDe(e) {
+    var src = (window.EXERCISE_IMAGES || {})[e.name] || '';
+    if (!src) return '';
+    var u = encodeURI(src).replace(/'/g, '%27');
+    return '<div style="width:100%;max-width:320px;aspect-ratio:1/1;margin:0 auto 14px;border-radius:16px;background:#141821 url(\'' + u + '\') center/contain no-repeat;"></div>';
+  }
+  function dessinerLecteur() {
+    var o = document.getElementById('awakEtirLibre'); if (!o || !L) return;
+    var e = L.liste[L.i];
+    if (!e) {
+      o.querySelector('.awk-el-corps').innerHTML = '<div style="text-align:center;padding:40px 10px;">'
+        + '<div style="font-size:1.4em;font-weight:800;color:#fff;margin-bottom:6px;">Terminé</div>'
+        + '<div style="color:#8b95a5;font-size:0.9em;margin-bottom:22px;">Bien joué. Prends un verre d\'eau.</div>'
+        + '<button onclick="AwakEtir.fermerLibre()" style="padding:14px 28px;border-radius:14px;background:#22d3ee;border:none;color:#062a33;font-weight:800;cursor:pointer;">Fermer</button></div>';
+      return;
+    }
+    var mm = Math.floor(L.reste / 60), ss = L.reste % 60;
+    o.querySelector('.awk-el-corps').innerHTML =
+        '<div style="font-size:0.76em;color:#8b95a5;font-weight:700;text-align:center;margin-bottom:4px;">' + (L.i + 1) + ' / ' + L.liste.length + (e.bilateral ? ' · ' + (L.cote === 1 ? 'côté droit' : 'côté gauche') : '') + '</div>'
+      + '<div style="font-size:1.25em;font-weight:800;color:#fff;text-align:center;margin-bottom:12px;">' + esc(e.name) + '</div>'
+      + imageDe(e)
+      + '<div style="font-size:2.6em;font-weight:800;color:' + (L.pause ? '#64748b' : '#22d3ee') + ';text-align:center;font-variant-numeric:tabular-nums;">' + mm + ':' + (ss < 10 ? '0' : '') + ss + '</div>'
+      + '<ul style="margin:12px 0 0;padding-left:18px;color:#cbd5e1;font-size:0.84em;line-height:1.55;">' + (e.instructions || []).slice(0, 6).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>';
+    var bp = o.querySelector('.awk-el-pause'); if (bp) bp.textContent = L.pause ? 'Reprendre' : 'Pause';
+  }
+  function etapeSuivante() {
+    var e = L.liste[L.i];
+    if (e && e.bilateral && L.cote === 1) { L.cote = 2; L.reste = e.duration || 30; bip(); dessinerLecteur(); return; }
+    L.i++; L.cote = 1;
+    var n = L.liste[L.i]; L.reste = n ? (n.duration || 30) : 0; bip(); dessinerLecteur();
+    if (!n) { clearInterval(L.timer); L.timer = null; }
+  }
+  function bip() { try { if (navigator.vibrate) navigator.vibrate(60); } catch (e) { /* rien */ } }
   var API = {
     rendreOnglet: rendre,
     but: function (b) { etat.but = b; rendre(); },
@@ -215,7 +253,34 @@
       else if (typeof window.setPendingWorkout === 'function' && typeof window.startPreparedWorkout === 'function') { window.setPendingWorkout(w); window.startPreparedWorkout(); }
     },
     construire: construire,
-    accessoires: ACCESSOIRES
+    accessoires: ACCESSOIRES,
+    libre: function () {
+      var l = etapes(); if (!l.length) return;
+      L = { liste: l, i: 0, reste: l[0].duration || 30, cote: 1, pause: false, timer: null };
+      document.getElementById('awakEtirLibre') && document.getElementById('awakEtirLibre').remove();
+      var o = document.createElement('div'); o.id = 'awakEtirLibre';
+      o.style.cssText = 'position:fixed;inset:0;z-index:10500;background:#0b0d12;display:flex;flex-direction:column;';
+      o.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;padding:calc(12px + env(safe-area-inset-top)) 16px 8px;">'
+        + '<div style="color:#8b95a5;font-size:0.8em;font-weight:700;">Étirements libres</div>'
+        + '<button onclick="AwakEtir.fermerLibre()" style="min-height:auto;padding:8px 14px;border-radius:99px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;font-weight:700;cursor:pointer;">Fermer</button></div>'
+        + '<div class="awk-el-corps" style="flex:1;overflow-y:auto;padding:6px 18px 10px;"></div>'
+        + '<div style="display:flex;gap:8px;padding:10px 16px calc(14px + env(safe-area-inset-bottom));">'
+        + '<button onclick="AwakEtir.precLibre()" style="flex:1;padding:14px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;font-weight:700;cursor:pointer;">Préc.</button>'
+        + '<button class="awk-el-pause" onclick="AwakEtir.pauseLibre()" style="flex:1;padding:14px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;font-weight:700;cursor:pointer;">Pause</button>'
+        + '<button onclick="AwakEtir.suivLibre()" style="flex:1;padding:14px;border-radius:14px;background:#22d3ee;border:none;color:#062a33;font-weight:800;cursor:pointer;">Suivant</button></div>';
+      document.body.appendChild(o);
+      dessinerLecteur();
+      L.timer = setInterval(function () {
+        if (!document.getElementById('awakEtirLibre')) { clearInterval(L.timer); return; }
+        if (L.pause || !L.liste[L.i]) return;
+        L.reste--;
+        if (L.reste <= 0) etapeSuivante(); else dessinerLecteur();
+      }, 1000);
+    },
+    suivLibre: function () { if (L && L.liste[L.i]) etapeSuivante(); },
+    precLibre: function () { if (!L) return; if (L.i > 0) L.i--; L.cote = 1; var e = L.liste[L.i]; L.reste = e ? (e.duration || 30) : 0; if (!L.timer) API.libre(); else dessinerLecteur(); },
+    pauseLibre: function () { if (!L) return; L.pause = !L.pause; dessinerLecteur(); },
+    fermerLibre: function () { if (L && L.timer) clearInterval(L.timer); L = null; var o = document.getElementById('awakEtirLibre'); if (o) o.remove(); }
   };
   window.AwakEtir = API;
 })();
