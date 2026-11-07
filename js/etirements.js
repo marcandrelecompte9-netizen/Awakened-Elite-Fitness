@@ -232,10 +232,8 @@
         + '</div>'
         + '<div style="display:flex;gap:8px;margin-top:16px;">'
         +   '<button onclick="AwakEtir.renouveler()" style="flex-shrink:0;padding:14px 14px;border-radius:14px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;font-weight:700;font-size:0.85em;cursor:pointer;">Autres</button>'
-        +   '<button onclick="AwakEtir.lancer()" style="flex:1;padding:14px;border-radius:14px;background:#22d3ee;border:none;color:#062a33;font-weight:800;font-size:0.95em;cursor:pointer;">Commencer la séance</button>'
-        + '</div>'
-        + '<button onclick="AwakEtir.libre()" style="width:100%;margin-top:8px;padding:13px;border-radius:14px;background:transparent;border:1px solid rgba(34,211,238,0.45);color:#67e8f9;font-weight:800;font-size:0.9em;cursor:pointer;">Seulement m\'étirer</button>'
-        + '<div style="font-size:0.72em;color:#64748b;text-align:center;margin-top:6px;">Guidé avec minuteur, sans séance : rien n\'est enregistré, pas d\'XP.</div>';
+        +   '<button onclick="AwakEtir.libre()" style="flex:1;padding:14px;border-radius:14px;background:#22d3ee;border:none;color:#062a33;font-weight:800;font-size:0.95em;cursor:pointer;">Commencer</button>'
+        + '</div>';
     } else {
       html += '<div style="margin-top:16px;padding:14px;border-radius:12px;background:#141821;color:#8b95a5;font-size:0.8em;text-align:center;">Choisis au moins un muscle pour voir ta séance.</div>';
     }
