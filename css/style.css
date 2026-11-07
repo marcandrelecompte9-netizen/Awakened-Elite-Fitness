@@ -8920,3 +8920,18 @@ button[onclick^="awakAutreActivite("], button[onclick^="awakChoisirPlanning("], 
 /* v1648 : la durée / les répétitions ne s'affichent plus sous le nom pendant la séance —
    elles sont à côté de chaque exercice dans « Programme » (menu ···). */
 #exerciseView #repsRangeChip { display: none !important; }
+/* v1651 : image 2:1 (deux cases carrées) — chaque case entière dans un cadre carré */
+#exerciseVisualContent .awak-anim.awak-anim-11 .awak-ph,
+#exercisePreviewModal .awak-anim.awak-anim-11 .awak-ph { background-size: 200% 100% !important; }
+#exerciseVisualContent .awak-anim.awak-anim-11 .awak-ph-a,
+#exercisePreviewModal .awak-anim.awak-anim-11 .awak-ph-a { background-position: 0% 50% !important; }
+#exerciseVisualContent .awak-anim.awak-anim-11 .awak-ph-b,
+#exercisePreviewModal .awak-anim.awak-anim-11 .awak-ph-b { background-position: 100% 50% !important; }
+/* v1651 : personnage debout pleine hauteur — cadre 2:3, chaque case presque entière */
+#exerciseVisualContent .awak-anim.awak-anim-23,
+#exercisePreviewModal .awak-anim.awak-anim-23 { aspect-ratio: 2 / 3 !important; width: min(100%, 33vh) !important; max-height: none !important; margin: 0 auto !important; }
+#exercisePreviewModal .awak-anim.awak-anim-23 { width: min(100%, 40vh) !important; }
+#exerciseVisualContent .awak-anim.awak-anim-23 .awak-ph-a,
+#exercisePreviewModal .awak-anim.awak-anim-23 .awak-ph-a { background-position: 0% 50% !important; }
+#exerciseVisualContent .awak-anim.awak-anim-23 .awak-ph-b,
+#exercisePreviewModal .awak-anim.awak-anim-23 .awak-ph-b { background-position: 100% 50% !important; }

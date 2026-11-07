@@ -1655,7 +1655,10 @@ var EXERCISE_IMAGES_V2 = [
   'Close_Grip_Push_Up.webp',
   'Heel_To_Toe_Walk.webp',      // v1428
   'Bird_Dog.webp',
-  'Airplane_Balance.webp'
+  'Airplane_Balance.webp',
+  // v1651 : nouvelles images (style jour)
+  'Towel_Door_Row.webp', 'Heel_Glute_Bridge.webp', 'Standing_Side_Crunch.webp', 'Windshield_Wipers.webp',
+  'Backpack_Row.webp', 'Prone_Swimmers.webp', 'Reverse_Snow_Angels.webp', 'Pompes_classiques_v2.webp', 'Pompes_diamant_v2.webp'
 ];
 window.EXERCISE_IMAGES_V2 = EXERCISE_IMAGES_V2;
 // v1416 : images dont les deux positions sont l'une SOUS l'autre (et non côte à côte)
@@ -1663,7 +1666,13 @@ var EXERCISE_IMAGES_V2_HAUT_BAS = ['Crab_Walk.webp'];
 window.EXERCISE_IMAGES_V2_HAUT_BAS = EXERCISE_IMAGES_V2_HAUT_BAS;
 // v1428 : images 3:2 (deux cases en portrait 3:4 côte à côte) — le cadre animé
 // passe en 3:4 pour montrer chaque position en entier, sans déformer.
-var EXERCISE_IMAGES_V2_34 = ['Heel_To_Toe_Walk.webp', 'Bird_Dog.webp', 'Airplane_Balance.webp'];
+var EXERCISE_IMAGES_V2_34 = ['Heel_To_Toe_Walk.webp', 'Bird_Dog.webp', 'Airplane_Balance.webp', 'Prone_Swimmers.webp', 'Reverse_Snow_Angels.webp'];
+// v1651 : images 2:1 (deux cases carrées côte à côte) — cadre animé carré, chaque case entière
+var EXERCISE_IMAGES_V2_11 = ['Heel_Glute_Bridge.webp'];
+window.EXERCISE_IMAGES_V2_11 = EXERCISE_IMAGES_V2_11;
+// v1651 : images carrées où le personnage DEBOUT occupe toute la hauteur — cadre 2:3 (sinon tête ou pieds coupés)
+var EXERCISE_IMAGES_V2_23 = ['Towel_Door_Row.webp', 'Standing_Side_Crunch.webp'];
+window.EXERCISE_IMAGES_V2_23 = EXERCISE_IMAGES_V2_23;
 window.EXERCISE_IMAGES_V2_34 = EXERCISE_IMAGES_V2_34;
 // Séance : la nouvelle image s'anime — on voit la position de DÉBUT en grand,
 // puis celle de FIN, en boucle (fondu). Toucher = image entière en plein écran.
@@ -1677,9 +1686,11 @@ window.awakAnimHTML = function (src, srcEnc) {
   var f = String(src).split('/').pop();
   var hb = EXERCISE_IMAGES_V2_HAUT_BAS.indexOf(f) >= 0;
   var p34 = EXERCISE_IMAGES_V2_34.indexOf(f) >= 0;
+  var p11 = EXERCISE_IMAGES_V2_11.indexOf(f) >= 0;
+  var p23 = EXERCISE_IMAGES_V2_23.indexOf(f) >= 0;
   var u = String(srcEnc || src).replace(/"/g, '&quot;').replace(/'/g, '%27');
   var fond = 'background-image:url(\'' + u + '\');';
-  return '<div class="awak-vis-carre awak-anim' + (hb ? ' awak-anim-hb' : '') + (p34 ? ' awak-anim-34' : '') + '" onclick="window.awakZoomImage && awakZoomImage(this)" data-raw="' + String(src).replace(/"/g, '&quot;') + '" data-src="' + u + '" style="position:relative;width:100%;overflow:hidden;cursor:zoom-in;">'
+  return '<div class="awak-vis-carre awak-anim' + (hb ? ' awak-anim-hb' : '') + (p34 ? ' awak-anim-34' : '') + (p11 ? ' awak-anim-11' : '') + (p23 ? ' awak-anim-23' : '') + '" onclick="window.awakZoomImage && awakZoomImage(this)" data-raw="' + String(src).replace(/"/g, '&quot;') + '" data-src="' + u + '" style="position:relative;width:100%;overflow:hidden;cursor:zoom-in;">'
     + '<div class="awak-ph awak-ph-a" style="' + fond + '"></div>'
     + '<div class="awak-ph awak-ph-b" style="' + fond + '"></div>'
     + '<div class="awak-ph-lbl" aria-hidden="true"><span class="a">Début</span><span class="b">Fin</span></div>'
