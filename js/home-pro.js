@@ -691,6 +691,7 @@
       try {
         document.body.classList.toggle('awk-accueil-enfant', estEnfant());
         if (window.AwakEtoiles && AwakEtoiles.majNav) AwakEtoiles.majNav();   // v1688
+        if (window.AwakRecomp && !estEnfant()) setTimeout(AwakRecomp.annoncer, 1400);   // v1696 : objectif atteint / offert
         if (!document.getElementById('awkAccueilEnfantCSS')) {
           var st = document.createElement('style'); st.id = 'awkAccueilEnfantCSS';
           st.textContent = 'body.awk-accueil-enfant #ahpAujourdhui,body.awk-accueil-enfant #ahpRaccourcis,'
@@ -710,7 +711,8 @@
       document.getElementById('ahpAujourdhui').innerHTML = tuilesHTML(info, pl, hist);
       document.getElementById('ahpSemaine').innerHTML = queteHTML(info, hist);
       // v1683 : étoiles de l'enfant (récompenses)
-      try { if (window.AwakEtoiles) document.getElementById('ahpSemaine').insertAdjacentHTML('afterbegin', estEnfant() ? AwakEtoiles.carteEnfant() : (AwakEtoiles.carteEnfant() || AwakEtoiles.bandeauParent())); } catch (e) { _awkE(e); }   // v1685 : + demandes pour le parent, + ado qui a encore des étoiles
+      try { if (window.AwakEtoiles) document.getElementById('ahpSemaine').insertAdjacentHTML('afterbegin', estEnfant() ? AwakEtoiles.carteEnfant() : (AwakEtoiles.carteEnfant() || AwakEtoiles.bandeauParent())); } catch (e) { _awkE(e); }
+      try { if (!estEnfant() && window.AwakRecomp) document.getElementById('ahpSemaine').insertAdjacentHTML('afterbegin', AwakRecomp.bandeauAccueil()); } catch (e) { _awkE(e); }   // v1696 : conjoint à qui offrir   // v1685 : + demandes pour le parent, + ado qui a encore des étoiles
       document.getElementById('ahpRaccourcis').innerHTML = raccourcisHTML();
       // v1544 : Carte du Système du jour gardée pour l'accueil si une séance l'a retardée
       try { if (jeuActif() && typeof window.awakShowSystemCard === 'function' && !seanceEnCours()) setTimeout(function () { try { window.awakShowSystemCard(); } catch (e) { _awkE(e); } }, 1800); } catch (e) { _awkE(e); }

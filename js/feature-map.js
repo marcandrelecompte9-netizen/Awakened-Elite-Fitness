@@ -65,6 +65,7 @@
         _row('soleil', O, "Routine matinale", "Ton réveil du corps guidé", 'showMorningRoutineModal'),
         _row('etoile', O, "Défis", "Défis et objectifs à relever", 'switchTab', 'challenges'),
         _row('personne', C, "Étirements", "Choisis tes muscles et tes accessoires", 'switchTab', 'etirements'),
+        ((window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) ? '' : _row('trophee', O, "Récompenses", "Tes objectifs et ce que tu t'offres", 'AwakRecomp.ouvrir')),
         _row('halter', G, "Exercices", "La bibliothèque complète d'exercices", 'switchTab', 'exercises'),
         (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) ? '' : _row('stats', G, "Calculateurs", "1RM, plaques et rang de force", 'switchTab', 'calculators')
       ]);
