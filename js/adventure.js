@@ -857,7 +857,7 @@ function renderFamilyTab() {
         // a bougé) avec ses jeux, « Bouger ensemble », puis la constellation de la semaine.
         // Sans tableau « Notre semaine », barre Défis/Badges/Ma famille/Journal ni invitation à un défi.
         html += constCard;
-        try { if (window.AwakFamilyWeek && AwakFamilyWeek.renderBouger) html += AwakFamilyWeek.renderBouger(); } catch (e) { _awkE(e); }
+        // v1694 : « Bouger ensemble » retiré pour l'enfant (onglet trop chargé) : ciel + jeux + constellation
         if (_sky) { try { html += (_sky.apresEnfant || _sky.apres)(); } catch (e) { _awkE(e); } }
     } else {
         // v1295 : « Notre semaine » — qui a bougé, jour par jour, avant le ciel
