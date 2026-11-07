@@ -8964,3 +8964,18 @@ body.awak-souffle #exerciseView #exerciseVisualContent.awak-vis-img > div.awak-v
 @keyframes awkExoFondu { from { opacity: 0; } to { opacity: 1; } }
 @keyframes awkExoRecul { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: none; } }
 #exerciseView .workout-main-card > .timer.awk-exo-entree.awk-exo-recul { animation-name: awkExoRecul; }
+
+/* v1702 · Audit visuel : en mode répétitions sur téléphone, la ligne de série
+   (le geste principal) doit être visible sans défiler, au-dessus de la barre
+   Préc./Suivant. L'image carrée est donc plafonnée plus bas, et les chiffres de
+   la série en cours sont plus gros (lisibles à bout de bras, comme Strong/Hevy). */
+@media (max-width: 600px) and (max-height: 940px) {
+    #exerciseView[data-mode="reps"] #exerciseVisualContent.awak-vis-img > div.awak-vis-carre { max-height: 30vh; }
+}
+#setsGridPanel .awk-grid-ligne.en-cours input.awak-grid-num,
+body.dark-mode #setsGridPanel .awk-grid-ligne.en-cours input.awak-grid-num {
+    font-size: 21px !important; height: 42px !important; min-height: 42px !important; font-weight: 900 !important;
+}
+#setsGridPanel .awk-grid-ligne.en-cours button[aria-label="Moins"],
+#setsGridPanel .awk-grid-ligne.en-cours button[aria-label="Plus"] { height: 42px !important; }
+#setsGridPanel .awk-grid-ligne.en-cours .awk-grid-ok { height: 42px !important; }
