@@ -16316,6 +16316,12 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         // window.currentExerciseIndex = x ne les modifierait pas. Le module
         // passe donc obligatoirement par ces accesseurs.
         window.awakDebutSeance = function () { return (currentWorkout && workoutStartTime) || null; };   // v1683 : étoiles des enfants
+        // v1685 : minutes ACTIVES (sans les pauses), plafonnées à 3 h
+        window.awakMinutesActivesSeance = function () {
+            if (!currentWorkout || !workoutStartTime) return 0;
+            const p = (currentWorkout._pauseMs || 0) + (currentWorkout._pauseDebut ? Date.now() - currentWorkout._pauseDebut : 0);
+            return Math.max(0, Math.min(180, (Date.now() - workoutStartTime - p) / 60000));
+        };
         window.AwakSSBridge = {
             getWorkout:         function ()  { return currentWorkout; },
             getExIdx:           function ()  { return currentExerciseIndex; },
@@ -24850,7 +24856,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1684);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1685);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24903,7 +24909,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1684" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1685" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25714,7 +25720,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const cle = Math.round(r.width) + 'x' + H;
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1684)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1685)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center top';
                 } catch (e) { _awkE(e); }
@@ -30203,6 +30209,8 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             // sinon l'overlay resterait bloqué à l'écran pour toujours.
             if (!currentWorkout) { awakHidePauseOverlay(); isPaused = false; return; }
             isPaused = !isPaused;
+            // v1685 : temps de pause cumulé (les étoiles des enfants comptent le temps ACTIF)
+            try { if (isPaused) currentWorkout._pauseDebut = Date.now(); else if (currentWorkout._pauseDebut) { currentWorkout._pauseMs = (currentWorkout._pauseMs || 0) + (Date.now() - currentWorkout._pauseDebut); currentWorkout._pauseDebut = null; } } catch (e) { _awkE(e); }
             const btn = document.getElementById('pauseBtn');
             if (btn) btn.innerHTML = isPaused ? '▶' : '⏸';
 
@@ -31153,7 +31161,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1684");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1685");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -38166,6 +38174,8 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                             if (w && !w._durationSec && _dureeGroupe > 0) w._durationSec = _dureeGroupe;
                             if (w) {
                                 saveGroupWorkoutForProfile(p.id, w);
+                                // v1685 : un enfant qui participe gagne aussi ses étoiles
+                                try { if (window.AwakEtoiles && AwakEtoiles.gagnerPour) AwakEtoiles.gagnerPour(p.id, window.awakMinutesActivesSeance(), workoutStartTime, currentWorkout.name); } catch (e) { _awkE(e); }
                                 const _xp = awakXPParticipant(p.id, w, (window.AwakGroup.gabaritPour ? window.AwakGroup.gabaritPour(p.id, currentWorkout) : currentWorkout));   // v1313
                                 if (_xp > 0) _xpGroupe.push(p.name + ' +' + _xp + ' XP');
                                 if (_duoBilan && window.AwakDuo && AwakDuo.pid() === p.id) { _duoBilan.xp = _xp; try { AwakDuo.compterMentor(); } catch (e) { _awkE(e); } }
@@ -38194,7 +38204,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             // Safety: Max 3 hours, min 1 minute
             const totalMinutes = Math.max(1, Math.min(elapsedMinutes, 180));
             // v1683 : profil enfant → étoiles (1 garantie, +1 par 15 min), une seule fois par séance
-            try { if (window.AwakEtoiles && window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild() && !currentWorkout._etoilesGagnees) currentWorkout._etoilesGagnees = AwakEtoiles.gagnerSeance(elapsedMs / 60000, workoutStartTime, currentWorkout.name) || AwakEtoiles.pourMinutes(elapsedMs / 60000); } catch (e) { _awkE(e); }
+            try { if (window.AwakEtoiles && window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild() && !currentWorkout._etoilesGagnees) { const _mA = window.awakMinutesActivesSeance(); currentWorkout._etoilesGagnees = AwakEtoiles.gagnerSeance(_mA, workoutStartTime, currentWorkout.name) || AwakEtoiles.pourMinutes(_mA); } } catch (e) { _awkE(e); }
             
             let stats = loadStats();
             stats.workouts++;
@@ -43266,6 +43276,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     'fitnessIndex', 'muscleRecoveryTracking', 'manualWeeklyPlan'
                 ];
                 keysToDelete.forEach(key => { localStorage.removeItem(`profile_${profileId}_${key}`); });
+                try { if (window.AwakEtoiles && AwakEtoiles.oublier) AwakEtoiles.oublier(profileId); } catch (e) { _awkE(e); }   // v1685
                 // v1539 : TOUTES ses données (jeu, inventaire, compétences, or…) et ses traces familiales
                 try {
                     const _suppr = [];
@@ -44823,7 +44834,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1684';
+                    let ver = 'v0.95.1685';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -44991,7 +45002,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1684" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1685" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45073,7 +45084,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1684);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1685);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45140,7 +45151,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1684);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1685);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47605,7 +47616,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1684");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1685");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

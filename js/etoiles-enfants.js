@@ -28,7 +28,9 @@
   function _e(x) { try { if (window._awkE) window._awkE(x); } catch (y) { /* rien */ } }
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function ic(n, t, c) { return (window.AwakIcon && AwakIcon.get) ? AwakIcon.get(n, t, c) : ''; }
-  function etoile(t) { return ic('etoile', t || 14, OR); }
+  // v1685 : étoile PLEINE (l'icône du jeu est en contour : pleine et vide se confondaient)
+  var ETP = 'M12 2.6l2.85 5.9 6.5.85-4.75 4.5 1.2 6.45L12 17.2l-5.8 3.1 1.2-6.45L2.65 9.35l6.5-.85z';
+  function etoile(t) { t = t || 14; return '<svg viewBox="0 0 24 24" width="' + t + '" height="' + t + '" aria-hidden="true" style="display:block;"><path d="' + ETP + '" fill="' + OR + '" stroke="#f59e0b" stroke-width="0.8" stroke-linejoin="round"/></svg>'; }
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
   // ── Données ──
@@ -52,7 +54,10 @@
   }
   function profils() { try { return (typeof window.getAllProfiles === 'function' ? window.getAllProfiles() : JSON.parse(localStorage.getItem('allProfiles') || '[]')) || []; } catch (e) { return []; } }
   function estEnfant(pid) { try { return !!(window.AwakYouth && AwakYouth.isChildProfile && AwakYouth.isChildProfile(pid)); } catch (e) { return false; } }
-  function enfants() { return profils().filter(function (p) { return p && estEnfant(p.id); }); }
+  // v1685 : un enfant devenu ado (13 ans) garde ses étoiles visibles tant qu'il en a
+  function aDesEtoiles(pid) { try { var d = lire(), f = d.enfants[pid]; return !!(f && (f.solde > 0 || enAttente(d, pid).length)); } catch (e) { return false; } }
+  function suivi(pid) { return estEnfant(pid) || aDesEtoiles(pid); }
+  function enfants() { return profils().filter(function (p) { return p && suivi(p.id); }); }
   function pidActif() { try { return localStorage.getItem('currentProfileId'); } catch (e) { return null; } }
   function nomDe(pid) { var p = profils().filter(function (x) { return x.id === pid; })[0]; return p ? (p.name || 'Enfant') : 'Enfant'; }
   function enAttente(d, pid) { return d.demandes.filter(function (q) { return q.pid === pid; }); }
@@ -67,8 +72,8 @@
   function pourMinutes(min) { return Math.max(1, Math.floor((+min || 0) / 15)); }
 
   // Séance terminée (appelé par completeWorkout) : une seule fois par séance
-  function gagnerSeance(minutes, debut, nom) {
-    var pid = pidActif();
+  function gagnerSeance(minutes, debut, nom) { return gagnerPour(pidActif(), minutes, debut, nom); }
+  function gagnerPour(pid, minutes, debut, nom) {
     if (!pid || !estEnfant(pid)) return 0;
     var d = lire(), f = fiche(d, pid);
     var cleS = String(debut || '');
@@ -116,18 +121,30 @@
   function toast(t, k) { try { if (window.showToast) window.showToast(t, k || 'success', 2600); } catch (e) { _e(e); } }
 
   // ═════════════ CÔTÉ ENFANT ═════════════
+  // v1685 : les étoiles se VOIENT : 10 étoiles = 10 étoiles dessinées (par paquets de 5),
+  // puis des étoiles grises pour ce qui manque jusqu'à la prochaine récompense
+  function etoileVide(t) { t = t || 14; return '<svg viewBox="0 0 24 24" width="' + t + '" height="' + t + '" aria-hidden="true" style="display:block;"><path d="' + ETP + '" fill="none" stroke="#64748b" stroke-width="1.4" stroke-linejoin="round"/></svg>'; }
+  function rangee(pleines, vides, t) {
+    pleines = Math.max(0, Math.min(200, pleines | 0)); vides = Math.max(0, Math.min(200 - pleines, vides | 0));
+    if (!pleines && !vides) return '';
+    var h = '<div aria-label="' + pleines + ' étoile' + (pleines > 1 ? 's' : '') + '" role="img" style="display:flex;flex-wrap:wrap;gap:6px 9px;">', i, g = '';
+    for (i = 0; i < pleines + vides; i++) {
+      g += '<span style="display:inline-flex;">' + (i < pleines ? etoile(t) : etoileVide(t)) + '</span>';
+      if ((i + 1) % 5 === 0 || i === pleines + vides - 1) { h += '<span style="display:inline-flex;gap:1px;">' + g + '</span>'; g = ''; }
+    }
+    return h + '</div>';
+  }
   function carteEnfant() {
-    var pid = pidActif(); if (!pid || !estEnfant(pid)) return '';
+    var pid = pidActif(); if (!pid || !suivi(pid)) return '';
     var d = lire(), f = fiche(d, pid), dispo = disponible(d, pid), pr = prochaine(d, dispo), att = enAttente(d, pid).length;
     return '<button onclick="AwakEtoiles.ouvrirEnfant()" style="display:block;width:100%;text-align:left;margin:0 0 12px;padding:14px;border-radius:16px;cursor:pointer;font-family:inherit;background:linear-gradient(160deg,#1c1607,#0d0f13);border:1px solid rgba(251,191,36,0.35);">'
-      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">'
-      +   '<span style="display:inline-flex;">' + etoile(26) + '</span>'
-      +   '<div style="flex:1;min-width:0;"><div style="font-size:0.7em;letter-spacing:1.5px;color:#fde68a;font-weight:900;">MES ÉTOILES</div>'
-      +   '<div style="font-size:1.35em;font-weight:900;color:#fff;line-height:1.1;">' + f.solde + '</div></div>'
+      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
+      +   '<div style="flex:1;min-width:0;font-size:0.7em;letter-spacing:1.5px;color:#fde68a;font-weight:900;">MES ÉTOILES</div>'
       +   '<span style="font-size:0.74em;color:#fde68a;font-weight:800;">Mes récompenses ›</span>'
       + '</div>'
-      + (pr ? barre(dispo, pr.cout) + '<div style="font-size:0.74em;color:#cbd5e1;margin-top:6px;">Encore <b style="color:#fff;">' + (pr.cout - dispo) + '</b> pour « ' + esc(pr.nom) + ' »</div>'
-            : '<div style="font-size:0.76em;color:#fde68a;">Tu peux choisir une récompense !</div>')
+      + (f.solde || pr ? rangee(f.solde, pr ? pr.cout - dispo : 0, 20) : '<div style="font-size:0.8em;color:#cbd5e1;">Fais une séance pour gagner ta première étoile !</div>')
+      + (pr ? '<div style="font-size:0.74em;color:#cbd5e1;margin-top:8px;">Les étoiles grises : ce qu\'il te manque pour « ' + esc(pr.nom) + ' »</div>'
+            : (f.solde ? '<div style="font-size:0.76em;color:#fde68a;margin-top:8px;">Tu peux choisir une récompense !</div>' : ''))
       + (att ? '<div style="font-size:0.72em;color:#94a3b8;margin-top:4px;">' + att + ' demande' + (att > 1 ? 's' : '') + ' en attente</div>' : '')
       + '<div style="font-size:0.68em;color:#94a3b8;margin-top:6px;">1 étoile par séance, +1 toutes les 15 minutes</div>'
       + '</button>';
@@ -135,9 +152,8 @@
   function ouvrirEnfant() {
     var pid = pidActif(); if (!pid) return;
     var d = lire(), f = fiche(d, pid), dispo = disponible(d, pid), att = enAttente(d, pid);
-    var h = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">' + etoile(28)
-      + '<div><div style="font-size:1.3em;font-weight:900;color:#fff;">' + f.solde + ' étoile' + (f.solde > 1 ? 's' : '') + '</div>'
-      + '<div style="font-size:0.76em;color:#94a3b8;">' + f.gagne + ' gagnées depuis le début</div></div></div>';
+    var h = '<div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:10px;">Mes étoiles</div>'
+      + (f.solde ? rangee(f.solde, 0, 22) : '<div style="font-size:0.84em;color:#94a3b8;">Pas encore d\'étoile : chaque séance t\'en donne au moins une.</div>');
     if (att.length) {
       h += '<div style="font-size:0.78em;color:#8b95a5;font-weight:700;margin:16px 0 8px;">En attente</div>'
         + att.map(function (q) {
@@ -152,7 +168,7 @@
         var ok = dispo >= r.cout;
         return '<div style="display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;background:#141821;margin-bottom:6px;' + (ok ? 'border:1px solid rgba(251,191,36,0.4);' : 'border:1px solid transparent;') + '">'
           + '<div style="flex:1;min-width:0;"><div style="color:#f1f5f9;font-size:0.88em;font-weight:700;">' + esc(r.nom) + '</div>'
-          + (ok ? '' : '<div style="margin-top:6px;">' + barre(Math.max(0, dispo), r.cout) + '</div>') + '</div>'
+          + (ok ? '' : '<div style="margin-top:7px;">' + rangee(Math.max(0, Math.min(dispo, r.cout)), r.cout - Math.max(0, dispo), 12) + '</div>') + '</div>'
           + '<span style="display:inline-flex;align-items:center;gap:3px;color:#fde68a;font-weight:900;font-size:0.86em;flex-shrink:0;">' + r.cout + etoile(13) + '</span>'
           + (ok ? '<button onclick="AwakEtoiles.demander(\'' + r.id + '\')" style="' + BTN + 'flex-shrink:0;padding:8px 11px;font-size:0.76em;background:' + OR + ';color:#1a1204;border:none;">Je la veux</button>' : '')
           + '</div>';
@@ -197,6 +213,17 @@
       +   '<div style="flex:1;font-size:0.62em;letter-spacing:2px;color:#fde68a;font-weight:900;">ÉTOILES DES ENFANTS</div>'
       +   '<button onclick="AwakEtoiles.ouvrirParent()" style="' + BTN + 'padding:6px 10px;font-size:0.72em;background:transparent;color:#fde68a;border:1px solid rgba(251,191,36,0.4);">' + (nbAtt ? nbAtt + ' demande' + (nbAtt > 1 ? 's' : '') + ' · ' : '') + 'Gérer</button>'
       + '</div>' + lignes + '</div>';
+  }
+  // v1685 : le parent voit les demandes dès l'accueil (avant : seulement dans l'onglet Famille)
+  function bandeauParent() {
+    if (estEnfant(pidActif())) return '';
+    var ens = enfants(); if (!ens.length) return '';
+    var d = lire(), ds = d.demandes.filter(function (q) { return ens.some(function (e) { return e.id === q.pid; }); });
+    if (!ds.length) return '';
+    var q = ds[0];
+    return '<button onclick="AwakEtoiles.ouvrirParent(\'demandes\')" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin:0 0 12px;padding:12px 14px;border-radius:14px;cursor:pointer;font-family:inherit;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.4);">'
+      + etoile(20) + '<span style="flex:1;min-width:0;color:#fde68a;font-size:0.84em;font-weight:700;">' + esc(nomDe(q.pid)) + ' demande « ' + esc(q.nom) + ' »' + (ds.length > 1 ? ' (+' + (ds.length - 1) + ')' : '') + '</span>'
+      + '<span style="color:#fde68a;font-size:0.78em;font-weight:900;">Répondre ›</span></button>';
   }
   var _onglet = 'demandes', _pidVue = null;
   function ouvrirParent(onglet, pid) {
@@ -340,23 +367,23 @@
   function estimation() {
     try {
       var b = window.AwakSSBridge, w = b && b.getWorkout && b.getWorkout();
-      var t0 = (typeof window.awakDebutSeance === 'function') ? window.awakDebutSeance() : null;
-      if (!w || !t0) return 0;
-      return pourMinutes((Date.now() - t0) / 60000);
+      if (!w || typeof window.awakMinutesActivesSeance !== 'function') return 0;
+      return pourMinutes(window.awakMinutesActivesSeance());
     } catch (e) { return 0; }
   }
   setInterval(function () {
     try {
       if (!document.body.classList.contains('in-session') || !estEnfant(pidActif())) return;
       var t0 = (typeof window.awakDebutSeance === 'function') ? window.awakDebutSeance() : null; if (!t0) return;
-      var n = pourMinutes((Date.now() - t0) / 60000);
+      var n = pourMinutes(typeof window.awakMinutesActivesSeance === 'function' ? window.awakMinutesActivesSeance() : 0);
       if (_vu.cle !== t0) { _vu = { cle: t0, n: n }; return; }
       if (n > _vu.n) { _vu.n = n; toast('Nouvelle étoile ! Tu en as ' + n + ' pour cette séance'); }
     } catch (e) { _e(e); }
   }, 20000);
 
   window.AwakEtoiles = {
-    gagnerSeance: gagnerSeance, pourMinutes: pourMinutes, estimation: estimation,
+    gagnerSeance: gagnerSeance, gagnerPour: gagnerPour, pourMinutes: pourMinutes, estimation: estimation, bandeauParent: bandeauParent,
+    oublier: function (pid) { try { var d = lire(); delete d.enfants[pid]; d.demandes = d.demandes.filter(function (q) { return q.pid !== pid; }); ecrire(d); } catch (e) { _e(e); } },
     carteEnfant: carteEnfant, carteParent: carteParent,
     ouvrirEnfant: ouvrirEnfant, ouvrirParent: ouvrirParent, demander: demander, annulerDemande: annulerDemande,
     repondre: repondre, ajouter: ajouter, editerRecompense: editerRecompense,

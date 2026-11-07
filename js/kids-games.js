@@ -411,6 +411,9 @@
     try {
       if (typeof global.AwakFamBadgeInc === 'function') global.AwakFamBadgeInc('seancesDuo', 1);
     } catch (e) { _awkE(e); }
+    // v1685 : un jeu joué par un enfant rapporte ses étoiles, comme une séance
+    var etoilesJeu = 0;
+    try { if (enfant && global.AwakEtoiles) etoilesJeu = global.AwakEtoiles.gagnerSeance(minutes, partie.debut, jeu.nom); } catch (e) { _awkE(e); }
 
     var ov = document.createElement('div');
     ov.id = 'awakKidsFin';
@@ -425,7 +428,8 @@
     +     'font-weight:800;color:#fff;">Bien joué !</div>'
     +   '<div style="font-size:0.8em;color:#cbd5e1;line-height:1.5;margin:8px 0 16px;">'
     +     '<strong style="color:#60a8f0;">' + minutes + ' minutes</strong> de jeu ensemble.<br>'
-    +     'Ça compte comme une vraie séance.</div>'
+    +     'Ça compte comme une vraie séance.'
+    +     (etoilesJeu ? '<br><strong style="color:#fbbf24;">+' + etoilesJeu + ' étoile' + (etoilesJeu > 1 ? 's' : '') + '</strong>' : '') + '</div>'
     +   '<button onclick="document.getElementById(\'awakKidsFin\').remove();'
     +     'if(window.updateHomeStats)updateHomeStats();" '
     +     'style="width:100%;padding:14px;border-radius:14px;border:none;cursor:pointer;'
