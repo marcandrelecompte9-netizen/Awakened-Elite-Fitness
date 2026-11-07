@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v1653';
+const CACHE_NAME = 'awakened-v1654';
 // v1586 : images d'exercices dans un cache DURABLE, jamais vidé à une mise à jour
 // (avant : chaque déploiement les effaçait → retéléchargées, absentes hors ligne)
 const IMG_CACHE = 'awakened-images';
@@ -102,11 +102,11 @@ const ASSETS = [
   './js/pain-mode.js',
   './js/recovery-mode.js',
   './data/items.js',
-  './manifest.json?v=1653',
-  './icons/icon-192.png?v=1653',
-  './icons/icon-512.png?v=1653',
-  './icons/icon-192-maskable.png?v=1653',
-  './icons/icon-512-maskable.png?v=1653',
+  './manifest.json?v=1654',
+  './icons/icon-192.png?v=1654',
+  './icons/icon-512.png?v=1654',
+  './icons/icon-192-maskable.png?v=1654',
+  './icons/icon-512-maskable.png?v=1654',
   // icon-1024.png : asset de soumission aux stores, volontairement hors du
   // précache (487 Ko). Reste dans manifest.json, récupérable à la demande.
   './images/banner_v3.webp',
@@ -177,9 +177,21 @@ const UI_IMAGES = [
   './images/tree_bg.webp',
 ];
 // Clé de cache d'une image : sans « ?v=NNNN ». Avant, chaque build changeait l'URL
-// (salle_bg_v5.webp?v=1621 → ?v=1653) et ajoutait une copie de plus dans le cache
+// (salle_bg_v5.webp?v=1621 → ?v=1654) et ajoutait une copie de plus dans le cache
 // durable, sans jamais la retirer.
 function cleImage(url) { return url.split('?')[0]; }
+// v1654 : images REMPLACÉES sous le même nom → retirées une fois du cache durable,
+// sinon le téléphone garde l'ancienne (ex. silhouette « Ton corps » décalée de ses zones).
+// Ajouter ici tout fichier remplacé, et monter « rev ».
+const IMAGES_REMPLACEES = { rev: 1654, fichiers: ['./images/body/body_face.webp', './images/body/body_dos.webp'] };
+function purgerRemplacees() {
+  return caches.open(IMG_CACHE).then(cache => {
+    const marque = new URL('./__purge_' + IMAGES_REMPLACEES.rev, self.registration.scope).href;
+    return cache.match(marque).then(fait => fait ? null : Promise.all(IMAGES_REMPLACEES.fichiers.map(f =>
+      cache.delete(new URL(f, self.registration.scope).href, { ignoreSearch: true })))
+      .then(() => cache.put(marque, new Response('1'))));
+  }).catch(() => {});
+}
 function estImage(url) { return /\/images\/|\.(webp|png|jpe?g|svg|gif)(\?|$)/i.test(url); }
 
 // Identifie les fichiers critiques (code) → network-first pour avoir les MAJ immédiates
@@ -219,6 +231,7 @@ self.addEventListener('activate', e => {
       // partagée avec les autres projets du compte : on ne touche pas à leurs caches)
       Promise.all(keys.filter(k => k !== CACHE_NAME && k !== IMG_CACHE && /^(awakened-v|fitpro)/.test(k)).map(k => caches.delete(k)))
     ).then(() => migrerImages())
+     .then(() => purgerRemplacees())
      .then(() => self.clients.claim())
      .then(() => { prechargerUI(); })   // v1623 : sans attendre (arrière-plan)
   );
@@ -290,9 +303,9 @@ self.addEventListener('fetch', e => {
             return r;
           });
           if (cached) {
-            // rafraîchir au plus une fois par 3 jours (pas à chaque affichage)
+            // rafraîchir au plus une fois par jour (v1654 : 3 jours → 1 jour)
             const d = Date.parse(cached.headers.get('date') || '');
-            if (!d || Date.now() - d > 3 * 86400000) reseau().catch(() => {});
+            if (!d || Date.now() - d > 86400000) reseau().catch(() => {});
             return cached;
           }
           return reseau().catch(() => caches.match(e.request, { ignoreSearch: true })
