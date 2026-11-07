@@ -8955,3 +8955,5 @@ body.dark-mode #startPreparedBtn, #startPreparedBtn { background: #22d3ee !impor
 #exerciseVisualContent .awak-yoga-fixe, #exercisePreviewModal .awak-yoga-fixe { aspect-ratio: 2 / 3 !important; width: min(100%, 33vh) !important; max-height: none !important; margin: 0 auto !important; background-size: 206% auto !important; background-position: 100% 36% !important; border-radius: 14px; }
 #exercisePreviewModal .awak-yoga-fixe { width: min(100%, 40vh) !important; }
 body.awak-souffle #exerciseView #exerciseVisualContent.awak-vis-img > div.awak-vis-carre.awak-yoga-fixe { width: 20vh !important; aspect-ratio: 2 / 3 !important; }
+/* v1664 : pilates — la case du bas seulement (proportions de la case) */
+#exerciseVisualContent .awak-vis-carre.awak-fixe-bas, #exercisePreviewModal .awak-vis-carre.awak-fixe-bas { aspect-ratio: var(--ar) / 1 !important; width: 100% !important; height: auto !important; max-height: none !important; margin: 0 auto !important; border-radius: 14px; }

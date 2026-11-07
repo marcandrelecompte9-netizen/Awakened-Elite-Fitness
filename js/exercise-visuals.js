@@ -1676,6 +1676,8 @@ window.EXERCISE_IMAGES_V2_23 = EXERCISE_IMAGES_V2_23;
 // v1653 : postures de yoga (2 cases côte à côte + titre en bas) — cadre 2:3 calé au-dessus du titre
 var EXERCISE_IMAGES_V2_YOGA = ['Respiration.webp', 'Chien_tête_en_bas.webp', 'Guerrier.webp', 'Posture_de_larbre.webp', 'Torsion_assise_v2.webp', 'Savasana.webp', 'Guerrier_2_triangle.webp', 'Chaise_tournée.webp', 'Demi-lune.webp', 'Pince_debout.webp', 'Respiration_profonde_v2.webp', 'Salutation_avancée.webp', 'Posture_du_corbeau.webp', 'Planche_latérale_yoga.webp', 'Posture_du_danseur.webp', 'Pont_roue.webp', 'Chaise.webp', 'Guerrier_3.webp', 'Planche_chaturanga.webp', 'Chat-vache.webp', 'Posture_enfant_v2.webp', 'Torsion_spinale_allongée_v2.webp', 'Pince_assise.webp', 'Jambes_contre_le_mur.webp', 'Étirement_cou_épaules.webp', 'Pont_doux.webp', 'Papillon.webp'];
 window.EXERCISE_IMAGES_V2_YOGA = EXERCISE_IMAGES_V2_YOGA;
+var EXERCISE_IMAGES_PILATES_BAS = {"Boomerang.webp": [0.5, 1], "Cercles_de_jambe.webp": [0.47, 0.89], "Ciseaux_Scissors.webp": [0.5, 1], "Coléoptère_Dead_Bug.webp": [0.5, 1], "Coup_de_pied_latéral_en_série.webp": [0.5, 1], "Criss_Cross_v2.webp": [0.5, 1], "Double_Leg_Stretch.webp": [0.5, 1], "Double_coup_de_pied_Double_Leg_Kick.webp": [0.5, 1], "Glute_bridge_léger.webp": [0.47, 0.89], "Grand_contrôle_Control_Balance.webp": [0.5, 1], "Jackknife_Canif.webp": [0.5, 1], "La_Scie_Saw.webp": [0.5, 1], "Le_Cent.webp": [0.47, 0.89], "Le_Cygne_Swan.webp": [0.5, 1], "Neck_Pull.webp": [0.5, 1], "Planche.webp": [0.47, 0.89], "Pont_sur_une_jambe.webp": [0.5, 1], "Roll_up.webp": [0.47, 0.89], "Rotation_assise.webp": [0.5, 1], "Roule_en_boule.webp": [0.5, 1], "Side_Kick.webp": [0.47, 0.89], "Single_Leg_Stretch.webp": [0.47, 0.89], "Sirène_Mermaid.webp": [0.5, 1], "Swimming.webp": [0.47, 0.89], "Teaser.webp": [0.47, 0.87], "Teaser_complet.webp": [0.5, 1], "Tire-bouchon_Corkscrew.webp": [0.5, 1], "Étirement_de_la_colonne.webp": [0.47, 0.89]};
+window.EXERCISE_IMAGES_PILATES_BAS = EXERCISE_IMAGES_PILATES_BAS;
 EXERCISE_IMAGES_V2_YOGA.forEach(function (f) { if (EXERCISE_IMAGES_V2.indexOf(f) < 0) EXERCISE_IMAGES_V2.push(f); });
 window.EXERCISE_IMAGES_V2_34 = EXERCISE_IMAGES_V2_34;
 // Séance : la nouvelle image s'anime — on voit la position de DÉBUT en grand,
@@ -1686,7 +1688,16 @@ window.awakAnimHTML = function (src, srcEnc) {
   // sans le bandeau-titre du bas.
   try {
     var _fy = String(src).split('/').pop();
-    if (EXERCISE_IMAGES_V2_YOGA.indexOf(_fy) >= 0) {
+    // v1664 : pilates — images en deux cases l'une SOUS l'autre : on garde la case du bas
+    // (la posture), sans le bandeau-titre. [haut, bas] = portion de l'image à montrer.
+    var _pb = EXERCISE_IMAGES_PILATES_BAS[_fy];
+    if (_pb) {
+      var _up = String(srcEnc || src).replace(/"/g, '&quot;').replace(/'/g, '%27');
+      var _h = _pb[1] - _pb[0], _py = _h >= 1 ? 0 : Math.round(_pb[0] / (1 - _h) * 1000) / 10;
+      return '<div class="awak-vis-carre awak-fixe-bas" onclick="window.awakZoomImage && awakZoomImage(this)" data-raw="' + String(src).replace(/"/g, '&quot;') + '" data-src="' + _up + '" '
+        + 'style="--ar:' + (Math.round(1 / _h * 100) / 100) + ';position:relative;overflow:hidden;cursor:zoom-in;border-radius:14px;background-image:url(\'' + _up + '\');background-repeat:no-repeat;background-size:100% auto;background-position:0 ' + _py + '%;"></div>';
+    }
+    if (EXERCISE_IMAGES_V2_YOGA.indexOf(_fy) >= 0 || _fy === 'Respiration___centrage.webp') {
       var _uy = String(srcEnc || src).replace(/"/g, '&quot;').replace(/'/g, '%27');
       return '<div class="awak-vis-carre awak-yoga-fixe" onclick="window.awakZoomImage && awakZoomImage(this)" data-raw="' + String(src).replace(/"/g, '&quot;') + '" data-src="' + _uy + '" '
         + 'style="position:relative;overflow:hidden;cursor:zoom-in;background-image:url(\'' + _uy + '\');background-repeat:no-repeat;"></div>';
