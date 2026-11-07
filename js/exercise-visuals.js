@@ -1023,7 +1023,7 @@ var EXERCISE_IMAGES = {
   'Marche rapide / vélo': 'images/exercises/Marche_sur_place.webp',
   'Mouvements articulaires': 'images/exercises/Rotations_de_cou.webp',
   // ── Alias de réutilisation (disciplines + variantes, v533) ──
-  'Pompes': 'images/exercises/Pompes_classiques.webp',
+  'Pompes': 'images/exercises/Pompes_classiques_v2.webp',
   'Planche (gainage)': 'images/exercises/Planche.webp',
   'Superman (extensions dorsales)': 'images/exercises/Superman.webp',
   'Dips entre deux appuis': 'images/exercises/Dips_sur_banc.webp',
@@ -1386,7 +1386,7 @@ var EXERCISE_IMAGES = {
   'Posture enfant':                'images/exercises/Posture_enfant_v2.webp',
   'Planche courte':                'images/exercises/Planche_courte.webp',
   'Pompes archer':                 'images/exercises/Pompes_archer.webp',
-  'Pompes classiques':             'images/exercises/Pompes_classiques.webp',
+  'Pompes classiques':             'images/exercises/Pompes_classiques_v2.webp',
   'Pompes déclinées':              'images/exercises/Pompes_declinees.webp',
   'Pompes diamant':                'images/exercises/Pompes_diamant.webp',
   'Diamond Push-ups':              'images/exercises/Pompes_diamant.webp',
