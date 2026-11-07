@@ -2174,7 +2174,15 @@ function storyShowEvent(evt) {
 // la séance se termine et relançait l'histoire). On attend la sortie de la Faille.
 let _storyAttenteFaille = null;
 function _storyEnFaille() {
-    try { return typeof window.awakFailleEnCours === 'function' && window.awakFailleEnCours(true); } catch (e) { return false; }
+    try {
+        if (typeof window.awakFailleEnCours === 'function' && window.awakFailleEnCours(true)) return true;
+        // v1660 : pas non plus PENDANT une séance (reprise d'une séance en pause → la scène
+        // « La Dispute » d'Esen et Nyra s'ouvrait au milieu des exercices). Elle attend la fin.
+        if (document.body.classList.contains('in-session')) return true;
+        const ev = document.getElementById('exerciseView');
+        if (ev && !ev.classList.contains('hidden') && ev.offsetParent !== null) return true;
+        return false;
+    } catch (e) { return false; }
 }
 function _storyAttendreFinFaille(fn) {
     if (_storyAttenteFaille) return;   // une attente déjà en cours la relancera
