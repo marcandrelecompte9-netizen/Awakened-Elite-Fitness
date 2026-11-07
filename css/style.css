@@ -8992,3 +8992,20 @@ body.dark-mode #setsGridPanel .awk-grid-ligne.en-cours input.awak-grid-num {
 #exerciseView #exerciseVisualContent.awak-vis-img > div.awak-vis-carre.awak-vis-absente { aspect-ratio: auto !important; height: auto !important; max-height: none !important; }
 #exerciseVisualContent .awak-vis-carre.awak-vis-absente > div { height: auto !important; }
 #exerciseVisualContent .awak-vis-carre.awak-vis-absente > div > div { padding: 10px 12px !important; }
+
+/* v1704 · Audit visuel (2) — flèches d'accordéon : chevron fin au lieu du
+   gros triangle plein ▼ (Réglages, Calculs, Progrès > Corps) */
+/* (le texte ▼ reste dans le HTML, parfois avec une taille en ligne !important
+   posée par l'échelle de texte : on le rend transparent et on dessine le
+   chevron en position absolue) */
+.accordion-icon { --chev: #8391a7; position: relative; font-size: 0 !important; color: transparent !important; overflow: hidden; width: 22px !important; height: 22px !important; display: inline-block !important; flex-shrink: 0; }
+#historyTab .accordion-icon, #calculatorsTab .accordion-icon { --chev: #60a8f0; }
+.accordion-icon::before { content: ''; position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -6px 0 0 -4px; border-right: 2px solid var(--chev); border-bottom: 2px solid var(--chev); transform: rotate(45deg); }
+/* Fin de séance : « Retour à l'accueil » était en 11 px (attrapé par la règle
+   des petits surtitres « letter-spacing:2px ») alors que les boutons secondaires
+   étaient en 15 px : hiérarchie inversée */
+#completionView .completion-screen .btn:first-child { font-size: 16px !important; font-weight: 900 !important; }
+[onclick*="awakOuvrirLimitations"] .accordion-icon { transform: none !important; }
+[onclick*="awakOuvrirLimitations"] .accordion-icon::before { margin: -4px 0 0 -6px; transform: rotate(-45deg); }   /* lien (Mes limitations) : flèche vers la droite */
+#settingsTab .accordion-icon, #historyTab .accordion-icon, #calculatorsTab .accordion-icon,
+body.dark-mode .accordion-icon, .accordion-header.active .accordion-icon { color: transparent !important; }
