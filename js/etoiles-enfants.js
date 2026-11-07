@@ -92,7 +92,7 @@
     var v = document.getElementById(id); if (v) v.remove();
     var o = document.createElement('div');
     o.id = id;
-    o.style.cssText = 'position:fixed;inset:0;z-index:10800;background:rgba(0,0,0,0.8);display:flex;align-items:flex-end;justify-content:center;';
+    o.style.cssText = 'position:fixed;inset:0;z-index:12000;background:rgba(0,0,0,0.8);display:flex;align-items:flex-end;justify-content:center;';
     o.innerHTML = '<div style="width:100%;max-width:520px;background:#0d0f13;border-top:1px solid rgba(251,191,36,0.35);border-radius:20px 20px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow-y:auto;box-sizing:border-box;">'
       + '<div style="width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 14px;"></div>' + html + '</div>';
     o.addEventListener('click', function (ev) { if (ev.target === o) o.remove(); });
@@ -362,6 +362,86 @@
     else faire();
   }
 
+  // ── v1686 : CODE PARENT — donner des étoiles, répondre aux demandes et gérer
+  // les récompenses demandent un code à 4 chiffres (créé au premier usage).
+  // Déverrouillé 5 min après chaque action de parent.
+  var CLE_CODE = 'awakEtoilesCode', _ouvertJusqua = 0, _code = null;
+  function hacher(c) { var h = 5381; c = 'awk:' + c; for (var i = 0; i < c.length; i++) h = ((h << 5) + h + c.charCodeAt(i)) | 0; return String(h); }
+  function codeExiste() { try { return !!localStorage.getItem(CLE_CODE); } catch (e) { return false; } }
+  function deverrouille() { return Date.now() < _ouvertJusqua; }
+  function garde(fn) {
+    return function () {
+      var a = arguments, soi = this;
+      if (deverrouille()) { _ouvertJusqua = Date.now() + 5 * 60000; return fn.apply(soi, a); }
+      demanderCode(function () { fn.apply(soi, a); });
+    };
+  }
+  function demanderCode(ok) {
+    _code = { ok: ok, saisie: '', etape: codeExiste() ? 'entrer' : 'creer', premier: '', erreur: '' };
+    dessinerCode();
+  }
+  function dessinerCode() {
+    var c = _code; if (!c) return;
+    var titre = c.etape === 'entrer' ? 'Code parent' : (c.etape === 'creer' ? 'Crée ton code parent' : 'Confirme le code');
+    var sous = c.etape === 'entrer' ? 'Pour donner des étoiles, répondre aux demandes ou changer les récompenses.'
+      : (c.etape === 'creer' ? '4 chiffres que les enfants ne connaissent pas. Il protège les étoiles : seul un parent peut en donner ou accepter une récompense.' : 'Tape le même code une 2ᵉ fois.');
+    var points = '';
+    for (var i = 0; i < 4; i++) points += '<span style="width:16px;height:16px;border-radius:50%;display:inline-block;' + (i < c.saisie.length ? 'background:' + OR + ';' : 'border:2px solid #475569;') + '"></span>';
+    var t = function (k, lbl) { return '<button onclick="AwakEtoiles._touche(\'' + k + '\')" style="' + BTN + 'height:56px;font-size:1.3em;background:#1a1e26;color:#fff;border:none;">' + (lbl || k) + '</button>'; };
+    var h = '<div style="text-align:center;">'
+      + '<div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:4px;">' + titre + '</div>'
+      + '<div style="font-size:0.8em;color:#94a3b8;line-height:1.45;margin-bottom:16px;">' + sous + '</div>'
+      + '<div style="display:flex;justify-content:center;gap:14px;margin-bottom:10px;">' + points + '</div>'
+      + '<div style="min-height:18px;font-size:0.78em;color:#fca5a5;margin-bottom:8px;">' + (c.erreur || '') + '</div>'
+      + '</div>'
+      + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:300px;margin:0 auto;">'
+      + ['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(function (k) { return t(k); }).join('')
+      + '<span></span>' + t('0') + t('x', '←') + '</div>'
+      + (c.etape === 'entrer' ? '<button onclick="AwakEtoiles._oublie()" style="' + BTN + 'display:block;margin:14px auto 0;padding:8px 12px;font-size:0.76em;background:transparent;color:#94a3b8;border:none;">Code oublié ?</button>' : '')
+      + '<button onclick="AwakEtoiles._codeAnnuler()" style="' + VIDE + 'margin-top:10px;">Annuler</button>';
+    feuille('awakEtoilesSheet', h);
+  }
+  function touche(k) {
+    var c = _code; if (!c) return;
+    if (k === 'x') { c.saisie = c.saisie.slice(0, -1); c.erreur = ''; dessinerCode(); return; }
+    if (c.saisie.length >= 4) return;
+    c.saisie += k; c.erreur = '';
+    if (c.saisie.length < 4) { dessinerCode(); return; }
+    if (c.etape === 'creer') { c.premier = c.saisie; c.saisie = ''; c.etape = 'confirmer'; dessinerCode(); return; }
+    if (c.etape === 'confirmer') {
+      if (c.saisie !== c.premier) { c.etape = 'creer'; c.saisie = ''; c.premier = ''; c.erreur = 'Les deux codes ne sont pas pareils. Recommence.'; dessinerCode(); return; }
+      try { localStorage.setItem(CLE_CODE, hacher(c.saisie)); } catch (e) { _e(e); }
+      return reussi();
+    }
+    var bon = false; try { bon = localStorage.getItem(CLE_CODE) === hacher(c.saisie); } catch (e) { bon = false; }
+    if (!bon) { c.saisie = ''; c.erreur = 'Ce n\'est pas le bon code.'; dessinerCode(); return; }
+    reussi();
+  }
+  function reussi() {
+    var ok = _code && _code.ok; _code = null; _ouvertJusqua = Date.now() + 5 * 60000;
+    fermer('awakEtoilesSheet');
+    if (ok) ok();
+  }
+  // Code oublié : une multiplication d'adulte pour l'effacer (puis en créer un nouveau)
+  function oublie() {
+    var a = 12 + Math.floor(Math.random() * 37), b = 13 + Math.floor(Math.random() * 36);
+    var h = '<div style="font-size:1.1em;font-weight:900;color:#fff;margin-bottom:6px;">Code oublié</div>'
+      + '<div style="font-size:0.82em;color:#94a3b8;line-height:1.45;margin-bottom:12px;">Pour l\'effacer, réponds à cette question de parent :</div>'
+      + '<div style="font-size:1.5em;font-weight:900;color:#fff;text-align:center;margin-bottom:10px;">' + a + ' × ' + b + ' = ?</div>'
+      + '<input id="awakEtoilesQ" inputmode="numeric" style="width:100%;box-sizing:border-box;padding:12px;border-radius:12px;background:#141821;border:1px solid rgba(255,255,255,0.14);color:#fff;font-size:1.1em;text-align:center;font-family:inherit;">'
+      + '<button onclick="AwakEtoiles._oublieOk(' + (a * b) + ')" style="' + PLEIN + 'margin-top:10px;">Effacer le code</button>'
+      + '<button onclick="AwakEtoiles._codeAnnuler()" style="' + VIDE + 'margin-top:8px;">Annuler</button>';
+    feuille('awakEtoilesSheet', h);
+  }
+  function oublieOk(rep) {
+    var v = parseInt((document.getElementById('awakEtoilesQ') || {}).value, 10);
+    if (v !== rep) { toast('Mauvaise réponse', 'info'); return; }
+    try { localStorage.removeItem(CLE_CODE); } catch (e) { _e(e); }
+    var ok = _code && _code.ok;
+    toast('Code effacé : choisis-en un nouveau', 'info');
+    demanderCode(ok);
+  }
+
   // ── Pendant la séance (enfant) : annonce de chaque nouvelle étoile ──
   var _vu = { cle: null, n: 0 };
   function estimation() {
@@ -385,16 +465,18 @@
     gagnerSeance: gagnerSeance, gagnerPour: gagnerPour, pourMinutes: pourMinutes, estimation: estimation, bandeauParent: bandeauParent,
     oublier: function (pid) { try { var d = lire(); delete d.enfants[pid]; d.demandes = d.demandes.filter(function (q) { return q.pid !== pid; }); ecrire(d); } catch (e) { _e(e); } },
     carteEnfant: carteEnfant, carteParent: carteParent,
-    ouvrirEnfant: ouvrirEnfant, ouvrirParent: ouvrirParent, demander: demander, annulerDemande: annulerDemande,
-    repondre: repondre, ajouter: ajouter, editerRecompense: editerRecompense,
+    ouvrirEnfant: ouvrirEnfant, ouvrirParent: garde(ouvrirParent), demander: demander, annulerDemande: annulerDemande,
+    repondre: garde(repondre), ajouter: garde(ajouter), editerRecompense: garde(editerRecompense),
+    garde: garde, enfants: function () { return enfants().filter(function (p) { return estEnfant(p.id); }); },
+    _touche: touche, _oublie: oublie, _oublieOk: oublieOk, _codeAnnuler: function () { _code = null; fermer('awakEtoilesSheet'); },
     fermer: function () { fermer('awakEtoilesSheet'); },
     _n: function (k) { if (_aj) { _aj.n = Math.max(1, Math.min(50, _aj.n + k)); ajouter(); } },
     _r: function (i) { if (_aj) { _aj.r = RAISONS.concat(['Autre'])[i]; ajouter(); } },
     _autre: function (v) { if (_aj) _aj.autre = v; },
-    _donner: donner,
+    _donner: garde(donner),
     _edNom: function (v) { if (_ed) _ed.nom = v; },
     _edCout: function (k) { if (_ed) { _ed.cout = Math.max(1, Math.min(200, _ed.cout + k)); var n = _ed.nom; dessinerEd(); _ed.nom = n; } },
-    _edSauver: edSauver, _edSupprimer: edSupprimer,
+    _edSauver: garde(edSauver), _edSupprimer: garde(edSupprimer),
     _lire: lire
   };
 })();

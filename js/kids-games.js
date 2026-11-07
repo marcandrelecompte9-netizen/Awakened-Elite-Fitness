@@ -382,6 +382,32 @@
     document.getElementById('awakKidsPlay')?.remove();
   };
 
+  // v1686 : jeu lancé depuis le profil d'un PARENT → « Qui a joué ? » pour donner leurs étoiles aux enfants
+  var _jeuFini = null;
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function quiAJoue(enfant, minutes, debut, nom) {
+    try {
+      if (enfant || !global.AwakEtoiles || !AwakEtoiles.enfants) return '';
+      var ens = AwakEtoiles.enfants(); if (!ens.length) return '';
+      _jeuFini = { minutes: minutes, debut: debut, nom: nom };
+      var n = AwakEtoiles.pourMinutes(minutes);
+      return '<div style="text-align:left;margin:0 0 14px;padding:12px;border-radius:14px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.35);">'
+        + '<div style="font-size:0.78em;color:#fde68a;font-weight:800;margin-bottom:8px;">Qui a joué ? +' + n + ' étoile' + (n > 1 ? 's' : '') + ' chacun</div>'
+        + '<div style="display:flex;gap:6px;flex-wrap:wrap;">' + ens.map(function (e) {
+            return '<button data-pid="' + esc(e.id) + '" onclick="AwakKidsEtoile(this)" style="min-height:auto;padding:8px 13px;border-radius:99px;cursor:pointer;font-family:inherit;font-weight:800;font-size:0.8em;background:#1a1e26;color:#e2e8f0;border:1px solid rgba(251,191,36,0.45);">' + esc(e.name || 'Enfant') + '</button>';
+          }).join('') + '</div></div>';
+    } catch (e) { _awkE(e); return ''; }
+  }
+  global.AwakKidsEtoile = function (btn) {
+    if (!_jeuFini || !btn || btn.dataset.fait) return;
+    var pid = btn.dataset.pid, j = _jeuFini;
+    AwakEtoiles.garde(function () {
+      var n = AwakEtoiles.gagnerPour(pid, j.minutes, String(j.debut) + ':' + pid, j.nom);
+      btn.dataset.fait = '1';
+      btn.textContent = btn.textContent + (n ? ' +' + n : ' déjà compté');
+      btn.style.background = '#fbbf24'; btn.style.color = '#1a1204';
+    })();
+  };
   function _fin() {
     if (tic) { clearInterval(tic); tic = null; }
     if (!partie) return;
@@ -430,6 +456,7 @@
     +     '<strong style="color:#60a8f0;">' + minutes + ' minutes</strong> de jeu ensemble.<br>'
     +     'Ça compte comme une vraie séance.'
     +     (etoilesJeu ? '<br><strong style="color:#fbbf24;">+' + etoilesJeu + ' étoile' + (etoilesJeu > 1 ? 's' : '') + '</strong>' : '') + '</div>'
+    +     quiAJoue(enfant, minutes, partie.debut, jeu.nom)
     +   '<button onclick="document.getElementById(\'awakKidsFin\').remove();'
     +     'if(window.updateHomeStats)updateHomeStats();" '
     +     'style="width:100%;padding:14px;border-radius:14px;border:none;cursor:pointer;'
