@@ -287,6 +287,7 @@
   }
 
   function lienAutre() {
+    if (estEnfant()) return '';   // v1687 : accueil enfant épuré
     var P = window.AwakCalPlan, plan = '';
     try {
       if (P && P.sourcePref) {
@@ -684,6 +685,20 @@
       styles();
       var root = monter();
       if (!root) return;
+      // v1687 : accueil ENFANT épuré — sa séance, ses étoiles, ses badges, les messages
+      // de la famille et la reprise de séance. Le reste (tuiles de stats, raccourcis
+      // d'adulte, séance à plusieurs, avertissement pour les parents…) est masqué.
+      try {
+        document.body.classList.toggle('awk-accueil-enfant', estEnfant());
+        if (!document.getElementById('awkAccueilEnfantCSS')) {
+          var st = document.createElement('style'); st.id = 'awkAccueilEnfantCSS';
+          st.textContent = 'body.awk-accueil-enfant #ahpAujourdhui,body.awk-accueil-enfant #ahpRaccourcis,'
+            + ['youthSafetyBanner', 'groupWorkoutBtnContainer', 'activePlanContainer', 'homeRpgCard', 'fatigueAlertCard', 'sexFocusCard', 'cycleCard', 'strengthCard', 'eveilJourneyCard', 'recoveryBannerContainer']
+                .map(function (i) { return 'body.awk-accueil-enfant #' + i; }).join(',')
+            + '{display:none !important;}';
+          document.head.appendChild(st);
+        }
+      } catch (e) { _awkE(e); }
       var info = profilActif();
       var pl = planning(info.id);
       var hist = historique(info.id);
