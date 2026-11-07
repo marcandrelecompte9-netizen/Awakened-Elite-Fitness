@@ -152,6 +152,8 @@
       var fj = window.awakFormeDuJour && window.awakFormeDuJour();
       if (fj != null && etat.humeur == null) { etat.humeur = fj <= 3 ? 2 : fj <= 6 ? 5 : 8; etat.dejaNote = true; etat.formeVal = fj; }
     } catch (e) { _awkE(e); }
+    // v1670 : séance de musculation → la question « Échauffement ? » s'en charge au démarrage
+    try { if (window.awakEchauffEligible && window.awakEchauffEligible(workout)) _calme = true; } catch (e) { _awkE(e); }
     // Une routine ou une séance qui contient déjà son échauffement : pas de cardio proposé
     rendrePrep();
   }

@@ -11,11 +11,11 @@
     <title>Awakened Elite Fitness</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json?v=1669">
-    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1669">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1669">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1669">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1669">
+    <link rel="manifest" href="manifest.json?v=1670">
+    <link rel="apple-touch-icon" href="icons/icon-192.png?v=1670">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png?v=1670">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1670">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1670">
 
     <!-- ⚠️ CAPTURE PRÉCOCE DE L'INVITE D'INSTALLATION.
          Chrome déclenche « beforeinstallprompt » très tôt, souvent AVANT la fin
@@ -141,13 +141,13 @@
     })();
     </script>
     <!-- v1398 : mode dev « Avancer le temps » — doit précéder tous les scripts -->
-    <script src="js/dev-temps.js?v=1669"></script>
+    <script src="js/dev-temps.js?v=1670"></script>
 
     <!-- Fonts -->
     <!-- v1288 : police Outfit embarquée (fonts/ + css/style.css) : plus besoin d'Internet -->
 
     <!-- App styles -->
-    <link rel="stylesheet" href="css/style.css?v=1669">
+    <link rel="stylesheet" href="css/style.css?v=1670">
 </head>
 <body>
 
@@ -304,8 +304,8 @@
                  (ratio 1,55), donc plus haute et lisible.
                  <picture> laisse le navigateur choisir, sans JavaScript. -->
             <picture>
-                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1669">
-                <img src="images/banner_v3_mobile.webp?v=1669"
+                <source media="(min-width: 700px)" srcset="images/banner_v3.webp?v=1670">
+                <img src="images/banner_v3_mobile.webp?v=1670"
                      alt="Awakened Elite Fitness"
                      onerror="var p=this.closest('picture');if(p&&p.parentElement)p.parentElement.style.display='none';"
                      style="width:100%;height:auto;display:block;" />
@@ -595,6 +595,7 @@
                 <button onclick="switchTab('program')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Programme</button>
                 <button onclick="switchTab('course')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Course</button>
                             <button onclick="switchTab('challenges')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Défis</button>
+                            <button onclick="switchTab('etirements')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Étirer</button>
             </div>
             <div style="font-size:0.8em;color:#b4c0cf;margin:0 0 14px;padding:0 4px;line-height:1.4;">Tes séances sauvegardées, prêtes à relancer.</div>
             <!-- Plan hebdo en haut (rendu dynamiquement) -->
@@ -649,6 +650,7 @@
                 <button onclick="switchTab('program')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;">Programme</button>
                 <button onclick="switchTab('course')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Course</button>
                 <button onclick="switchTab('challenges')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Défis</button>
+                <button onclick="switchTab('etirements')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Étirer</button>
             </div>
             <div style="font-size:0.8em;color:#b4c0cf;margin:0 0 14px;padding:0 4px;line-height:1.4;">Ton plan structuré sur plusieurs semaines.</div>
             <div id="programTabContent">
@@ -1215,6 +1217,7 @@
                 <button onclick="switchTab('program')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Programme</button>
                 <button onclick="switchTab('course')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Course</button>
                             <button onclick="switchTab('challenges')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Défis</button>
+                            <button onclick="switchTab('etirements')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Étirer</button>
             </div>
             <div style="font-size:0.8em;color:#b4c0cf;margin:0 0 14px;padding:0 4px;line-height:1.4;">Compose ou lance une séance maintenant.</div>
 
@@ -2542,9 +2545,9 @@
                         <!-- Échauffement & étirement (fusion des 2 anciennes cartes) -->
                         <div class="settings-sub">
                             <div class="settings-sub-title">Échauffement &amp; étirement</div>
-                            <p class="settings-sub-desc">Prépare les muscles avant l'effort et favorise la récupération après. On recommande de garder les deux activés.</p>
+                            <p class="settings-sub-desc">Au début de chaque séance de musculation, le Système te demande si tu veux t'échauffer (sur machine ou au poids du corps). À la fin, il te propose des étirements pour les muscles travaillés. Pour une séance d'étirements seule : Séance › Étirer.</p>
 
-                            <div class="settings-toggle-row" style="margin-bottom:14px;">
+                            <div class="settings-toggle-row" style="margin-bottom:14px;display:none;">
                                 <div class="settings-tr-main">
                                     <div class="settings-tr-label">🧠 Échauffement adaptatif</div>
                                     <div class="settings-tr-sub">Génère automatiquement un échauffement selon les muscles travaillés</div>
@@ -2555,7 +2558,7 @@
                                 </label>
                             </div>
 
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                            <div style="display: none; grid-template-columns: 1fr 1fr; gap: 14px;">
                                 <div class="equipment-item selected" id="warmupOption" onclick="toggleWarmup()" style="cursor: pointer;">
                                     <div class="equipment-checkmark">✓</div>
                                     <div class="equipment-icon">🏃‍♂️</div>
@@ -2926,7 +2929,7 @@
                                 <div onclick="awakVersionTap()" style="font-size:2em;flex-shrink:0;cursor:pointer;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;" id="awakVersionIco"></div>
                                 <div style="flex:1;min-width:0;">
                                     <div style="font-weight:800;color:#e2e8f0;font-size:1em;">Awakened</div>
-                                    <div onclick="awakVersionTap()" style="font-size:0.78em;color:#93c5fd;font-weight:700;margin-top:2px;cursor:pointer;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">v0.95.1669 · awakened</div>
+                                    <div onclick="awakVersionTap()" style="font-size:0.78em;color:#93c5fd;font-weight:700;margin-top:2px;cursor:pointer;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">v0.95.1670 · awakened</div>
                                 </div>
                                 <button onclick="showConfirm('Le cache sera nettoyé et la dernière version de l\'app sera rechargée. Tes données ne sont pas touchées.', function(){ forceAppUpdate(); }, null, { title: 'Forcer la mise à jour ?', confirmLabel: 'Mettre à jour', cancelLabel: 'Annuler' })" style="flex-shrink:0;background:rgba(96,168,240,0.1);border:1px solid rgba(96,168,240,0.35);color:#93c5fd;border-radius:10px;padding:8px 12px;font-size:0.72em;font-weight:800;cursor:pointer;">🔄 Mettre à jour</button>
                             </div>
@@ -3319,9 +3322,24 @@
                 <button onclick="switchTab('program')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Programme</button>
                 <button onclick="switchTab('course')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;">Course</button>
                 <button onclick="switchTab('challenges')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Défis</button>
+                <button onclick="switchTab('etirements')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Étirer</button>
             </div>
             <div style="font-size:0.8em;color:#b4c0cf;margin:0 0 14px;padding:0 4px;line-height:1.4;">Course, marche ou vélo au GPS : objectifs, fractionné, plan et progression.</div>
             <div id="awakRunOnglet"></div>
+    </div>
+
+    <!-- v1670 : Séance › Étirements -->
+    <div id="etirementsTab" class="tab-content">
+            <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:5px;margin-bottom:8px;">
+                <button onclick="switchTab('workouts')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Libre</button>
+                <button onclick="switchTab('routines')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Routines</button>
+                <button onclick="switchTab('program')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Programme</button>
+                <button onclick="switchTab('course')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Course</button>
+                <button onclick="switchTab('challenges')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Défis</button>
+                <button onclick="switchTab('etirements')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;">Étirer</button>
+            </div>
+            <div style="font-size:0.8em;color:#b4c0cf;margin:0 0 14px;padding:0 4px;line-height:1.4;">Étire-toi selon ton besoin : après l'entraînement, ou en douceur pour une douleur.</div>
+            <div id="awakEtirContenu"></div>
     </div>
 
     <div id="challengesTab" class="tab-content">
@@ -3332,6 +3350,7 @@
                 <button onclick="switchTab('program')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Programme</button>
                 <button onclick="switchTab('course')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Course</button>
                 <button onclick="switchTab('challenges')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;">Défis</button>
+                <button onclick="switchTab('etirements')" style="flex:1 1 auto;min-width:0;border:none;border-radius:10px;padding:10px 4px;font-weight:800;font-size:0.74em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;cursor:pointer;background:transparent;color:#94a3b8;">Étirer</button>
             </div>
             <div style="font-size:0.8em;color:#b4c0cf;margin:0 0 14px;padding:0 4px;line-height:1.4;">Choisis un défi, fais-le chaque jour et coche ta case. Chaque défi réussi te rapporte une étoile.</div>
         <div class="card">
@@ -4050,39 +4069,39 @@
     <!-- v1327 : Chart.js chargé à la demande (awakChargerChart dans app.js) -->
 
     <!-- App scripts — order matters -->
-    <script src="js/native.js?v=1669"></script>
-    <script src="js/essai.js?v=1669"></script>
-    <script src="js/exercises.js?v=1669"></script>
-    <script src="js/exercise-names.js?v=1669"></script>
-    <script src="data/items.js?v=1669"></script>
-    <script src="js/item-icons.js?v=1669"></script>
-    <script src="js/skill-tree.js?v=1669"></script>
-    <script src="js/nav-icons.js?v=1669"></script>
-    <script src="js/adventure.js?v=1669"></script>
-    <script src="js/economy.js?v=1669"></script>
-    <script src="js/challenges.js?v=1669"></script>
-    <script src="js/family-boss.js?v=1669"></script>
-    <script src="js/family-network.js?v=1669"></script>
-    <script src="js/family-challenge.js?v=1669"></script>
-    <script src="js/family-goal.js?v=1669"></script>
-    <script src="js/family-feed.js?v=1669"></script>
-    <script src="js/pre-workout-mood.js?v=1669"></script>
-    <script src="js/group-workout.js?v=1669"></script>
-    <script src="js/duo.js?v=1669"></script>
-    <script src="js/youth-safety.js?v=1669"></script>
-    <script src="js/kids-programs.js?v=1669"></script>
-    <script src="js/senior-programs.js?v=1669"></script>
-    <script src="js/adaptive.js?v=1669"></script>
-    <script src="js/pain-mode.js?v=1669"></script>
-    <script src="js/recovery-mode.js?v=1669"></script>
-    <script src="js/exercise-visuals.js?v=1669"></script>
-    <script src="js/strength-standards.js?v=1669"></script>
-    <script src="js/system-cards.js?v=1669"></script>
-    <script src="js/share-card.js?v=1669"></script>
-    <script src="js/story-events.js?v=1669"></script>
-    <script src="js/final-boss.js?v=1669"></script>
-    <script src="js/disciplines.js?v=1669"></script>
-    <script src="js/eveil.js?v=1669"></script>
+    <script src="js/native.js?v=1670"></script>
+    <script src="js/essai.js?v=1670"></script>
+    <script src="js/exercises.js?v=1670"></script>
+    <script src="js/exercise-names.js?v=1670"></script>
+    <script src="data/items.js?v=1670"></script>
+    <script src="js/item-icons.js?v=1670"></script>
+    <script src="js/skill-tree.js?v=1670"></script>
+    <script src="js/nav-icons.js?v=1670"></script>
+    <script src="js/adventure.js?v=1670"></script>
+    <script src="js/economy.js?v=1670"></script>
+    <script src="js/challenges.js?v=1670"></script>
+    <script src="js/family-boss.js?v=1670"></script>
+    <script src="js/family-network.js?v=1670"></script>
+    <script src="js/family-challenge.js?v=1670"></script>
+    <script src="js/family-goal.js?v=1670"></script>
+    <script src="js/family-feed.js?v=1670"></script>
+    <script src="js/pre-workout-mood.js?v=1670"></script>
+    <script src="js/group-workout.js?v=1670"></script>
+    <script src="js/duo.js?v=1670"></script>
+    <script src="js/youth-safety.js?v=1670"></script>
+    <script src="js/kids-programs.js?v=1670"></script>
+    <script src="js/senior-programs.js?v=1670"></script>
+    <script src="js/adaptive.js?v=1670"></script>
+    <script src="js/pain-mode.js?v=1670"></script>
+    <script src="js/recovery-mode.js?v=1670"></script>
+    <script src="js/exercise-visuals.js?v=1670"></script>
+    <script src="js/strength-standards.js?v=1670"></script>
+    <script src="js/system-cards.js?v=1670"></script>
+    <script src="js/share-card.js?v=1670"></script>
+    <script src="js/story-events.js?v=1670"></script>
+    <script src="js/final-boss.js?v=1670"></script>
+    <script src="js/disciplines.js?v=1670"></script>
+    <script src="js/eveil.js?v=1670"></script>
     <script>
     /* 🔄 DÉVERROUILLAGE DE L'ORIENTATION
        Sur Android, l'orientation d'une PWA installée est figée à l'installation
@@ -4104,60 +4123,61 @@
       });
     })();
     </script>
-    <script src="js/app.js?v=1669"></script>
-    <script src="js/failles.js?v=1669"></script>
-    <script src="js/calendar-tab.js?v=1669"></script>
-    <script src="js/routine-blocks.js?v=1669"></script>
-    <script src="js/routine-builder.js?v=1669"></script>
-    <script src="js/routine-print.js?v=1669"></script>
-    <script src="js/icons.js?v=1669"></script>
-    <script src="js/no-emoji.js?v=1669"></script>
-    <script src="js/stat-noms.js?v=1669"></script>
-    <script src="js/fenetres.js?v=1669"></script>
-    <script src="js/seuil.js?v=1669"></script>
-    <script src="js/qrcode.js?v=1669"></script>
-    <script src="js/partage-seance.js?v=1669"></script>
-    <script src="js/salle.js?v=1669"></script>
-    <script src="js/sports.js?v=1669"></script>
-    <script src="js/strength-balance.js?v=1669"></script>
-    <script src="js/analyse.js?v=1669"></script>
-    <script src="js/limitations.js?v=1669"></script>
-    <script src="js/custom-exercises.js?v=1669"></script>
-    <script src="js/awakening-tree.js?v=1669"></script>
-    <script src="js/ui-kit.js?v=1669"></script>
-    <script src="js/feature-map.js?v=1669"></script>
-    <script src="js/visite.js?v=1669"></script>
-    <script src="js/weekly-recap.js?v=1669"></script>
-    <script src="js/workout-games.js?v=1669"></script>
-    <script src="js/kids-games.js?v=1669"></script>
-    <script src="js/bilan-4sem.js?v=1669"></script>
-    <script src="js/home-pro.js?v=1669"></script>
-    <script src="js/echelle.js?v=1669"></script>
-    <script src="js/seance-ecran.js?v=1669"></script>
-    <script src="js/regle-mesures.js?v=1669"></script>
-    <script src="js/photos-mesures.js?v=1669"></script>
-    <script src="js/back-button.js?v=1669"></script>
-    <script src="js/gestures.js?v=1669"></script>
-    <script src="js/rift-visuals.js?v=1669"></script>
-    <script src="js/musique.js?v=1669"></script>
-    <script src="js/family-sky.js?v=1669"></script>
-    <script src="js/family-week.js?v=1669"></script>
-    <script src="js/session-ux.js?v=1669"></script>
-    <script src="js/progress-tab.js?v=1669"></script>
-    <script src="js/progres-onglets.js?v=1669"></script>
-    <script src="js/dev-outils.js?v=1669"></script>
-    <script src="js/ressenti.js?v=1669"></script>
-    <script src="js/mission-semaine.js?v=1669"></script>
-    <script src="js/xp-fin.js?v=1669"></script>
-    <script src="js/fin-seance.js?v=1669"></script>
-    <script src="js/import-csv.js?v=1669"></script>
-    <script src="js/reglage-machine.js?v=1669"></script>
-    <script src="js/mon-defi.js?v=1669"></script>
-    <script src="js/health-sync.js?v=1669"></script>
-    <script src="js/regle.js?v=1669"></script>
-    <script src="js/run-gps.js?v=1669"></script>
-    <script src="js/run-coach.js?v=1669"></script>
-    <script src="js/backup.js?v=1669"></script>
+    <script src="js/app.js?v=1670"></script>
+    <script src="js/failles.js?v=1670"></script>
+    <script src="js/calendar-tab.js?v=1670"></script>
+    <script src="js/routine-blocks.js?v=1670"></script>
+    <script src="js/routine-builder.js?v=1670"></script>
+    <script src="js/etirements.js?v=1670"></script>
+    <script src="js/routine-print.js?v=1670"></script>
+    <script src="js/icons.js?v=1670"></script>
+    <script src="js/no-emoji.js?v=1670"></script>
+    <script src="js/stat-noms.js?v=1670"></script>
+    <script src="js/fenetres.js?v=1670"></script>
+    <script src="js/seuil.js?v=1670"></script>
+    <script src="js/qrcode.js?v=1670"></script>
+    <script src="js/partage-seance.js?v=1670"></script>
+    <script src="js/salle.js?v=1670"></script>
+    <script src="js/sports.js?v=1670"></script>
+    <script src="js/strength-balance.js?v=1670"></script>
+    <script src="js/analyse.js?v=1670"></script>
+    <script src="js/limitations.js?v=1670"></script>
+    <script src="js/custom-exercises.js?v=1670"></script>
+    <script src="js/awakening-tree.js?v=1670"></script>
+    <script src="js/ui-kit.js?v=1670"></script>
+    <script src="js/feature-map.js?v=1670"></script>
+    <script src="js/visite.js?v=1670"></script>
+    <script src="js/weekly-recap.js?v=1670"></script>
+    <script src="js/workout-games.js?v=1670"></script>
+    <script src="js/kids-games.js?v=1670"></script>
+    <script src="js/bilan-4sem.js?v=1670"></script>
+    <script src="js/home-pro.js?v=1670"></script>
+    <script src="js/echelle.js?v=1670"></script>
+    <script src="js/seance-ecran.js?v=1670"></script>
+    <script src="js/regle-mesures.js?v=1670"></script>
+    <script src="js/photos-mesures.js?v=1670"></script>
+    <script src="js/back-button.js?v=1670"></script>
+    <script src="js/gestures.js?v=1670"></script>
+    <script src="js/rift-visuals.js?v=1670"></script>
+    <script src="js/musique.js?v=1670"></script>
+    <script src="js/family-sky.js?v=1670"></script>
+    <script src="js/family-week.js?v=1670"></script>
+    <script src="js/session-ux.js?v=1670"></script>
+    <script src="js/progress-tab.js?v=1670"></script>
+    <script src="js/progres-onglets.js?v=1670"></script>
+    <script src="js/dev-outils.js?v=1670"></script>
+    <script src="js/ressenti.js?v=1670"></script>
+    <script src="js/mission-semaine.js?v=1670"></script>
+    <script src="js/xp-fin.js?v=1670"></script>
+    <script src="js/fin-seance.js?v=1670"></script>
+    <script src="js/import-csv.js?v=1670"></script>
+    <script src="js/reglage-machine.js?v=1670"></script>
+    <script src="js/mon-defi.js?v=1670"></script>
+    <script src="js/health-sync.js?v=1670"></script>
+    <script src="js/regle.js?v=1670"></script>
+    <script src="js/run-gps.js?v=1670"></script>
+    <script src="js/run-coach.js?v=1670"></script>
+    <script src="js/backup.js?v=1670"></script>
 
     <!-- Adventure + Challenge hook -->
     <script>

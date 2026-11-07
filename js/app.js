@@ -2983,7 +2983,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
 
                 // 🔀 Toutes les variantes d'étirement pour ce muscle → choisir aléatoirement
                 const variants = _dbMuscu().filter(ex =>
-                    ex.type === 'stretch' && ex.muscle === muscle
+                    ex.type === 'stretch' && ex.muscle === muscle && !ex._accessoireEtir   // v1670 : pas de rouleau / balle imposés
                 );
                 const stretchExercise = variants.length > 0
                     ? variants[Math.floor(Math.random() * variants.length)]
@@ -6433,8 +6433,10 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         let isShowingFavoritesOnly = false; // NEW: Track if showing only favorites
         let injuredMuscles = []; // NEW: Track injured muscles
         let selectedMuscles = [];
-        let includeWarmup = true;  // Par défaut on inclut l'échauffement
-        let includeStretch = true;  // Par défaut on inclut les étirements
+        // v1670 : plus d'échauffement ni d'étirements AJOUTÉS D'OFFICE à la séance intelligente.
+        // La séance demande « Échauffement ? » au début et « Étirements ? » à la fin.
+        let includeWarmup = false;
+        let includeStretch = false;
         let selectedDuration = 30;  // Durée par défaut en minutes
         let _forcedExerciseCount = 0; // >0 : l'utilisateur a fixé le NOMBRE d'exercices
         let currentCalendarMonth = new Date().getMonth();
@@ -8711,7 +8713,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             try { if (window.AwakSessUX) AwakSessUX.appliquerPrep(pendingWorkout); } catch (e) { _awkE(e); }
 
             // 🏃 Proposer un cardio d'échauffement optionnel (une seule fois par séance)
-            if (!pendingWorkout._cardioAsked && !pendingWorkout.fromRoutine && typeof proposeCardioWarmup === 'function') {
+            if (!pendingWorkout._cardioAsked && !pendingWorkout.fromRoutine && !awakEchauffEligible(pendingWorkout) && typeof proposeCardioWarmup === 'function') {
                 pendingWorkout._cardioAsked = true;
                 proposeCardioWarmup(function(cardioEx) {
                     if (cardioEx) {
@@ -9215,8 +9217,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const saved = localStorage.getItem('warmupStretchPrefs');
             if (saved) {
                 const prefs = JSON.parse(saved);
-                includeWarmup = prefs.warmup !== undefined ? prefs.warmup : true;
-                includeStretch = prefs.stretch !== undefined ? prefs.stretch : true;
+                includeWarmup = false; includeStretch = false;   // v1670 : remplacé par les questions
             }
             updateWarmupStretchUI();
         }
@@ -23823,7 +23824,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // « Entraîner » (workouts) reste actif pour Routines / Programme ;
                 // « Découvrir » (exercises) reste actif pour Calculs / Défis
                 if (tabs[index] === tabName
-                    || (tabs[index] === 'workouts' && (tabName === 'routines' || tabName === 'program' || tabName === 'course' || tabName === 'challenges'))
+                    || (tabs[index] === 'workouts' && (tabName === 'routines' || tabName === 'program' || tabName === 'course' || tabName === 'challenges' || tabName === 'etirements'))
                     || (tabs[index] === 'exercises' && tabName === 'calculators')) {
                     btn.classList.add('active');
                 }
@@ -23917,6 +23918,8 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 }
             } else if (tabName === 'course') {
                 try { if (window.AwakRun && AwakRun.rendreOnglet) AwakRun.rendreOnglet(); } catch (e) { _awkE(e); }
+            } else if (tabName === 'etirements') {
+                try { if (window.AwakEtir) AwakEtir.rendreOnglet(); } catch (e) { _awkE(e); }   // v1670
             } else if (tabName === 'challenges') {
                 renderChallengesTab();
             } else if (tabName === 'history') {
@@ -24842,7 +24845,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1669);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1670);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24895,7 +24898,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1669" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1670" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25706,7 +25709,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const cle = Math.round(r.width) + 'x' + H;
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1669)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1670)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center top';
                 } catch (e) { _awkE(e); }
@@ -27604,6 +27607,23 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     return;
                 }
             } catch (e) { _awkE(e); }
+            // v1670 : « Échauffement ? » au tout début d'une séance de musculation
+            try {
+                if (currentWorkout && currentExerciseIndex === 0 && !currentWorkout._echauffDemande && awakEchauffEligible(currentWorkout)) {
+                    currentWorkout._echauffDemande = true;
+                    const _e0 = currentWorkout.exercises[0];
+                    if (_e0 && (_e0.type === 'warmup' || _e0.isWarmup || _e0._isCardioWarmup)) {
+                        // la séance commence déjà par un échauffement (routine, cardio choisi) : c'est le bloc
+                        let _d = 0;
+                        for (const _x of currentWorkout.exercises) { if (!(_x && (_x.type === 'warmup' || _x.isWarmup || (_x.isInfo && /chauff|Phase/i.test(_x.name || ''))))) break; _x._echauff = true; _d += _x.isInfo ? 0 : (_x.duration || 30); }
+                        currentWorkout._echauffBloc = true; currentWorkout._echauffDuree = _d;
+                    } else {
+                        awakEchauffGate(currentWorkout, function () { startExercise(); });
+                        return;
+                    }
+                }
+                awakEchauffSuivi();
+            } catch (e) { _awkE(e); }
             // ↔️ Nouveau exercice → on réinitialise le marqueur de 2ᵉ côté (étirements bilatéraux)
             window._bilateralSecondSide = false;
             // ⚡ Repos de superset en cours (exercice minuté) : on l'annule
@@ -27634,6 +27654,13 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     _awakFinAttaqueCombat(!!currentWorkout._isRift, false);   // v1622 : chemin unique
                     return;
                 }
+                // v1670 : « Étirements ? » à la fin d'une séance de musculation
+                try {
+                    if (!currentWorkout._etirDemande && awakEchauffEligible(currentWorkout)) {
+                        currentWorkout._etirDemande = true;
+                        if (awakEtirGate(currentWorkout, function () { startExercise(); })) return;
+                    }
+                } catch (e) { _awkE(e); }
                 // v1601 : DUO — le partenaire n'a pas fini sa séance → proposer de la continuer ici
                 if (!window._awakDuoFinOk && window.AwakDuo) {
                     try {
@@ -31116,7 +31143,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1669");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1670");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -44784,7 +44811,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1669';
+                    let ver = 'v0.95.1670';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -44952,7 +44979,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1669" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1670" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45034,7 +45061,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1669);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1670);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45101,7 +45128,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1669);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1670);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47566,7 +47593,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1669");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1670");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -48744,6 +48771,173 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
         ];
 
         let _pendingCardioCallback = null;
+
+        // ═══════════════════════════════════════════════════════════════
+        // v1670 : « ÉCHAUFFEMENT ? » au début · « ÉTIREMENTS ? » à la fin
+        // Séances de MUSCULATION seulement (intelligente, routines, programme).
+        // ═══════════════════════════════════════════════════════════════
+        const AWAK_ECHAUFF_XP = 50;
+        const AWAK_MACHINES_ECHAUFF = ['Tapis roulant', 'Vélo stationnaire', 'Rameur', 'Elliptique', 'StairMaster', 'Corde à sauter'];
+        function awakEchauffEligible(w) {
+            try {
+                if (!w || !Array.isArray(w.exercises)) return false;
+                if (w._discipline || w._isRift || w._isHunt || w._isFinalBoss || w._isAssaut || w._dungeonId || w._etirementsSeul
+                    || w.type === 'morning' || w.fromMorning || w.type === 'amrap' || w._amrapSec || w.type === 'stretch' || w._isRun || w._eveil) return false;
+                const princ = w.exercises.filter(e => e && !e.isRest && !e.isInfo && e.type !== 'warmup' && e.type !== 'stretch' && !e._echauff && !e._etir);
+                return princ.length > 0 && princ.some(e => e.muscle && e.muscle !== 'Cardio');
+            } catch (e) { return false; }
+        }
+        window.awakEchauffEligible = awakEchauffEligible;
+        function _awkMusclesSeance(w) {
+            const s = [];
+            (w.exercises || []).forEach(e => { if (e && !e.isRest && !e.isInfo && !e._echauff && !e._etir && e.type !== 'warmup' && e.type !== 'stretch' && e.muscle && e.muscle !== 'Cardio' && e.muscle !== 'Corps entier' && s.indexOf(e.muscle) < 0) s.push(e.muscle); });
+            return s;
+        }
+        function _awkFeuille(id, html) {
+            document.getElementById(id)?.remove();
+            const o = document.createElement('div');
+            o.id = id;
+            o.style.cssText = 'position:fixed;inset:0;z-index:10700;background:rgba(0,0,0,0.82);display:flex;align-items:flex-end;justify-content:center;';
+            o.innerHTML = '<div style="width:100%;max-width:520px;background:#0d0f13;border-top:1px solid rgba(34,211,238,0.3);border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;">'
+                + '<div style="width:36px;height:4px;background:rgba(255,255,255,0.18);border-radius:99px;margin:0 auto 16px;"></div>' + html + '</div>';
+            document.body.appendChild(o);
+            return o;
+        }
+        const _awkBtnPlein = 'width:100%;padding:14px;border-radius:14px;background:#22d3ee;border:none;color:#062a33;font-weight:800;font-size:0.95em;cursor:pointer;margin-top:8px;';
+        const _awkBtnVide = 'width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;font-weight:700;font-size:0.88em;cursor:pointer;margin-top:8px;';
+        const _awkChoix = 'width:100%;text-align:left;padding:14px;border-radius:14px;background:#141821;border:1.5px solid #1f2430;cursor:pointer;margin-bottom:8px;font-family:inherit;';
+
+        // ── ÉCHAUFFEMENT ──
+        let _awkEchauffCb = null;
+        function awakEchauffGate(w, cb) {
+            _awkEchauffCb = cb;
+            const jeu = (typeof rpgEnabled === 'function' && rpgEnabled());
+            const eq = (typeof getSelectedEquipmentNames === 'function') ? getSelectedEquipmentNames() : [];
+            const machines = AWAK_MACHINES_ECHAUFF.filter(m => eq.includes(m));
+            _awkFeuille('awakEchauffSheet',
+                '<div style="font-size:1.25em;font-weight:800;color:#fff;">Un échauffement ?</div>'
+                + '<div style="font-size:0.84em;color:#8b95a5;margin:4px 0 16px;line-height:1.45;">Prépare tes articulations et monte en température avant l\'effort.'
+                + (jeu ? ' <span style="color:#fde047;font-weight:700;">+' + AWAK_ECHAUFF_XP + ' XP</span> si tu le termines.' : '') + '</div>'
+                + '<button onclick="awakEchauffMachine()" style="' + _awkChoix + (machines.length ? '' : 'opacity:0.5;') + '">'
+                +   '<div style="color:#fff;font-weight:800;">Sur une machine</div>'
+                +   '<div style="color:#8b95a5;font-size:0.78em;margin-top:2px;">' + (machines.length ? machines.join(', ') + ' · 3 à 10 min' : 'Aucune machine dans ton lieu actuel') + '</div></button>'
+                + '<button onclick="awakEchauffCorps()" style="' + _awkChoix + '">'
+                +   '<div style="color:#fff;font-weight:800;">Au poids du corps</div>'
+                +   '<div style="color:#8b95a5;font-size:0.78em;margin-top:2px;">Mouvements ciblés sur les muscles de ta séance · ≈ 4 min</div></button>'
+                + '<button onclick="awakEchauffNon()" style="' + _awkBtnVide + '">Pas cette fois</button>');
+        }
+        function _awkEchauffFin(bloc) {
+            document.getElementById('awakEchauffSheet')?.remove();
+            const w = currentWorkout;
+            if (w && bloc && bloc.length) {
+                bloc.forEach(e => { e._echauff = true; });
+                w.exercises.unshift(...bloc);
+                w._echauffBloc = true;
+                w._echauffDuree = bloc.reduce((t, e) => t + (e.isInfo ? 0 : (e.duration || 30)), 0);
+            }
+            const cb = _awkEchauffCb; _awkEchauffCb = null;
+            if (cb) cb();
+        }
+        window.awakEchauffNon = function () { _awkEchauffFin(null); };
+        window.awakEchauffCorps = function () {
+            const w = currentWorkout; if (!w) return _awkEchauffFin(null);
+            let bloc = [];
+            try { bloc = (generateProgressiveWarmup(_awkMusclesSeance(w), 1, 30) || []).map(e => Object.assign({}, e)); } catch (e) { _awkE(e); }
+            _awkEchauffFin(bloc);
+        };
+        window.awakEchauffMachine = function () {
+            const eq = (typeof getSelectedEquipmentNames === 'function') ? getSelectedEquipmentNames() : [];
+            const machines = AWAK_MACHINES_ECHAUFF.filter(m => eq.includes(m));
+            if (!machines.length) { try { showToast('Aucune machine dans ce lieu : choisis le poids du corps', 'info', 2400); } catch (e) { _awkE(e); } return; }
+            window._awkEchMach = { m: machines[0], min: 5 };
+            const dessiner = () => {
+                const st = window._awkEchMach;
+                const pas = (on, t, f) => '<button onclick="' + f + '" style="min-height:auto;padding:9px 14px;border-radius:99px;cursor:pointer;font-family:inherit;font-weight:700;font-size:0.82em;'
+                    + (on ? 'background:#22d3ee;color:#062a33;border:1px solid #22d3ee;' : 'background:#1a1e26;color:#cbd5e1;border:1px solid #1a1e26;') + '">' + t + '</button>';
+                _awkFeuille('awakEchauffSheet',
+                    '<div style="font-size:1.15em;font-weight:800;color:#fff;margin-bottom:14px;">Échauffement sur machine</div>'
+                    + '<div style="font-size:0.78em;color:#8b95a5;font-weight:700;margin-bottom:8px;">Machine</div>'
+                    + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">' + machines.map((m, i) => pas(st.m === m, m, 'awakEchMachChoix(' + i + ')')).join('') + '</div>'
+                    + '<div style="font-size:0.78em;color:#8b95a5;font-weight:700;margin-bottom:8px;">Durée</div>'
+                    + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">' + [3, 5, 7, 10].map(n => pas(st.min === n, n + ' min', 'awakEchMachDuree(' + n + ')')).join('') + '</div>'
+                    + '<button onclick="awakEchMachGo()" style="' + _awkBtnPlein + '">Commencer l\'échauffement</button>'
+                    + '<button onclick="awakEchauffGate(currentWorkout, _awkEchauffCbGarde)" style="' + _awkBtnVide + '">Retour</button>');
+                window._awkEchMachListe = machines;
+            };
+            window._awkEchMachDessiner = dessiner;
+            dessiner();
+        };
+        // garde le rappel quand on revient au premier choix
+        Object.defineProperty(window, '_awkEchauffCbGarde', { get: function () { return _awkEchauffCb; }, configurable: true });
+        window.awakEchauffGate = awakEchauffGate;
+        window.awakEchMachChoix = function (i) { window._awkEchMach.m = window._awkEchMachListe[i]; window._awkEchMachDessiner(); };
+        window.awakEchMachDuree = function (n) { window._awkEchMach.min = n; window._awkEchMachDessiner(); };
+        window.awakEchMachGo = function () {
+            const st = window._awkEchMach;
+            _awkEchauffFin([{
+                name: st.m, muscle: 'Cardio', mode: 'timer', duration: st.min * 60, sets: 1, type: 'warmup',
+                equipment: [st.m], _isCardioWarmup: true,
+                instructions: [st.min + ' minutes de ' + st.m.toLowerCase(), 'Commence doucement, augmente le rythme peu à peu', 'Tu dois pouvoir parler, mais avec un peu d\'effort']
+            }]);
+        };
+        // Suivi du bloc : bonus d'XP quand on en sort après l'avoir vraiment fait
+        function awakEchauffSuivi() {
+            try {
+                const w = currentWorkout; if (!w || !w._echauffBloc || w._echauffBonus) return;
+                const ex = w.exercises[currentExerciseIndex];
+                if (ex && ex._echauff) { if (!w._echauffDebut) w._echauffDebut = Date.now(); return; }
+                if (!w._echauffDebut) return;
+                w._echauffBonus = true;
+                const fait = (Date.now() - w._echauffDebut) / 1000;
+                if (fait >= (w._echauffDuree || 0) * 0.5) {
+                    if (typeof rpgEnabled === 'function' && rpgEnabled()) {
+                        awakGrantLifetimeXP(AWAK_ECHAUFF_XP);
+                        showToast('Échauffement terminé · +' + AWAK_ECHAUFF_XP + ' XP', 'success', 2600);
+                    } else showToast('Échauffement terminé', 'success', 1800);
+                } else showToast('Échauffement écourté : pas de bonus cette fois', 'info', 2400);
+            } catch (e) { _awkE(e); }
+        }
+
+        // ── ÉTIREMENTS EN FIN DE SÉANCE ──
+        let _awkEtirCb = null;
+        function awakEtirGate(w, cb) {
+            const muscles = _awkMusclesSeance(w);
+            if (!muscles.length) return false;
+            _awkEtirCb = cb;
+            window._awkEtirSel = muscles.slice();
+            const dessiner = () => {
+                const sel = window._awkEtirSel;
+                _awkFeuille('awakEtirSheet',
+                    '<div style="font-size:1.25em;font-weight:800;color:#fff;">Des étirements ?</div>'
+                    + '<div style="font-size:0.84em;color:#8b95a5;margin:4px 0 14px;line-height:1.45;">Pour les muscles que tu viens de travailler. Touche un muscle pour le retirer.</div>'
+                    + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">'
+                    + muscles.map((m, i) => '<button onclick="awakEtirBascule(' + i + ')" style="min-height:auto;padding:8px 13px;border-radius:99px;cursor:pointer;font-family:inherit;font-weight:700;font-size:0.8em;'
+                        + (sel.includes(m) ? 'background:#22d3ee;color:#062a33;border:1px solid #22d3ee;' : 'background:#1a1e26;color:#8b95a5;border:1px solid #1a1e26;text-decoration:line-through;') + '">' + m + '</button>').join('')
+                    + '</div>'
+                    + '<div style="font-size:0.76em;color:#8b95a5;margin:6px 0 4px;">≈ ' + Math.max(1, Math.round(sel.length * 0.9)) + ' min</div>'
+                    + '<button onclick="awakEtirOui()" style="' + _awkBtnPlein + (sel.length ? '' : 'opacity:0.5;') + '">M\'étirer</button>'
+                    + '<button onclick="awakEtirNon()" style="' + _awkBtnVide + '">Non, terminer la séance</button>');
+            };
+            window._awkEtirMuscles = muscles; window._awkEtirDessiner = dessiner;
+            dessiner();
+            return true;
+        }
+        window.awakEtirBascule = function (i) {
+            const m = window._awkEtirMuscles[i], s = window._awkEtirSel, k = s.indexOf(m);
+            if (k >= 0) s.splice(k, 1); else s.push(m);
+            window._awkEtirDessiner();
+        };
+        function _awkEtirFin() { document.getElementById('awakEtirSheet')?.remove(); const cb = _awkEtirCb; _awkEtirCb = null; if (cb) cb(); }
+        window.awakEtirNon = _awkEtirFin;
+        window.awakEtirOui = function () {
+            const sel = window._awkEtirSel || []; if (!sel.length) return;
+            const w = currentWorkout;
+            try {
+                const l = (generateIntelligentStretches(sel.map(m => ({ muscle: m })), 1, 0) || []).map(e => Object.assign({}, e, { _etir: true }));
+                if (w && l.length) w.exercises.push(...l);
+            } catch (e) { _awkE(e); }
+            _awkEtirFin();
+        };
 
         function proposeCardioWarmup(onDone) {
             _pendingCardioCallback = onDone;
