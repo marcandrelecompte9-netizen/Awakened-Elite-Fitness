@@ -8951,3 +8951,7 @@ body.awak-souffle #exerciseView .awak-vis-carre.awak-anim .awak-anim-btn span { 
 body.dark-mode #startPreparedBtn, #startPreparedBtn { background: #22d3ee !important; color: #062a33 !important; box-shadow: none !important; }
 #preparationView .card.awak-prep #awakPartagerBtn { background: transparent !important; border: 1px solid rgba(255,255,255,0.1) !important; }
 #preparationView .card.awak-prep .btn-secondary:not(#awakPartagerBtn) { background: transparent !important; border: none !important; }
+/* v1663 : yoga — une seule case (la posture), fixe, au-dessus du bandeau-titre */
+#exerciseVisualContent .awak-yoga-fixe, #exercisePreviewModal .awak-yoga-fixe { aspect-ratio: 2 / 3 !important; width: min(100%, 33vh) !important; max-height: none !important; margin: 0 auto !important; background-size: 206% auto !important; background-position: 100% 36% !important; border-radius: 14px; }
+#exercisePreviewModal .awak-yoga-fixe { width: min(100%, 40vh) !important; }
+body.awak-souffle #exerciseView #exerciseVisualContent.awak-vis-img > div.awak-vis-carre.awak-yoga-fixe { width: 20vh !important; aspect-ratio: 2 / 3 !important; }

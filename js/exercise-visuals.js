@@ -1682,6 +1682,16 @@ window.EXERCISE_IMAGES_V2_34 = EXERCISE_IMAGES_V2_34;
 // puis celle de FIN, en boucle (fondu). Toucher = image entière en plein écran.
 // Mouvement réduit demandé par le téléphone → image fixe entière (null).
 window.awakAnimHTML = function (src, srcEnc) {
+  // v1663 : yoga — pas d'animation : seulement la case qui montre la posture (à droite),
+  // sans le bandeau-titre du bas.
+  try {
+    var _fy = String(src).split('/').pop();
+    if (EXERCISE_IMAGES_V2_YOGA.indexOf(_fy) >= 0) {
+      var _uy = String(srcEnc || src).replace(/"/g, '&quot;').replace(/'/g, '%27');
+      return '<div class="awak-vis-carre awak-yoga-fixe" onclick="window.awakZoomImage && awakZoomImage(this)" data-raw="' + String(src).replace(/"/g, '&quot;') + '" data-src="' + _uy + '" '
+        + 'style="position:relative;overflow:hidden;cursor:zoom-in;background-image:url(\'' + _uy + '\');background-repeat:no-repeat;"></div>';
+    }
+  } catch (e) { _awkE(e); }
   try {
     if (!window.awakImageV2(src)) return null;
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
