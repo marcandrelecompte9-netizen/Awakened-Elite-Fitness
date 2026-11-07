@@ -468,8 +468,16 @@
       var h = document.querySelector('#mobileNavBar .nav-tab[onclick="switchTab(\'history\')"]');
       var e = document.getElementById('etoilesNavTab');
       if (h) h.style.display = k ? 'none' : '';
+      // v1689 : enfant — pas de Course ni d'Étirer dans l'onglet Séance
+      document.body.classList.toggle('awk-enfant', k);
+      if (!document.getElementById('awkEnfantCSS')) {
+        var st = document.createElement('style'); st.id = 'awkEnfantCSS';
+        st.textContent = 'body.awk-enfant button[onclick="switchTab(\'course\')"],body.awk-enfant button[onclick="switchTab(\'etirements\')"]{display:none !important;}';
+        document.head.appendChild(st);
+      }
       if (e) e.style.display = k ? '' : 'none';
-      if (k) { var a = document.querySelector('.tab-content.active'); if (a && a.id === 'historyTab' && typeof window.switchTab === 'function') window.switchTab('home'); }
+      if (k) { var a = document.querySelector('.tab-content.active'); if (a && a.id === 'historyTab' && typeof window.switchTab === 'function') window.switchTab('home');
+        if (a && (a.id === 'courseTab' || a.id === 'etirementsTab') && typeof window.switchTab === 'function') window.switchTab('workouts'); }
     } catch (x) { _e(x); }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', majNav); else majNav();
