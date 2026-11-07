@@ -275,7 +275,62 @@
       + cards;
   }
 
+  // v1695 : « Modèles » de l'onglet Routines pour un ENFANT → ses aventures (avant : modèles d'adulte)
+  function exoRoutine(nom) {
+    var f = EX[nom] || { d: 30, m: 'Corps entier', t: 'Fais de ton mieux !' };
+    return { name: nom, muscle: f.m, mode: 'timer', duration: f.d, sets: 2, recoRest: 20, repos: 20, _seriesMinutees: true, type: 'exercise',
+      equipment: ['Poids du corps'], difficulty: 'Débutant', description: f.t, instructions: [f.t], _kids: true };
+  }
+  var _ouvert = null;
+  function modeles(id) {
+    if (id !== undefined) _ouvert = (_ouvert === id ? null : id);
+    var o = document.getElementById('templatesModal'); if (o) o.remove();
+    o = document.createElement('div'); o.id = 'templatesModal';
+    o.style.cssText = 'position:fixed;inset:0;z-index:10100;background:rgba(0,0,0,0.88);display:flex;align-items:flex-end;justify-content:center;';
+    var cartes = KIDS_PROGRAMS.map(function (p) {
+      var ouvert = _ouvert === p.id;
+      return '<div style="background:#12161c;border:1px solid ' + (ouvert ? ACCENT : 'rgba(255,255,255,0.08)') + ';border-radius:14px;margin-bottom:9px;overflow:hidden;">'
+        + '<button onclick="AwakKidsPrograms.modeles(\'' + p.id + '\')" style="display:flex;align-items:center;gap:12px;width:100%;min-height:auto;text-align:left;font-family:inherit;color:inherit;background:transparent;border:none;padding:13px;cursor:pointer;">'
+        +   '<span style="flex-shrink:0;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(96,168,240,0.12);">' + ic(ICO[p.id] || 'etoile', 22, ACCENT) + '</span>'
+        +   '<span style="flex:1;min-width:0;"><span style="display:block;font-size:0.95em;font-weight:900;color:#f8fafc;">' + esc(p.name) + '</span>'
+        +   '<span style="display:block;font-size:0.76em;color:#a3b1c2;margin-top:3px;line-height:1.4;">' + esc(p.desc) + '</span></span>'
+        +   '<span style="color:#7c8aa0;font-size:1.2em;flex-shrink:0;">' + (ouvert ? '⌄' : '›') + '</span></button>'
+        + (ouvert ? '<div style="padding:0 13px 13px;">'
+            + p.sessions.map(function (se) { return '<div style="padding:8px 0;border-top:1px solid rgba(255,255,255,0.06);"><div style="font-size:0.84em;font-weight:800;color:#e2e8f0;">' + esc(se.name) + '</div><div style="font-size:0.72em;color:#94a3b8;margin-top:2px;">' + se.exercises.map(esc).join(' · ') + '</div></div>'; }).join('')
+            + '<button onclick="AwakKidsPrograms.importer(\'' + p.id + '\')" style="width:100%;min-height:auto;margin-top:8px;padding:12px;border-radius:12px;border:none;cursor:pointer;font-family:inherit;font-weight:900;font-size:0.88em;background:#22d3ee;color:#04121f;">Ajouter à mes routines</button>'
+            + '</div>' : '')
+        + '</div>';
+    }).join('');
+    o.innerHTML = '<div style="width:100%;max-width:520px;background:#0F1014;border-radius:20px 20px 0 0;max-height:92vh;display:flex;flex-direction:column;border-top:1px solid rgba(255,255,255,0.1);">'
+      + '<div style="width:40px;height:4px;background:rgba(255,255,255,0.14);border-radius:99px;margin:10px auto 0;"></div>'
+      + '<div style="padding:12px 16px 10px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;gap:10px;">'
+      +   '<div><div style="font-size:0.7em;color:#94a3b8;font-weight:800;letter-spacing:0.6px;">MODÈLES</div><div style="font-size:1.05em;font-weight:900;color:#f8fafc;margin-top:2px;">Choisis une aventure</div></div>'
+      +   '<button onclick="document.getElementById(\'templatesModal\').remove()" aria-label="Fermer" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;width:34px;height:34px;min-height:auto;border-radius:50%;cursor:pointer;">×</button>'
+      + '</div>'
+      + '<div style="flex:1;overflow-y:auto;padding:12px 14px 18px;">'
+      +   '<div style="font-size:0.78em;color:#a3b1c2;line-height:1.45;margin-bottom:10px;">Des jeux de mouvement pour ton âge, sans matériel. Touche une aventure pour voir ses missions.</div>'
+      +   cartes + '</div></div>';
+    o.addEventListener('click', function (e) { if (e.target === o) o.remove(); });
+    document.body.appendChild(o);
+  }
+  function importer(id) {
+    var p = byId(id); if (!p) return;
+    try {
+      var rs = (typeof window.getRoutines === 'function') ? window.getRoutines() : [];
+      p.sessions.forEach(function (se, i) {
+        if (rs.some(function (r) { return r.fromKids === p.id && r.fromTemplateSessionIdx === i; })) return;
+        rs.push({ id: 'r_' + Date.now() + '_' + i + '_' + Math.floor(Math.random() * 1000), name: se.name, color: ACCENT,
+          description: p.name, exercises: se.exercises.map(exoRoutine), level: 'Débutant', fromKids: p.id, fromTemplateSessionIdx: i, created: new Date().toISOString() });
+      });
+      if (typeof window.saveRoutines === 'function') window.saveRoutines(rs);
+    } catch (e) { _awkE(e); }
+    var o = document.getElementById('templatesModal'); if (o) o.remove();
+    try { if (typeof window.renderRoutinesList === 'function') window.renderRoutinesList(); } catch (e) { _awkE(e); }
+    try { if (window.showToast) window.showToast('« ' + p.name + ' » : ' + p.sessions.length + ' routines ajoutées', 'success', 2600); } catch (e) { _awkE(e); }
+  }
+
   window.AwakKidsPrograms = {
+    modeles: modeles, importer: importer,
     all: all,
     byId: byId,
     renderTab: renderTab,
