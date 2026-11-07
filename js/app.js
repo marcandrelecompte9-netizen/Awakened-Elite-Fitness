@@ -24692,7 +24692,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1645);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1646);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24745,7 +24745,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1645" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1646" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -28424,6 +28424,16 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 '#awakBreathPacer .bp-cycles i{width:6px;height:6px;border-radius:50%;background:rgba(103,232,249,.18);transition:background .4s;}' +
                 '#awakBreathPacer .bp-cycles i.on{background:#67e8f9;}' +
                 '#awakBreathPacer.bp-pause .bp-label{opacity:.45;}' +
+                // v1646 : compact — cercle à gauche, consigne à droite ; image moins haute
+                'body.awak-souffle #awakBreathPacer{flex-direction:row;justify-content:center;gap:18px;margin:10px auto 4px;}' +
+                'body.awak-souffle #awakBreathPacer .bp-zone{width:112px;height:112px;}' +
+                'body.awak-souffle #awakBreathPacer .bp-ring{width:112px;height:112px;}' +
+                'body.awak-souffle #awakBreathPacer .bp-num{font-size:1.8em;}' +
+                'body.awak-souffle #awakBreathPacer .bp-txt{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:120px;}' +
+                'body.awak-souffle #awakBreathPacer .bp-label{font-size:1.25em;}' +
+                'body.awak-souffle #awakBreathPacer .bp-sous{margin-top:-4px;font-size:.8em;}' +
+                'body.awak-souffle #exerciseView #exerciseVisualContent.awak-vis-img > div.awak-vis-carre{aspect-ratio:auto!important;height:30vh!important;max-height:30vh!important;}' +
+                '@media (max-height:700px){body.awak-souffle #exerciseView #exerciseVisualContent.awak-vis-img > div.awak-vis-carre{height:24vh!important;max-height:24vh!important;}}' +
                 '@media (prefers-reduced-motion: reduce){#awakBreathPacer .bp-ring{transition:none!important;transform:scale(.8)!important;}}';
             document.head.appendChild(st);
         }
@@ -28496,6 +28506,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 if (hideVf) { vf.style.display = 'none'; vf.dataset.yogaHidden = '1'; }
                 else if (vf.dataset.yogaHidden) { vf.style.display = ''; delete vf.dataset.yogaHidden; }
             }
+            document.body.classList.toggle('awak-souffle', !!isYoga);   // v1646 : mise en page compacte (tout tient à l'écran)
             if (!isYoga) { if (existing) existing.remove(); return; }
             const _bpCle = JSON.stringify(_awakRythmeSouffle(exercise).map(p => p.d));
             if (existing && existing.dataset.rythme === _bpCle) return;   // même rythme : on ne recommence pas le cycle
@@ -28506,7 +28517,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const wrap = document.createElement('div');
             wrap.id = 'awakBreathPacer';
             wrap.innerHTML = '<div class="bp-zone"><div class="bp-guide"></div><div class="bp-ring"></div><div class="bp-num"></div></div>'
-                + '<div class="bp-label"></div><div class="bp-sous"></div><div class="bp-cycles" aria-hidden="true"></div>';
+                + '<div class="bp-txt"><div class="bp-label"></div><div class="bp-sous"></div><div class="bp-cycles" aria-hidden="true"></div></div>';
             wrap.setAttribute('aria-hidden', 'true');
             wrap.dataset.rythme = _bpCle;
             anchor.parentNode.insertBefore(wrap, anchor.nextSibling);
@@ -30887,7 +30898,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1645");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1646");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -44555,7 +44566,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1645';
+                    let ver = 'v0.95.1646';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -44723,7 +44734,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1645" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1646" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -44805,7 +44816,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1645);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1646);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -44872,7 +44883,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1645);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1646);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47337,7 +47348,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1645");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1646");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
