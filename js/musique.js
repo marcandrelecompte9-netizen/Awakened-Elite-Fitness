@@ -42,7 +42,7 @@
   ];
 
   var CLE = 'awakMusique';
-  var DEF = { auto: true, jeu: true, entrainement: true, perso: true, externe: false, volume: 0.6, exclus: [] };
+  var DEF = { auto: true, jeu: true, entrainement: true, perso: true, externe: false, volume: 0.6, exclus: [], repeter: false };
 
   // ── v1476 : MES MUSIQUES — fichiers audio importés depuis le téléphone,
   // gardés dans le navigateur (IndexedDB, sur cet appareil seulement).
@@ -253,7 +253,7 @@
     if (!file.length) { majBarre(); return; }
     pos = ((i % file.length) + file.length) % file.length;
     var m = file[pos], a = el();
-    a.loop = (m.type === 'zen'); etapeFinale = null;   // v1640 : zen en boucle
+    a.loop = (m.type === 'zen') || !!reglages().repeter; etapeFinale = null;   // v1640 : zen en boucle · v1662 : répéter
     a.src = m.url || ('audio/' + m.fichier);
     a.volume = 0;
     actif = true;
@@ -310,8 +310,24 @@
     suiv: svg('<path d="M16 5h2v14h-2zM4 5l11 7-11 7z"/>'),
     lect: svg('<path d="M7 4.5v15L19.5 12z"/>', 20),
     paus: svg('<path d="M6.5 4.5h4v15h-4zM13.5 4.5h4v15h-4z"/>', 20),
-    note: svg('<path d="M10 3v10.6A3.5 3.5 0 1 0 12 17V7h6V3z"/>', 15)
+    note: svg('<path d="M10 3v10.6A3.5 3.5 0 1 0 12 17V7h6V3z"/>', 15),
+    // v1662 : répéter le morceau (boucle avec un « 1 »)
+    rep: '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/><path d="M11.5 10.2 13 9v6" stroke-width="1.8"/></svg>'
   };
+  // v1662 : bouton « Répéter » — garde le même morceau en boucle (réglage mémorisé)
+  function basculerRepeter() {
+    var r = reglages(); r.repeter = !r.repeter; sauver(r);
+    try { var c = courant(); if (audio) audio.loop = r.repeter || !!(c && c.type === 'zen'); } catch (e) { _awkE(e); }
+    try { if (typeof window.showToast === 'function') window.showToast(r.repeter ? 'Répéter : ce morceau en boucle' : 'Répéter désactivé', 'info', 1500); } catch (e) { _awkE(e); }
+    majBarre();
+  }
+  function styleRepeter(btn) {
+    if (!btn) return; var on = !!reglages().repeter;
+    btn.style.color = on ? '#22d3ee' : '#64748b';
+    btn.style.background = on ? 'rgba(34,211,238,0.12)' : 'transparent';
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.setAttribute('aria-label', on ? 'Répéter activé' : 'Répéter le morceau');
+  }
 
   // v1588 : habillage des lecteurs (égaliseur animé, barre de progression, temps)
   function styles() {
@@ -363,12 +379,13 @@
         + '<button data-a="prec" aria-label="Musique précédente" style="' + btn + '">' + IC.prec + '</button>'
         + '<button data-a="lect" aria-label="Lecture ou pause" style="' + btn + 'width:38px;height:38px;background:linear-gradient(135deg,#22d3ee,#3b82f6);color:#04121f;box-shadow:0 2px 10px rgba(34,211,238,0.3);">' + IC.lect + '</button>'
         + '<button data-a="suiv" aria-label="Musique suivante" style="' + btn + '">' + IC.suiv + '</button>'
+        + '<button data-a="rep" aria-label="Répéter le morceau" style="' + btn + 'width:30px;height:30px;">' + IC.rep + '</button>'
         + '<span class="awk-mus-prog" style="position:absolute;left:10px;right:10px;bottom:3px;height:2px;"><i></i></span>';
       b.addEventListener('click', function (e) {
         var t = e.target.closest && e.target.closest('button[data-a]'); if (!t) return;
         e.stopPropagation();
         var a = t.getAttribute('data-a');
-        if (a === 'prec') precedente(); else if (a === 'suiv') suivante(); else basculer();
+        if (a === 'prec') precedente(); else if (a === 'suiv') suivante(); else if (a === 'rep') basculerRepeter(); else basculer();
       });
       var top = document.getElementById('workoutTopBar');
       if (top && top.parentNode === vue) vue.insertBefore(b, top.nextSibling); else vue.insertBefore(b, vue.firstChild);
@@ -386,7 +403,8 @@
     b.querySelector('.awk-mus-titre').textContent = fin ? '' : (m ? m.titre : 'Musique');
     var src = b.querySelector('.awk-mus-src'); if (src) src.textContent = fin ? '' : (m ? source(m) : 'Prête à jouer');
     var info = src && src.parentElement; if (info) info.style.visibility = fin ? 'hidden' : 'visible';
-    b.querySelectorAll('button[data-a="prec"],button[data-a="suiv"]').forEach(function (x) { x.style.display = fin ? 'none' : 'flex'; });
+    b.querySelectorAll('button[data-a="prec"],button[data-a="suiv"],button[data-a="rep"]').forEach(function (x) { x.style.display = fin ? 'none' : 'flex'; });
+    styleRepeter(b.querySelector('button[data-a="rep"]'));
     var note = b.firstElementChild; if (note) { note.style.visibility = fin ? 'hidden' : 'visible'; var e2 = note.querySelector('.awk-eq'); if (e2) e2.classList.toggle('on', !!joue); }
     var pr = b.querySelector('.awk-mus-prog'); if (pr) pr.style.display = fin ? 'none' : '';
     b.style.justifyContent = fin ? 'flex-end' : '';
@@ -503,6 +521,7 @@
             +   '<button data-mus-ctl="prec" aria-label="Musique précédente" style="' + cb + 'background:rgba(255,255,255,0.05);color:#cbd5e1;">' + IC.prec + '</button>'
             +   '<button data-mus-ctl="lect" aria-label="' + (j ? 'Pause' : 'Lecture') + '" style="' + cb + 'width:52px;height:52px;background:linear-gradient(135deg,#22d3ee,#3b82f6);color:#04121f;box-shadow:0 4px 16px rgba(34,211,238,0.3);">' + (j ? IC.paus : IC.lect) + '</button>'
             +   '<button data-mus-ctl="suiv" aria-label="Musique suivante" style="' + cb + 'background:rgba(255,255,255,0.05);color:#cbd5e1;">' + IC.suiv + '</button>'
+            +   '<button data-mus-ctl="rep" aria-label="Répéter le morceau" style="' + cb + 'color:' + (r.repeter ? '#22d3ee' : '#64748b') + ';background:' + (r.repeter ? 'rgba(34,211,238,0.12)' : 'rgba(255,255,255,0.05)') + ';">' + IC.rep + '</button>'
             + '</div></div>';
         })() : '')
       + (l.length ? '<div style="margin-top:8px;font-size:12px;color:#94a3b8;font-weight:800;letter-spacing:1px;text-transform:uppercase;">Morceaux</div>'
@@ -541,7 +560,7 @@
       var ctl = e.target.closest && e.target.closest('[data-mus-ctl]');   // v1588 : carte « En cours »
       if (ctl) {
         var a1 = ctl.getAttribute('data-mus-ctl');
-        if (a1 === 'prec') precedente(); else if (a1 === 'suiv') suivante(); else basculer();
+        if (a1 === 'prec') precedente(); else if (a1 === 'suiv') suivante(); else if (a1 === 'rep') basculerRepeter(); else basculer();
         setTimeout(rendreReglages, 250);
         return;
       }
