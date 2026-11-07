@@ -299,7 +299,7 @@
       };
       return '<div style="margin-bottom:9px;">' +
         '<div style="font-size:0.52em;letter-spacing:1.5px;color:#8391a7;font-weight:900;margin-bottom:5px;">' + label + '</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:6px;padding-bottom:3px;">' +
+        '<div style="display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding:4px 2px 5px;margin:-4px -2px 0;-webkit-overflow-scrolling:touch;scrollbar-width:none;">' +
           b('', tous) + valeurs.map(function (v) { return b(v, v); }).join('') + '</div></div>';
     }
 
@@ -394,7 +394,7 @@
       l[k].style.background = on ? 'rgba(96,168,240,0.16)' : 'rgba(255,255,255,0.04)';
       l[k].style.borderColor = on ? 'rgba(96,168,240,0.6)' : 'rgba(255,255,255,0.09)';
       l[k].style.color = on ? '#fff' : '#94a3b8';
-      // v1665 : pastilles sur plusieurs lignes → plus de défilement horizontal à suivre
+      if (on) { try { l[k].scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); } catch (e) { _awkE(e); } }
     }
   }
   API.setMuscle = function (v) { ETAT.muscle = v || ''; majPastilles('muscle', ETAT.muscle); majListe(); };
