@@ -64,6 +64,7 @@
         _row('course', C, "Course GPS", "Course, marche ou vélo avec suivi GPS", 'AwakRun.ouvrir'),
         _row('soleil', O, "Routine matinale", "Ton réveil du corps guidé", 'showMorningRoutineModal'),
         _row('etoile', O, "Défis", "Défis et objectifs à relever", 'switchTab', 'challenges'),
+        _row('personne', C, "Étirements", "Choisis tes muscles et tes accessoires", 'switchTab', 'etirements'),
         _row('halter', G, "Exercices", "La bibliothèque complète d'exercices", 'switchTab', 'exercises'),
         (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) ? '' : _row('stats', G, "Calculateurs", "1RM, plaques et rang de force", 'switchTab', 'calculators')
       ]);

@@ -75,7 +75,7 @@
       { c: function () { return $('#mobileNavBar'); }, t: 'Les onglets', get d() { return 'Séance pour t\'entraîner, Progrès pour tes résultats' + (navVisible('familyNavTab') ? ', Famille pour vous suivre ensemble' : '') + (jeuOn() ? ', Jeu pour ton aventure' : '') + '. « Plus » ouvre l\'Agenda, les Exercices, les Calculs et les Réglages.'; } }
     ],
     workouts: [
-      { c: function () { return barreSeance('workoutsTab'); }, t: 'Ta façon de t\'entraîner', d: 'Séance libre, routines, programme sur plusieurs semaines, course ou défis : tout part d\'ici.' },
+      { c: function () { return barreSeance('workoutsTab'); }, t: 'Ta façon de t\'entraîner', d: 'Séance libre, routines, programme sur plusieurs semaines, course, défis ou étirements : tout part d\'ici. Avant une séance de musculation, l\'appli te propose un échauffement (machine, accessoire ou poids du corps, +50 XP) ; à la fin, des étirements pour les muscles travaillés.' },
       { c: function () { var h = $('#awakCorpsHost'); return h ? h.querySelector('button[onclick^="showLocationPicker"]') : null; }, t: 'Ton lieu', d: 'Maison, salle, voyage… Touche pour changer d\'endroit : chaque lieu garde son propre matériel.' },
       { c: function () { var h = $('#awakCorpsHost'); return h ? h.querySelector('button[onclick^="showAddLocationModal"]') : null; }, t: 'Ton matériel', d: 'Coche ce que tu as sous la main à cet endroit : les exercices proposés en dépendent.' },
       { c: function () { var h = $('#awakCorpsHost'); return h ? h.querySelector('svg[data-awak-flip]') : null; }, t: 'Choisis tes muscles', d: 'Touche les muscles à travailler. Vert : prêt, orange : récupère, rouge : à reposer.' },
@@ -113,6 +113,13 @@
       { c: function () { return $('#awakRunGo'); }, t: 'C\'est parti', d: 'Le GPS suit ta distance et ta vitesse. Garde l\'écran allumé : le GPS d\'une appli web s\'arrête quand l\'écran s\'éteint. Ta musique peut jouer en même temps.' },
       { c: function () { return $('#awakRunPlanHote'); }, t: 'Un plan', d: 'Prépare un 5 km, un 10 km, un demi-marathon ou un marathon, semaine après semaine.' },
       { c: function () { return parTexte('courseTab', 'button', /^Sans GPS/); }, t: 'Sans GPS', d: 'Tapis, vélo stationnaire ou piscine ? Passe par ici.' }
+    ],
+    // v1680 : onglet Étirer
+    etirements: [
+      { c: function () { var b = $('#awakEtirContenu button[onclick*="AwakEtir.but"]'); return b ? b.parentElement : null; }, t: 'Pourquoi t\'étirer ?', d: 'Après l\'entraînement pour récupérer, ou pour une douleur : les étirements deviennent alors plus doux et travaillent autour de la zone.' },
+      { c: function () { return $('#awakEtirContenu svg'); }, t: 'Choisis tes muscles', d: 'Touche un muscle sur le personnage pour l\'ajouter, retouche-le pour l\'enlever. « Voir le dos » le retourne. « Ma dernière séance » et « Tout le corps » vont plus vite.' },
+      { c: function () { var b = $('#awakEtirContenu button[onclick*="AwakEtir.acc"]'); return b ? b.parentElement : null; }, t: 'Tes accessoires', d: 'Rouleau, balle, sangle, bloc ou bâton : coche ce que tu as, l\'appli ajoute les exercices qui vont avec. Ton choix est retenu.' },
+      { c: function () { return $('#awakEtirContenu button[onclick="AwakEtir.libre()"]') || parTexte('etirementsTab', 'div', /^Choisis au moins un muscle/); }, t: 'C\'est parti', d: 'Étirements guidés avec minuteur, côté droit puis côté gauche quand il le faut, sur une musique calme. « Autres » propose d\'autres étirements.' }
     ],
     challenges: [
       { c: function () { return $('#awakDefiEtoiles'); }, t: 'Tes étoiles', d: 'Chaque défi réussi te donne une étoile ; les jeux et le Bingo aussi. Les étoiles font monter ton rang.' },
@@ -205,6 +212,13 @@
     course: [
       { c: function () { var b = $('#courseTab .awak-run-act'); return b ? b.parentElement : null; }, t: 'Dehors', d: 'Marche, course ou vélo : choisis ce que tu fais.' },
       { c: function () { return $('#awakRunGo'); }, t: 'C\'est parti', d: 'Le téléphone compte la distance. Va dehors seulement avec un adulte.' }
+    ],
+    // v1680 : onglet Étirer
+    etirements: [
+      { c: function () { var b = $('#awakEtirContenu button[onclick*="AwakEtir.but"]'); return b ? b.parentElement : null; }, t: 'Pourquoi t\'étirer ?', d: 'Après l\'entraînement pour récupérer, ou pour une douleur : les étirements deviennent alors plus doux et travaillent autour de la zone.' },
+      { c: function () { return $('#awakEtirContenu svg'); }, t: 'Choisis tes muscles', d: 'Touche un muscle sur le personnage pour l\'ajouter, retouche-le pour l\'enlever. « Voir le dos » le retourne. « Ma dernière séance » et « Tout le corps » vont plus vite.' },
+      { c: function () { var b = $('#awakEtirContenu button[onclick*="AwakEtir.acc"]'); return b ? b.parentElement : null; }, t: 'Tes accessoires', d: 'Rouleau, balle, sangle, bloc ou bâton : coche ce que tu as, l\'appli ajoute les exercices qui vont avec. Ton choix est retenu.' },
+      { c: function () { return $('#awakEtirContenu button[onclick="AwakEtir.libre()"]') || parTexte('etirementsTab', 'div', /^Choisis au moins un muscle/); }, t: 'C\'est parti', d: 'Étirements guidés avec minuteur, côté droit puis côté gauche quand il le faut, sur une musique calme. « Autres » propose d\'autres étirements.' }
     ],
     challenges: [
       { c: function () { return $('#awakDefiEtoiles'); }, t: 'Tes étoiles', d: 'Chaque défi réussi te donne une étoile. Combien vas-tu en gagner ?' },
