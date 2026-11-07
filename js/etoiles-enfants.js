@@ -501,7 +501,7 @@
       document.body.classList.toggle('awk-enfant', k);
       if (!document.getElementById('awkEnfantCSS')) {
         var st = document.createElement('style'); st.id = 'awkEnfantCSS';
-        st.textContent = 'body.awk-enfant button[onclick="switchTab(\'course\')"],body.awk-enfant button[onclick="switchTab(\'etirements\')"]{display:none !important;}';
+        st.textContent = 'body.awk-enfant button[onclick="switchTab(\'course\')"],body.awk-enfant button[onclick="switchTab(\'etirements\')"],body.awk-enfant #awakCardioIntensite,body.awk-enfant .awk-txt-adulte{display:none !important;}body.awk-enfant .awk-txt-enfant{display:block !important;}';
         document.head.appendChild(st);
       }
       if (e) e.style.display = k ? '' : 'none';
