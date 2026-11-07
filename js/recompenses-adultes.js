@@ -22,6 +22,17 @@
     { nom: 'Une journée détente', mode: 'minutes', cible: 600 },
     { nom: 'Un nouvel équipement', mode: 'minutes', cible: 1200 }
   ];
+  // v1697 : récompenses de la SEMAINE (reviennent chaque lundi)
+  var SUGG_SEM = [
+    { nom: 'Une soirée film', mode: 'seances', cible: 4 },
+    { nom: 'Une grasse matinée', mode: 'seances', cible: 3 },
+    { nom: 'Un bain ou une douche longue', mode: 'seances', cible: 3 },
+    { nom: 'Une sortie de fin de semaine', mode: 'seances', cible: 4 },
+    { nom: 'Une heure juste pour moi', mode: 'minutes', cible: 150 },
+    { nom: 'Une soirée jeux', mode: 'minutes', cible: 120 }
+  ];
+  function lundi(t) { var d = new Date(t || Date.now()); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; }
+  function cleSemaine(t) { var d = lundi(t); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
 
   function _e(x) { try { if (window._awkE) window._awkE(x); } catch (y) { /* rien */ } }
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -48,6 +59,7 @@
   }
   function avance(pid, r) {
     var t0 = new Date(r.depuis).getTime(), n = 0;
+    if (r.hebdo) t0 = Math.max(t0, lundi().getTime());   // v1697 : seulement la semaine en cours
     histoire(pid).forEach(function (h) {
       var t = h && h.date ? new Date(h.date).getTime() : 0;
       if (!t || t < t0) return;
@@ -60,6 +72,8 @@
     var ch = false;
     Object.keys(d).forEach(function (pid) {
       (d[pid] || []).forEach(function (r) {
+        // v1697 : nouvelle semaine → la récompense hebdo repart à zéro
+        if (r.hebdo && r.semaine !== cleSemaine()) { r.semaine = cleSemaine(); r.etat = 'cours'; r.vuAtteinte = false; r.vuObtenue = true; ch = true; }
         if (r.etat === 'cours' && avance(pid, r) >= r.cible) { r.etat = 'atteinte'; r.atteinteLe = Date.now(); r.vuAtteinte = false; ch = true; }
       });
     });
@@ -95,10 +109,10 @@
     var pid = pidActif(), l = mes(d, pid);
     var aOffrir = [];
     Object.keys(d).forEach(function (o) { if (o !== pid) (d[o] || []).forEach(function (r) { if (r.offreur === pid && r.etat === 'atteinte') aOffrir.push({ pid: o, r: r }); }); });
-    var enCours = l.filter(function (r) { return r.etat !== 'obtenue'; }), obtenues = l.filter(function (r) { return r.etat === 'obtenue'; });
+    var enCours = l.filter(function (r) { return r.etat !== 'obtenue' || r.hebdo; }), obtenues = l.filter(function (r) { return r.etat === 'obtenue' && !r.hebdo; });
     var h = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">' + ic('trophee', 24, OR)
       + '<div style="font-size:1.2em;font-weight:900;color:#fff;">Mes récompenses</div></div>'
-      + '<div style="font-size:0.8em;color:#94a3b8;line-height:1.45;margin-bottom:14px;">Fixe-toi un objectif en séances ou en minutes, et ce que tu t\'offres en l\'atteignant. Ça compte à partir d\'aujourd\'hui.</div>';
+      + '<div style="font-size:0.8em;color:#94a3b8;line-height:1.45;margin-bottom:14px;">Fixe-toi un objectif en séances ou en minutes, une fois ou chaque semaine, et ce que tu t\'offres en l\'atteignant.</div>';
     if (aOffrir.length) {
       h += '<div style="font-size:0.78em;color:#fde68a;font-weight:800;margin:4px 0 8px;">À offrir</div>'
         + aOffrir.map(function (x) {
@@ -110,15 +124,17 @@
     }
     h += '<div style="font-size:0.78em;color:#8b95a5;font-weight:700;margin:6px 0 8px;">En cours</div>'
       + (enCours.length ? enCours.map(function (r) {
-        var n = avance(pid, r), fini = r.etat === 'atteinte';
+        var n = avance(pid, r), fini = r.etat === 'atteinte', prise = r.hebdo && r.etat === 'obtenue';
         return '<div style="padding:12px;border-radius:12px;background:#141821;margin-bottom:8px;' + (fini ? 'border:1px solid rgba(251,191,36,0.5);' : '') + '">'
           + '<div style="display:flex;align-items:flex-start;gap:8px;">'
           +   '<div style="flex:1;min-width:0;"><div style="color:#f1f5f9;font-weight:800;font-size:0.9em;">' + esc(r.nom) + '</div>'
-          +   '<div style="font-size:0.72em;color:#94a3b8;margin-top:2px;">' + (r.offreur ? 'Offerte par ' + esc(nomDe(r.offreur)) : 'Je me l\'offre') + '</div></div>'
+          +   '<div style="font-size:0.72em;color:#94a3b8;margin-top:2px;">' + (r.hebdo ? '<b style="color:#67e8f9;">Chaque semaine</b> · ' : '') + (r.offreur ? 'Offerte par ' + esc(nomDe(r.offreur)) : 'Je me l\'offre') + (r.hebdo && r.fois ? ' · obtenue ' + r.fois + ' fois' : '') + '</div></div>'
           +   '<button onclick="AwakRecomp.editer(\'' + r.id + '\')" style="' + BTN + 'padding:6px 9px;font-size:0.72em;background:transparent;color:#cbd5e1;border:1px solid rgba(255,255,255,0.12);">Modifier</button>'
           + '</div>'
           + '<div style="margin-top:10px;">' + barre(n, r.cible) + '</div>'
-          + '<div style="font-size:0.74em;color:#cbd5e1;margin-top:6px;">' + (fini ? '<b style="color:#fde68a;">Objectif atteint !</b> ' + (r.offreur ? esc(nomDe(r.offreur)) + ' a été prévenu.' : '') : Math.min(n, r.cible) + ' / ' + unite(r, r.cible) + ' · encore ' + unite(r, r.cible - n)) + '</div>'
+          + '<div style="font-size:0.74em;color:#cbd5e1;margin-top:6px;">' + (prise ? '<b style="color:#fde68a;">Obtenue cette semaine.</b> Ça repart lundi.'
+              : fini ? '<b style="color:#fde68a;">Objectif atteint !</b> ' + (r.offreur ? esc(nomDe(r.offreur)) + ' a été prévenu.' : '')
+              : Math.min(n, r.cible) + ' / ' + unite(r, r.cible) + (r.hebdo ? ' cette semaine' : '') + ' · encore ' + unite(r, r.cible - n)) + '</div>'
           + (fini && !r.offreur ? '<button onclick="AwakRecomp.prendre(\'' + r.id + '\')" style="' + PLEIN + 'padding:10px;margin-top:10px;">Je me l\'offre</button>' : '')
           + '</div>';
       }).join('') : '<div style="padding:14px;border-radius:12px;background:#141821;color:#94a3b8;font-size:0.84em;text-align:center;">Aucun objectif pour l\'instant.</div>')
@@ -139,22 +155,25 @@
   var _ed = null;
   function editer(id) {
     var d = lire(), r = id ? mes(d, pidActif()).filter(function (x) { return x.id === id; })[0] : null;
-    _ed = r ? { id: r.id, nom: r.nom, mode: r.mode, cible: r.cible, offreur: r.offreur || null } : { id: null, nom: '', mode: 'seances', cible: 20, offreur: null };
+    _ed = r ? { id: r.id, nom: r.nom, mode: r.mode, cible: r.cible, offreur: r.offreur || null, hebdo: !!r.hebdo } : { id: null, nom: '', mode: 'seances', cible: 20, offreur: null, hebdo: false };
     dessinerEd();
   }
   function dessinerEd() {
     var e = _ed, pas = e.mode === 'minutes' ? 60 : 1;
     var autres = adultes().filter(function (p) { return p.id !== pidActif(); });
+    var LS = e.hebdo ? SUGG_SEM : SUGG;
     var h = '<div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:12px;">' + (e.id ? 'Modifier l\'objectif' : 'Nouvel objectif') + '</div>'
+      + '<div style="display:flex;gap:6px;margin-bottom:6px;">' + pastille(!e.hebdo, 'Une fois', 'AwakRecomp._hebdo(false)') + pastille(e.hebdo, 'Chaque semaine', 'AwakRecomp._hebdo(true)') + '</div>'
+      + '<div style="font-size:0.72em;color:#94a3b8;line-height:1.4;margin-bottom:14px;">' + (e.hebdo ? 'Se remet à zéro chaque lundi : atteins ton objectif de la semaine et tu y as droit, chaque semaine.' : 'Un grand objectif, compté à partir d\'aujourd\'hui.') + '</div>'
       + (e.id ? '' : '<div style="font-size:0.78em;color:#8b95a5;font-weight:700;margin-bottom:8px;">Idées</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">'
-          + SUGG.map(function (s, i) { return pastille(e.nom === s.nom, esc(s.nom), 'AwakRecomp._sugg(' + i + ')'); }).join('') + '</div>')
+          + LS.map(function (s, i) { return pastille(e.nom === s.nom, esc(s.nom), 'AwakRecomp._sugg(' + i + ')'); }).join('') + '</div>')
       + '<div style="font-size:0.78em;color:#8b95a5;font-weight:700;margin-bottom:6px;">Ce que tu t\'offres</div>'
       + '<input maxlength="60" value="' + esc(e.nom) + '" placeholder="Ex. : un massage" oninput="AwakRecomp._nom(this.value)" style="width:100%;box-sizing:border-box;padding:11px 12px;border-radius:12px;background:#141821;border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.9em;font-family:inherit;margin-bottom:14px;">'
       + '<div style="font-size:0.78em;color:#8b95a5;font-weight:700;margin-bottom:8px;">Objectif</div>'
       + '<div style="display:flex;gap:6px;margin-bottom:10px;">' + pastille(e.mode === 'seances', 'En séances', 'AwakRecomp._mode(\'seances\')') + pastille(e.mode === 'minutes', 'En minutes', 'AwakRecomp._mode(\'minutes\')') + '</div>'
       + '<div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:14px;">'
       +   '<button onclick="AwakRecomp._cible(-' + pas + ')" aria-label="Moins" style="' + BTN + 'width:44px;height:44px;font-size:1.3em;background:#1a1e26;color:#fff;border:none;">−</button>'
-      +   '<div style="font-size:1.5em;font-weight:900;color:#fff;min-width:120px;text-align:center;">' + unite(e, e.cible) + '</div>'
+      +   '<div style="font-size:1.5em;font-weight:900;color:#fff;min-width:120px;text-align:center;">' + unite(e, e.cible) + (e.hebdo ? '<div style="font-size:0.5em;color:#94a3b8;font-weight:700;">par semaine</div>' : '') + '</div>'
       +   '<button onclick="AwakRecomp._cible(' + pas + ')" aria-label="Plus" style="' + BTN + 'width:44px;height:44px;font-size:1.3em;background:#1a1e26;color:#fff;border:none;">+</button>'
       + '</div>'
       + '<div style="font-size:0.78em;color:#8b95a5;font-weight:700;margin-bottom:8px;">Qui te l\'offre ?</div>'
@@ -171,8 +190,9 @@
     var e = _ed, nom = String(e.nom || '').trim();
     if (!nom) { toast('Écris ce que tu t\'offres', 'info'); return; }
     var d = lire(), l = mes(d, pidActif());
-    if (e.id) l.forEach(function (r) { if (r.id === e.id) { r.nom = nom; r.mode = e.mode; r.cible = e.cible; r.offreur = e.offreur || null; if (r.etat === 'atteinte' && avance(pidActif(), r) < r.cible) r.etat = 'cours'; } });
-    else l.push({ id: uid(), nom: nom, mode: e.mode, cible: e.cible, offreur: e.offreur || null, depuis: new Date().toISOString(), etat: 'cours' });
+    if (e.id) l.forEach(function (r) { if (r.id === e.id) { r.nom = nom; r.mode = e.mode; r.cible = e.cible; r.offreur = e.offreur || null; if (!!r.hebdo !== !!e.hebdo) { r.hebdo = !!e.hebdo; r.semaine = cleSemaine(); r.etat = 'cours'; if (!r.hebdo) r.depuis = new Date().toISOString(); } if (r.etat === 'atteinte' && avance(pidActif(), r) < r.cible) r.etat = 'cours'; } });
+    // v1697 : une récompense hebdo compte TOUTE la semaine en cours (même les séances d'avant sa création)
+    else l.push({ id: uid(), nom: nom, mode: e.mode, cible: e.cible, offreur: e.offreur || null, depuis: e.hebdo ? lundi().toISOString() : new Date().toISOString(), etat: 'cours', hebdo: !!e.hebdo, semaine: e.hebdo ? cleSemaine() : undefined });
     majEtats(d); ecrire(d); ouvrir(); rafraichir();
   }
   function supprimer() {
@@ -185,13 +205,13 @@
   // ── Obtenir ──
   function prendre(id) {
     var d = lire(), r = mes(d, pidActif()).filter(function (x) { return x.id === id; })[0]; if (!r) return;
-    r.etat = 'obtenue'; r.obtenueLe = Date.now(); r.vuObtenue = true; ecrire(d);
+    r.etat = 'obtenue'; r.obtenueLe = Date.now(); r.vuObtenue = true; if (r.hebdo) r.fois = (r.fois || 0) + 1; ecrire(d);
     bravo('Bravo !', 'Tu t\'es mérité', r.nom, 'Profites-en, tu l\'as gagné séance après séance.');
     rafraichir();
   }
   function offrir(pid, id) {
     var d = lire(), r = mes(d, pid).filter(function (x) { return x.id === id; })[0]; if (!r) return;
-    r.etat = 'obtenue'; r.obtenueLe = Date.now(); r.vuObtenue = false; ecrire(d);
+    r.etat = 'obtenue'; r.obtenueLe = Date.now(); r.vuObtenue = false; if (r.hebdo) r.fois = (r.fois || 0) + 1; ecrire(d);
     toast(nomDe(pid) + ' sera félicité à sa prochaine ouverture de l\'app');
     ouvrir(); rafraichir();
   }
@@ -225,7 +245,7 @@
       r = l.filter(function (x) { return x.etat === 'atteinte' && !x.vuAtteinte; })[0];
       if (r) {
         r.vuAtteinte = true; ecrire(d);
-        return bravo('Objectif atteint !', r.offreur ? 'Tu as mérité' : 'Tu t\'es mérité', r.nom,
+        return bravo(r.hebdo ? 'Objectif de la semaine atteint !' : 'Objectif atteint !', r.offreur ? 'Tu as mérité' : 'Tu t\'es mérité', r.nom,
           r.offreur ? nomDe(r.offreur) + ' est prévenu et va te l\'offrir.' : 'Va dans Plus › Récompenses pour te l\'offrir.', annoncer);
       }
       // 2) Offerte par le conjoint
@@ -254,9 +274,10 @@
   window.AwakRecomp = {
     ouvrir: ouvrir, fermer: fermer, editer: editer, prendre: prendre, offrir: offrir, refaire: refaire,
     annoncer: annoncer, bandeauAccueil: bandeauAccueil, _lire: lire,
-    _sugg: function (i) { var s = SUGG[i]; if (s && _ed) { _ed.nom = s.nom; _ed.mode = s.mode; _ed.cible = s.cible; dessinerEd(); } },
+    _hebdo: function (v) { if (_ed && _ed.hebdo !== v) { _ed.hebdo = v; _ed.cible = _ed.mode === 'minutes' ? (v ? 150 : 300) : (v ? 4 : 20); dessinerEd(); } },
+    _sugg: function (i) { var s = (_ed && _ed.hebdo ? SUGG_SEM : SUGG)[i]; if (s && _ed) { _ed.nom = s.nom; _ed.mode = s.mode; _ed.cible = s.cible; dessinerEd(); } },
     _nom: function (v) { if (_ed) _ed.nom = v; },
-    _mode: function (m) { if (_ed && _ed.mode !== m) { _ed.mode = m; _ed.cible = m === 'minutes' ? 300 : 20; dessinerEd(); } },
+    _mode: function (m) { if (_ed && _ed.mode !== m) { _ed.mode = m; _ed.cible = m === 'minutes' ? (_ed.hebdo ? 150 : 300) : (_ed.hebdo ? 4 : 20); dessinerEd(); } },
     _cible: function (k) { if (_ed) { var n = _ed.nom; _ed.cible = Math.max(_ed.mode === 'minutes' ? 30 : 1, Math.min(_ed.mode === 'minutes' ? 6000 : 200, _ed.cible + k)); dessinerEd(); _ed.nom = n; } },
     _off: function (p) { if (_ed) { _ed.offreur = p || null; dessinerEd(); } },
     _sauver: sauver, _suppr: supprimer
