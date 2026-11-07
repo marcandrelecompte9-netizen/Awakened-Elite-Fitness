@@ -168,7 +168,10 @@
       var enPause = !!document.getElementById('awakPauseOverlay') || !!(pb && (pb.textContent || '').trim() === '▶');
       if (!enPause && typeof window.togglePause === 'function') {
         try { window.togglePause(); } catch (e) { _awkE(e); }
-        toast('Séance en pause');
+        // v1661 : pause DISCRÈTE (petite barre) — le grand écran « En pause » d'Esen et Nyra
+        // surprenait au retour dans l'app : Retour ne veut pas dire « je veux une pause ».
+        try { var ov = document.getElementById('awakPauseOverlay'); if (ov && ov.dataset.mini !== '1' && typeof window.awakPauseToggleMinimize === 'function') window.awakPauseToggleMinimize(); } catch (e) { _awkE(e); }
+        toast('Séance en pause · touche Reprendre pour continuer');
       } else {
         toast('Séance en pause · utilise « Quitter » pour sortir');
       }
