@@ -8099,8 +8099,8 @@ body.awk-jeu-on #mobileNavBar #gameNavTab { display: flex !important; order: 99;
     max-width: 100% !important; box-sizing: border-box !important; gap: 3px !important; overflow: hidden !important;
 }
 .tab-content > div:has(> button[onclick="switchTab('challenges')"]):has(> button[onclick="switchTab('program')"]) > button {
-    flex: 1 1 0 !important; min-width: 0 !important; width: auto !important; min-height: 38px !important;
-    padding: 9px 1px !important; font-size: 0.7em !important; letter-spacing: -0.1px !important;
+    flex: 1 1 auto !important; min-width: 0 !important; width: auto !important; min-height: 38px !important;
+    padding: 9px 3px !important; font-size: 0.7em !important; letter-spacing: -0.1px !important;
 }
 /* v1319 : LISIBILITÉ — les petits surtitres (0,5 à 0,62 em, souvent en majuscules
    espacées) descendaient sous 10 px réels : illisibles au gym ou au soleil.
@@ -8979,3 +8979,16 @@ body.dark-mode #setsGridPanel .awk-grid-ligne.en-cours input.awak-grid-num {
 #setsGridPanel .awk-grid-ligne.en-cours button[aria-label="Moins"],
 #setsGridPanel .awk-grid-ligne.en-cours button[aria-label="Plus"] { height: 42px !important; }
 #setsGridPanel .awk-grid-ligne.en-cours .awk-grid-ok { height: 42px !important; }
+
+/* v1702 · Notifications en HAUT de l'écran (avant : en bas, elles cachaient le
+   bouton Commencer, la barre Préc./Suivant et les cartes). Pendant la séance,
+   sous la barre du minuteur pour ne pas couvrir « Quitter ». */
+@media (max-width: 768px) {
+    .toast-container { top: calc(10px + env(safe-area-inset-top, 0px)) !important; bottom: auto !important; }
+    body.in-session .toast-container { top: calc(58px + env(safe-area-inset-top, 0px)) !important; }
+}
+/* v1702 · Image d'exercice absente : petit bandeau au lieu d'un grand carré noir */
+#exerciseVisualContent .awak-vis-carre.awak-vis-absente,
+#exerciseView #exerciseVisualContent.awak-vis-img > div.awak-vis-carre.awak-vis-absente { aspect-ratio: auto !important; height: auto !important; max-height: none !important; }
+#exerciseVisualContent .awak-vis-carre.awak-vis-absente > div { height: auto !important; }
+#exerciseVisualContent .awak-vis-carre.awak-vis-absente > div > div { padding: 10px 12px !important; }

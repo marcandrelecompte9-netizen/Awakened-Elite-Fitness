@@ -1522,9 +1522,10 @@ function _buildLazyImg(src, name, extraStyle) {
   var onerr = "console.warn('[IMG 404] introuvable:', this.getAttribute('src'));"
             + "this.style.display='none';"
             + "var p=this.parentElement;"
+            + "try{var bx=p&&p.closest&&p.closest('.awak-vis-carre');if(bx)bx.classList.add('awak-vis-absente');}catch(e){}"
             + "if(p){p.innerHTML='<div style=\\'padding:22px 14px;text-align:center;color:#8391a7;font-size:0.78em;line-height:1.5;\\'>"
             + "<svg width=\\'34\\' height=\\'34\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.6\\' style=\\'opacity:0.5;display:block;margin:0 auto 6px;\\'><rect x=\\'3\\' y=\\'4\\' width=\\'18\\' height=\\'16\\' rx=\\'2\\'/><circle cx=\\'9\\' cy=\\'10\\' r=\\'1.6\\'/><path d=\\'M21 16l-5-5-8 9\\'/></svg>"
-            + "Image indisponible<div style=\\'font-size:0.85em;color:#7c8aa0;margin-top:3px;\\'>' + (this.getAttribute('alt')||'') + '</div></div>';}";
+            + "Image à venir<div style=\\'font-size:0.85em;color:#7c8aa0;margin-top:3px;\\'>' + (this.getAttribute('alt')||'') + '</div></div>';}";
   return '<img src="' + safeSrc + '" alt="' + safeName + '" style="' + baseStyle + '" loading="lazy" decoding="async" onerror="' + onerr + '"/>';
 }
 

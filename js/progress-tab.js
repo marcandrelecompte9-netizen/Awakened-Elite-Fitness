@@ -137,21 +137,22 @@
       var d = new Date(s.t), m = d.getMonth();
       var mois = m !== moisPrec ? MOIS[m].replace('.', '') : ''; moisPrec = m;
       var fond = courant ? 'linear-gradient(180deg,#67e8f9,#0891b2)' : (ok ? 'rgba(34,211,238,0.55)' : 'rgba(148,163,184,0.32)');
-      valeurs += col('<span style="font-size:11px;font-weight:800;font-variant-numeric:tabular-nums;color:' + (s.n ? (courant ? '#e2e8f0' : '#a3b1c2') : 'transparent') + ';">' + s.n + '</span>');
-      barres += col('<div style="width:100%;max-width:24px;height:100%;display:flex;align-items:flex-end;">'
-        + (s.n ? '<div class="awk-barre" style="width:100%;height:' + Math.round(s.n / max * 100) + '%;border-radius:6px;background:' + fond + ';animation-delay:' + (k * 40) + 'ms;"></div>'
+      // v1702 : le chiffre est posé juste au-dessus de sa barre (avant : rangée
+      // séparée en haut, un « 3 » flottait loin de la barre)
+      barres += col('<div style="width:100%;max-width:24px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;">'
+        + (s.n ? '<span style="font-size:11px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;margin-bottom:4px;color:' + (courant ? '#e2e8f0' : '#a3b1c2') + ';">' + s.n + '</span>'
+               + '<div class="awk-barre" style="width:100%;height:' + Math.max(6, Math.round(s.n / max * H)) + 'px;border-radius:6px;background:' + fond + ';animation-delay:' + (k * 40) + 'ms;"></div>'
                : '<div style="width:100%;height:3px;border-radius:2px;background:rgba(255,255,255,0.08);"></div>')
         + '</div>');
       dates += col('<span style="font-size:11px;line-height:1.2;text-align:center;white-space:nowrap;color:' + (courant ? '#67e8f9' : '#8a99ad') + ';font-weight:' + (courant ? 800 : 600) + ';">'
         + (courant ? 'Cette<br>sem.' : d.getDate() + '<br><span style="color:#8391a7;">' + (mois || '&nbsp;') + '</span>') + '</span>');
     });
-    var basBut = Math.round(but / max * 100);
+    var basBut = Math.round(but / max * H);
     var faites = sem.filter(function (s) { return s.n >= but; }).length;
     var moy = sem.reduce(function (a, s) { return a + s.n; }, 0) / sem.length;
     return '<div>'
-      + '<div style="display:flex;gap:6px;margin-bottom:4px;">' + valeurs + '</div>'
-      + '<div style="position:relative;height:' + H + 'px;display:flex;gap:6px;">'
-      +   '<div style="position:absolute;left:0;right:0;bottom:' + basBut + '%;border-top:1px dashed rgba(251,191,36,0.55);pointer-events:none;"></div>'
+      + '<div style="position:relative;height:' + (H + 16) + 'px;display:flex;gap:6px;">'
+      +   '<div style="position:absolute;left:0;right:0;bottom:' + basBut + 'px;border-top:1px dashed rgba(251,191,36,0.55);pointer-events:none;"></div>'
       +   barres
       + '</div>'
       + '<div style="display:flex;gap:6px;margin-top:6px;">' + dates + '</div>'
