@@ -86,11 +86,18 @@
   // Muscles de la dernière séance (raccourci)
   function musclesDerniere() {
     try {
+      // v1681 : l'historique est du plus récent au plus ancien, et « exercises » y est un NOMBRE
+      // (avant : on prenait la plus ancienne séance… et le bouton n'apparaissait jamais)
       var h = (typeof window.getWorkoutHistory === 'function') ? window.getWorkoutHistory() : JSON.parse(localStorage.getItem('workoutHistory') || '[]');
-      var d = (h || []).slice().reverse().find(function (w) { return w && Array.isArray(w.exercises) && w.exercises.length; });
-      if (!d) return [];
-      var s = {}; d.exercises.forEach(function (e) { var m = e && (e.muscle || e.muscleGroup); if (m && MUSCLES.indexOf(m) >= 0) s[m] = 1; });
-      return Object.keys(s);
+      var musc = function (w) {
+        if (!w) return [];
+        var l = (Array.isArray(w.musclesWorked) && w.musclesWorked.length) ? w.musclesWorked : (Array.isArray(w.muscles) ? w.muscles : []);
+        if (!l.length && w.workoutData && Array.isArray(w.workoutData.exercises)) l = w.workoutData.exercises.filter(function (e) { return e && !e.isRest && !e.isInfo && e.type !== 'stretch' && e.type !== 'warmup'; }).map(function (e) { return e.muscle; });
+        var s = {}; l.forEach(function (m) { if (m === 'Lombaires') m = 'Dos'; if (MUSCLES.indexOf(m) >= 0) s[m] = 1; });
+        return Object.keys(s);
+      };
+      for (var i = 0; i < (h || []).length && i < 10; i++) { var r = musc(h[i]); if (r.length) return r; }
+      return [];
     } catch (e) { return []; }
   }
 
@@ -160,7 +167,7 @@
     var masque = (typeof window._awakMasqueCorps === 'function') ? window._awakMasqueCorps(img) : { defs: '', id: '' };
     var g = zonesCorps(face).map(function (z) {
       var on = etat.muscles.indexOf(z[1]) >= 0;
-      return '<g role="button" tabindex="0" aria-label="' + esc(z[1]) + (on ? ' (choisi)' : '') + '" onclick="AwakEtir.muscle(\'' + z[1].replace(/'/g, "\\'") + '\')" style="cursor:pointer;'
+      return '<g role="button" tabindex="0" aria-label="' + esc(z[1]) + (on ? ' (choisi)' : '') + '" onclick="AwakEtir.muscle(\'' + z[1].replace(/'/g, "\\'") + '\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();this.onclick();}" style="cursor:pointer;'
         + (on ? 'fill:#22d3ee;fill-opacity:0.62;stroke:#67e8f9;stroke-width:1.1;' : 'fill:#cbd5e1;fill-opacity:0.2;stroke:#94a3b8;stroke-width:0.8;') + 'stroke-linejoin:round;">' + z[2] + '</g>';
     }).join('');
     var choisis = MUSCLES.filter(function (m) { return etat.muscles.indexOf(m) >= 0; });
@@ -187,8 +194,15 @@
   }
   function titre(t) { return '<div style="font-size:0.78em;color:#8b95a5;font-weight:700;margin:18px 0 8px;">' + t + '</div>'; }
 
+  var _cleVue = null;
   function rendre() {
     var h = document.getElementById('awakEtirContenu'); if (!h) return;
+    // v1681 : changement de profil → ses accessoires (avant : ceux du profil chargé au démarrage)
+    var k = cle();
+    if (k !== _cleVue) {
+      _cleVue = k; etat.muscles = [];
+      try { var _s2 = JSON.parse(localStorage.getItem(k) || 'null'); etat.acc = (_s2 && _s2.acc) || []; } catch (e) { etat.acc = []; }
+    }
     var blessure = etat.but === 'blessure';
     var carte = function (id, t, s) {
       var on = etat.but === id;
@@ -284,7 +298,36 @@
       : '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
     b.style.color = j ? '#22d3ee' : '#e2e8f0';
   }
-  function bip() { try { if (navigator.vibrate) navigator.vibrate(60); } catch (e) { /* rien */ } }
+  function tic() {
+    if (!L) return;
+    if (!document.getElementById('awakEtirLibre')) { clearInterval(L.timer); L.timer = null; return; }
+    if (L.pause || !L.liste[L.i]) return;
+    L.reste--;
+    if (L.reste <= 0) etapeSuivante(); else dessinerLecteur();
+  }
+  // v1681 : l'écran restait libre de s'éteindre (tenue de 60 s) → minuteur figé
+  var verrou = null;
+  function eveil(on) {
+    try {
+      if (on) { if ('wakeLock' in navigator && !verrou) navigator.wakeLock.request('screen').then(function (v) { verrou = v; v.addEventListener('release', function () { verrou = null; }); }).catch(function () {}); }
+      else if (verrou) { verrou.release(); verrou = null; }
+    } catch (e) { /* rien */ }
+  }
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && L) eveil(true); });
+  // v1681 : petit signal sonore au changement (la vibration n'existe pas sur iPhone)
+  var ctxSon = null;
+  function bip() {
+    try { if (navigator.vibrate) navigator.vibrate(60); } catch (e) { /* rien */ }
+    try {
+      var muet = false; try { muet = localStorage.getItem('fitproMuted') === 'true'; } catch (e) { /* rien */ }
+      if (muet) return;
+      ctxSon = ctxSon || new (window.AudioContext || window.webkitAudioContext)();
+      var o = ctxSon.createOscillator(), g = ctxSon.createGain();
+      o.frequency.value = 880; g.gain.setValueAtTime(0.0001, ctxSon.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.18, ctxSon.currentTime + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, ctxSon.currentTime + 0.25);
+      o.connect(g); g.connect(ctxSon.destination); o.start(); o.stop(ctxSon.currentTime + 0.27);
+    } catch (e) { /* rien */ }
+  }
   var API = {
     rendreOnglet: rendre,
     but: function (b) { etat.but = b; rendre(); },
@@ -325,18 +368,20 @@
       try { if (window.AwakMusique && AwakMusique.zenLibre) AwakMusique.zenLibre(true); } catch (e) { /* rien */ }
       majMusique(); setTimeout(majMusique, 900);
       dessinerLecteur();
-      L.timer = setInterval(function () {
-        if (!document.getElementById('awakEtirLibre')) { clearInterval(L.timer); return; }
-        if (L.pause || !L.liste[L.i]) return;
-        L.reste--;
-        if (L.reste <= 0) etapeSuivante(); else dessinerLecteur();
-      }, 1000);
+      L.timer = setInterval(tic, 1000);
+      eveil(true);
     },
     suivLibre: function () { if (L && L.liste[L.i]) etapeSuivante(); },
-    precLibre: function () { if (!L) return; if (L.i > 0) L.i--; L.cote = 1; var e = L.liste[L.i]; L.reste = e ? (e.duration || 30) : 0; if (!L.timer) API.libre(); else dessinerLecteur(); },
+    precLibre: function () {
+      if (!L) return;
+      if (L.i > 0) L.i--;
+      L.cote = 1; var e = L.liste[L.i]; L.reste = e ? (e.duration || 30) : 0;
+      if (!L.timer) L.timer = setInterval(tic, 1000);   // v1681 : depuis « Terminé », on revient au dernier (avant : tout recommençait)
+      dessinerLecteur();
+    },
     pauseLibre: function () { if (!L) return; L.pause = !L.pause; dessinerLecteur(); },
     musique: function () { try { if (window.AwakMusique) AwakMusique.basculer(); } catch (e) { /* rien */ } setTimeout(majMusique, 700); },
-    fermerLibre: function () { try { if (window.AwakMusique && AwakMusique.zenLibre) AwakMusique.zenLibre(false); } catch (e) { /* rien */ } if (L && L.timer) clearInterval(L.timer); L = null; var o = document.getElementById('awakEtirLibre'); if (o) o.remove(); }
+    fermerLibre: function () { eveil(false); try { if (window.AwakMusique && AwakMusique.zenLibre) AwakMusique.zenLibre(false); } catch (e) { /* rien */ } if (L && L.timer) clearInterval(L.timer); L = null; var o = document.getElementById('awakEtirLibre'); if (o) o.remove(); }
   };
   window.AwakEtir = API;
 })();
