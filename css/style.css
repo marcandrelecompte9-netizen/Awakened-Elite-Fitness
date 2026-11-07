@@ -8935,3 +8935,11 @@ button[onclick^="awakAutreActivite("], button[onclick^="awakChoisirPlanning("], 
 #exercisePreviewModal .awak-anim.awak-anim-23 .awak-ph-a { background-position: 0% 50% !important; }
 #exerciseVisualContent .awak-anim.awak-anim-23 .awak-ph-b,
 #exercisePreviewModal .awak-anim.awak-anim-23 .awak-ph-b { background-position: 100% 50% !important; }
+/* v1653 : yoga — cadre 2:3 calé au-dessus du bandeau-titre de l'image */
+#exerciseVisualContent .awak-anim.awak-anim-yoga .awak-ph-a,
+#exercisePreviewModal .awak-anim.awak-anim-yoga .awak-ph-a { background-position: 0% 36% !important; }
+#exerciseVisualContent .awak-anim.awak-anim-yoga .awak-ph-b,
+#exercisePreviewModal .awak-anim.awak-anim-yoga .awak-ph-b { background-position: 100% 36% !important; }
+/* pendant la séance de yoga (cercle de respiration), le cadre garde ses proportions 2:3 */
+body.awak-souffle #exerciseView #exerciseVisualContent.awak-vis-img > div.awak-vis-carre.awak-anim { width: 20vh !important; aspect-ratio: 2 / 3 !important; }
+body.awak-souffle #exerciseView .awak-vis-carre.awak-anim .awak-anim-btn span { display: none; }

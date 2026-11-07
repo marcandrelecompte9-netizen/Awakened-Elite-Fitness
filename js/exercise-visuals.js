@@ -1673,6 +1673,10 @@ window.EXERCISE_IMAGES_V2_11 = EXERCISE_IMAGES_V2_11;
 // v1651 : images carrées où le personnage DEBOUT occupe toute la hauteur — cadre 2:3 (sinon tête ou pieds coupés)
 var EXERCISE_IMAGES_V2_23 = ['Towel_Door_Row.webp', 'Standing_Side_Crunch.webp'];
 window.EXERCISE_IMAGES_V2_23 = EXERCISE_IMAGES_V2_23;
+// v1653 : postures de yoga (2 cases côte à côte + titre en bas) — cadre 2:3 calé au-dessus du titre
+var EXERCISE_IMAGES_V2_YOGA = ['Respiration.webp', 'Chien_tête_en_bas.webp', 'Guerrier.webp', 'Posture_de_larbre.webp', 'Torsion_assise_v2.webp', 'Savasana.webp', 'Guerrier_2_triangle.webp', 'Chaise_tournée.webp', 'Demi-lune.webp', 'Pince_debout.webp', 'Respiration_profonde_v2.webp', 'Salutation_avancée.webp', 'Posture_du_corbeau.webp', 'Planche_latérale_yoga.webp', 'Posture_du_danseur.webp', 'Pont_roue.webp', 'Chaise.webp', 'Guerrier_3.webp', 'Planche_chaturanga.webp', 'Chat-vache.webp', 'Posture_enfant_v2.webp', 'Torsion_spinale_allongée_v2.webp', 'Pince_assise.webp', 'Jambes_contre_le_mur.webp', 'Étirement_cou_épaules.webp', 'Pont_doux.webp', 'Papillon.webp'];
+window.EXERCISE_IMAGES_V2_YOGA = EXERCISE_IMAGES_V2_YOGA;
+EXERCISE_IMAGES_V2_YOGA.forEach(function (f) { if (EXERCISE_IMAGES_V2.indexOf(f) < 0) EXERCISE_IMAGES_V2.push(f); });
 window.EXERCISE_IMAGES_V2_34 = EXERCISE_IMAGES_V2_34;
 // Séance : la nouvelle image s'anime — on voit la position de DÉBUT en grand,
 // puis celle de FIN, en boucle (fondu). Toucher = image entière en plein écran.
@@ -1688,9 +1692,10 @@ window.awakAnimHTML = function (src, srcEnc) {
   var p34 = EXERCISE_IMAGES_V2_34.indexOf(f) >= 0;
   var p11 = EXERCISE_IMAGES_V2_11.indexOf(f) >= 0;
   var p23 = EXERCISE_IMAGES_V2_23.indexOf(f) >= 0;
+  var pYo = EXERCISE_IMAGES_V2_YOGA.indexOf(f) >= 0;
   var u = String(srcEnc || src).replace(/"/g, '&quot;').replace(/'/g, '%27');
   var fond = 'background-image:url(\'' + u + '\');';
-  return '<div class="awak-vis-carre awak-anim' + (hb ? ' awak-anim-hb' : '') + (p34 ? ' awak-anim-34' : '') + (p11 ? ' awak-anim-11' : '') + (p23 ? ' awak-anim-23' : '') + '" onclick="window.awakZoomImage && awakZoomImage(this)" data-raw="' + String(src).replace(/"/g, '&quot;') + '" data-src="' + u + '" style="position:relative;width:100%;overflow:hidden;cursor:zoom-in;">'
+  return '<div class="awak-vis-carre awak-anim' + (hb ? ' awak-anim-hb' : '') + (p34 ? ' awak-anim-34' : '') + (p11 ? ' awak-anim-11' : '') + (p23 ? ' awak-anim-23' : '') + (pYo ? ' awak-anim-23 awak-anim-yoga' : '') + '" onclick="window.awakZoomImage && awakZoomImage(this)" data-raw="' + String(src).replace(/"/g, '&quot;') + '" data-src="' + u + '" style="position:relative;width:100%;overflow:hidden;cursor:zoom-in;">'
     + '<div class="awak-ph awak-ph-a" style="' + fond + '"></div>'
     + '<div class="awak-ph awak-ph-b" style="' + fond + '"></div>'
     + '<div class="awak-ph-lbl" aria-hidden="true"><span class="a">Début</span><span class="b">Fin</span></div>'
