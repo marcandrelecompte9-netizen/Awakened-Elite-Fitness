@@ -194,7 +194,7 @@
       { c: function () { return $('#youthSafetyBanner'); }, t: 'Avec un adulte', d: 'Fais tes exercices avec un adulte pas loin. Si quelque chose fait mal, tu arrêtes et tu le dis.' },
       { c: function () { return $('#groupWorkoutBtnContainer button'); }, t: 'À plusieurs', d: 'Bouge en même temps que ta famille ou tes amis, sur le même téléphone : chacun a ses séries.' },
       { c: function () { return ligneAccueil(/Où as-tu mal/); }, t: 'Un bobo ?', d: 'Dis-le ici : l\'appli évitera cette partie du corps.' },
-      { c: function () { return $('#mobileNavBar'); }, t: 'Les onglets', get d() { return 'Séance pour bouger, Progrès pour voir tout ce que tu as fait' + (navVisible('familyNavTab') ? ', Famille pour bouger avec les tiens' : '') + '. « Plus » ouvre le reste.'; } }
+      { c: function () { return $('#mobileNavBar'); }, t: 'Les onglets', get d() { return 'Séance pour bouger, Étoiles pour voir tes étoiles et tes récompenses' + (navVisible('familyNavTab') ? ', Famille pour bouger avec les tiens' : '') + '. « Plus » ouvre le reste.'; } }
     ],
     workouts: [
       { c: function () { return barreSeance('workoutsTab'); }, t: 'Plein de façons de bouger', d: 'Séance libre, routines, aventures, course ou défis : choisis ce qui te tente.' },

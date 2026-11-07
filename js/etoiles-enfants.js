@@ -461,7 +461,20 @@
     } catch (e) { _e(e); }
   }, 20000);
 
+  // v1688 : barre du bas d'un ENFANT — « Étoiles » à la place de « Progrès »
+  function majNav() {
+    try {
+      var k = estEnfant(pidActif());
+      var h = document.querySelector('#mobileNavBar .nav-tab[onclick="switchTab(\'history\')"]');
+      var e = document.getElementById('etoilesNavTab');
+      if (h) h.style.display = k ? 'none' : '';
+      if (e) e.style.display = k ? '' : 'none';
+      if (k) { var a = document.querySelector('.tab-content.active'); if (a && a.id === 'historyTab' && typeof window.switchTab === 'function') window.switchTab('home'); }
+    } catch (x) { _e(x); }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', majNav); else majNav();
   window.AwakEtoiles = {
+    majNav: majNav,
     gagnerSeance: gagnerSeance, gagnerPour: gagnerPour, pourMinutes: pourMinutes, estimation: estimation, bandeauParent: bandeauParent,
     oublier: function (pid) { try { var d = lire(); delete d.enfants[pid]; d.demandes = d.demandes.filter(function (q) { return q.pid !== pid; }); ecrire(d); } catch (e) { _e(e); } },
     carteEnfant: carteEnfant, carteParent: carteParent,

@@ -690,6 +690,7 @@
       // d'adulte, séance à plusieurs, avertissement pour les parents…) est masqué.
       try {
         document.body.classList.toggle('awk-accueil-enfant', estEnfant());
+        if (window.AwakEtoiles && AwakEtoiles.majNav) AwakEtoiles.majNav();   // v1688
         if (!document.getElementById('awkAccueilEnfantCSS')) {
           var st = document.createElement('style'); st.id = 'awkAccueilEnfantCSS';
           st.textContent = 'body.awk-accueil-enfant #ahpAujourdhui,body.awk-accueil-enfant #ahpRaccourcis,'
