@@ -152,6 +152,15 @@
       return ex.length > 0 && ex.every(function (e) { return TYPES_ZEN.indexOf(e.type) >= 0; });
     } catch (e) { return false; }
   }
+  var QUESTIONS = ['awakEchauffSheet'];
+  function questionOuverte() { return QUESTIONS.some(function (id) { return !!document.getElementById(id); }); }
+  function apresQuestions(cb) {
+    if (!questionOuverte()) return cb();
+    var n = 0, t = setInterval(function () {
+      if (!enSeance || n++ > 600) { clearInterval(t); return; }
+      if (!questionOuverte()) { clearInterval(t); setTimeout(cb, 400); }
+    }, 500);
+  }
   function seanceEtirement() {
     try {
       if (libreZen || etirFin()) return true;
@@ -495,9 +504,11 @@
       var continue_ = audio && !audio.paused && (gardeFaille || enFaille());
       if (gardeFaille) { clearInterval(gardeFaille); gardeFaille = null; }
       if (continue_) return;   // même Faille : la musique continue, même file
-      if (reglages().auto) { preparerFile(); jouerIndex(0); }   // nouvelle séance = nouvelle file
+      // v1700 : la question « Un échauffement ? » est à l'écran → la musique attend la réponse
+      if (reglages().auto) apresQuestions(function () { if (enSeance && (!audio || audio.paused)) { preparerFile(); jouerIndex(0); } });   // nouvelle séance = nouvelle file
       // Le combat peut être reconnu un instant plus tard : basculer sur son morceau
       setTimeout(function () {
+        if (questionOuverte()) return;   // v1700 : la musique partira après la réponse (bon morceau choisi à ce moment)
         // v1640 : séance calme reconnue après coup → basculer sur la musique zen
         if (enSeance && reglages().auto && seanceMatin()) { var zm = courant(); if (!zm || zm.type !== 'matin') { preparerFile(); jouerIndex(0); } return; }   // v1641
         if (enSeance && reglages().auto && seanceZen()) { var z = courant(); if (!z || (z.type !== 'zen' && !(z.type === 'matin' && seanceEtirement()))) { preparerFile(); jouerIndex(0); } return; }
