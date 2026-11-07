@@ -201,6 +201,7 @@
     }
     h += '<button onclick="AwakRecomp.fermer()" style="' + VIDE + 'margin-top:12px;">Fermer</button>';
     feuille(h);
+    setTimeout(function () { try { if (window.AwakVisite && AwakVisite.fenetre && document.getElementById('awakRecompSheet')) AwakVisite.fenetre('recompenses', 'awakRecompSheet'); } catch (e) { _e(e); } }, 450);   // v1699 : tutoriel
   }
 
   // ── Créer / modifier ──

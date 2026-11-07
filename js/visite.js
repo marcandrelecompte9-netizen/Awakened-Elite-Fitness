@@ -114,6 +114,13 @@
       { c: function () { return $('#awakRunPlanHote'); }, t: 'Un plan', d: 'Prépare un 5 km, un 10 km, un demi-marathon ou un marathon, semaine après semaine.' },
       { c: function () { return parTexte('courseTab', 'button', /^Sans GPS/); }, t: 'Sans GPS', d: 'Tapis, vélo stationnaire ou piscine ? Passe par ici.' }
     ],
+    // v1699 : Plus › Récompenses (fenêtre, lancée par AwakRecomp.ouvrir)
+    recompenses: [
+      { c: function () { var s = $('#awakRecompSheet'); return s ? s.firstElementChild : null; }, t: 'Tes récompenses', d: 'Fixe-toi un objectif concret et ce que tu t\'offres en l\'atteignant : « 20 séances = un massage ». Ta progression avance toute seule à chaque séance.' },
+      { c: function () { return $('#awakRecompSheet button[onclick="AwakRecomp.editer()"]'); }, t: 'Un objectif à ta mesure', d: 'En séances ou en minutes. « Une fois » pour un grand palier, ou « Chaque semaine » : atteins tes 4 séances et tu y as droit, puis ça repart lundi.' },
+      { c: function () { return $('#awakRecompSheet button[onclick="AwakRecomp.editer()"]'); }, t: 'Offerte par ton conjoint', d: 'Dans « Qui te l\'offre ? », choisis son profil : à l\'objectif atteint, il est prévenu sur son accueil et peut te l\'offrir. Sinon, « Je me l\'offre ».' },
+      { c: function () { var b = $('#awakRecompSheet button[onclick^="AwakRecomp.pack"]'); return b ? b.parentElement : $('#awakRecompSheet button[onclick="AwakRecomp._packs()"]'); }, t: 'Pour démarrer vite', d: 'Un pack ajoute d\'un coup une récompense de la semaine et 3 paliers. Celui marqué « POUR TOI » suit ton rythme des 4 dernières semaines.' }
+    ],
     // v1680 : onglet Étirer
     etirements: [
       { c: function () { var b = $('#awakEtirContenu button[onclick*="AwakEtir.but"]'); return b ? b.parentElement : null; }, t: 'Pourquoi t\'étirer ?', d: 'Après l\'entraînement pour récupérer, ou pour une douleur : les étirements deviennent alors plus doux et travaillent autour de la zone.' },
@@ -284,7 +291,7 @@
     var kids = document.body.children;
     for (var i = 0; i < kids.length; i++) {
       var el = kids[i];
-      if (el.id === 'awakVisiteOverlay' || el.tagName === 'SCRIPT') continue;
+      if (el.id === 'awakVisiteOverlay' || el.tagName === 'SCRIPT' || (enCours && enCours.fenetre === el.id)) continue;   // v1699 : la fenêtre visitée
       var cs = getComputedStyle(el);
       if (cs.position === 'fixed' && (parseInt(cs.zIndex, 10) || 0) >= 9000 && cs.display !== 'none'
           && el.getBoundingClientRect().height > window.innerHeight * 0.5) return false;
@@ -387,6 +394,7 @@
     // la visite se met en retrait et revient quand l'écran est de nouveau libre
     var garde = setInterval(function () {
       if (!document.body.contains(ov)) { clearInterval(garde); return; }
+      if (enCours && enCours.fenetre && !document.getElementById(enCours.fenetre)) { fin(); return; }   // v1699 : fenêtre fermée → fin de la visite
       var libre = ecranLibre();
       ov.style.visibility = libre ? '' : 'hidden';
       ov.style.pointerEvents = libre ? '' : 'none';
@@ -483,6 +491,15 @@
       ecrire({});
       if (typeof window.showToast === 'function') window.showToast('Les visites guidées reviendront à ton prochain passage dans chaque onglet.', 'info', 3500);
       var a = ongletActif(); if (a) planifier(a, 900);
+    },
+    // v1699 : visite d'une FENÊTRE (pas d'un onglet) — une seule fois, sans attendre l'onglet
+    fenetre: function (cle, fen) {
+      try {
+        if (window.__AWAK_SANS_VISITE || vu(cle) || document.getElementById('awakVisiteOverlay')) return;
+        var V = jeuVisites(); if (!V[cle]) return;
+        var etapes = V[cle].filter(function (e) { var el = null; try { el = e.c(); } catch (x) { _awkE(x); } return visible(el); });
+        if (etapes.length) { montrer(cle, etapes); if (enCours) enCours.fenetre = fen || null; }
+      } catch (e) { _awkE(e); }
     },
     vu: vu
   };
