@@ -144,6 +144,16 @@
       return ex.length > 0 && ex.every(function (e) { return TYPES_ZEN.indexOf(e.type) >= 0; });
     } catch (e) { return false; }
   }
+  function seanceEtirement() {
+    try {
+      if (libreZen) return true;
+      var w = enSeance && window.AwakSSBridge && window.AwakSSBridge.getWorkout();
+      if (!w || DISC_ZEN.indexOf(w._discipline) >= 0) return false;
+      if (w._etirementsSeul) return true;
+      var ex = (w.exercises || []).filter(function (e) { return e && !e.isRest && !e.isInfo; });
+      return ex.length > 0 && ex.every(function (e) { return e.type === 'stretch'; });
+    } catch (e) { return false; }
+  }
   function seanceMatin() {
     try { var w = enSeance && window.AwakSSBridge && window.AwakSSBridge.getWorkout(); return !!(w && (w.type === 'morning' || w.fromMorning)); } catch (e) { return false; }
   }
@@ -159,7 +169,8 @@
     var r = reglages(); if (r.externe) return [];   // « J'écoute ma musique dans une autre app »
     if (seanceMatin()) return r.entrainement ? AWAK_MUSIQUES.filter(function (m) { return m.type === 'matin' && (!m.jeu || modeJeu()); }) : [];   // v1641
     var zen = seanceZen();
-    if (zen) return r.entrainement ? AWAK_MUSIQUES.filter(function (m) { return m.type === 'zen'; }) : [];
+    // v1679 : étirements → aussi les morceaux calmes du réveil (sans « Awakening the Hero »)
+    if (zen) { var et = seanceEtirement(); return r.entrainement ? AWAK_MUSIQUES.filter(function (m) { return m.type === 'zen' || (et && m.type === 'matin' && !m.jeu); }) : []; }
     var jeu = r.jeu && modeJeu(), ctx = modeJeu() ? contexte() : null, ex = exclus();
     // v1493 : en combat (Faille, Faille unique, combat final), pas de musique d'entraînement
     return AWAK_MUSIQUES.filter(function (m) {
@@ -255,7 +266,7 @@
     if (!file.length) { majBarre(); return; }
     pos = ((i % file.length) + file.length) % file.length;
     var m = file[pos], a = el();
-    a.loop = (m.type === 'zen') || !!reglages().repeter; etapeFinale = null;   // v1640 : zen en boucle · v1662 : répéter
+    a.loop = (m.type === 'zen' && file.length < 2) || !!reglages().repeter; etapeFinale = null;   // v1640 : zen en boucle · v1662 : répéter
     a.src = m.url || ('audio/' + m.fichier);
     a.volume = 0;
     actif = true;
@@ -481,7 +492,7 @@
       setTimeout(function () {
         // v1640 : séance calme reconnue après coup → basculer sur la musique zen
         if (enSeance && reglages().auto && seanceMatin()) { var zm = courant(); if (!zm || zm.type !== 'matin') { preparerFile(); jouerIndex(0); } return; }   // v1641
-        if (enSeance && reglages().auto && seanceZen()) { var z = courant(); if (!z || z.type !== 'zen') { preparerFile(); jouerIndex(0); } return; }
+        if (enSeance && reglages().auto && seanceZen()) { var z = courant(); if (!z || (z.type !== 'zen' && !(z.type === 'matin' && seanceEtirement()))) { preparerFile(); jouerIndex(0); } return; }
         if (!enSeance || !reglages().auto || !contexte()) return;
         var c = courant(); if (c && SPECIAUX.indexOf(c.type) >= 0) return;
         preparerFile(); if (file[0] && SPECIAUX.indexOf(file[0].type) >= 0) jouerIndex(0);
