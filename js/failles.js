@@ -3037,9 +3037,12 @@
             if (E.noms.indexOf('Kira') >= 0 && n % 5 === 0) extra += f('Kira', 0.50);
             if (E.noms.indexOf('Yuna') >= 0 && n % 7 === 0) extra += f('Yuna', Math.max(0.2, (wave.hpMax * 0.03) / Math.max(1, degats)));
             const col = (session.theme && session.theme.color) || '#a855f7';
+            // v1652 : PV du monstre avant / après chaque coup d'allié (la jauge de la fenêtre descend)
+            let _pv = Math.max(0, (wave.hpCurrent || 0) - degats);
+            L.forEach(x => { x.avant = _pv; _pv = Math.max(0, _pv - x.d); x.apres = _pv; });
             L.forEach(x => {
                 try { if (typeof awakCombatLogAdd === 'function') awakCombatLogAdd({ t: Date.now(), type: 'effet', msg: x.nom + ' frappe ' + (wave.name || 'le monstre') + ' : −' + x.d + ' PV', ton: 'success' }); } catch (e) { _awkE(e); }
-                setTimeout(() => { try { _awakAideEpique({ nom: x.nom, val: '−' + x.d + ' PV', ton: 'coup', cibleNom: wave.name || 'le monstre', monstre: wave.name, couleurCible: col, boss: !!wave.isBoss }); } catch (e) { _awkE(e); } }, 1100);
+                setTimeout(() => { try { _awakAideEpique({ nom: x.nom, val: '−' + x.d + ' PV', ton: 'coup', cibleNom: wave.name || 'le monstre', monstre: wave.name, couleurCible: col, boss: !!wave.isBoss, pvAvant: x.avant, pvApres: x.apres, pvMax: wave.hpMax }); } catch (e) { _awkE(e); } }, 1100);
             });
             return extra;
         }
@@ -3263,7 +3266,10 @@
             }
 
             // v1522 : les alliés frappent aussi
-            try { finalDamage += awakRiftAidesCoup(session, currentWave, finalDamage); } catch (e) { _awkE(e); }
+            // v1652 : les dégâts des alliés sont comptés à part (avant : ajoutés au chiffre du joueur,
+            // la fenêtre de l'allié arrivait ensuite sans que rien ne bouge → « ça ne fait rien »)
+            let _degatsAllies = 0;
+            try { _degatsAllies = awakRiftAidesCoup(session, currentWave, finalDamage) || 0; finalDamage += _degatsAllies; } catch (e) { _awkE(e); }
             currentWave.hpCurrent = Math.max(0, currentWave.hpCurrent - finalDamage);
             // v1470 : Phénix Éteint — renaît une fois à 30 %
             if (currentWave.hpCurrent <= 0 && currentWave.bossMech && currentWave.bossMech.id === 'bm_phenix' && !currentWave._renait) {
@@ -3359,7 +3365,8 @@
             }
 
             return {
-                damage: finalDamage,
+                damage: finalDamage - _degatsAllies,   // v1652 : ta part seulement
+                degatsAllies: _degatsAllies,
                 isCrit,
                 isDouble,
                 bossWeakness: currentWave.isBoss && bonuses.bossBonus > 0,

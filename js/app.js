@@ -16106,7 +16106,9 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                             // v1514 : actions des alliés en FENÊTRE ÉPIQUE avec leur visage
                             try {
                                 const _qa = _r.riposte || {};
-                                const _acts = (_r.aides || []).map(a => ({ nom: a.nom, val: '−' + a.dmg + ' PV', ton: 'coup' }));
+                                // v1652 : jauge de PV dans la fenêtre de chaque allié (avant → après son coup)
+                                let _pvA = (_r.hp || 0) + (_r.aides || []).reduce((t, a) => t + (a.dmg || 0), 0);
+                                const _acts = (_r.aides || []).map(a => { const av = _pvA; _pvA = Math.max(0, _pvA - (a.dmg || 0)); return { nom: a.nom, val: '−' + a.dmg + ' PV', ton: 'coup', pvAvant: av, pvApres: _pvA, pvMax: _r.hpMax }; });
                                 if (_qa.chen) _acts.push({ nom: 'Chen', val: 'Riposte annulée', ton: 'garde' });
                                 if (_qa.elise) _acts.push({ nom: 'Élise', val: '+' + _qa.elise + ' PV', ton: 'soin' });
                                 _acts.forEach(a => setTimeout(() => { try { _awakAideEpique(a); } catch (e) { _awkE(e); } }, 1300));
@@ -24692,7 +24694,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1651);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1652);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24745,7 +24747,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1651" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1652" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -30219,11 +30221,21 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 + (coup ? '<div style="position:relative;flex-shrink:0;width:78px;height:78px;display:flex;align-items:center;justify-content:center;">'
                         + '<div style="position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,0.9) 0%,' + c + '88 30%,transparent 65%);opacity:0;animation:aaImpact .5s .58s ease-out both;"></div>'
                         + '<div style="animation:aaEncaisse .5s .58s ease-out both;">' + nab + '</div>'
+                        // v1652 : jauge de PV du monstre — elle descend au moment du coup de l'allié
+                        + (a.pvMax > 0 ? '<div style="position:absolute;left:4px;right:4px;bottom:-8px;height:6px;border-radius:99px;background:rgba(255,255,255,0.12);overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,0.6);">'
+                            + '<div class="aa-pv" style="height:100%;width:' + Math.max(0, Math.min(100, a.pvAvant / a.pvMax * 100)) + '%;background:linear-gradient(90deg,#ef4444,#f87171);transition:width .6s cubic-bezier(.2,.8,.2,1);"></div></div>'
+                            + '<div style="position:absolute;left:50%;bottom:-24px;transform:translateX(-50%);font-size:10px;font-weight:800;color:#e2e8f0;white-space:nowrap;text-shadow:0 1px 3px #000;"><span class="aa-pvt">' + Math.round(a.pvAvant) + '</span> / ' + Math.round(a.pvMax) + ' PV</div>' : '')
                         + '<div style="position:absolute;left:50%;top:-6px;transform:translateX(-50%);font-family:var(--font-display),sans-serif;font-size:clamp(20px,6vw,26px);font-weight:700;color:#fff !important;white-space:nowrap;text-shadow:0 0 14px #dc2626,0 0 6px ' + c + ',0 2px 6px #000;animation:aaDgt 1.4s .6s ease-out both;">' + a.val + '</div>'
                         + '</div>' : '')
                 + '</div>';
             document.body.appendChild(el);
             try { if (navigator.vibrate) navigator.vibrate([25, 30, 50]); } catch (e) { _awkE(e); }
+            if (coup && a.pvMax > 0) setTimeout(() => {   // v1652 : la jauge descend à l'impact
+                try {
+                    const b = el.querySelector('.aa-pv'); if (b) b.style.width = Math.max(0, Math.min(100, a.pvApres / a.pvMax * 100)) + '%';
+                    const t = el.querySelector('.aa-pvt'); if (t) t.textContent = Math.round(a.pvApres);
+                } catch (e) { _awkE(e); }
+            }, 620);
             setTimeout(() => { el.style.animation = 'aaOut .4s ease-in forwards'; }, 2300);
             setTimeout(() => { el.remove(); setTimeout(_awakAideSuivante, 150); }, 2700);
         }
@@ -30898,7 +30910,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1651");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1652");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -44566,7 +44578,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1651';
+                    let ver = 'v0.95.1652';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -44734,7 +44746,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1651" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1652" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -44816,7 +44828,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1651);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1652);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -44883,7 +44895,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1651);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1652);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47348,7 +47360,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1651");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1652");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
