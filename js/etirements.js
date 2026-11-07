@@ -144,7 +144,7 @@
       + (extra || '') + '">' + label + '</button>';
   }
   // v1674 : choix des muscles sur le personnage (même silhouette que l'onglet Séance)
-  var ADDUCT = '<path d="M92,152 C95,154 98,158 98.5,164 L97,186 C94,182 92,174 91.5,166 C91.3,160 91.5,155 92,152 Z"/><path d="M108,152 C105,154 102,158 101.5,164 L103,186 C106,182 108,174 108.5,166 C108.7,160 108.5,155 108,152 Z"/>';
+  var ADDUCT = '<path d="M95.5,157 C96.6,159 96.4,162 95,166 L90,178 C88.6,181 86.6,182 85.4,180 C85.6,175 87.4,169 89.8,164 C91.6,160 93.6,157.5 95.5,157 Z"/><path d="M104.5,157 C103.4,159 103.6,162 105,166 L110,178 C111.4,181 113.4,182 114.6,180 C114.4,175 112.6,169 110.2,164 C108.4,160 106.4,157.5 104.5,157 Z"/>';
   function zonesCorps(face) {
     try { if (typeof window._awakZonesCorps !== 'function' && typeof window.awakRenderCorps === 'function') window.awakRenderCorps(); } catch (e) { /* rien */ }
     if (typeof window._awakZonesCorps !== 'function') return [];
