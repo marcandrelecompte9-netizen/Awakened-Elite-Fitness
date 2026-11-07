@@ -31,6 +31,55 @@
     { nom: 'Une heure juste pour moi', mode: 'minutes', cible: 150 },
     { nom: 'Une soirée jeux', mode: 'minutes', cible: 120 }
   ];
+  // v1698 : packs prêts à l'emploi selon le rythme (1 récompense de la semaine + 3 paliers)
+  var PACKS = [
+    { id: 'debut', nom: 'Je commence', rythme: '2 séances par semaine', min: 0, max: 2.4, items: [
+      { nom: 'Une soirée film', mode: 'seances', cible: 2, hebdo: true },
+      { nom: 'Nouvelle gourde', mode: 'seances', cible: 6 },
+      { nom: 'Un vêtement de sport', mode: 'seances', cible: 12 },
+      { nom: 'Un massage', mode: 'seances', cible: 24 } ] },
+    { id: 'regulier', nom: 'Régulier', rythme: '3 à 4 séances par semaine', min: 2.4, max: 4.5, items: [
+      { nom: 'Une soirée film', mode: 'seances', cible: 3, hebdo: true },
+      { nom: 'Un vêtement de sport', mode: 'seances', cible: 15 },
+      { nom: 'Un massage', mode: 'seances', cible: 30 },
+      { nom: 'Nouveaux souliers de course', mode: 'seances', cible: 45 } ] },
+    { id: 'sportif', nom: 'Sportif', rythme: '5 séances et plus par semaine', min: 4.5, max: 99, items: [
+      { nom: 'Une heure juste pour moi', mode: 'seances', cible: 5, hebdo: true },
+      { nom: 'Un vêtement de sport', mode: 'seances', cible: 25 },
+      { nom: 'Un massage', mode: 'seances', cible: 50 },
+      { nom: 'Un nouvel équipement', mode: 'seances', cible: 80 } ] }
+  ];
+  // Rythme réel : moyenne des 4 dernières semaines
+  function rythme() {
+    try { var t0 = Date.now() - 28 * 864e5; return (window.getWorkoutHistory ? getWorkoutHistory() : []).filter(function (h) { return h && h.date && new Date(h.date).getTime() >= t0; }).length / 4; } catch (e) { return 0; }
+  }
+  var _packsOuverts = false;
+  function packsHTML() {
+    var r = rythme(), conseil = PACKS.filter(function (p) { return r >= p.min && r < p.max; })[0] || PACKS[0];
+    return '<div style="font-size:0.78em;color:#8b95a5;font-weight:700;margin:6px 0 8px;">Packs prêts à l\'emploi</div>'
+      + PACKS.map(function (p) {
+        var c = p.id === conseil.id;
+        return '<div style="padding:12px;border-radius:12px;background:#141821;margin-bottom:8px;border:1px solid ' + (c ? 'rgba(251,191,36,0.5)' : 'transparent') + ';">'
+          + '<div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;min-width:0;"><span style="color:#fff;font-weight:900;font-size:0.92em;">' + p.nom + '</span>'
+          + (c ? ' <span style="font-size:0.62em;font-weight:900;color:#1a1204;background:' + OR + ';padding:2px 7px;border-radius:99px;vertical-align:2px;">POUR TOI</span>' : '')
+          + '<div style="font-size:0.72em;color:#94a3b8;margin-top:2px;">' + p.rythme + '</div></div></div>'
+          + '<div style="margin:8px 0 10px;font-size:0.78em;color:#cbd5e1;line-height:1.6;">'
+          + p.items.map(function (it) { return '· ' + esc(it.nom) + ' — <span style="color:#fde68a;">' + unite(it, it.cible) + (it.hebdo ? ' par semaine' : '') + '</span>'; }).join('<br>')
+          + '</div><button onclick="AwakRecomp.pack(\'' + p.id + '\')" style="' + BTN + 'width:100%;padding:10px;font-size:0.84em;' + (c ? 'background:' + OR + ';color:#1a1204;border:none;' : 'background:transparent;color:#fde68a;border:1px solid rgba(251,191,36,0.45);') + '">Ajouter ce pack</button></div>';
+      }).join('');
+  }
+  function ajouterPack(id) {
+    var p = PACKS.filter(function (x) { return x.id === id; })[0]; if (!p) return;
+    var d = lire(), l = mes(d, pidActif()), n = 0;
+    p.items.forEach(function (it) {
+      if (l.some(function (r) { return r.nom === it.nom && !!r.hebdo === !!it.hebdo && r.etat !== 'obtenue'; })) return;
+      l.push({ id: uid(), nom: it.nom, mode: it.mode, cible: it.cible, offreur: null, depuis: it.hebdo ? lundi().toISOString() : new Date().toISOString(), etat: 'cours', hebdo: !!it.hebdo, semaine: it.hebdo ? cleSemaine() : undefined });
+      n++;
+    });
+    majEtats(d); ecrire(d); _packsOuverts = false;
+    toast(n ? 'Pack « ' + p.nom + ' » : ' + n + ' objectif' + (n > 1 ? 's' : '') + ' ajouté' + (n > 1 ? 's' : '') + '. Touche « Modifier » pour qu\'un conjoint te les offre.' : 'Ces objectifs sont déjà là', n ? 'success' : 'info');
+    ouvrir(); rafraichir();
+  }
   function lundi(t) { var d = new Date(t || Date.now()); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; }
   function cleSemaine(t) { var d = lundi(t); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
 
@@ -138,7 +187,10 @@
           + (fini && !r.offreur ? '<button onclick="AwakRecomp.prendre(\'' + r.id + '\')" style="' + PLEIN + 'padding:10px;margin-top:10px;">Je me l\'offre</button>' : '')
           + '</div>';
       }).join('') : '<div style="padding:14px;border-radius:12px;background:#141821;color:#94a3b8;font-size:0.84em;text-align:center;">Aucun objectif pour l\'instant.</div>')
-      + '<button onclick="AwakRecomp.editer()" style="' + PLEIN + 'margin-top:6px;">+ Nouvel objectif</button>';
+      + '<button onclick="AwakRecomp.editer()" style="' + PLEIN + 'margin-top:6px;">+ Nouvel objectif</button>'
+      // v1698 : packs — affichés d'office tant qu'il n'y a aucun objectif
+      + (!l.length || _packsOuverts ? '<div style="margin-top:14px;">' + packsHTML() + '</div>'
+          : '<button onclick="AwakRecomp._packs()" style="' + VIDE + 'margin-top:8px;">Voir les packs prêts à l\'emploi</button>');
     if (obtenues.length) {
       h += '<div style="font-size:0.78em;color:#8b95a5;font-weight:700;margin:16px 0 8px;">Obtenues</div>'
         + obtenues.slice(-10).reverse().map(function (r) {
@@ -274,6 +326,7 @@
   window.AwakRecomp = {
     ouvrir: ouvrir, fermer: fermer, editer: editer, prendre: prendre, offrir: offrir, refaire: refaire,
     annoncer: annoncer, bandeauAccueil: bandeauAccueil, _lire: lire,
+    pack: ajouterPack, _packs: function () { _packsOuverts = true; ouvrir(); },
     _hebdo: function (v) { if (_ed && _ed.hebdo !== v) { _ed.hebdo = v; _ed.cible = _ed.mode === 'minutes' ? (v ? 150 : 300) : (v ? 4 : 20); dessinerEd(); } },
     _sugg: function (i) { var s = (_ed && _ed.hebdo ? SUGG_SEM : SUGG)[i]; if (s && _ed) { _ed.nom = s.nom; _ed.mode = s.mode; _ed.cible = s.cible; dessinerEd(); } },
     _nom: function (v) { if (_ed) _ed.nom = v; },
