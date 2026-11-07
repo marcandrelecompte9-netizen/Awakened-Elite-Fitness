@@ -69,7 +69,7 @@
   // ── 2. Onglet Étirements ──────────────────────────────────────────────
   var MUSCLES = ['Pectoraux', 'Dos', 'Épaules', 'Trapèzes', 'Biceps', 'Triceps', 'Avant-bras', 'Abdominaux', 'Obliques', 'Fessiers', 'Quadriceps', 'Ischio-jambiers', 'Adducteurs', 'Mollets'];
   var ORDRE = ['Ischio-jambiers', 'Quadriceps', 'Fessiers', 'Adducteurs', 'Dos', 'Pectoraux', 'Épaules', 'Trapèzes', 'Abdominaux', 'Obliques', 'Triceps', 'Biceps', 'Mollets', 'Avant-bras'];
-  var etat = { but: 'apres', muscles: [], acc: [] };
+  var etat = { but: 'apres', muscles: [], acc: [], vue: 'face' };
   try { var _s = JSON.parse(localStorage.getItem(cle()) || 'null'); if (_s && _s.acc) etat.acc = _s.acc; } catch (e) { /* rien */ }
   function cle() { try { return typeof window._cleProfilLecture === 'function' ? window._cleProfilLecture('awakEtirAcc') : 'awakEtirAcc'; } catch (e) { return 'awakEtirAcc'; } }
   function memoriser() { try { localStorage.setItem(typeof window._cleProfil === 'function' ? window._cleProfil('awakEtirAcc') : 'awakEtirAcc', JSON.stringify({ acc: etat.acc })); } catch (e) { /* rien */ } }
@@ -143,6 +143,48 @@
       + (on ? 'background:#22d3ee;color:#04121f;border:1px solid #22d3ee;' : 'background:#1a1e26;color:#cbd5e1;border:1px solid #1a1e26;')
       + (extra || '') + '">' + label + '</button>';
   }
+  // v1674 : choix des muscles sur le personnage (même silhouette que l'onglet Séance)
+  var ADDUCT = '<path d="M92,152 C95,154 98,158 98.5,164 L97,186 C94,182 92,174 91.5,166 C91.3,160 91.5,155 92,152 Z"/><path d="M108,152 C105,154 102,158 101.5,164 L103,186 C106,182 108,174 108.5,166 C108.7,160 108.5,155 108,152 Z"/>';
+  function zonesCorps(face) {
+    try { if (typeof window._awakZonesCorps !== 'function' && typeof window.awakRenderCorps === 'function') window.awakRenderCorps(); } catch (e) { /* rien */ }
+    if (typeof window._awakZonesCorps !== 'function') return [];
+    var f = window._awakZonesCorps(true), d = window._awakZonesCorps(false);
+    var trouve = function (l, m) { return (l.filter(function (z) { return z[1] === m; })[0] || [])[2] || ''; };
+    if (face) return f.concat([['Adducteurs', 'Adducteurs', ADDUCT]]);
+    // de dos : on reprend les contours symétriques (épaules, avant-bras, mollets)
+    return d.concat([['Épaules', 'Épaules', trouve(f, 'Épaules')], ['Avant-bras', 'Avant-bras', trouve(f, 'Avant-bras')], ['Mollets', 'Mollets', trouve(f, 'Mollets')]]);
+  }
+  function corpsHTML() {
+    var face = etat.vue === 'face';
+    var img = face ? 'images/body/body_face.webp' : 'images/body/body_dos.webp';
+    var masque = (typeof window._awakMasqueCorps === 'function') ? window._awakMasqueCorps(img) : { defs: '', id: '' };
+    var g = zonesCorps(face).map(function (z) {
+      var on = etat.muscles.indexOf(z[1]) >= 0;
+      return '<g role="button" tabindex="0" aria-label="' + esc(z[1]) + (on ? ' (choisi)' : '') + '" onclick="AwakEtir.muscle(\'' + z[1].replace(/'/g, "\\'") + '\')" style="cursor:pointer;'
+        + (on ? 'fill:#22d3ee;fill-opacity:0.62;stroke:#67e8f9;stroke-width:1.1;' : 'fill:#cbd5e1;fill-opacity:0.2;stroke:#94a3b8;stroke-width:0.8;') + 'stroke-linejoin:round;">' + z[2] + '</g>';
+    }).join('');
+    var choisis = MUSCLES.filter(function (m) { return etat.muscles.indexOf(m) >= 0; });
+    return '<div style="display:flex;gap:12px;align-items:flex-start;">'
+      + '<div style="flex:0 0 52%;max-width:200px;">'
+      +   '<svg viewBox="0 0 200 298" style="width:100%;height:auto;display:block;touch-action:pan-y;">'
+      +     '<defs>' + masque.defs + '</defs>'
+      +     '<image href="' + img + '" x="0" y="0" width="200" height="298" preserveAspectRatio="none" opacity="0.8"/>'
+      +     (masque.id ? '<g mask="url(#' + masque.id + ')">' + g + '</g>' : g)
+      +   '</svg>'
+      +   '<button onclick="AwakEtir.vue()" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:6px;min-height:auto;padding:8px;border-radius:11px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#cbd5e1;font-size:0.74em;font-weight:700;cursor:pointer;font-family:inherit;">'
+      +     '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 0 1-14.3 4.9M4 12A8 8 0 0 1 18.3 7.1"/><path d="M18.5 3v4.3h-4.3M5.5 21v-4.3h4.3"/></svg>'
+      +     (face ? 'Voir le dos' : 'Voir de face') + '</button>'
+      + '</div>'
+      + '<div style="flex:1;min-width:0;">'
+      +   '<div style="font-size:0.74em;color:#8b95a5;line-height:1.4;margin-bottom:8px;">Touche un muscle pour le choisir, retouche pour l\'enlever.</div>'
+      +   (choisis.length
+            ? '<div style="display:flex;flex-direction:column;gap:5px;">' + choisis.map(function (m) {
+                return '<button onclick="AwakEtir.muscle(\'' + m + '\')" style="display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:auto;padding:6px 10px;border-radius:9px;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.4);color:#a5f3fc;font-size:0.74em;font-weight:700;cursor:pointer;font-family:inherit;text-align:left;">'
+                  + '<span>' + esc(m) + '</span><span aria-hidden="true" style="color:#67e8f9;">×</span></button>';
+              }).join('') + '</div>'
+            : '<div style="font-size:0.74em;color:#64748b;font-style:italic;">Aucun muscle choisi</div>')
+      + '</div></div>';
+  }
   function titre(t) { return '<div style="font-size:0.78em;color:#8b95a5;font-weight:700;margin:18px 0 8px;">' + t + '</div>'; }
 
   function rendre() {
@@ -165,11 +207,12 @@
       + (blessure ? '<div style="margin-top:12px;padding:11px 12px;border-radius:12px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);color:#fde68a;font-size:0.76em;line-height:1.5;">'
           + 'Reste dans une amplitude sans douleur (3/10 au maximum) et travaille autour de la zone, pas dessus. Douleur vive, gonflement ou engourdissement : arrête et consulte un professionnel de la santé.</div>' : '')
       + titre('Muscles à étirer')
-      + '<div style="display:flex;gap:6px;flex-wrap:wrap;">'
+      + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">'
       +   (derniere.length ? pastille(false, 'Ma dernière séance', 'AwakEtir.derniere()', 'border-style:dashed;border-color:#22d3ee;color:#67e8f9;background:transparent;') : '')
       +   pastille(etat.muscles.length === MUSCLES.length, 'Tout le corps', 'AwakEtir.tout()')
-      +   MUSCLES.map(function (m) { return pastille(etat.muscles.indexOf(m) >= 0, esc(m), 'AwakEtir.muscle(\'' + m + '\')'); }).join('')
+      +   (etat.muscles.length ? pastille(false, 'Effacer', 'AwakEtir.effacer()', 'background:transparent;border-color:rgba(255,255,255,0.14);') : '')
       + '</div>'
+      + corpsHTML()
       + titre('Tes accessoires <span style="font-weight:500;">(facultatif)</span>')
       + '<div style="display:flex;gap:6px;flex-wrap:wrap;">'
       +   ACCESSOIRES.map(function (a) { return pastille(etat.acc.indexOf(a.id) >= 0, esc(a.nom), 'AwakEtir.acc(\'' + a.id + '\')'); }).join('')
@@ -242,6 +285,8 @@
     muscle: function (m) { var i = etat.muscles.indexOf(m); if (i >= 0) etat.muscles.splice(i, 1); else etat.muscles.push(m); rendre(); },
     tout: function () { etat.muscles = etat.muscles.length === MUSCLES.length ? [] : MUSCLES.slice(); rendre(); },
     derniere: function () { etat.muscles = musclesDerniere(); rendre(); },
+    effacer: function () { etat.muscles = []; rendre(); },
+    vue: function () { etat.vue = etat.vue === 'face' ? 'dos' : 'face'; rendre(); },
     acc: function (id) { var i = etat.acc.indexOf(id); if (i >= 0) etat.acc.splice(i, 1); else etat.acc.push(id); memoriser(); rendre(); },
     renouveler: rendre,
     lancer: function () {

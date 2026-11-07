@@ -24730,7 +24730,9 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             // silhouette 200×298) — avant : cercles, ovales et quadrilatères.
             // Avant-bras et Mollets restent sur la vue de face seulement (un seul
             // muscle dans la base, voir l'historique de ce bloc).
-            var zones = estFace ? [
+            var zones = _awkZonesCorps(estFace);
+            window._awakZonesCorps = _awkZonesCorps;   // v1674 : aussi pour l'onglet Étirer
+            function _awkZonesCorps(estFace) { return estFace ? [
                 ['Épaules', 'Épaules', '<path d="M72,62 C67,60 61,62 58,67 C55,72 55,79 57,85 C61,83 65,79 68,74 C70,70 72,66 72,62 Z"/><path d="M128,62 C133,60 139,62 142,67 C145,72 145,79 143,85 C139,83 135,79 132,74 C130,70 128,66 128,62 Z"/>'],
                 ['Pectoraux', 'Pectoraux', '<path d="M99,65 C92,62 81,62 74,66 C71,72 72,80 76,85 C82,90 92,90 99,87 Z"/><path d="M101,65 C108,62 119,62 126,66 C129,72 128,80 124,85 C118,90 108,90 101,87 Z"/>'],
                 ['Biceps', 'Biceps', '<path d="M61.8,84.0 Q61.2,84.0 58.9,85.0 Q56.6,86.1 55.2,87.1 Q53.9,88.1 53.1,89.2 Q52.4,90.2 51.5,91.2 Q50.6,92.3 49.3,93.3 Q48.0,94.4 46.7,95.4 Q45.4,96.4 44.1,97.5 Q42.8,98.5 41.9,99.5 Q41.1,100.6 40.4,101.6 Q39.6,102.6 39.2,103.7 Q38.9,104.7 38.6,105.8 Q38.4,106.8 38.4,107.8 Q38.4,108.9 38.7,109.9 Q38.9,110.9 40.2,112.0 Q41.4,113.0 42.1,113.0 Q42.8,113.0 45.3,112.0 Q47.8,110.9 49.2,109.9 Q50.6,108.9 51.7,107.8 Q52.7,106.8 53.7,105.8 Q54.8,104.7 55.8,103.7 Q56.8,102.6 58.1,101.6 Q59.4,100.6 60.6,99.5 Q61.8,98.5 62.8,97.5 Q63.7,96.4 64.5,95.4 Q65.2,94.4 65.7,93.3 Q66.3,92.3 66.5,91.2 Q66.7,90.2 65.7,89.2 Q64.6,88.1 64.6,87.1 Q64.5,86.1 63.5,85.0 Q62.4,84.0 61.8,84.0 Z"/><path d="M137.9,84.0 Q137.3,84.0 136.2,85.0 Q135.0,86.1 134.9,87.1 Q134.9,88.1 133.8,89.2 Q132.7,90.2 133.1,91.2 Q133.5,92.3 133.9,93.3 Q134.3,94.4 135.0,95.4 Q135.7,96.4 136.7,97.5 Q137.7,98.5 139.0,99.5 Q140.3,100.6 141.6,101.6 Q142.9,102.6 144.0,103.7 Q145.0,104.7 145.9,105.8 Q146.8,106.8 147.9,107.8 Q149.1,108.9 150.5,109.9 Q151.9,110.9 154.4,112.0 Q156.9,113.0 157.5,113.0 Q158.2,113.0 159.4,112.0 Q160.6,110.9 160.9,109.9 Q161.1,108.9 161.1,107.8 Q161.1,106.8 160.9,105.8 Q160.6,104.7 160.3,103.7 Q159.9,102.6 159.3,101.6 Q158.6,100.6 157.5,99.5 Q156.5,98.5 155.3,97.5 Q154.1,96.4 152.6,95.4 Q151.2,94.4 150.1,93.3 Q148.9,92.3 148.0,91.2 Q147.1,90.2 146.3,89.2 Q145.6,88.1 144.3,87.1 Q142.9,86.1 140.7,85.0 Q138.6,84.0 137.9,84.0 Z"/>'],
@@ -24745,7 +24747,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 ['Triceps', 'Triceps', '<path d="M60.3,82.0 Q59.7,82.0 57.5,83.1 Q55.3,84.2 54.4,85.3 Q53.5,86.4 52.4,87.5 Q51.4,88.6 50.3,89.8 Q49.3,90.9 47.9,92.0 Q46.5,93.1 45.1,94.2 Q43.6,95.3 42.6,96.4 Q41.5,97.5 40.7,98.6 Q39.8,99.7 39.3,100.8 Q38.8,101.9 38.6,103.0 Q38.3,104.1 38.2,105.2 Q38.1,106.4 38.0,107.5 Q38.0,108.6 38.3,109.7 Q38.5,110.8 39.7,111.9 Q40.9,113.0 41.6,113.0 Q42.2,113.0 44.6,111.9 Q47.0,110.8 48.3,109.7 Q49.7,108.6 50.9,107.5 Q52.0,106.4 53.0,105.2 Q54.0,104.1 54.8,103.0 Q55.5,101.9 56.5,100.8 Q57.4,99.7 58.4,98.6 Q59.5,97.5 60.2,96.4 Q60.9,95.3 62.1,94.2 Q63.2,93.1 64.0,92.0 Q64.7,90.9 65.2,89.8 Q65.7,88.6 65.7,87.5 Q65.7,86.4 64.4,85.3 Q63.2,84.2 62.1,83.1 Q60.9,82.0 60.3,82.0 Z"/><path d="M138.2,82.0 Q137.6,82.0 136.4,83.1 Q135.2,84.2 134.0,85.3 Q132.8,86.4 132.9,87.5 Q133.0,88.6 133.4,89.8 Q133.7,90.9 134.6,92.0 Q135.5,93.1 136.7,94.2 Q137.8,95.3 138.5,96.4 Q139.2,97.5 140.3,98.6 Q141.4,99.7 142.3,100.8 Q143.2,101.9 144.0,103.0 Q144.7,104.1 145.7,105.2 Q146.7,106.4 147.9,107.5 Q149.0,108.6 150.3,109.7 Q151.7,110.8 154.1,111.9 Q156.5,113.0 157.1,113.0 Q157.8,113.0 158.9,111.9 Q160.1,110.8 160.4,109.7 Q160.7,108.6 160.7,107.5 Q160.7,106.4 160.5,105.2 Q160.4,104.1 160.1,103.0 Q159.9,101.9 159.4,100.8 Q158.9,99.7 158.1,98.6 Q157.2,97.5 156.1,96.4 Q155.1,95.3 153.5,94.2 Q152.0,93.1 150.6,92.0 Q149.2,90.9 148.1,89.8 Q147.1,88.6 146.1,87.5 Q145.0,86.4 144.1,85.3 Q143.2,84.2 141.0,83.1 Q138.8,82.0 138.2,82.0 Z"/>'],
                 ['Fessiers', 'Fessiers', '<path d="M99,118 C92,116 82,119 79,128 C77,138 80,148 88,151 C94,152 99,149 99,144 Z"/><path d="M101,118 C108,116 118,119 121,128 C123,138 120,148 112,151 C106,152 101,149 101,144 Z"/>'],
                 ['Ischios', 'Ischio-jambiers', '<path d="M84.2,153.0 Q83.2,153.0 80.2,154.7 Q77.2,156.4 75.8,158.0 Q74.4,159.7 73.5,161.4 Q72.5,163.1 71.8,164.8 Q71.2,166.4 70.8,168.1 Q70.4,169.8 70.2,171.5 Q70.0,173.1 70.0,174.8 Q70.1,176.5 70.4,178.2 Q70.7,179.9 71.1,181.5 Q71.5,183.2 72.1,184.9 Q72.7,186.6 72.9,188.2 Q73.2,189.9 73.4,191.6 Q73.6,193.3 74.1,195.0 Q74.6,196.6 75.8,198.3 Q77.1,200.0 77.7,200.0 Q78.2,200.0 80.3,198.3 Q82.3,196.6 83.4,195.0 Q84.6,193.3 85.4,191.6 Q86.3,189.9 86.9,188.2 Q87.5,186.6 88.1,184.9 Q88.7,183.2 89.2,181.5 Q89.8,179.9 90.5,178.2 Q91.1,176.5 91.8,174.8 Q92.5,173.1 93.0,171.5 Q93.4,169.8 93.6,168.1 Q93.9,166.4 93.6,164.8 Q93.3,163.1 92.7,161.4 Q92.2,159.7 91.3,158.0 Q90.4,156.4 87.8,154.7 Q85.2,153.0 84.2,153.0 Z"/><path d="M114.3,153.0 Q113.3,153.0 110.7,154.7 Q108.1,156.4 107.2,158.0 Q106.3,159.7 105.7,161.4 Q105.2,163.1 104.9,164.8 Q104.6,166.4 104.8,168.1 Q105.1,169.8 105.5,171.5 Q105.9,173.1 106.5,174.8 Q107.1,176.5 107.8,178.2 Q108.5,179.9 109.1,181.5 Q109.8,183.2 110.3,184.9 Q110.8,186.6 111.3,188.2 Q111.9,189.9 112.8,191.6 Q113.6,193.3 114.8,195.0 Q115.9,196.6 117.9,198.3 Q120.0,200.0 120.5,200.0 Q121.1,200.0 122.4,198.3 Q123.6,196.6 124.1,195.0 Q124.6,193.3 124.8,191.6 Q125.1,189.9 125.4,188.2 Q125.7,186.6 126.2,184.9 Q126.7,183.2 127.2,181.5 Q127.8,179.9 128.1,178.2 Q128.4,176.5 128.5,174.8 Q128.5,173.1 128.4,171.5 Q128.3,169.8 127.8,168.1 Q127.3,166.4 126.7,164.8 Q126.2,163.1 125.1,161.4 Q124.1,159.7 122.7,158.0 Q121.3,156.4 118.3,154.7 Q115.3,153.0 114.3,153.0 Z"/>']
-            ];
+            ]; }
 
             var svgZones = '', prets = 0, pretsNoms = [], recup = 0, aReposer = 0, recupNoms = [], reposNoms = [];
             var _douleurs = _corpsDouleurs();
@@ -24845,7 +24847,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1673);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1674);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24898,7 +24900,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1673" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1674" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25709,7 +25711,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const cle = Math.round(r.width) + 'x' + H;
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1673)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1674)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center top';
                 } catch (e) { _awkE(e); }
@@ -31147,7 +31149,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1673");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1674");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -44815,7 +44817,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1673';
+                    let ver = 'v0.95.1674';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -44983,7 +44985,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1673" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1674" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45065,7 +45067,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1673);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1674);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45132,7 +45134,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1673);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1674);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47597,7 +47599,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1673");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1674");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
