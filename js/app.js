@@ -24864,7 +24864,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1713);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1715);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24917,7 +24917,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1713" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1715" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25728,7 +25728,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const cle = Math.round(r.width) + 'x' + H;
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1713)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1715)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center top';
                 } catch (e) { _awkE(e); }
@@ -31169,7 +31169,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1713");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1715");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -32519,20 +32519,20 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
         // ── COMPÉTENCES DE BASE (toutes classes) ──────────────────────
         const SKILL_TREE_BASE = [
             { id:'iron_will',    name:'Volonté de Fer',     emoji:'💪', desc:'+10% XP sur tous les muscles',           req:{level:3},  effect:{xpAll:0.10}, type:'base' },
-            { id:'compound_pro', name:'Maître Compound',    emoji:'🏋️', desc:'+25% XP sur exercices polyarticulaires', req:{level:8},  effect:{xpCompound:0.25}, type:'base' },
+            { id:'compound_pro', name:'Coup Lourd',         emoji:'🏋️', desc:'+25% dégâts en Faille sur les exercices de force', req:{level:8},  effect:{forceDmg:0.25}, type:'base' },   // v1714 : avant +25 % XP polyarticulaires
             { id:'streak_lord',  name:'Seigneur du Streak', emoji:'🔥', desc:'Streak bonus commence dès 2 jours',      req:{level:12}, effect:{streakStart:2}, type:'base' },
             { id:'prospector',   name:'Prospecteur',        emoji:'⛏️', desc:'+30% de minéraux trouvés dans les Failles', req:{level:15}, effect:{mineralBonus:0.30}, type:'base' },
             { id:'no_decay',     name:'Corps d\'Acier',     emoji:'🛡️', desc:'Grâce de 17 jours avant la perte d\'XP',       req:{level:18}, effect:{graceExtend:3}, type:'base' },
-            { id:'xp_surge',     name:'Sursaut d\'XP',      emoji:'⚡', desc:'+15% XP global permanent',               req:{level:30}, effect:{xpAll:0.15}, type:'base' },
+            { id:'xp_surge',     name:'Enchaînement',       emoji:'⚡', desc:'15% de chance d\'enchaîner un coup de plus en Faille', req:{level:30}, effect:{chainChance:0.15}, type:'base' },   // v1714 : avant +15 % XP
             // ── ENDGAME : pouvoirs de palier (niv 40 → 120) ──
             { id:'second_wind',  name:'Second Souffle',     emoji:'🫀', desc:'Survis à un coup fatal à 1 HP (1× par Faille)', req:{level:40}, effect:{secondWind:true}, type:'base' },
             { id:'vital_drain',  name:'Drain Vital',        emoji:'🩸', desc:'Récupère 6% des dégâts infligés en HP (Failles)', req:{level:55}, effect:{riftLifesteal:0.06}, type:'base' },
-            { id:'transcendence',name:'Transcendance',      emoji:'🌌', desc:'+15% XP global · +1 point de stat par niveau', req:{level:70}, effect:{xpAll:0.15, extraStatPoint:1}, type:'base' },
+            { id:'transcendence',name:'Coup de Grâce',      emoji:'🌌', desc:'Monstre sous 25% de ses PV : +50% dégâts · +1 point de stat par niveau', req:{level:70}, effect:{executeDmg:0.5, extraStatPoint:1}, type:'base' },   // v1714 : avant +15 % XP
             { id:'apex_predator',name:'Apex Prédateur',     emoji:'🐺', desc:'+10% critique · +10% double drop', req:{level:90}, effect:{critChance:0.10, doubleDropChance:0.10}, type:'base' },
-            { id:'limit_break',  name:'Brise-Limites',      emoji:'💥', desc:'+20% XP · +5 toutes stats · 10% double XP', req:{level:120}, effect:{xpAll:0.20, statBonus:{STR:5,AGI:5,VIT:5,END:5,PER:5,SEN:5}, doubleXPChance:0.10}, type:'base' },
+            { id:'limit_break',  name:'Brise-Limites',      emoji:'💥', desc:'+20% dégâts en Faille · +5 toutes stats · 10% double XP', req:{level:120}, effect:{riftDmg:0.20, statBonus:{STR:5,AGI:5,VIT:5,END:5,PER:5,SEN:5}, doubleXPChance:0.10}, type:'base' },
             // ── v1528 : DISCIPLINE — récompenser la façon de s'entraîner ──
-            { id:'full_sets',     name:'Série Complète',     emoji:'✅', desc:'+15% XP sur chaque série qui atteint l\'objectif de reps', req:{level:14}, effect:{fullSets:0.15}, type:'base' },
-            { id:'record_breaker',name:'Briseur de Records', emoji:'🏆', desc:'+50% XP sur une série qui bat un record personnel', req:{level:24}, effect:{recordXP:0.50}, type:'base' },
+            { id:'full_sets',     name:'Série Parfaite',     emoji:'✅', desc:'+20% dégâts en Faille quand la série atteint l\'objectif de reps', req:{level:14}, effect:{fullSetDmg:0.20}, type:'base' },   // v1714 : avant +15 % XP
+            { id:'record_breaker',name:'Frappe Légendaire', emoji:'🏆', desc:'+100% dégâts sur le coup critique d\'un record personnel en Faille', req:{level:24}, effect:{recordCrit:1.0}, type:'base' },   // v1714 : avant +50 % XP
             { id:'long_breath',   name:'Souffle Long',       emoji:'⏱️', desc:'+20% dégâts en Faille sur les exercices au minuteur', req:{level:35}, effect:{timerDmg:0.20}, type:'base' },
         ];
 
@@ -32549,7 +32549,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             ],
             iron_berserker: [
                 { id:'ib_bloodlust',   name:'Soif de Sang',            emoji:'🩸', desc:'+5 STR permanent',                                      req:{level:10}, effect:{statBonus:{STR:5}}, type:'class' },
-                { id:'ib_overpower',   name:'Force Brute',             emoji:'💪', desc:'+30% XP sur les exercices de force pure',               req:{level:11}, effect:{xpCompound:0.30}, type:'class' },
+                { id:'ib_overpower',   name:'Coup de Massue',          emoji:'💪', desc:'+25% dégâts en Faille sur les exercices de force', req:{level:11}, effect:{forceDmg:0.25}, type:'class' },
                 { id:'ib_iron_skin',   name:'Peau de Fer',             emoji:'🛡️', desc:'-25% pénalités stats sur tes équipements',              req:{level:15}, effect:{equipPenaltyReduction:0.25}, type:'class' },
                 { id:'ib_rampage',     name:'Saccage',                 emoji:'⚒️', desc:'5% chance de tripler l\'XP d\'une série',             req:{level:20}, effect:{rampageChance:0.05}, type:'class' },
                 { id:'ib_immortal',    name:'Cœur Immortel',           emoji:'❤️\u200d🔥', desc:'+8 END permanent (cœur indestructible)', req:{level:25}, effect:{statBonus:{END:8}}, type:'class' },
@@ -32558,7 +32558,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             ],
             titan_guardian: [
                 { id:'tg_unbreakable', name:'Inébranlable',            emoji:'🏔️', desc:'+5 VIT permanent',                                      req:{level:10}, effect:{statBonus:{VIT:5}}, type:'class' },
-                { id:'tg_endurance',   name:'Endurance Légendaire',    emoji:'💚', desc:'+15% XP global (endurance)', req:{level:11}, effect:{xpAll:0.15}, type:'class' },
+                { id:'tg_endurance',   name:'Garde du Titan',          emoji:'💚', desc:'-20% dégâts subis des ripostes en Faille', req:{level:11}, effect:{riposteReduce:0.20}, type:'class' },
                 { id:'tg_fortress',    name:'Forteresse Vivante',      emoji:'🏰', desc:'-25% pénalités de défi échoué',                         req:{level:15}, effect:{penaltyReduction:0.25}, type:'class' },
                 { id:'tg_regen',       name:'Régénération',            emoji:'💖', desc:'+6 VIT · +2 jours avant le déclin', req:{level:20}, effect:{statBonus:{VIT:6},graceExtend:2}, type:'class' },
                 { id:'tg_aegis',       name:'Égide du Titan',          emoji:'🛡️', desc:'Perte d\'XP par inactivité réduite de moitié',          req:{level:25}, effect:{decayReduction:0.5}, type:'class' },
@@ -32567,7 +32567,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             ],
             storm_archer: [
                 { id:'as_eagle_eye',   name:'Œil d\'Aigle',            emoji:'👁️', desc:'+5 PER permanent',                                      req:{level:10}, effect:{statBonus:{PER:5}}, type:'class' },
-                { id:'as_precision',   name:'Précision Mortelle',      emoji:'🎯', desc:'+25% XP sur les exercices d\'isolation',                req:{level:11}, effect:{xpIsolation:0.25}, type:'class' },
+                { id:'as_precision',   name:'Tir Double',              emoji:'🎯', desc:'15% de chance de décocher une flèche de plus en Faille', req:{level:11}, effect:{chainChance:0.15}, type:'class' },
                 { id:'as_far_sight',   name:'Tir Perçant',             emoji:'🏹', desc:'+10% dégâts en Faille',                                  req:{level:15}, effect:{riftDmg:0.10}, type:'class' },
                 { id:'as_wind_walker', name:'Marcheur du Vent',        emoji:'💨', desc:'+15% chance de drop épique',                            req:{level:20}, effect:{epicDropBonus:0.15}, type:'class' },
                 { id:'as_omniscient',  name:'Point Faible',            emoji:'🎯', desc:'+50% dégâts des coups critiques',                       req:{level:25}, effect:{critDmg:0.50}, type:'class' },
@@ -32576,21 +32576,21 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             ],
             arcane_mage: [
                 { id:'am_meditation',  name:'Méditation',              emoji:'🧘', desc:'+5 SEN permanent',                                      req:{level:10}, effect:{statBonus:{SEN:5}}, type:'class' },
-                { id:'am_mana_flow',   name:'Flux de Mana',            emoji:'💠', desc:'+40% XP sur les exercices techniques',                  req:{level:11}, effect:{xpIsolation:0.40}, type:'class' },
+                { id:'am_mana_flow',   name:'Explosion Arcanique',     emoji:'💠', desc:'+100% dégâts sur une attaque sur cinq en Faille', req:{level:11}, effect:{arcaneDmg:1.0}, type:'class' },
                 { id:'am_arcane_pact', name:'Pacte Arcanique',         emoji:'🔮', desc:'+1 point de stat bonus à chaque niveau',                req:{level:15}, effect:{extraStatPoint:1}, type:'class' },
                 { id:'am_dispel',      name:'Dissipation',             emoji:'✨', desc:'20% chance d\'esquiver une pénalité de défi', req:{level:20}, effect:{penaltyDodge:0.20}, type:'class' },
-                { id:'am_telepathy',   name:'Télépathie Musculaire',   emoji:'🌌', desc:'+15% XP global (mobilité)', req:{level:25}, effect:{xpAll:0.15}, type:'class' },
+                { id:'am_telepathy',   name:'Bouclier de Mana',        emoji:'🌌', desc:'-20% dégâts subis des ripostes en Faille', req:{level:25}, effect:{riposteReduce:0.20}, type:'class' },
                 { id:'am_reality_warp',name:'Faille de Réalité',       emoji:'🌠', desc:'+10 SEN · +6 PER · +4 VIT',                             req:{level:32}, effect:{statBonus:{SEN:10,PER:6,VIT:4}}, type:'class' },
                 { id:'am_ascension',   name:'Ascension Arcanique',     emoji:'🔯', desc:'+12 SEN · +10 PER',                                     req:{level:45}, effect:{statBonus:{SEN:12,PER:10}}, type:'class' },
             ],
             monarch_aspirant: [
                 { id:'ma_balanced',    name:'Équilibre Parfait',       emoji:'⚖️', desc:'+3 dans toutes les stats',                              req:{level:10}, effect:{statBonus:{STR:3,AGI:3,VIT:3,END:3,PER:3,SEN:3}}, type:'class' },
-                { id:'ma_versatile',   name:'Adaptabilité',            emoji:'🔀', desc:'+15% XP sur TOUS les exercices',                        req:{level:11}, effect:{xpAll:0.15}, type:'class' },
+                { id:'ma_versatile',   name:'Ordre Royal',             emoji:'🔀', desc:'+50% dégâts des coups de tes compagnons en Faille', req:{level:11}, effect:{allyDmg:0.5}, type:'class' },
                 { id:'ma_royal_blood', name:'Sang Royal',              emoji:'👑', desc:'10% chance de drop double item',                        req:{level:15}, effect:{doubleDropChance:0.10}, type:'class' },
-                { id:'ma_command',     name:'Commandement',            emoji:'⚔️', desc:'+20% XP sur compounds + isolations',                    req:{level:20}, effect:{xpCompound:0.20,xpIsolation:0.20}, type:'class' },
+                { id:'ma_command',     name:'Ralliement',              emoji:'⚔️', desc:'Tes compagnons frappent plus souvent en Faille', req:{level:20}, effect:{allyFreq:1}, type:'class' },
                 { id:'ma_throne',      name:'Le Trône',                emoji:'🪑', desc:'+25% chance de drop légendaire',                        req:{level:25}, effect:{legendaryDropBonus:0.25}, type:'class' },
-                { id:'ma_sovereign',   name:'Souveraineté Absolue',    emoji:'🌑', desc:'+8 toutes stats · 20% double drop · +20% XP',           req:{level:32}, effect:{statBonus:{STR:8,AGI:8,VIT:8,END:8,PER:8,SEN:8},doubleDropChance:0.20,xpAll:0.20}, type:'class' },
-                { id:'ma_dominion',    name:'Dominion',                emoji:'🌍', desc:'+20% XP global · +4 toutes stats',                      req:{level:45}, effect:{xpAll:0.20, statBonus:{STR:4,AGI:4,VIT:4,END:4,PER:4,SEN:4}}, type:'class' },
+                { id:'ma_sovereign',   name:'Souveraineté Absolue',    emoji:'🌑', desc:'+8 toutes stats · 20% double drop · +20% dégâts en Faille', req:{level:32}, effect:{statBonus:{STR:8,AGI:8,VIT:8,END:8,PER:8,SEN:8},doubleDropChance:0.20,riftDmg:0.20}, type:'class' },
+                { id:'ma_dominion',    name:'Dominion',                emoji:'🌍', desc:'+20% dégâts en Faille · +4 toutes stats', req:{level:45}, effect:{riftDmg:0.20, statBonus:{STR:4,AGI:4,VIT:4,END:4,PER:4,SEN:4}}, type:'class' },
             ],
         };
 
@@ -32695,7 +32695,10 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             // v1528 : plafonds (les rangs ne doivent pas casser le rythme ni les combats)
             const _CAP = { xpAll:0.60, xpCompound:0.60, xpIsolation:0.60, critChance:0.25, doubleDropChance:0.40,
                            epicDropBonus:0.50, legendaryDropBonus:0.40, epicToLegendary:0.30, doubleXPChance:0.25, rampageChance:0.15,
-                           penaltyDodge:0.40, riftLifesteal:0.12 };
+                           penaltyDodge:0.40, riftLifesteal:0.12,
+                           // v1714 : compétences de combat
+                           riftDmg:1.0, forceDmg:0.60, chainChance:0.35, executeDmg:1.0, fullSetDmg:0.50, recordCrit:2.0,
+                           riposteReduce:0.50, arcaneDmg:2.0, allyDmg:1.5, allyFreq:3 };
             for (const k in _CAP) if (typeof effects[k] === 'number') effects[k] = Math.min(_CAP[k], effects[k]);
             return effects;
         }
@@ -36215,6 +36218,8 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             } catch(e) { _awkE(e); }
 
             try { dmg = Math.round(dmg * awakRiftFacteurRiposte(awakActiveRiftSession && awakActiveRiftSession.rift)); } catch (e) { _awkE(e); }
+            // v1714 : Garde du Titan / Bouclier de Mana — ripostes réduites
+            try { const _fxr = rpgGetActiveEffects(); if (_fxr.riposteReduce > 0) dmg = Math.max(1, Math.round(dmg * (1 - Math.min(0.5, _fxr.riposteReduce)))); } catch (e) { _awkE(e); }
             setTimeout(() => {
                 awakDamagePlayer(dmg, wave.name);
                 // v1522 : Élise soigne de 15 % sous 40 % de PV (1 fois par vague)
@@ -44886,7 +44891,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1713';
+                    let ver = 'v0.95.1715';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -45054,7 +45059,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1713" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1715" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45136,7 +45141,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1713);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1715);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45203,7 +45208,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1713);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1715);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47668,7 +47673,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1713");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1715");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

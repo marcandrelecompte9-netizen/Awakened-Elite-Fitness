@@ -12,7 +12,8 @@
 
   // [id, parent, coût, voie]  — voie 'A' / 'B' = colonnes après la racine
   var BRANCHES = [
-    { id: 'croissance', nom: 'Croissance', sous: 'Gagner plus d\'XP', couleur: '#fbbf24', icone: 'etoile',
+    // v1714 : Croissance → Assaut (nouveaux coups en Faille ; la racine garde +10 % XP)
+    { id: 'croissance', nom: 'Assaut', sous: 'Nouveaux coups en Faille', couleur: '#fb923c', icone: 'eclair',
       noeuds: [['iron_will', null, 1], ['compound_pro', 'iron_will', 1], ['xp_surge', 'compound_pro', 1], ['transcendence', 'xp_surge', 3]] },
     { id: 'combat', nom: 'Combat', sous: 'Survivre et frapper dans les Failles', couleur: '#f87171', icone: 'epee',
       noeuds: [['prospector', null, 1], ['second_wind', 'prospector', 3], ['vital_drain', 'second_wind', 3], ['apex_predator', 'vital_drain', 3]] },
@@ -26,7 +27,7 @@
   var CLASSE_PARENT = [null, 0, 0, 1, 2, 3, 4];
   var CLASSE_COUT = [1, 1, 1, 1, 1, 2, 3];
   // Effets qui ne montent pas en rang (oui/non, ou déjà plafonnés)
-  var SANS_RANG = ['secondWind', 'immuneMuscleDecay', 'decayReduction', 'streakStart', 'extraStatPoint', 'penaltyReduction', 'graceExtend'];
+  var SANS_RANG = ['allyFreq', 'secondWind', 'immuneMuscleDecay', 'decayReduction', 'streakStart', 'extraStatPoint', 'penaltyReduction', 'graceExtend'];
   var RANG_MAX = 3;
   var VERSION_REFONTE = '1528';
 
@@ -220,7 +221,8 @@
     graceExtend: 'bouclier', secondWind: 'sante', riftLifesteal: 'coeur', critChance: 'eclair', critDmg: 'cible', doubleDropChance: 'trophee',
     epicDropBonus: 'trophee', legendaryDropBonus: 'couronne', epicToLegendary: 'couronne', statBonus: 'muscle', penaltyDodge: 'course',
     penaltyReduction: 'bouclier', decayReduction: 'bouclier', equipPenaltyReduction: 'bouclier', rampageChance: 'flamme', doubleXPChance: 'de',
-    extraStatPoint: 'pyramide', fullSets: 'valide', recordXP: 'trophee', timerDmg: 'chrono', riftDmg: 'epee', bossDmg: 'epee' };
+    extraStatPoint: 'pyramide', fullSets: 'valide', recordXP: 'trophee', forceDmg: 'halter', chainChance: 'eclair', executeDmg: 'epee', fullSetDmg: 'valide', recordCrit: 'trophee',
+    riposteReduce: 'bouclier', arcaneDmg: 'faille', allyDmg: 'groupe', allyFreq: 'groupe', timerDmg: 'chrono', riftDmg: 'epee', bossDmg: 'epee' };
   function iconeDe(sk) {
     var k = sk && sk.effect ? Object.keys(sk.effect)[0] : null;
     if (sk && sk.effect && sk.effect.xpAll && Object.keys(sk.effect).length > 1 && sk.effect.extraStatPoint) k = 'extraStatPoint';

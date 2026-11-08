@@ -3032,10 +3032,14 @@
             const L = [];
             const f = (nom, part) => { const d = Math.max(1, Math.round(degats * part)); L.push({ nom, d }); return d; };
             let extra = 0;
-            if (n % 6 === 0) extra += f(E.part, 0.30);
-            if (E.noms.indexOf('Marcus') >= 0 && n % 4 === 0) extra += f('Marcus', 0.40);
-            if (E.noms.indexOf('Kira') >= 0 && n % 5 === 0) extra += f('Kira', 0.50);
-            if (E.noms.indexOf('Yuna') >= 0 && n % 7 === 0) extra += f('Yuna', Math.max(0.2, (wave.hpMax * 0.03) / Math.max(1, degats)));
+            // v1714 : Ordre Royal (+dégâts des alliés) · Ralliement (ils frappent plus souvent)
+            let _fxA = {}; try { _fxA = (typeof rpgGetActiveEffects === 'function') ? rpgGetActiveEffects() : {}; } catch (e) { _awkE(e); }
+            const _kA = 1 + (_fxA.allyDmg || 0), _rA = Math.round(_fxA.allyFreq || 0);
+            const _tous = k => n % Math.max(2, k - _rA) === 0;
+            if (_tous(6)) extra += f(E.part, 0.30 * _kA);
+            if (E.noms.indexOf('Marcus') >= 0 && _tous(4)) extra += f('Marcus', 0.40 * _kA);
+            if (E.noms.indexOf('Kira') >= 0 && _tous(5)) extra += f('Kira', 0.50 * _kA);
+            if (E.noms.indexOf('Yuna') >= 0 && _tous(7)) extra += f('Yuna', Math.max(0.2, (wave.hpMax * 0.03) / Math.max(1, degats)) * _kA);
             const col = (session.theme && session.theme.color) || '#a855f7';
             // v1652 : PV du monstre avant / après chaque coup d'allié (la jauge de la fenêtre descend)
             let _pv = Math.max(0, (wave.hpCurrent || 0) - degats);
@@ -3173,7 +3177,7 @@
             if (_skillEff.timerDmg && _curEx && (_curEx.mode === 'timer' || _curEx.mode === 'duration')) finalDamage *= (1 + _skillEff.timerDmg);
             const critChance = 0.05 + bonuses.critChance + (compBonus.critChance || 0) + (consumEffects.critBonus || 0) + (_skillEff.critChance || 0);
             const isCrit = _eff.record || Math.random() < critChance;
-            if (isCrit) finalDamage *= 2 + (_skillEff.critDmg || 0);   // v1528 : Point Faible
+            if (isCrit) finalDamage *= 2 + (_skillEff.critDmg || 0) + (_eff.record ? (_skillEff.recordCrit || 0) : 0);   // v1528 : Point Faible · v1714 : Frappe Légendaire
 
             // 💨 VIT : chance double attaque (×1.5 dégâts au total)
             const isDouble = Math.random() < bonuses.doubleChance;
@@ -3211,6 +3215,28 @@
             // une vague tombe en 5 séries au plus, un boss en 10.
             const _plancher = currentWave.hpMax / (currentWave.isBoss ? 10 : 5) * _eff.mult;
             if (finalDamage < _plancher) finalDamage = _plancher;
+
+            // v1714 : coups spéciaux des compétences — APRÈS le plancher (sinon, tant que
+            // le plancher l'emporte, ils ne changeaient rien à l'écran)
+            if (_skillEff.forceDmg && effortType === 'force') finalDamage *= (1 + _skillEff.forceDmg);              // Coup Lourd · Coup de Massue
+            if (_skillEff.fullSetDmg && _eff.ratio >= 1) finalDamage *= (1 + _skillEff.fullSetDmg);               // Série Parfaite
+            if (_skillEff.executeDmg && currentWave.hpCurrent <= currentWave.hpMax * 0.25) {                      // Coup de Grâce
+                finalDamage *= (1 + _skillEff.executeDmg);
+                effortToasts.push({ msg: '◆ COUP DE GRÂCE — dégâts ×' + (1 + _skillEff.executeDmg).toFixed(1).replace('.', ','), type: 'success' });
+            }
+            if (_skillEff.arcaneDmg) {                                                                            // Explosion Arcanique
+                session._nArcane = (session._nArcane || 0) + 1;
+                if (session._nArcane % 5 === 0) {
+                    finalDamage *= (1 + _skillEff.arcaneDmg);
+                    effortToasts.push({ msg: '◆ EXPLOSION ARCANIQUE — dégâts ×' + (1 + _skillEff.arcaneDmg).toFixed(1).replace('.', ','), type: 'success' });
+                }
+            }
+            // v1714 : Enchaînement · Tir Double — un coup de plus (60 % du coup)
+            if (_skillEff.chainChance && Math.random() < _skillEff.chainChance) {
+                const _chaine = Math.round(finalDamage * 0.6);
+                finalDamage += _chaine;
+                effortToasts.push({ msg: '◆ ENCHAÎNEMENT — un coup de plus : +' + _chaine + ' PV', type: 'success' });
+            }
 
             // ☠️ MALÉDICTION : -dégâts contre les boss
             if (curse && currentWave.isBoss && curse.bossWeak > 0) {
