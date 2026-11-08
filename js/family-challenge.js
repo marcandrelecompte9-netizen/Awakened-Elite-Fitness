@@ -791,7 +791,9 @@
     try { try { if (window.AwakFamCloseAll) window.AwakFamCloseAll(); } catch (e) { _awkE(e); }
     document.getElementById('awakCoopModal')?.remove(); } catch (e) { _awkE(e); }
     try { if (typeof renderAdventure === 'function') renderAdventure(); } catch (e) { _awkE(e); }
+    window._awkFamSous = 'defis';   // v1709 : le défi en cours s'affiche dans le sous-onglet Défis
     try { if (typeof switchTab === 'function') switchTab('family'); } catch (e) { _awkE(e); }
+    try { if (window.AwakFamSous) window.AwakFamSous('defis'); } catch (e) { _awkE(e); }
   };
   window.AwakCoopStop = function () {
     coopCancel();

@@ -9009,3 +9009,18 @@ body.dark-mode #setsGridPanel .awk-grid-ligne.en-cours input.awak-grid-num {
 [onclick*="awakOuvrirLimitations"] .accordion-icon::before { margin: -4px 0 0 -6px; transform: rotate(-45deg); }   /* lien (Mes limitations) : flèche vers la droite */
 #settingsTab .accordion-icon, #historyTab .accordion-icon, #calculatorsTab .accordion-icon,
 body.dark-mode .accordion-icon, .accordion-header.active .accordion-icon { color: transparent !important; }
+
+/* v1709 · Onglet Famille (adulte) : sous-onglets Ensemble · Enfants · Défis — même barre que Progrès */
+#awakFamBarre {
+    position: sticky; top: 0; z-index: 20; display: flex; gap: 4px;
+    margin: 0 0 14px; padding: 4px; border-radius: 14px;
+    background: rgba(13,17,26,0.94); border: 1px solid rgba(96,168,240,0.22);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+#awakFamBarre button {
+    flex: 1; min-width: 0; min-height: 40px !important; padding: 8px 4px !important; border-radius: 10px;
+    background: transparent; border: 1px solid transparent; cursor: pointer;
+    color: #94a3b8; font-family: inherit; font-weight: 800; font-size: 0.8em; letter-spacing: 0.3px; white-space: nowrap;
+}
+#awakFamBarre button.actif { background: rgba(96,168,240,0.18); border-color: rgba(96,168,240,0.55); color: #fff; }
+#familyContainer [data-fam-p][hidden] { display: none !important; }

@@ -933,7 +933,8 @@
       // 📋 Rappel des défis et objectifs en cours (rien s'il n'y en a pas).
       // 📋 « En cours » : section dédiée SOUS le ciel (family-sky.js, v1219).
       // v1346 : la barre Défis · Badges · Ma famille · Journal est réservée aux grands
-      +   ((window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) ? '' : '<div style="display:flex;border-top:1px solid rgba(255,255,255,0.06);">'
+      // v1709 : adulte → la barre passe dans le sous-onglet « Défis » (window._awkFamSansBarre)
+      +   ((window._awkFamSansBarre || (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild())) ? '' : '<div style="display:flex;border-top:1px solid rgba(255,255,255,0.06);">'
       // 🏅 Accès aux badges de famille, dans la barre du pied de carte.
 
 

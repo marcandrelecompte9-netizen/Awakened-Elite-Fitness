@@ -851,7 +851,7 @@ function renderFamilyTab() {
     const _sky = window.AwakFamilySky || null;
     let _enfant = false;
     try { _enfant = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) { _awkE(e); }
-    if (_sky) { try { html += _sky.avant(); } catch (e) { _awkE(e); } }
+    if (_sky && _enfant) { try { html += _sky.avant(); } catch (e) { _awkE(e); } }   // v1709 : adulte → dans « Ensemble »
     if (_enfant) {
         // 🧒 v1346 : version ENFANT allégée (7 blocs → 4) : le ciel (qui montre déjà qui
         // a bougé) avec ses jeux, « Bouger ensemble », puis la constellation de la semaine.
@@ -860,18 +860,44 @@ function renderFamilyTab() {
         // v1694 : « Bouger ensemble » retiré pour l'enfant (onglet trop chargé) : ciel + jeux + constellation
         if (_sky) { try { html += (_sky.apresEnfant || _sky.apres)(); } catch (e) { _awkE(e); } }
     } else {
+        // v1709 : 3 sous-onglets (Ensemble · Enfants · Défis) — l'onglet était trop chargé.
+        // Les trois volets sont dans le DOM ; seul l'actif est affiché (AwakFamSous).
+        let pEns = '', pEnf = '', pDef = '';
+        if (_sky) { try { pEns += _sky.avant(); } catch (e) { _awkE(e); } }
         // v1295 : « Notre semaine » — qui a bougé, jour par jour, avant le ciel
-        // v1683 : étoiles des enfants (récompenses) — en tête pour le parent
-        try { if (window.AwakEtoiles) html += AwakEtoiles.carteParent(); } catch (e) { _awkE(e); }
-        try { if (window.AwakFamilyWeek) html += window.AwakFamilyWeek.render(); } catch (e) { _awkE(e); }
-        html += constCard;
-        if (_sky) { try { html += _sky.apres(); } catch (e) { _awkE(e); } }
+        try { if (window.AwakFamilyWeek) pEns += window.AwakFamilyWeek.render(); } catch (e) { _awkE(e); }
+        window._awkFamSansBarre = true;
+        try { pEns += (window.AwakFamily && typeof window.AwakFamily.renderConstellation === 'function') ? window.AwakFamily.renderConstellation() : constCard; } catch (e) { _awkE(e); pEns += constCard; }
+        window._awkFamSansBarre = false;
+        // v1683 : étoiles des enfants (récompenses)
+        try { if (window.AwakEtoiles) pEnf += AwakEtoiles.carteParent(); } catch (e) { _awkE(e); }
+        // Défis : Défis · Badges · Ma famille · Journal (avant : pied du ciel), jours, constellation, en cours
+        const _ic = (n, c) => (window.AwakIcon ? AwakIcon.get(n, 20, c) : '');
+        const _tuile = (fn, ico, c, titre, det) => '<button onclick="' + fn + '" style="display:flex;align-items:center;gap:10px;min-width:0;padding:12px;border-radius:13px;cursor:pointer;font-family:inherit;text-align:left;background:#12161c;border:1px solid rgba(255,255,255,0.07);min-height:auto;">'
+            + '<span style="flex-shrink:0;display:inline-flex;">' + _ic(ico, c) + '</span>'
+            + '<span style="min-width:0;"><span style="display:block;font-size:0.78em;font-weight:800;color:#f1f5f9;">' + titre + '</span>'
+            + '<span style="display:block;font-size:0.64em;color:#94a3b8;margin-top:2px;line-height:1.3;">' + det + '</span></span></button>';
+        pDef += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 8px;">'
+            + _tuile('AwakEnsembleOpen()', 'trophee', '#f472b6', 'Défis', 'Objectif commun, duels')
+            + _tuile('AwakFamBadgesOpen()', 'etoile', '#fbbf24', 'Badges', 'Ceux de la famille')
+            + _tuile('AwakFamilyManage()', 'groupe', '#93c5fd', 'Ma famille', 'Les membres')
+            + _tuile('AwakFamilyFeedOpen()', 'liste', '#94a3b8', 'Journal', 'Qui a fait quoi')
+            + '</div>';
+        if (_sky) { try { pDef += _sky.apres(); } catch (e) { _awkE(e); } }
         // v1407 : « Ajouter un membre » reste visible (avant : seulement avec 1 profil —
         // pour ajouter un 3e ou un 4e membre, il fallait passer par le portrait de l'accueil)
         if (profileCount < (window.AWAK_MAX_PROFILS || 8)) {
-            html += '<button onclick="if(typeof showCreateProfileModal===\'function\')showCreateProfileModal();else showProfileSelectionModal()" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:0 0 12px;padding:8px;border-radius:10px;cursor:pointer;font-family:inherit;font-weight:700;font-size:0.76em;color:#94a3b8;background:transparent;border:none;min-height:auto;">'
+            pDef += '<button onclick="if(typeof showCreateProfileModal===\'function\')showCreateProfileModal();else showProfileSelectionModal()" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:0 0 12px;padding:8px;border-radius:10px;cursor:pointer;font-family:inherit;font-weight:700;font-size:0.76em;color:#94a3b8;background:transparent;border:none;min-height:auto;">'
                 + ((window.AwakIcon && AwakIcon.get('groupe', 14, '#94a3b8')) || '') + '+ Ajouter un membre (' + profileCount + ' / ' + (window.AWAK_MAX_PROFILS || 8) + ')</button>';
         }
+        const _ongl = [['ensemble', 'Ensemble'], ['enfants', 'Enfants'], ['defis', 'Défis']].filter(o => o[0] !== 'enfants' || pEnf);
+        let _sous = window._awkFamSous || 'ensemble';
+        if (!_ongl.some(o => o[0] === _sous)) _sous = 'ensemble';
+        window._awkFamSous = _sous;
+        html += '<div id="awakFamBarre" role="tablist">' + _ongl.map(o => '<button type="button" role="tab" data-fam-btn="' + o[0] + '" class="' + (o[0] === _sous ? 'actif' : '') + '" onclick="AwakFamSous(\'' + o[0] + '\')">' + o[1] + '</button>').join('') + '</div>'
+            + '<div data-fam-p="ensemble"' + (_sous === 'ensemble' ? '' : ' hidden') + '>' + pEns + '</div>'
+            + (pEnf ? '<div data-fam-p="enfants"' + (_sous === 'enfants' ? '' : ' hidden') + '>' + pEnf + '</div>' : '')
+            + '<div data-fam-p="defis"' + (_sous === 'defis' ? '' : ' hidden') + '>' + pDef + '</div>';
     }
 
     // Filet de sécurité
@@ -895,6 +921,15 @@ function refreshCoopViews() {
     } catch (e) { _awkE(e); }
 }
 window.renderFamilyTab = renderFamilyTab;
+// v1709 : sous-onglets de Famille (adulte) — bascule sans tout redessiner
+window.AwakFamSous = function (p) {
+    const c = document.getElementById('familyContainer'); if (!c) return null;
+    if (!c.querySelector('[data-fam-p="' + p + '"]')) p = 'ensemble';
+    window._awkFamSous = p;
+    c.querySelectorAll('[data-fam-p]').forEach(el => { el.hidden = el.getAttribute('data-fam-p') !== p; });
+    c.querySelectorAll('[data-fam-btn]').forEach(b => { const on = b.getAttribute('data-fam-btn') === p; b.classList.toggle('actif', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+    return p;
+};
 window.refreshCoopViews = refreshCoopViews;
 
 function renderAdventureTab() {
