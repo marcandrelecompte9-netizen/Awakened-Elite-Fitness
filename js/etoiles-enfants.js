@@ -101,11 +101,12 @@
   }
   function fermer(id) { var v = document.getElementById(id); if (v) v.remove(); }
   var BTN = 'min-height:auto;border-radius:12px;cursor:pointer;font-family:inherit;font-weight:800;';
-  var PLEIN = BTN + 'background:' + OR + ';color:#1a1204;border:none;padding:13px;width:100%;font-size:0.92em;';
+  // v1710 : bouton principal en cyan comme le reste de l'app (le jaune plein faisait mal aux yeux)
+  var PLEIN = BTN + 'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;border:none;padding:13px;width:100%;font-size:0.92em;';
   var VIDE = BTN + 'background:transparent;color:#cbd5e1;border:1px solid rgba(255,255,255,0.14);padding:12px;width:100%;font-size:0.86em;';
   function pastille(on, t, f) {
     return '<button onclick="' + f + '" style="' + BTN + 'padding:8px 13px;font-size:0.8em;'
-      + (on ? 'background:' + OR + ';color:#1a1204;border:1px solid ' + OR + ';' : 'background:#1a1e26;color:#cbd5e1;border:1px solid #1a1e26;') + '">' + t + '</button>';
+      + (on ? 'background:rgba(251,191,36,0.14);color:#fde68a;border:1px solid rgba(251,191,36,0.55);' : 'background:#1a1e26;color:#cbd5e1;border:1px solid #1a1e26;') + '">' + t + '</button>';
   }
   function barre(v, max) {
     var p = max > 0 ? Math.min(100, Math.round(v / max * 100)) : 100;
@@ -170,7 +171,7 @@
           + '<div style="flex:1;min-width:0;"><div style="color:#f1f5f9;font-size:0.88em;font-weight:700;">' + esc(r.nom) + '</div>'
           + (ok ? '' : '<div style="margin-top:7px;">' + rangee(Math.max(0, Math.min(dispo, r.cout)), r.cout - Math.max(0, dispo), 12) + '</div>') + '</div>'
           + '<span style="display:inline-flex;align-items:center;gap:3px;color:#fde68a;font-weight:900;font-size:0.86em;flex-shrink:0;">' + r.cout + etoile(13) + '</span>'
-          + (ok ? '<button onclick="AwakEtoiles.demander(\'' + r.id + '\')" style="' + BTN + 'flex-shrink:0;padding:8px 11px;font-size:0.76em;background:' + OR + ';color:#1a1204;border:none;">Je la veux</button>' : '')
+          + (ok ? '<button onclick="AwakEtoiles.demander(\'' + r.id + '\')" style="' + BTN + 'flex-shrink:0;padding:8px 11px;font-size:0.76em;background:rgba(251,191,36,0.14);color:#fde68a;border:1px solid rgba(251,191,36,0.55);">Je la veux</button>' : '')
           + '</div>';
       }).join('')
       + '<button onclick="AwakEtoiles.fermer()" style="' + VIDE + 'margin-top:10px;">Fermer</button>';
@@ -243,7 +244,7 @@
           + '<div style="color:#fff;font-weight:800;font-size:0.9em;">' + esc(nomDe(q.pid)) + ' veut : ' + esc(q.nom) + '</div>'
           + '<div style="font-size:0.74em;color:#94a3b8;margin:3px 0 10px;">' + q.cout + ' étoiles · demandé le ' + quand(q.t) + (assez ? '' : ' · <span style="color:#fca5a5;">solde insuffisant</span>') + '</div>'
           + '<div style="display:flex;gap:8px;">'
-          +   '<button onclick="AwakEtoiles.repondre(\'' + q.id + '\',true)" style="' + BTN + 'flex:1;padding:10px;font-size:0.84em;background:' + OR + ';color:#1a1204;border:none;' + (assez ? '' : 'opacity:0.45;') + '">Accepter</button>'
+          +   '<button onclick="AwakEtoiles.repondre(\'' + q.id + '\',true)" style="' + BTN + 'flex:1;padding:10px;font-size:0.84em;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;border:none;' + (assez ? '' : 'opacity:0.45;') + '">Accepter</button>'
           +   '<button onclick="AwakEtoiles.repondre(\'' + q.id + '\',false)" style="' + BTN + 'flex:1;padding:10px;font-size:0.84em;background:transparent;color:#cbd5e1;border:1px solid rgba(255,255,255,0.14);">Pas maintenant</button>'
           + '</div></div>';
       }).join('') : '<div style="padding:16px;border-radius:12px;background:#141821;color:#94a3b8;font-size:0.84em;text-align:center;">Aucune demande. Quand un enfant choisit une récompense, elle apparaît ici : tu décides si tu l\'appliques.</div>';

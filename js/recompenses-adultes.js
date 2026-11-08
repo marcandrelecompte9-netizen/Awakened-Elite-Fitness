@@ -61,11 +61,11 @@
         var c = p.id === conseil.id;
         return '<div style="padding:12px;border-radius:12px;background:#141821;margin-bottom:8px;border:1px solid ' + (c ? 'rgba(251,191,36,0.5)' : 'transparent') + ';">'
           + '<div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;min-width:0;"><span style="color:#fff;font-weight:900;font-size:0.92em;">' + p.nom + '</span>'
-          + (c ? ' <span style="font-size:0.62em;font-weight:900;color:#1a1204;background:' + OR + ';padding:2px 7px;border-radius:99px;vertical-align:2px;">POUR TOI</span>' : '')
+          + (c ? ' <span style="font-size:0.62em;font-weight:900;color:#fde68a;background:rgba(251,191,36,0.14);border:1px solid rgba(251,191,36,0.35);padding:1px 7px;border-radius:99px;vertical-align:2px;">POUR TOI</span>' : '')
           + '<div style="font-size:0.72em;color:#94a3b8;margin-top:2px;">' + p.rythme + '</div></div></div>'
           + '<div style="margin:8px 0 10px;font-size:0.78em;color:#cbd5e1;line-height:1.6;">'
           + p.items.map(function (it) { return '· ' + esc(it.nom) + ' — <span style="color:#fde68a;">' + unite(it, it.cible) + (it.hebdo ? ' par semaine' : '') + '</span>'; }).join('<br>')
-          + '</div><button onclick="AwakRecomp.pack(\'' + p.id + '\')" style="' + BTN + 'width:100%;padding:10px;font-size:0.84em;' + (c ? 'background:' + OR + ';color:#1a1204;border:none;' : 'background:transparent;color:#fde68a;border:1px solid rgba(251,191,36,0.45);') + '">Ajouter ce pack</button></div>';
+          + '</div><button onclick="AwakRecomp.pack(\'' + p.id + '\')" style="' + BTN + 'width:100%;padding:10px;font-size:0.84em;' + (c ? 'background:rgba(251,191,36,0.12);color:#fde68a;border:1px solid rgba(251,191,36,0.5);' : 'background:transparent;color:#fde68a;border:1px solid rgba(251,191,36,0.45);') + '">Ajouter ce pack</button></div>';
       }).join('');
   }
   function ajouterPack(id) {
@@ -133,7 +133,8 @@
 
   // ── Feuille ──
   var BTN = 'min-height:auto;border-radius:12px;cursor:pointer;font-family:inherit;font-weight:800;';
-  var PLEIN = BTN + 'background:' + OR + ';color:#1a1204;border:none;padding:13px;width:100%;font-size:0.92em;';
+  // v1710 : bouton principal en cyan comme le reste de l'app (le jaune plein faisait mal aux yeux)
+  var PLEIN = BTN + 'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;border:none;padding:13px;width:100%;font-size:0.92em;';
   var VIDE = BTN + 'background:transparent;color:#cbd5e1;border:1px solid rgba(255,255,255,0.14);padding:12px;width:100%;font-size:0.86em;';
   function feuille(html) {
     var v = document.getElementById('awakRecompSheet'); if (v) v.remove();
@@ -146,7 +147,7 @@
   }
   function fermer() { var v = document.getElementById('awakRecompSheet'); if (v) v.remove(); }
   function pastille(on, t, f) {
-    return '<button onclick="' + f + '" style="' + BTN + 'padding:8px 13px;font-size:0.8em;' + (on ? 'background:' + OR + ';color:#1a1204;border:1px solid ' + OR + ';' : 'background:#1a1e26;color:#cbd5e1;border:1px solid #1a1e26;') + '">' + t + '</button>';
+    return '<button onclick="' + f + '" style="' + BTN + 'padding:8px 13px;font-size:0.8em;' + (on ? 'background:rgba(251,191,36,0.14);color:#fde68a;border:1px solid rgba(251,191,36,0.55);' : 'background:#1a1e26;color:#cbd5e1;border:1px solid #1a1e26;') + '">' + t + '</button>';
   }
   function barre(v, max) {
     var p = max > 0 ? Math.min(100, Math.round(v / max * 100)) : 100;
