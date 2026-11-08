@@ -24864,7 +24864,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1710);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1713);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24917,7 +24917,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1710" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1713" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25728,7 +25728,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const cle = Math.round(r.width) + 'x' + H;
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1710)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1713)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center top';
                 } catch (e) { _awkE(e); }
@@ -31169,7 +31169,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1710");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1713");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -40554,73 +40554,115 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             prog[key] = Math.max(0, (prog[key] || 0) - 1); awakSaveProgress(prog);
             const content = document.getElementById('progTreeContent'); if (content) content.innerHTML = _treeBodyFor(disc);
         }
+        // v1711 : vue « constellation » comme l'arbre de compétences du jeu —
+        // onglets de branches, étapes = nœuds ronds reliés par des traits, fiche
+        // de l'étape choisie collée en bas (actions : faire, déjà acquis, refaire,
+        // annuler, entraînement libre). La logique de progression ne change pas.
+        window._awkPT = window._awkPT || { disc: null, br: null, sel: null, vu: {} };
+        window.awakPTOnglet = function (i) { const V = window._awkPT; V.br = i; V.sel = null; const c = document.getElementById('progTreeContent'); if (c && V.disc) c.innerHTML = _treeBodyFor(V.disc); };
+        window.awakPTVoir = function (i) { const V = window._awkPT; V.sel = i; const c = document.getElementById('progTreeContent'); if (c && V.disc) c.innerHTML = _treeBodyFor(V.disc); };
         function _treeBodyFor(disc) {
             const P = _progListFor(disc);
             const prog = awakGetProgress();
             const d = (typeof getDiscipline === 'function') ? getDiscipline(disc) : null;
-            const color = (d && d.color) || '#a855f7';
-            return P.map(function (p, idx) {
-                const total = p.steps.length;
-                const done = Math.min(prog[_progKey(disc, p.skill)] || 0, total);
-                const mastered = done >= total;
-                // 🌿 Branche verrouillée : le prérequis inter-skill n'est pas atteint.
-                const req = _progRequirement(disc, p);
-                if (!req.met) {
-                    return '<div style="background:rgba(255,255,255,0.015);border:1px dashed rgba(255,255,255,0.14);border-radius:14px;padding:14px 16px;margin-bottom:12px;opacity:0.75;">'
-                        + '<div style="display:flex;align-items:center;gap:9px;"><span style="font-size:1.4em;filter:grayscale(1);opacity:0.6;">' + p.emoji + '</span>'
-                        + '<span style="font-weight:900;color:#94a3b8;font-size:0.95em;flex:1;">' + p.skill + '</span>'
-                        + '<span style="background:rgba(255,255,255,0.06);color:#94a3b8;border-radius:8px;padding:3px 9px;font-size:0.64em;font-weight:900;flex-shrink:0;">VERROUILLÉ</span></div>'
-                        + '<div style="margin-top:10px;padding:9px 12px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:10px;font-size:0.74em;color:#fbbf24;line-height:1.4;">'
-                        + '🗝️ <strong>Pour débloquer :</strong> atteins « ' + req.text + ' »</div>'
-                        + '</div>';
-                }
-                const badge = mastered
-                    ? '<span style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a1a1a;border-radius:8px;padding:3px 9px;font-size:0.62em;font-weight:900;flex-shrink:0;">MAÎTRISÉ</span>'
-                    : '<span style="background:' + color + '2e;color:' + color + ';border-radius:8px;padding:3px 9px;font-size:0.64em;font-weight:900;flex-shrink:0;">' + done + '/' + total + '</span>';
-                const nodes = p.steps.map(function (s, i) {
-                    const isDone = i < done;
-                    const isCurrent = (i === done) && !mastered;
-                    const isLast = (i === total - 1);
-                    let circleStyle, inner, txtColor, weight;
-                    if (isDone) {
-                        circleStyle = 'background:' + color + ';border:2px solid ' + color + ';color:#fff;';
-                        inner = (isLast && mastered) ? '★' : '✓'; txtColor = '#e2e8f0'; weight = '600';
-                    } else if (isCurrent) {
-                        circleStyle = 'background:' + color + '2e;border:2px solid ' + color + ';color:' + color + ';box-shadow:0 0 0 4px ' + color + '26;';
-                        inner = (i + 1); txtColor = '#fff'; weight = '800';
-                    } else {
-                        circleStyle = 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:#7c8aa0;';
-                        inner = '🔒'; txtColor = '#7c8aa0'; weight = '400';
-                    }
-                    const lineColor = (i + 1 <= done) ? color : 'rgba(255,255,255,0.12)';
-                    const connector = isLast ? '' : '<div style="width:2px;flex:1;min-height:' + (isCurrent ? '44' : '18') + 'px;background:' + lineColor + ';margin:3px 0;"></div>';
-                    const star = (isLast ? ' <span style="color:#fbbf24;">★</span>' : '');
-                    let actions = '';
-                    if (isCurrent) {
-                        actions = '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px;">'
-                            + '<button onclick="startProgressionStep(\'' + disc + '\',' + idx + ',' + i + ')" style="background:' + color + ';border:none;color:#fff;border-radius:9px;padding:8px 13px;font-size:0.76em;font-weight:800;cursor:pointer;"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:-1px;margin-right:6px;"><path d="M7 4.5v15l13-7.5z"/></svg>Faire l\'entraînement</button>'
-                            + '<button onclick="awakAdvanceStep(\'' + disc + '\',' + idx + ',' + i + ')" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);color:#cbd5e1;border-radius:9px;padding:8px 12px;font-size:0.74em;font-weight:700;cursor:pointer;">✓ Déjà acquis</button>'
-                            + '</div>';
-                    } else if (isDone) {
-                        actions = '<div style="margin-top:6px;display:flex;gap:7px;flex-wrap:wrap;"><button onclick="startProgressionStep(\'' + disc + '\',' + idx + ',' + i + ')" style="background:transparent;border:1px solid ' + color + '55;color:' + color + ';border-radius:8px;padding:5px 10px;font-size:0.7em;font-weight:700;cursor:pointer;">↻ Refaire</button>'
-                            + ((i === done - 1) ? '<button onclick="awakRetractStep(\'' + disc + '\',' + idx + ')" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:#94a3b8;border-radius:8px;padding:5px 9px;font-size:0.7em;font-weight:600;cursor:pointer;">✕ Annuler</button>' : '')
-                            + '</div>';
-                    }
-                    return '<div style="display:flex;gap:12px;align-items:stretch;">'
-                        + '<div style="display:flex;flex-direction:column;align-items:center;width:26px;flex-shrink:0;">'
-                        + '<div style="width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.66em;font-weight:900;flex-shrink:0;' + circleStyle + '">' + inner + '</div>'
-                        + connector + '</div>'
-                        + '<div style="flex:1;padding-bottom:16px;min-width:0;"><div style="font-size:0.82em;color:' + txtColor + ';font-weight:' + weight + ';line-height:1.35;">' + s + star + '</div>'
-                        + (isCurrent ? '<div style="font-size:0.64em;color:' + color + ';font-weight:800;margin-top:2px;">🎯 Tu es ici</div>' : '')
-                        + actions + '</div></div>';
-                }).join('');
-                const masterFooter = mastered
-                    ? '<div style="margin-top:4px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.07);"><button onclick="startProgressionGenerator(\'' + disc + '\',' + idx + ')" style="width:100%;background:linear-gradient(135deg,' + color + ',' + color + 'cc);border:none;color:#fff;border-radius:10px;padding:11px;font-size:0.82em;font-weight:800;cursor:pointer;">♾️ Entraînement libre — à l\'infini</button></div>'
-                    : '';
-                return '<div style="background:rgba(255,255,255,0.02);border:1px solid ' + (mastered ? 'rgba(251,191,36,0.3)' : color + '2e') + ';border-radius:14px;padding:14px 16px;margin-bottom:12px;">'
-                    + '<div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;"><span style="font-size:1.4em;">' + p.emoji + '</span><span style="font-weight:900;color:#fff;font-size:0.95em;flex:1;">' + p.skill + '</span>' + badge + '</div>'
-                    + nodes + masterFooter + '</div>';
-            }).join('');
+            const c = (d && d.color) || '#a855f7';
+            const V = window._awkPT;
+            if (V.disc !== disc) { V.disc = disc; V.br = null; V.sel = null; V.vu = {}; }
+            const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, x => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[x]));
+            const ic = (n, t, col) => (window.AwakIcon ? AwakIcon.get(n, t, col) : '');
+            const SV = (p, t, col, fill) => '<svg viewBox="0 0 24 24" width="' + t + '" height="' + t + '" fill="' + (fill ? col : 'none') + '" stroke="' + (fill ? 'none' : col) + '" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' + p + '</svg>';
+            const CAD = (col, t) => SV('<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', t, col);
+            const OK = (col, t) => SV('<path d="M5 12.5l4.5 4.5L19 7.5"/>', t, col);
+            const PLAY = (col, t) => SV('<path d="M8 5v14l11-7z"/>', t, col, true);
+            const B = P.map(function (p, idx) {
+                const total = p.steps.length, done = Math.min(prog[_progKey(disc, p.skill)] || 0, total);
+                return { p: p, idx: idx, total: total, done: done, mastered: done >= total, req: _progRequirement(disc, p) };
+            });
+            if (!B.length) return '<div style="color:#94a3b8;font-size:0.85em;text-align:center;padding:20px;">Aucun parcours pour ce sport.</div>';
+            if (V.br == null || !B[V.br]) { const f = B.find(b => b.req.met && !b.mastered); V.br = f ? f.idx : 0; }
+            const b = B[V.br];
+            // Nouvelle étape franchie (ou annulée) : la sélection suit l'étape en cours
+            if (V.vu[V.br] !== b.done) { V.vu[V.br] = b.done; V.sel = null; }
+            if (V.sel == null || V.sel >= b.total) V.sel = b.mastered ? b.total - 1 : b.done;
+            let h = '<style>@keyframes awkPulse{0%,100%{box-shadow:0 0 0 0 var(--awk-c)}50%{box-shadow:0 0 0 9px transparent}}@keyframes awkTrait{to{stroke-dashoffset:-24}}</style>';
+            // Onglets des branches (défilent si nombreux)
+            // L'onglet choisi est ramené dans la vue (sinon une branche au bout restait cachée à droite)
+            setTimeout(function () { try { const t = document.querySelector('#progTreeContent [data-pt-on]'); const r = t && t.parentElement; if (r) r.scrollLeft = Math.max(0, t.offsetLeft - (r.clientWidth - t.offsetWidth) / 2); } catch (e) { _awkE(e); } }, 0);
+            h += '<div style="position:relative;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px 2px 6px;margin:0 -2px 6px;">';
+            B.forEach(function (x) {
+                const on = x.idx === V.br, verr = !x.req.met, aFaire = x.req.met && !x.mastered;
+                const col = x.mastered ? '#fbbf24' : c;
+                h += '<button onclick="awakPTOnglet(' + x.idx + ')"' + (on ? ' data-pt-on' : '') + ' style="position:relative;overflow:visible;flex:0 0 auto;min-width:86px;max-width:120px;min-height:0;padding:8px 8px 7px;border-radius:12px;font-family:inherit;cursor:pointer;text-align:center;'
+                    + 'background:' + (on ? col + '26' : 'rgba(255,255,255,0.03)') + ';border:1.5px solid ' + (on ? col : 'rgba(255,255,255,0.08)') + ';color:' + (on ? '#f1f5f9' : '#a3b1c2') + ';">'
+                    + '<div style="display:flex;justify-content:center;">' + (verr ? CAD('#8d9cb1', 16) : x.mastered ? ic('couronne', 17, '#fbbf24') : ic('etoile', 17, on ? c : '#8d9cb1')) + '</div>'
+                    + '<div style="font-size:10.5px;font-weight:800;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(String(x.p.skill).replace(/^(L'|Les |La |Le )/, '')) + '</div>'
+                    + '<div style="font-size:10px;color:' + (on ? col : '#8d9cb1') + ';font-weight:800;">' + (verr ? 'Verrouillé' : x.done + '/' + x.total) + '</div>'
+                    + (aFaire && !on ? '<span style="position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:' + c + ';box-shadow:0 0 8px ' + c + ';"></span>' : '')
+                    + '</button>';
+            });
+            h += '</div>';
+            h += '<div style="font-size:13px;font-weight:900;color:#f1f5f9;text-align:center;margin:0 0 8px;">' + esc(b.p.skill) + '</div>';
+            if (!b.req.met) {
+                return h + '<div style="height:220px;border-radius:18px;border:1px dashed ' + c + '55;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:0 20px;text-align:center;background:radial-gradient(ellipse at 50% 30%,' + c + '18,transparent 60%),#090b10;">'
+                    + CAD(c, 28) + '<div style="font-size:14px;font-weight:800;color:#e2e8f0;">Branche verrouillée</div>'
+                    + '<div style="font-size:12.5px;color:#a3b1c2;line-height:1.4;">Pour l\'ouvrir : atteins « ' + esc(b.req.text) + ' ».</div></div>';
+            }
+            // Scène : zigzag, nœud 58 px, traits courbes
+            const PAS = 104, HAUT = 58;
+            const pos = i => ({ x: b.total === 1 ? 50 : (i % 2 ? 68 : 32), y: HAUT + i * PAS });
+            const H = HAUT * 2 + Math.max(0, b.total - 1) * PAS + 20;
+            let traits = '';
+            for (let i = 1; i < b.total; i++) {
+                const q = pos(i - 1), p2 = pos(i), ym = (q.y + p2.y) / 2;
+                const dd = 'M' + q.x + ' ' + q.y + ' C' + q.x + ' ' + ym + ' ' + p2.x + ' ' + ym + ' ' + p2.x + ' ' + p2.y;
+                if (i < b.done) traits += '<path d="' + dd + '" stroke="' + c + '" stroke-width="9" opacity="0.18" fill="none" vector-effect="non-scaling-stroke"/><path d="' + dd + '" stroke="' + c + '" stroke-width="3" fill="none" vector-effect="non-scaling-stroke"/>';
+                else if (i === b.done) traits += '<path d="' + dd + '" stroke="' + c + '" stroke-width="2.5" stroke-dasharray="6 6" opacity="0.75" fill="none" vector-effect="non-scaling-stroke" style="animation:awkTrait 1.2s linear infinite;"/>';
+                else traits += '<path d="' + dd + '" stroke="rgba(255,255,255,0.13)" stroke-width="2" stroke-dasharray="2 6" fill="none" vector-effect="non-scaling-stroke"/>';
+            }
+            h += '<div style="position:relative;height:' + H + 'px;margin:0 -2px;border-radius:18px;overflow:hidden;'
+                + 'background:radial-gradient(ellipse at 50% 0%,' + c + '26,transparent 60%),radial-gradient(circle at 15% 70%,' + c + '12,transparent 40%),radial-gradient(circle at 85% 40%,' + c + '10,transparent 35%),#090b10;border:1px solid ' + c + '33;">'
+                + '<div style="position:absolute;inset:0;opacity:0.5;background-image:radial-gradient(1px 1px at 12% 18%,#fff8,transparent),radial-gradient(1px 1px at 78% 12%,#fff6,transparent),radial-gradient(1.5px 1.5px at 64% 58%,#fff5,transparent),radial-gradient(1px 1px at 30% 82%,#fff6,transparent),radial-gradient(1px 1px at 90% 76%,#fff5,transparent),radial-gradient(1px 1px at 45% 35%,#fff4,transparent);"></div>'
+                + '<svg viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;">' + traits + '</svg>';
+            b.p.steps.forEach(function (s, i) {
+                const p2 = pos(i), fait = i < b.done, ici = i === b.done && !b.mastered, sel = i === V.sel, der = i === b.total - 1;
+                const col = (der && b.mastered) ? '#fbbf24' : c;
+                const fond = fait ? 'radial-gradient(circle at 35% 30%,' + col + '55,' + col + '18 60%,#0b0d12),#0b0d12' : ici ? 'radial-gradient(circle at 35% 30%,' + c + '22,#0b0d12 70%),#0b0d12' : '#0d1016';
+                const bord = (fait || ici) ? col : 'rgba(255,255,255,0.14)';
+                const ombre = fait ? '0 0 18px ' + col + '88,inset 0 0 12px ' + col + '44' : ici ? '0 0 14px ' + c + '55' : 'none';
+                const dedans = fait ? (der ? ic('couronne', 24, '#fbbf24') : OK(col, 24)) : ici ? PLAY(c, 22) : '<span style="font-size:15px;font-weight:900;color:#64748b;">' + (i + 1) + '</span>';
+                const badge = (!fait && !ici) ? '<span style="position:absolute;right:-3px;bottom:-3px;width:22px;height:22px;border-radius:50%;background:#0b0d12;border:1.5px solid rgba(255,255,255,0.16);display:flex;align-items:center;justify-content:center;">' + CAD('#8d9cb1', 12) + '</span>' : '';
+                h += '<div onclick="awakPTVoir(' + i + ')" role="button" aria-label="' + esc(s) + '" style="overflow:visible;position:absolute;left:' + p2.x + '%;top:' + p2.y + 'px;transform:translate(-50%,-29px);width:132px;text-align:center;cursor:pointer;z-index:2;">'
+                    + '<div style="position:relative;width:58px;height:58px;margin:0 auto;border-radius:50%;background:' + fond + ';border:2px solid ' + bord + ';box-shadow:' + ombre + ';display:flex;align-items:center;justify-content:center;'
+                    + (ici ? 'animation:awkPulse 1.8s ease-in-out infinite;--awk-c:' + c + '66;' : '') + (sel ? 'outline:2px solid #fff;outline-offset:3px;' : '') + '">' + dedans + badge + '</div>'
+                    + '<div style="display:inline-block;max-width:130px;font-size:11.5px;font-weight:800;line-height:1.15;margin-top:5px;padding:2px 6px;border-radius:7px;background:rgba(9,11,16,0.88);color:' + (fait || ici ? '#f1f5f9' : '#8d9cb1') + ';">' + esc(s) + '</div>'
+                    + (ici ? '<div style="font-size:10px;color:' + c + ';font-weight:800;margin-top:1px;">Tu es ici</div>' : '') + '</div>';
+            });
+            h += '</div>';
+            // Fiche de l'étape choisie
+            const i = V.sel, fait = i < b.done, ici = i === b.done && !b.mastered;
+            const BTN = 'width:100%;min-height:44px;margin-top:10px;border-radius:12px;font-family:inherit;font-size:14.5px;font-weight:900;cursor:pointer;';
+            let ligne, actions = '';
+            if (ici) {
+                ligne = 'Étape ' + (i + 1) + ' sur ' + b.total + '. Termine l\'entraînement pour ouvrir la suivante.';
+                actions = '<button onclick="startProgressionStep(\'' + disc + '\',' + b.idx + ',' + i + ')" style="' + BTN + 'border:none;color:#0b0d12;background:linear-gradient(135deg,' + c + ',' + c + 'cc);box-shadow:0 6px 18px ' + c + '44;">Faire l\'entraînement</button>'
+                    + '<button onclick="awakAdvanceStep(\'' + disc + '\',' + b.idx + ',' + i + ')" style="' + BTN + 'min-height:40px;margin-top:8px;font-size:13px;font-weight:800;background:transparent;border:1px solid rgba(255,255,255,0.16);color:#cbd5e1;">Je l\'ai déjà</button>';
+            } else if (fait) {
+                ligne = (i === b.total - 1 && b.mastered) ? 'Parcours terminé.' : 'Étape réussie.';
+                actions = '<div style="display:flex;gap:8px;">'
+                    + '<button onclick="startProgressionStep(\'' + disc + '\',' + b.idx + ',' + i + ')" style="' + BTN + 'flex:1;min-height:40px;font-size:13px;font-weight:800;background:' + c + '1f;border:1px solid ' + c + '66;color:#f1f5f9;">Refaire</button>'
+                    + (i === b.done - 1 ? '<button onclick="awakRetractStep(\'' + disc + '\',' + b.idx + ')" style="' + BTN + 'flex:1;min-height:40px;font-size:13px;font-weight:800;background:transparent;border:1px solid rgba(255,255,255,0.16);color:#a3b1c2;">Annuler l\'étape</button>' : '')
+                    + '</div>';
+            } else {
+                ligne = 'Termine d\'abord « ' + esc(b.p.steps[b.done]) + ' ».';
+            }
+            if (b.mastered) actions += '<button onclick="startProgressionGenerator(\'' + disc + '\',' + b.idx + ')" style="' + BTN + 'border:none;color:#0b0d12;background:linear-gradient(135deg,' + c + ',' + c + 'cc);box-shadow:0 6px 18px ' + c + '44;">Entraînement libre, sans fin</button>';
+            h += '<div style="position:sticky;bottom:0;z-index:5;margin-top:12px;padding:12px 14px;border-radius:16px;background:linear-gradient(160deg,#151a24,#0d1016);border:1.5px solid ' + c + '66;box-shadow:0 -6px 24px rgba(0,0,0,0.55);">'
+                + '<div style="display:flex;align-items:center;gap:12px;">'
+                + '<div style="width:46px;height:46px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:' + c + '1f;border:1.5px solid ' + c + ';">' + (fait ? OK(c, 22) : ici ? PLAY(c, 20) : CAD('#8d9cb1', 18)) + '</div>'
+                + '<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:900;color:#f1f5f9;">' + esc(b.p.steps[i]) + '</div>'
+                + '<div style="font-size:12.5px;color:#a3b1c2;line-height:1.35;margin-top:2px;">' + ligne + '</div></div></div>'
+                + actions + '</div>';
+            return h;
         }
         function openProgressionTree(disc) {
             const old = document.getElementById('progTreeModal'); if (old) old.remove();
@@ -40632,7 +40674,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             modal.id = 'progTreeModal';
             modal.innerHTML = '<div class="modal-content" style="max-width:480px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:3px solid ' + color + ';">'
                 + '<div class="modal-header"><h2 style="font-size:1em;">🌳 ' + (d ? d.emoji + ' ' : '') + name + '</h2><button onclick="document.getElementById(\'progTreeModal\').remove()" style="background:none;border:none;font-size:1.5em;cursor:pointer;color:#94a3b8;">×</button></div>'
-                + '<div class="modal-body"><div style="font-size:0.74em;color:#94a3b8;line-height:1.5;margin-bottom:16px;background:' + color + '12;border:1px solid ' + color + '33;border-radius:10px;padding:10px 13px;">Chaque étape est un <strong style="color:#fff;">entraînement</strong>. Fais celui qui est débloqué (▶) : une fois terminé, le suivant s\'ouvre — pas de séance trop dure trop tôt. Tu peux aussi marquer une étape « déjà acquise ». Au bout du parcours, un <strong style="color:#fff;">entraînement libre ♾️</strong> se débloque.</div>'
+                + '<div class="modal-body"><div style="font-size:0.74em;color:#94a3b8;line-height:1.5;margin-bottom:16px;background:' + color + '12;border:1px solid ' + color + '33;border-radius:10px;padding:10px 13px;">Chaque étoile est un <strong style="color:#fff;">entraînement</strong>. Fais celle qui brille : la suivante s\'allume. Au bout d\'une branche, un <strong style="color:#fff;">entraînement libre</strong> se débloque.</div>'
                 + '<div id="progTreeContent">' + _treeBodyFor(disc) + '</div></div></div>';
             document.body.appendChild(modal);
         }
@@ -44844,7 +44886,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1710';
+                    let ver = 'v0.95.1713';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -45012,7 +45054,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1710" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1713" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45094,7 +45136,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1710);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1713);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45161,7 +45203,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1710);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1713);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47626,7 +47668,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1710");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1713");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
