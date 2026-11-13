@@ -2391,7 +2391,8 @@
 
         function awakShowRiftCombatScreen() {
             const session = awakActiveRiftSession;
-            if (!session) return;
+            if (!session) { try { window.awakVoileCombatRetirer && awakVoileCombatRetirer(); } catch (e) { _awkE(e); } return; }
+            try { window.awakVoileCombatRetirer && awakVoileCombatRetirer(80); } catch (e) { _awkE(e); }   // v1719
             const { rift, theme } = session;
             const currentWave = rift.waves[rift.currentWaveIdx];
             if (!currentWave) {
@@ -3560,6 +3561,7 @@
          */
         function awakCompleteRift() {
             const session = awakActiveRiftSession;
+            try { window.awakVoileCombatRetirer && awakVoileCombatRetirer(1200); } catch (e) { _awkE(e); }   // v1719 : l'écran de victoire prend le relais
             if (!session) return;
             const { rift, theme } = session;
             const playerPower = awakGetPowerScore();
@@ -4263,7 +4265,8 @@
 
         function awakShowHuntScreen() {
             const session = awakActiveHuntSession;
-            if (!session) return;
+            if (!session) { try { window.awakVoileCombatRetirer && awakVoileCombatRetirer(); } catch (e) { _awkE(e); } return; }
+            try { window.awakVoileCombatRetirer && awakVoileCombatRetirer(80); } catch (e) { _awkE(e); }   // v1719
             const { monster, type } = session;
 
             // Choisir 4 exercices de chasse (variés)
@@ -4476,6 +4479,7 @@
 
         function awakCompleteHunt() {
             const session = awakActiveHuntSession;
+            try { window.awakVoileCombatRetirer && awakVoileCombatRetirer(1200); } catch (e) { _awkE(e); }   // v1719
             if (!session) return;
             const { monster, type } = session;
 
