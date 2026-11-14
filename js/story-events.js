@@ -2069,30 +2069,68 @@ function storyShowEvent(evt) {
     if (!evt || !evt.content) return;
     if (typeof window.AwakCine !== 'undefined' && window.AwakCine.defer(function () { storyShowEvent(evt); })) return;
     if (_storyEnFaille()) { _storyAttendreFinFaille(function () { storyShowEvent(evt); }); return; }   // v1644
-    // v1721 : TRANSITION avant la scène — l'écran s'assombrit, une ligne du Système,
-    // puis la scène apparaît (avant : elle surgissait d'un coup).
+    // v1723 : TRANSITION avant la scène, retravaillée — fondu au noir, lignes de
+    // balayage, une FENÊTRE DU SYSTÈME s'ouvre (crochets lumineux, titre en
+    // grésillement, texte tapé), se referme en un trait, puis la scène apparaît.
+    // Un toucher passe la transition.
     if (!evt._prelude && !document.getElementById('storyPrelude')) {
         try {
-            const _ch = STORY_CHARS[(evt.content && evt.content.speaker)] || STORY_CHARS.systeme;
+            const _sp = evt.content && evt.content.speaker;
+            const _ch = STORY_CHARS[_sp] || STORY_CHARS.systeme;
             const _c = _ch.color || '#22d3ee';
+            const _ligne = (!_sp || _sp === 'systeme') ? 'Le Système souhaite te parler.' : 'Quelqu\'un approche…';
+            if (!document.getElementById('storyPreludeCss')) {
+                const st = document.createElement('style');
+                st.id = 'storyPreludeCss';
+                st.textContent = '@keyframes spFond{from{opacity:0}to{opacity:1}}'
+                    + '@keyframes spBalai{from{background-position:0 0}to{background-position:0 6px}}'
+                    + '@keyframes spOuvre{0%{transform:scaleY(0.02) scaleX(0);opacity:0}35%{transform:scaleY(0.02) scaleX(1);opacity:1}100%{transform:scaleY(1) scaleX(1);opacity:1}}'
+                    + '@keyframes spFerme{0%{transform:scaleY(1);opacity:1}60%{transform:scaleY(0.02);opacity:1}100%{transform:scaleY(0.02) scaleX(0);opacity:0}}'
+                    + '@keyframes spGresille{0%,100%{opacity:1;transform:none}8%{opacity:0.3;transform:translateX(-3px)}10%{opacity:1;transform:translateX(2px)}12%{transform:none}52%{opacity:1}54%{opacity:0.4;transform:translateX(3px)}56%{opacity:1;transform:none}}'
+                    + '@keyframes spCurseur{50%{opacity:0}}'
+                    + '#storyPrelude .sp-coin{position:absolute;width:16px;height:16px;border-color:currentColor;border-style:solid;}';
+                document.head.appendChild(st);
+            }
             const pr = document.createElement('div');
             pr.id = 'storyPrelude';
-            pr.style.cssText = 'position:fixed;inset:0;z-index:99996;background:#020306;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;opacity:0;transition:opacity 0.6s ease;pointer-events:auto;';
-            pr.innerHTML = '<div style="width:0;height:1px;background:linear-gradient(90deg,transparent,' + _c + ',transparent);box-shadow:0 0 12px ' + _c + ';transition:width 0.9s ease 0.3s;" data-trait></div>'
-                + '<div style="font-size:0.72em;font-weight:900;letter-spacing:4px;color:' + _c + ';opacity:0;transition:opacity 0.6s ease 0.5s;" data-txt>◇ LE SYSTÈME ◇</div>'
-                + '<div style="font-size:0.95em;font-weight:700;color:#cbd5e1;opacity:0;transition:opacity 0.6s ease 0.8s;text-align:center;padding:0 24px;" data-txt>Un souvenir remonte…</div>';
+            pr.setAttribute('role', 'presentation');
+            pr.style.cssText = 'position:fixed;inset:0;z-index:99996;display:flex;align-items:center;justify-content:center;pointer-events:auto;'
+                + 'background:radial-gradient(ellipse at 50% 50%,' + _c + '1c 0%,transparent 60%),radial-gradient(ellipse at 50% 50%,#05080e 0%,#000 100%);animation:spFond 0.45s ease forwards;transition:opacity 0.5s ease;';
+            pr.innerHTML = '<div style="position:absolute;inset:0;pointer-events:none;opacity:0.18;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,0.08) 0 1px,transparent 1px 3px);animation:spBalai 0.4s linear infinite;"></div>'
+                + '<div data-fen style="position:relative;width:min(86vw,360px);padding:20px 20px 18px;color:' + _c + ';'
+                +   'background:linear-gradient(180deg,rgba(8,14,24,0.92),rgba(4,8,14,0.96));border:1px solid ' + _c + '66;'
+                +   'box-shadow:0 0 28px ' + _c + '40,inset 0 0 22px ' + _c + '1a;transform:scaleY(0.02) scaleX(0);opacity:0;animation:spOuvre 0.55s cubic-bezier(.2,.8,.2,1) 0.25s forwards;">'
+                +   '<span class="sp-coin" style="top:-2px;left:-2px;border-width:2px 0 0 2px;"></span><span class="sp-coin" style="top:-2px;right:-2px;border-width:2px 2px 0 0;"></span>'
+                +   '<span class="sp-coin" style="bottom:-2px;left:-2px;border-width:0 0 2px 2px;"></span><span class="sp-coin" style="bottom:-2px;right:-2px;border-width:0 2px 2px 0;"></span>'
+                +   '<div style="text-align:center;font-size:11px;font-weight:900;letter-spacing:4px;animation:spGresille 1.6s steps(1) 0.8s infinite;">[ ALERTE DU SYSTÈME ]</div>'
+                +   '<div style="height:1px;margin:12px 0 14px;background:linear-gradient(90deg,transparent,' + _c + ',transparent);opacity:0.7;"></div>'
+                +   '<div style="text-align:center;font-size:15px;font-weight:700;color:#e2e8f0;min-height:22px;"><span data-tape></span><span style="display:inline-block;width:8px;height:15px;margin-left:2px;vertical-align:-2px;background:' + _c + ';animation:spCurseur 0.8s steps(1) infinite;"></span></div>'
+                + '</div>';
             document.body.appendChild(pr);
-            requestAnimationFrame(function () { requestAnimationFrame(function () {
-                pr.style.opacity = '1';
-                const t = pr.querySelector('[data-trait]'); if (t) t.style.width = '62%';
-                pr.querySelectorAll('[data-txt]').forEach(function (x) { x.style.opacity = '1'; });
-            }); });
             evt._prelude = true;
-            setTimeout(function () {
-                try { storyShowEvent(evt); } catch (e) { _awkE(e); }
-                // la scène (fondu 0,45 s) est par-dessus : le prélude s'efface derrière
-                setTimeout(function () { try { pr.style.opacity = '0'; setTimeout(function () { pr.remove(); }, 650); } catch (e) { _awkE(e); } }, 500);
-            }, 2000);
+            let fini = false;
+            const tape = pr.querySelector('[data-tape]');
+            let k = 0;
+            const tTape = setTimeout(function tic() {
+                if (fini || !tape) return;
+                tape.textContent = _ligne.slice(0, ++k);
+                if (k < _ligne.length) setTimeout(tic, 32);
+            }, 850);
+            const terminer = function () {
+                if (fini) return; fini = true;
+                clearTimeout(tTape); clearTimeout(tFin);
+                try {
+                    const f = pr.querySelector('[data-fen]');
+                    if (f) { f.style.animation = 'spFerme 0.35s ease-in forwards'; }
+                } catch (e) { _awkE(e); }
+                setTimeout(function () {
+                    try { storyShowEvent(evt); } catch (e) { _awkE(e); }
+                    // la scène (fondu 0,45 s) passe par-dessus : la transition s'efface derrière
+                    setTimeout(function () { try { pr.style.opacity = '0'; setTimeout(function () { pr.remove(); }, 520); } catch (e) { _awkE(e); } }, 450);
+                }, 320);
+            };
+            const tFin = setTimeout(terminer, 2500);
+            pr.addEventListener('click', terminer);
             return;
         } catch (e) { _awkE(e); }
     }
