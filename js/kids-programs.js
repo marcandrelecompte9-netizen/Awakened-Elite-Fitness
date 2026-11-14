@@ -335,6 +335,7 @@
     byId: byId,
     renderTab: renderTab,
     lancer: lancer,
+    icone: function (id) { return ICO[id] || 'etoile'; },
     missionsFaites: missionsFaites
   };
 })();

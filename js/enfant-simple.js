@@ -291,10 +291,90 @@
       +     '<span style="font-size:14px;font-weight:800;opacity:0.92;">15 minutes de jeux</span>'
       +   '</button>'
       + '</div>'
+      + carteMissionsHTML()
       + carteAventureHTML()
       + carteAlbumHTML()
       + etoiles;
   }
+  // v1749 : les programmes enfant (cachés avec l'onglet Séance) reviennent ici
+  var COULS = ['#fb923c', '#38bdf8', '#f472b6', '#facc15'];
+  function progs() { try { return window.AwakKidsPrograms ? AwakKidsPrograms.all() : []; } catch (e) { return []; } }
+  function faitsProg() { try { return window.AwakKidsPrograms ? AwakKidsPrograms.missionsFaites() : {}; } catch (e) { return {}; } }
+  function pastilleProg(p, i, taille) {
+    var c = COULS[i % COULS.length], n = 'etoile';
+    try { n = AwakKidsPrograms.icone(p.id); } catch (e) { _e(e); }
+    return '<span style="width:' + taille + 'px;height:' + taille + 'px;border-radius:' + Math.round(taille * 0.3) + 'px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:' + c + '33;border:2px solid ' + c + '88;">' + ico(n, Math.round(taille * 0.5), c) + '</span>';
+  }
+  function carteMissionsHTML() {
+    var P = progs(); if (!P.length) return '';
+    var f = faitsProg(), faits = 0;
+    P.forEach(function (p) { faits += Object.keys((f[p.id] || {}).jours || {}).length; });
+    var mini = P.slice(0, 5).map(function (p, i) { return pastilleProg(p, i, 30); }).join('');
+    return '<button onclick="AwakKid.missions()" style="display:flex;align-items:center;gap:12px;width:100%;margin:0 0 14px;padding:12px 14px;min-height:0;border-radius:18px;cursor:pointer;font-family:inherit;text-align:left;'
+      + 'background:linear-gradient(135deg,rgba(244,114,182,0.16),rgba(251,146,60,0.1));border:2px solid rgba(244,114,182,0.4);">'
+      + '<span style="flex:1;min-width:0;display:block;">'
+      +   '<span style="display:block;font-size:18px;font-weight:900;color:#fff;">Mes missions</span>'
+      +   '<span style="display:block;font-size:14px;font-weight:700;color:#fbcfe8;margin:2px 0 7px;">Super-héros, ninja, pirates…' + (faits ? ' · ' + faits + ' réussie' + (faits > 1 ? 's' : '') : '') + '</span>'
+      +   '<span style="display:flex;gap:4px;">' + mini + '</span>'
+      + '</span><span style="font-size:26px;font-weight:900;color:#fbcfe8;line-height:1;">›</span></button>';
+  }
+  var FOND = 'position:fixed;inset:0;z-index:12800;overflow-y:auto;background:radial-gradient(circle at 50% 12%,#1e3a5f,#0b1220 70%);padding:calc(12px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom));box-sizing:border-box;';
+  var RET = 'min-height:44px;padding:8px 18px;flex-shrink:0;border:none;border-radius:14px;background:linear-gradient(135deg,#fb923c,#f472b6);color:#fff;font-family:inherit;font-size:16px;font-weight:900;cursor:pointer;';
+  function missions() {
+    var v = document.getElementById('awkKidMissions'); if (v) v.remove();
+    var P = progs(), f = faitsProg();
+    var cartes = P.map(function (p, i) {
+      var n = Object.keys((f[p.id] || {}).jours || {}).length, tot = p.sessions.length, pts = '';
+      for (var k = 0; k < tot; k++) pts += '<span style="width:10px;height:10px;border-radius:50%;display:inline-block;background:' + (k < n ? '#facc15' : 'rgba(255,255,255,0.15)') + ';"></span>';
+      return '<button onclick="AwakKid.mission(\'' + p.id + '\')" style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:14px 8px 12px;min-height:0;border-radius:20px;cursor:pointer;font-family:inherit;'
+        + 'background:rgba(255,255,255,0.05);border:2px solid ' + COULS[i % COULS.length] + '55;">'
+        + pastilleProg(p, i, 56)
+        + '<span style="font-size:15px;font-weight:900;color:#fff;line-height:1.2;">' + esc(p.name) + '</span>'
+        + '<span style="display:flex;gap:4px;">' + pts + '</span></button>';
+    }).join('');
+    var o = document.createElement('div'); o.id = 'awkKidMissions'; o.style.cssText = FOND;
+    o.innerHTML = '<div style="max-width:480px;margin:0 auto;">'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">' + renard('pouce', 76)
+      +   '<div style="flex:1;min-width:0;"><div style="font-size:24px;font-weight:900;color:#fff;line-height:1.1;">Mes missions</div>'
+      +   '<div style="font-size:14px;font-weight:800;color:#bae6fd;margin-top:4px;">Choisis ton aventure !</div></div>'
+      +   '<button onclick="document.getElementById(\'awkKidMissions\').remove()" style="' + RET + '">Retour</button></div>'
+      + '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">' + cartes + '</div></div>';
+    document.body.appendChild(o);
+  }
+  function mission(id) {
+    var P = progs(), i = 0, p = null;
+    P.forEach(function (x, k) { if (x.id === id) { p = x; i = k; } });
+    if (!p) return;
+    var v = document.getElementById('awkKidMission'); if (v) v.remove();
+    var f = (faitsProg()[id] || {}).jours || {}, c = COULS[i % COULS.length];
+    var prochaine = 0; while (prochaine < p.sessions.length && f[prochaine]) prochaine++;
+    var lignes = p.sessions.map(function (se, k) {
+      var fait = !!f[k], ici = k === prochaine;
+      return '<div style="padding:14px;border-radius:20px;margin-bottom:10px;' + (ici ? 'background:linear-gradient(135deg,rgba(251,146,60,0.18),rgba(244,114,182,0.12));border:2px solid rgba(251,146,60,0.6);' : 'background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.08);') + '">'
+        + '<div style="display:flex;align-items:center;gap:12px;">'
+        +   '<span style="width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;'
+        +     (fait ? 'background:#facc15;">' + ico('etoile', 22, '#0b1220') : 'background:' + c + ';color:#0b1220;">' + (k + 1)) + '</span>'
+        +   '<div style="flex:1;min-width:0;"><div style="font-size:17px;font-weight:900;color:#fff;">' + esc(se.name) + '</div>'
+        +   '<div style="font-size:13px;font-weight:700;color:#94a3b8;margin-top:2px;line-height:1.35;">' + se.exercises.map(esc).join(' · ') + '</div></div>'
+        + '</div>'
+        + '<button onclick="AwakKid.lancerMission(\'' + id + '\',' + k + ')" style="width:100%;min-height:' + (ici ? 56 : 46) + 'px;margin-top:12px;border-radius:16px;cursor:pointer;font-family:inherit;font-weight:900;color:#fff;font-size:' + (ici ? 19 : 16) + 'px;'
+        +   (ici ? 'border:none;background:linear-gradient(135deg,#fb923c,#f472b6);box-shadow:0 6px 18px rgba(251,146,60,0.35);' : 'background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.15);') + '">'
+        +   (fait ? 'Rejouer' : 'C\'est parti !') + '</button></div>';
+    }).join('');
+    var o = document.createElement('div'); o.id = 'awkKidMission'; o.style.cssText = FOND.replace('z-index:12800', 'z-index:12850');
+    o.innerHTML = '<div style="max-width:480px;margin:0 auto;">'
+      + '<div style="display:flex;justify-content:flex-end;margin-bottom:6px;"><button onclick="document.getElementById(\'awkKidMission\').remove()" style="' + RET + '">Retour</button></div>'
+      + '<div style="text-align:center;margin-bottom:16px;"><div style="display:flex;justify-content:center;">' + pastilleProg(p, i, 88) + '</div>'
+      +   '<div style="font-size:26px;font-weight:900;color:#fff;margin-top:10px;line-height:1.15;">' + esc(p.name) + '</div>'
+      +   '<div style="font-size:16px;font-weight:800;color:#bae6fd;margin-top:6px;line-height:1.4;">' + esc(p.desc || '') + '</div></div>'
+      + lignes + '</div>';
+    document.body.appendChild(o);
+  }
+  function lancerMission(id, k) {
+    ['awkKidMission', 'awkKidMissions'].forEach(function (x) { var v = document.getElementById(x); if (v) v.remove(); });
+    try { depart(); window._awkKidDirect = true; AwakKidsPrograms.lancer(id, k); } catch (e) { _e(e); window._awkKidDirect = false; finDepart(); }
+  }
+
   function carteAlbumHTML() {
     var d = album(), pc = pageCourante(d), AUTOS = PAGES[pc], N = AUTOS.length, mini = '', n = 0;
     AUTOS.forEach(function (a) { if (d.ont.indexOf(a[0]) >= 0) { n++; mini += imgAuto(a[0], '26px'); } });
@@ -568,7 +648,7 @@
     window.switchTab = w;
   }
 
-  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, bravo: bravo, envoyer: envoyer, lireMessages: lireMessages };
+  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, missions: missions, mission: mission, lancerMission: lancerMission, bravo: bravo, envoyer: envoyer, lireMessages: lireMessages };
   function init() { injecterCSS(); brancher(); maj(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
