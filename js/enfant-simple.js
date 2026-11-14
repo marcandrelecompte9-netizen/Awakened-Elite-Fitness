@@ -13,6 +13,88 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function ico(n, t, c) { try { return window.AwakIcon ? AwakIcon.get(n, t, c) : ''; } catch (e) { return ''; } }
 
+  // ── v1769 : BRUITAGES enfant (synthétisés, sans fichier) — respectent le mode muet ──
+  var _ac = null;
+  function muet() { try { return localStorage.getItem('fitproMuted') === 'true'; } catch (e) { return false; } }
+  function ctx() {
+    try { if (!_ac) _ac = new (window.AudioContext || window.webkitAudioContext)(); if (_ac.state === 'suspended') _ac.resume(); return _ac; } catch (e) { return null; }
+  }
+  function note(c, type, f0, f1, t0, dur, vol) {
+    var o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(f0, t0); if (f1) o.frequency.exponentialRampToValueAtTime(f1, t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0 + dur + 0.02);
+  }
+  function bruit(c, t0, dur, vol, f0, f1) {
+    var n = Math.floor(c.sampleRate * dur), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0);
+    for (var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    var src = c.createBufferSource(), fl = c.createBiquadFilter(), g = c.createGain();
+    src.buffer = b; fl.type = 'bandpass'; fl.Q.value = 1.2; fl.frequency.setValueAtTime(f0, t0); fl.frequency.exponentialRampToValueAtTime(f1, t0 + dur);
+    g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    src.connect(fl); fl.connect(g); g.connect(c.destination); src.start(t0);
+  }
+  function sfx(nom, delai) {
+    if (muet() || !enfant()) return;
+    var c = ctx(); if (!c) return;
+    var t = c.currentTime + (delai || 0);
+    try {
+      if (nom === 'boing') { note(c, 'sine', 520, 160, t, 0.32, 0.28); note(c, 'triangle', 780, 240, t, 0.25, 0.12); }
+      else if (nom === 'ding') { note(c, 'sine', 1318, 0, t, 0.35, 0.18); note(c, 'sine', 1976, 0, t + 0.06, 0.4, 0.12); }
+      else if (nom === 'pop') { bruit(c, t, 0.06, 0.3, 2500, 900); note(c, 'sine', 400, 1200, t, 0.12, 0.25); }
+      else if (nom === 'pas') { note(c, 'triangle', 260, 180, t, 0.08, 0.18); }
+      else if (nom === 'tic') { note(c, 'square', 1100, 0, t, 0.05, 0.08); }
+      else if (nom === 'go') { [523, 659, 784, 1047].forEach(function (f, i) { note(c, 'triangle', f, 0, t + i * 0.07, 0.22, 0.16); }); }
+      else if (nom === 'whoosh') { bruit(c, t, 0.35, 0.18, 400, 2400); }
+    } catch (e) { _e(e); }
+  }
+
+  // ── Voix : annonces dites après le 3-2-1, petites phrases pendant la séance ──
+  var _aDire = null, _annonceT = null;
+  function dire(t) { try { if (typeof window.speak === 'function') window.speak(t, { interrupt: true, enfant: true }); } catch (e) { _e(e); } }
+  function annoncer(texte) {
+    var pre = _prefixe; _prefixe = '';
+    _aDire = (pre ? pre + ' ' : '') + texte;
+    clearTimeout(_annonceT);
+    // pas de 3-2-1 (yoga, enchaînements) → on parle tout de suite
+    _annonceT = setTimeout(function () {
+      var c = document.getElementById('countdownOverlay');
+      if (_aDire && !(c && c.classList.contains('active'))) { var x = _aDire; _aDire = null; dire(x); }
+    }, 350);
+  }
+  var _prefixe = '';
+  function brancherSons() {
+    var c = document.getElementById('countdownOverlay'), n = document.getElementById('countdownNumber');
+    if (c && !c._awkSon) {
+      c._awkSon = true;
+      var actif = false;
+      new MutationObserver(function () {
+        var a = c.classList.contains('active');
+        if (a && !actif) sfx('tic');
+        if (!a && actif && enfant()) {
+          sfx('go');
+          var x = _aDire; _aDire = null;
+          dire('Go ! ' + (x || ''));
+        }
+        actif = a;
+      }).observe(c, { attributes: true, attributeFilter: ['class'] });
+      if (n) new MutationObserver(function () { if (actif) sfx('tic'); }).observe(n, { childList: true, characterData: true, subtree: true });
+    }
+    var r = document.getElementById('restOverlay');
+    if (r && !r._awkSon) {
+      r._awkSon = true;
+      var ra = false;
+      new MutationObserver(function () {
+        var a = r.classList.contains('active');
+        if (a && !ra && enfant()) setTimeout(function () {
+          var nx = (document.getElementById('restNextName') || {}).textContent || '';
+          nx = nx.replace(/^[—\-\s]+$/, '');
+          dire('Petite pause ! ' + (nx ? 'Ensuite : ' + nx + '.' : 'Bois un peu d\'eau.'));
+        }, 350);
+        ra = a;
+      }).observe(r, { attributes: true, attributeFilter: ['class'] });
+    }
+  }
+
   // v1739 : le compagnon renard (4 poses)
   function renard(pose, taille, style) {
     return '<img src="images/kid/renard_' + pose + '.webp" alt="" draggable="false" style="width:' + taille + 'px;height:' + taille + 'px;object-fit:contain;flex-shrink:0;pointer-events:none;' + (style || '') + '">';
@@ -103,6 +185,7 @@
                 : '<div style="width:78%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900;color:rgba(255,255,255,0.18);">?</div>')
           + '<div style="font-size:13px;font-weight:800;color:' + (a1 ? '#fff' : 'rgba(255,255,255,0.3)') + ';">' + (a1 ? a[1] : '…') + '</div></div>';
       }).join('');
+      sfx(_albNeuf ? 'pop' : 'whoosh', _albNeuf ? 0.15 : 0);
       var o = document.createElement('div'); o.id = 'awkKidAlbum';
       o.style.cssText = 'position:fixed;inset:0;z-index:12800;background:radial-gradient(circle at 50% 20%,#1e3a5f,#0b1220 70%);overflow-y:auto;padding:calc(12px + env(safe-area-inset-top)) 14px calc(20px + env(safe-area-inset-bottom));box-sizing:border-box;';
       o.innerHTML = '<style>@keyframes awkAutoPop{0%{transform:scale(0) rotate(-20deg)}100%{transform:scale(1) rotate(0)}}</style>'
@@ -155,7 +238,9 @@
         + '<div style="font-size:15px;font-weight:800;color:#bae6fd;margin-top:8px;text-align:center;">'
         +   (fini ? 'Bravo ! +' + BONUS_MONDE + ' étoiles gagnées. Prochaine séance : ' + esc(suivant.nom) + ' !' : (d.tours ? 'Mondes terminés : ' + d.tours + ' · ' : '') + 'Chaque séance = une pierre de plus') + '</div>';
       document.body.appendChild(o);
+      sfx('whoosh');
       if (anim && anim.apres !== anim.avant) {
+        sfx('pas', 0.55); sfx('pas', 0.9); sfx('pas', 1.25); sfx('pas', 1.6); sfx('ding', 1.8);
         setTimeout(function () {
           var r = document.getElementById('awkChRenard'); if (!r) return;
           var p1 = posPierre(anim.apres, M); r.style.left = p1.x + '%'; r.style.top = p1.y + '%';
@@ -187,6 +272,7 @@
       + '<button onclick="this.closest(\'#awkKidBonusMonde\').remove()" style="width:100%;min-height:64px;margin-top:24px;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:21px;font-weight:900;color:#fff;background:linear-gradient(135deg,#fb923c,#f472b6);box-shadow:0 8px 26px rgba(251,146,60,0.4);">Youpi !</button>'
       + '</div>';
     document.body.appendChild(o);
+    for (var bi = 0; bi < n; bi++) sfx('ding', 0.25 + bi * 0.18);
     try { if (typeof window.speak === 'function') window.speak('Monde terminé ! Tu gagnes ' + n + ' étoiles !', { enfant: true }); } catch (e) { _e(e); }
     try { if (navigator.vibrate) navigator.vibrate([80, 60, 120]); } catch (e) { /* rien */ }
     try { victoire(); } catch (e) { _e(e); }
@@ -417,6 +503,7 @@
         + '<span style="font-size:15px;font-weight:900;color:#fff;line-height:1.2;">' + esc(p.name) + '</span>'
         + '<span style="display:flex;gap:4px;">' + pts + '</span></button>';
     }).join('');
+    sfx('whoosh');
     var o = document.createElement('div'); o.id = 'awkKidMissions'; o.style.cssText = FOND;
     o.innerHTML = '<div style="max-width:480px;margin:0 auto;">'
       + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">' + renard('pouce', 76)
@@ -488,6 +575,7 @@
 
   function depart() {
     var v = document.getElementById('awkKidDepart'); if (v) v.remove();
+    sfx('go');
     var o = document.createElement('div'); o.id = 'awkKidDepart';
     o.style.cssText = 'position:fixed;inset:0;z-index:100001;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:radial-gradient(circle at 50% 35%,#1e3a5f 0%,#0b1220 72%);';
     var pts = ''; for (var i = 0; i < 3; i++) pts += '<span style="width:12px;height:12px;border-radius:50%;background:#fb923c;display:inline-block;animation:awkDepPoint 1.1s ease-in-out ' + (i * 0.18).toFixed(2) + 's infinite;"></span>';
@@ -734,6 +822,7 @@
            + '<div style="font-size:20px;font-weight:900;color:#fde68a;">Voici ' + n + ' étoiles pour commencer !</div>' : '')
       + '<button onclick="AwakKid._tutoFermer()" style="width:100%;min-height:66px;margin-top:26px;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:22px;font-weight:900;color:#fff;background:linear-gradient(135deg,#fb923c,#f472b6);box-shadow:0 8px 26px rgba(251,146,60,0.4);">Merci !</button>'
       + '</div>';
+    for (var ti = 0; ti < n; ti++) sfx('ding', 0.3 + ti * 0.18);
     try { if (typeof window.speak === 'function') window.speak('Bravo, tu connais tout !' + (n ? ' Voici ' + n + ' étoiles pour commencer !' : ''), { enfant: true }); } catch (e) { _e(e); }
     try { if (navigator.vibrate) navigator.vibrate([80, 60, 120]); } catch (e) { /* rien */ }
     try { victoire(); } catch (e) { _e(e); }
@@ -835,11 +924,17 @@
           : k === ici ? '<span style="width:24px;height:24px;border-radius:50%;background:#fb923c;border:3px solid #fff;box-sizing:border-box;animation:awkProgPulse 1.4s ease-in-out infinite;"></span>'
           : '<span style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);"></span>';
       }
+      if (_dejaAnnonce !== idx + ':' + w.name) {
+        _dejaAnnonce = idx + ':' + w.name;
+        if (ici === vrais.length && vrais.length > 2) _prefixe = 'Dernier défi !';
+        else if (vrais.length >= 6 && ici === Math.ceil(vrais.length / 2) + 1) _prefixe = 'Bravo, tu as fait la moitié !';
+      }
       el.innerHTML = '<div style="display:flex;align-items:center;gap:8px;">' + pts + '</div>'
         + '<div style="font-size:15px;font-weight:900;color:#bae6fd;">' + (ici === vrais.length ? 'Dernier défi !' : 'Défi ' + ici + ' sur ' + vrais.length) + '</div>';
       var svg = el.querySelectorAll('svg'); for (var q = 0; q < svg.length; q++) svg[q].setAttribute('fill', '#facc15');
     } catch (e) { _e(e); }
   }
+  var _dejaAnnonce = '';
   // Le renard encourage à la moitié de l'exercice
   var _encT = null;
   var ENCOUR = ['Tu es super fort !', 'Continue, tu y es presque !', 'Wow, quelle énergie !', 'Bravo, encore un peu !', 'Tu bouges comme un champion !'];
@@ -911,6 +1006,8 @@
         + '<button onclick="AwakKid.finOk()" style="margin-top:26px;width:100%;max-width:320px;min-height:64px;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:1.3em;font-weight:900;color:#fff;'
         +   'background:linear-gradient(135deg,var(--kid-orange,#fb923c),var(--kid-rose,#f472b6));box-shadow:0 8px 26px rgba(251,146,60,0.4);">Super !</button>';
       document.body.appendChild(o);
+      for (var si = 0; si < Math.min(n, 5); si++) sfx('ding', 0.5 + si * 0.18);
+      if (_autoNeuf) sfx('pop', 0.7);
       try { if (typeof window.speak === 'function') window.speak(refus === 'court' ? 'Tu es allé trop vite, pas d\'étoile cette fois. Bouge au moins ' + regl.minMinutes + ' minutes pour en gagner !' : 'Bravo ! Tu as bougé ' + m + ' minutes' + (n ? ', et tu gagnes ' + n + ' étoile' + (n > 1 ? 's' : '') : '') + ' !', { enfant: true }); } catch (e) { _e(e); }
       try { if (navigator.vibrate) navigator.vibrate([80, 60, 120]); } catch (e) { /* rien */ }
       victoire();
@@ -968,6 +1065,14 @@
 
   // switchTab : met à jour l'accueil enfant à chaque changement d'onglet
   function brancher() {
+    try {
+      if (typeof window.awkSuivantTouche === 'function' && !window.awkSuivantTouche._awkKid) {
+        var s0 = window.awkSuivantTouche;
+        var s1 = function () { try { if (enfant() && document.body.classList.contains('in-session')) sfx('boing'); } catch (e) { _e(e); } return s0.apply(this, arguments); };
+        s1._awkKid = true; window.awkSuivantTouche = s1;
+      }
+      brancherSons();
+    } catch (e) { _e(e); }
     if (typeof window.switchTab !== 'function' || window.switchTab._awkKid) return;
     var o = window.switchTab;
     var w = function (t) { var r = o.apply(this, arguments); try { window.AwakKid.maj(t); } catch (e) { _e(e); } return r; };
@@ -975,7 +1080,7 @@
     window.switchTab = w;
   }
 
-  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, etirements: etirements, genererSeance: genererSeance, tutoriel: tutoriel, _tutoSuite: tutoSuite, _tutoFermer: tutoFermer,
+  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, etirements: etirements, annoncer: annoncer, sfx: sfx, genererSeance: genererSeance, tutoriel: tutoriel, _tutoSuite: tutoSuite, _tutoFermer: tutoFermer,
     revoirTutoriel: function () { tutoriel(prenom(), null); }, dejaEnCours: dejaEnCours, continuer: continuer, recommencer: recommencer, plusTard: plusTard, missions: missions, mission: mission, lancerMission: lancerMission, bravo: bravo, envoyer: envoyer, lireMessages: lireMessages };
   function init() { injecterCSS(); brancher(); maj(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
