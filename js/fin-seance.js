@@ -127,7 +127,7 @@
       var svg = typeof window._awakCoffreSvg === 'function' ? window._awakCoffreSvg(col, k.ouvert) : '';
       h += '<button type="button" data-fin-coffre="' + i + '" style="display:flex;align-items:center;gap:11px;width:100%;min-height:auto;padding:8px 10px;margin-bottom:8px;border-radius:11px;cursor:pointer;text-align:left;font-family:inherit;background:rgba(255,255,255,0.03);border:1px solid ' + col + '66;">'
         + '<span style="width:60px;height:60px;flex-shrink:0;display:block;' + (k.ouvert ? '' : 'animation:pulse-warning 0.9s infinite;') + '">' + svg.replace('width="96" height="96"', 'width="60" height="60"') + '</span>'
-        + '<span style="min-width:0;"><span style="display:block;font-size:0.7em;font-weight:800;letter-spacing:1px;color:' + col + ';text-transform:uppercase;">Coffre ' + esc(tier.label || '') + '</span>'
+        + '<span style="min-width:0;"><span style="display:block;font-size:11px;font-weight:800;letter-spacing:1px;color:' + col + ';text-transform:uppercase;">Coffre ' + esc(tier.label || '') + '</span>'
         + '<span style="display:block;font-size:0.86em;font-weight:800;color:#f8fafc;margin-top:2px;">' + (k.ouvert ? esc(k.equipSeul ? 'Équipement trouvé' : (nettoyer(r.label) || 'Récompense ajoutée')) : 'Touche pour l\'ouvrir') + '</span>'
         + (!k.ouvert && dedans.length ? '<span style="display:block;font-size:0.7em;color:#94a3b8;">Quelque chose brille à l\'intérieur…</span>' : '')
         + (k.ouvert && r._newBadge ? '<span style="display:flex;align-items:center;gap:6px;font-size:0.7em;color:#94a3b8;">' + (window.awakInsigneImg ? window.awakInsigneImg(r.id, 26).replace('display:block;margin:0 auto;', 'display:inline-block;') : '') + 'Nouvel insigne pour ta collection</span>' : '')

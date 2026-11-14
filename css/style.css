@@ -9081,3 +9081,7 @@ image[href*="images/body/body_face"], image[href*="images/body/body_dos"] { filt
 #exerciseView #setIndicator { font-size: 15px !important; font-weight: 800 !important; }
 /* « Repos » : bouton secondaire neutre (l'or est réservé aux récompenses) */
 #setsGridPanel #gridRestBtn { background: rgba(255,255,255,0.04) !important; border: 1px solid rgba(255,255,255,0.14) !important; color: #cbd5e1 !important; }
+
+/* v1735 · Échelle de texte — fin de séance et préparation : rien sous 11 px */
+#awakRessentiCarte .awk-rs-titre { font-size: 11px; letter-spacing: 1.5px; }
+#preparationView .awk-prep-opt, #preparationView [style*="font-size:0.6em"], #preparationView [style*="font-size:0.62em"] { font-size: 11px !important; }

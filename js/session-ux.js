@@ -74,7 +74,7 @@
     // Forme
     h += '<div style="display:flex;align-items:center;gap:7px;font-size:0.74em;font-weight:800;color:' + CLAIR + ';margin-bottom:8px;">'
       + ico('eclair', 15, CLAIR) + '<span>Comment te sens-tu ?</span>'
-      + '<span style="margin-left:auto;font-size:0.85em;color:#8391a7;font-weight:700;">' + (etat.dejaNote ? 'noté aujourd\'hui · modifiable' : 'facultatif') + '</span></div>';
+      + '<span style="margin-left:auto;font-size:11px;color:#8391a7;font-weight:700;">' + (etat.dejaNote ? 'noté aujourd\'hui · modifiable' : 'facultatif') + '</span></div>';
     h += '<div style="display:flex;gap:6px;margin-bottom:6px;">'
       + chip('humeur', 2, 'Fatigué', etat.humeur === 2, '#f87171')
       + chip('humeur', 5, 'Correct', etat.humeur === 5, OR)
@@ -93,7 +93,7 @@
     if (!_calme) {
     h += '<div style="display:flex;align-items:center;gap:7px;font-size:0.74em;font-weight:800;color:' + CLAIR + ';margin:12px 0 8px;">'
       + ico('course', 15, CLAIR) + '<span>Cardio pour te réchauffer</span>'
-      + '<span style="margin-left:auto;font-size:0.85em;color:#8391a7;font-weight:700;">' + (etat.cardio > 0 ? 'choisis l\'activité' : 'facultatif') + '</span></div>';
+      + '<span style="margin-left:auto;font-size:11px;color:#8391a7;font-weight:700;">' + (etat.cardio > 0 ? 'choisis l\'activité' : 'facultatif') + '</span></div>';
     h += '<div style="display:flex;gap:6px;">'
       + chip('cardio', 0, 'Non merci', etat.cardio === 0)
       + chip('cardio', 3, '3 min', etat.cardio === 3)
