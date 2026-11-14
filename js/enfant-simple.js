@@ -883,11 +883,14 @@
     } catch (e) { _e(e); }
   }
   function finOk() {
-    var o = document.getElementById('awkKidFin'); if (o) o.remove();
-    try { if (typeof window.backToHome === 'function') window.backToHome(); else if (typeof window.switchTab === 'function') window.switchTab('home'); } catch (e) { _e(e); }
+    var o = document.getElementById('awkKidFin');
     var an = _aAnimer; _aAnimer = null;
     _autoMontrer = _autoNeuf ? _autoNeuf[0] : null; _autoNeuf = null;
-    if (an) setTimeout(function () { carte(an); }, 350);
+    // v1766 : la carte s'ouvre AVANT de retirer le Bravo (avant : l'accueil passait 0,35 s entre les deux)
+    if (an) carte(an);
+    try { if (typeof window.backToHome === 'function') window.backToHome(); else if (typeof window.switchTab === 'function') window.switchTab('home'); } catch (e) { _e(e); }
+    if (o) o.remove();
+    if (an) { /* carte déjà ouverte */ }
     else setTimeout(function () { try { if (window.AwakEtoiles && AwakEtoiles.annoncer) AwakEtoiles.annoncer(); } catch (e) { _e(e); } }, 400);
   }
 
@@ -911,6 +914,10 @@
       libelle();
       if (k && (t === 'home' || t === 'homeTab')) accueil();
       if (k && (t === 'family' || t === 'familyTab')) famille();
+      // v1766 : l'écran enfant est prêt → on le montre (caché pendant le chargement)
+      if (document.documentElement.classList.contains('awk-kid-charge') && (!k || document.body.classList.contains('awk-enfant'))) {
+        requestAnimationFrame(function () { document.documentElement.classList.remove('awk-kid-charge'); });
+      }
       // Onglets cachés pour un enfant → retour à l'accueil enfant
       if (k && (t === 'more' || t === 'settings')) { /* Plus : passe par le code parent */ }
     } catch (e) { _e(e); }
