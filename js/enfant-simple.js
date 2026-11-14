@@ -13,6 +13,11 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function ico(n, t, c) { try { return window.AwakIcon ? AwakIcon.get(n, t, c) : ''; } catch (e) { return ''; } }
 
+  // v1739 : le compagnon renard (4 poses)
+  function renard(pose, taille, style) {
+    return '<img src="images/kid/renard_' + pose + '.webp" alt="" draggable="false" style="width:' + taille + 'px;height:' + taille + 'px;object-fit:contain;flex-shrink:0;pointer-events:none;' + (style || '') + '">';
+  }
+
   var CSS = ''
     + 'body.awk-enfant{--kid-ciel:#38bdf8;--kid-orange:#fb923c;--kid-rose:#f472b6;--kid-jaune:#facc15;}'
     // Barre du bas : 3 onglets, plus gros
@@ -37,7 +42,12 @@
     + 'body.awk-enfant.in-session #awakBarreActions #awakSuivantBtn::before{content:"J\'ai fini !";font-weight:900;color:#fff;}'
     + 'body.awk-enfant.in-session #exerciseView #exerciseName{font-size:28px!important;color:#fff!important;}'
     + 'body.awk-enfant.in-session #awkKidConsigne{display:block;}'
-    + '#awkKidConsigne{display:none;margin:10px 0 4px;padding:12px 14px;border-radius:16px;background:rgba(56,189,248,0.1);border:2px solid rgba(56,189,248,0.35);color:#e0f2fe;font-size:17px;font-weight:800;line-height:1.35;text-align:center;}';
+    + '#awkKidConsigne{display:none;margin:10px 0 4px;padding:12px 14px;border-radius:16px;background:rgba(56,189,248,0.1);border:2px solid rgba(56,189,248,0.35);color:#e0f2fe;font-size:17px;font-weight:800;line-height:1.35;text-align:center;}'
+    + '#awkKidConsigne.avec-renard{display:none;align-items:center;gap:10px;text-align:left;}body.awk-enfant.in-session #awkKidConsigne.avec-renard{display:flex;}'
+    + '@keyframes awkRenardSaut{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-22px) rotate(-4deg)}60%{transform:translateY(0) rotate(3deg)}}'
+    + '@keyframes awkRenardEntre{from{transform:scale(0.4) translateY(40px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}'
+    + 'body:has(#awkKidFin) .toast-container{display:none!important;}'
+    + '@keyframes awkBulle{from{transform:scale(0.6);opacity:0}to{transform:scale(1);opacity:1}}';
 
   function injecterCSS() {
     if (document.getElementById('awkKidCSS')) return;
@@ -68,10 +78,11 @@
     var etoiles = '';
     try { if (window.AwakEtoiles && AwakEtoiles.carteEnfant) etoiles = AwakEtoiles.carteEnfant(); } catch (e) { _e(e); }
     el.innerHTML = ''
-      + '<div style="display:flex;align-items:center;gap:10px;margin:6px 2px 18px;">'
+      + '<div style="display:flex;align-items:center;gap:6px;margin:6px 2px 10px;">'
+      +   renard(fait ? 'saut' : 'salut', 104, 'animation:awkKidFlotte 3s ease-in-out infinite;')
       +   '<div style="flex:1;min-width:0;">'
-      +     '<div style="font-size:28px;font-weight:900;color:#fff;line-height:1.1;">Salut' + (nom ? ' ' + esc(nom) : '') + ' !</div>'
-      +     '<div style="font-size:16px;font-weight:700;color:#bae6fd;margin-top:4px;">' + (fait ? 'Bravo, tu as bougé aujourd\'hui !' : 'On bouge ensemble ?') + '</div>'
+      +     '<div style="font-size:26px;font-weight:900;color:#fff;line-height:1.1;">Salut' + (nom ? ' ' + esc(nom) : '') + ' !</div>'
+      +     '<div style="display:inline-block;margin-top:6px;padding:7px 12px;border-radius:14px 14px 14px 4px;background:#fff;color:#0c4a6e;font-size:15px;font-weight:800;line-height:1.3;animation:awkBulle .35s ease-out both;">' + (fait ? 'Bravo, tu as bougé aujourd\'hui !' : 'On bouge ensemble ?') + '</div>'
       +   '</div>'
       +   '<button onclick="AwakKid.parent()" aria-label="Espace parent" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 10px;min-height:0;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;font-family:inherit;font-size:11px;font-weight:800;cursor:pointer;">'
       +     ico('personne', 18, '#94a3b8') + '<span>Parent</span></button>'
@@ -110,9 +121,40 @@
       var c = document.getElementById('awkKidConsigne');
       if (!c) { c = document.createElement('div'); c.id = 'awkKidConsigne'; nomEl.parentNode.insertBefore(c, nomEl.nextSibling); }
       var t = (ex && ex.instructions && ex.instructions[0]) || '';
-      c.textContent = t;
+      c.className = 'avec-renard';
+      c.innerHTML = renard('pouce', 52) + '<span style="flex:1;min-width:0;">' + esc(t) + '</span>';
       c.style.visibility = t ? '' : 'hidden';
     } catch (e) { _e(e); }
+  }
+
+  // Fin de séance : grand « Bravo ! » avec le renard, puis retour à l'accueil
+  function fin(etoiles, minutes) {
+    try {
+      if (!enfant()) return;
+      var v = document.getElementById('awkKidFin'); if (v) v.remove();
+      var n = Math.max(0, Math.round(Number(etoiles) || 0)), m = Math.max(1, Math.round(Number(minutes) || 0));
+      var o = document.createElement('div'); o.id = 'awkKidFin';
+      o.style.cssText = 'position:fixed;inset:0;z-index:13000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px calc(24px + env(safe-area-inset-bottom));text-align:center;'
+        + 'background:radial-gradient(circle at 50% 35%,#1e3a5f 0%,#0b1220 70%);';
+      var ets = ''; for (var i = 0; i < Math.min(n, 5); i++) ets += '<span style="display:inline-flex;animation:awkKidFlotte 1.6s ease-in-out ' + (i * 0.15).toFixed(2) + 's infinite;">' + ico('etoile', i === 2 ? 40 : 30, '#facc15') + '</span>';
+      o.innerHTML = ''
+        + '<div style="animation:awkRenardEntre .5s cubic-bezier(.2,1.4,.4,1) both;">'
+        +   '<div style="animation:awkRenardSaut 1.4s ease-in-out .5s infinite;">' + renard('bravo', 200) + '</div></div>'
+        + '<div style="font-size:40px;font-weight:900;color:#fff;line-height:1.05;margin-top:6px;">Bravo' + (prenom() ? ' ' + esc(prenom()) : '') + ' !</div>'
+        + '<div style="font-size:18px;font-weight:800;color:#bae6fd;margin-top:8px;">Tu as bougé ' + m + ' minute' + (m > 1 ? 's' : '') + '</div>'
+        + (n ? '<div style="display:flex;align-items:flex-end;justify-content:center;gap:6px;margin-top:18px;">' + ets + '</div>'
+             + '<div style="font-size:20px;font-weight:900;color:#fde68a;margin-top:6px;">+' + n + ' étoile' + (n > 1 ? 's' : '') + '</div>' : '')
+        + '<button onclick="AwakKid.finOk()" style="margin-top:30px;width:100%;max-width:320px;min-height:64px;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:1.3em;font-weight:900;color:#fff;'
+        +   'background:linear-gradient(135deg,var(--kid-orange,#fb923c),var(--kid-rose,#f472b6));box-shadow:0 8px 26px rgba(251,146,60,0.4);">Super !</button>';
+      document.body.appendChild(o);
+      try { if (typeof window.speak === 'function') window.speak('Bravo ! Tu as bougé ' + m + ' minutes' + (n ? ', et tu gagnes ' + n + ' étoile' + (n > 1 ? 's' : '') : '') + ' !', { enfant: true }); } catch (e) { _e(e); }
+      try { if (navigator.vibrate) navigator.vibrate([80, 60, 120]); } catch (e) { /* rien */ }
+    } catch (e) { _e(e); }
+  }
+  function finOk() {
+    var o = document.getElementById('awkKidFin'); if (o) o.remove();
+    try { if (typeof window.backToHome === 'function') window.backToHome(); else if (typeof window.switchTab === 'function') window.switchTab('home'); } catch (e) { _e(e); }
+    setTimeout(function () { try { if (window.AwakEtoiles && AwakEtoiles.annoncer) AwakEtoiles.annoncer(); } catch (e) { _e(e); } }, 400);
   }
 
   function parent() {
@@ -147,7 +189,7 @@
     window.switchTab = w;
   }
 
-  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil };
+  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk };
   function init() { injecterCSS(); brancher(); maj(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
