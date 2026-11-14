@@ -683,6 +683,7 @@
         + '<button id="awkTutoGo" style="width:100%;min-height:66px;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:22px;font-weight:900;color:#fff;background:linear-gradient(135deg,#fb923c,#f472b6);box-shadow:0 8px 26px rgba(251,146,60,0.4);">On y va !</button>'
         + '</div>';
       document.body.appendChild(o);
+      document.documentElement.classList.remove('awk-kid-neuf');   // v1765 : l'écran principal peut réapparaître derrière
       try { if (typeof window.speak === 'function') window.speak('Salut' + (nom ? ' ' + nom : '') + ' ! Moi, c\'est ton ami le renard. Je vais te montrer ton appli !', { enfant: true }); } catch (e) { _e(e); }
       o.querySelector('#awkTutoGo').onclick = function () {
         try { if (auDebut) auDebut(); } catch (e) { _e(e); }
