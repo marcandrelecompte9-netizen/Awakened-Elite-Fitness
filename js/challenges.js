@@ -1182,8 +1182,8 @@ function showChallengeIssuedModal(challenge) {
 
     const borderColor = isLeg ? '#f59e0b' : 'rgba(168,85,247,0.5)';
     const glowColor   = isLeg ? 'rgba(245,158,11,0.4)' : 'rgba(168,85,247,0.2)';
-    const accentColor = isLeg ? '#f59e0b' : '#a855f7';
-    const btnBg       = isLeg ? 'linear-gradient(135deg,#92400e,#d97706)' : 'linear-gradient(135deg,#7c3aed,#4f46e5)';
+    const accentColor = isLeg ? '#f59e0b' : '#22d3ee';   // v1732 : accent cyan (système de design)
+    const btnBg       = isLeg ? 'linear-gradient(135deg,#92400e,#d97706)' : 'linear-gradient(135deg,#0e7490,#0891b2)';
 
     modal.innerHTML = `
         <div style="
@@ -1442,7 +1442,7 @@ function renderChallengeSection() {
 
                 <!-- Barre progress -->
                 <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;margin-bottom:12px;">
-                    <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#7c3aed,#a855f7);border-radius:99px;transition:width 0.5s ease;"></div>
+                    <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#0891b2,#22d3ee);border-radius:99px;transition:width 0.5s ease;"></div>
                 </div>
 
                 <!-- Conséquence en cas d'échec -->
@@ -1582,8 +1582,8 @@ function showActiveChallengeDetails() {
 
     const borderColor = isLeg ? '#f59e0b' : 'rgba(168,85,247,0.5)';
     const glowColor   = isLeg ? 'rgba(245,158,11,0.4)' : 'rgba(168,85,247,0.2)';
-    const accentColor = isLeg ? '#f59e0b' : '#a855f7';
-    const btnBg       = isLeg ? 'linear-gradient(135deg,#92400e,#d97706)' : 'linear-gradient(135deg,#7c3aed,#4f46e5)';
+    const accentColor = isLeg ? '#f59e0b' : '#22d3ee';   // v1732 : accent cyan (système de design)
+    const btnBg       = isLeg ? 'linear-gradient(135deg,#92400e,#d97706)' : 'linear-gradient(135deg,#0e7490,#0891b2)';
 
     const modal = document.createElement('div');
     modal.id = 'challengeIssuedModal';
@@ -1618,7 +1618,7 @@ function showActiveChallengeDetails() {
                 <div style="font-size:0.95em;font-weight:800;color:white;line-height:1.4;margin-bottom:10px;">${challenge.label}</div>
 
                 <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;margin-bottom:8px;">
-                    <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#7c3aed,#a855f7);border-radius:99px;"></div>
+                    <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#0891b2,#22d3ee);border-radius:99px;"></div>
                 </div>
                 <div style="font-size:0.72em;color:rgba(255,255,255,0.5);">${progress} / ${challenge.target} ${challenge.units} · <span style="color:${accentColor};font-weight:700;">${pct}%</span></div>
                 <div style="font-size:0.7em;color:rgba(255,255,255,0.4);margin-top:6px;">⏰ ${hoursLeft}h ${minsLeft}m · échéance ${dateStr}</div>

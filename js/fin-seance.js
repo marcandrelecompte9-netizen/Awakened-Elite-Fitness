@@ -110,7 +110,7 @@
       c.style.cssText = 'margin:0 0 14px;padding:13px 15px;border-radius:14px;background:linear-gradient(160deg,rgba(167,139,250,0.12),rgba(167,139,250,0.02));border:1px solid rgba(167,139,250,0.35);text-align:left;';
       c.addEventListener('click', clicCarte);
     }
-    var h = '<div style="display:flex;align-items:center;gap:7px;font-size:0.66em;font-weight:800;letter-spacing:1.2px;color:#c4b5fd;text-transform:uppercase;margin-bottom:8px;">' + ico('etoile', 14, '#c4b5fd') + '<span>Butin de la séance</span></div>';
+    var h = '<div style="display:flex;align-items:center;gap:7px;font-size:0.66em;font-weight:800;letter-spacing:1.2px;color:#67e8f9;text-transform:uppercase;margin-bottom:8px;">' + ico('etoile', 14, '#c4b5fd') + '<span>Butin de la séance</span></div>';
     if (etat.niveau) {
       h += '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;border-radius:11px;background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.3);margin-bottom:8px;">'
         + '<div style="min-width:0;"><div style="font-weight:900;color:#f8fafc;font-size:0.92em;">Niveau ' + etat.niveau.n + ' atteint</div>'
@@ -152,7 +152,7 @@
     }
     if (etat.lignes.length) {
       h += '<div style="display:flex;flex-direction:column;gap:4px;">' + etat.lignes.map(function (t) {
-        return '<div style="display:flex;align-items:flex-start;gap:7px;font-size:0.76em;color:#e2e8f0;line-height:1.35;">' + ico('valide', 13, '#c4b5fd') + '<span>' + esc(t) + '</span></div>';
+        return '<div style="display:flex;align-items:flex-start;gap:7px;font-size:0.76em;color:#e2e8f0;line-height:1.35;">' + ico('valide', 13, '#67e8f9') + '<span>' + esc(t) + '</span></div>';
       }).join('') + '</div>';
     }
     c.innerHTML = h;

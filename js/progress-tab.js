@@ -109,9 +109,11 @@
 
   // ── Blocs ──
   function tuile(valeur, label, c) {
+    // v1732 : adulte → tuile neutre, chiffre blanc (système de design) ; enfant → couleurs
+    var _enf = false; try { _enf = !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) { _awkE(e); }
     return '<div style="flex:1;min-width:0;text-align:center;padding:11px 4px;border-radius:13px;'
-      + 'background:' + c + '12;border:1px solid ' + c + '40;">'
-      + '<div style="font-size:1.45em;font-weight:900;color:' + c + ';line-height:1;font-variant-numeric:tabular-nums;">' + valeur + '</div>'
+      + (_enf ? 'background:' + c + '12;border:1px solid ' + c + '40;' : 'background:#171c24;border:1px solid rgba(255,255,255,0.07);') + '">'
+      + '<div style="font-size:1.45em;font-weight:900;color:' + (_enf ? c : '#f1f5f9') + ';line-height:1;font-variant-numeric:tabular-nums;">' + valeur + '</div>'
       + '<div style="font-size:0.6em;color:#94a3b8;font-weight:800;margin-top:5px;line-height:1.25;">' + label + '</div></div>';
   }
 

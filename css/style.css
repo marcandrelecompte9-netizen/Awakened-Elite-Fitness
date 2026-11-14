@@ -9024,3 +9024,49 @@ body.dark-mode .accordion-icon, .accordion-header.active .accordion-icon { color
 }
 #awakFamBarre button.actif { background: rgba(96,168,240,0.18); border-color: rgba(96,168,240,0.55); color: #fff; }
 #familyContainer [data-fam-p][hidden] { display: none !important; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   v1732 · SYSTÈME DE DESIGN — une couleur d'accent, un style de carte,
+   une police, des boutons plats. Les écrans « Système » (Jeu, Failles,
+   histoire) gardent leur police d'interface de chasseur.
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+    --awk-accent: #22d3ee;          /* action, sélection */
+    --awk-accent-fonce: #0891b2;
+    --awk-accent-doux: rgba(34,211,238,0.12);
+    --awk-or: #fbbf24;              /* récompenses et étoiles seulement */
+    --awk-danger: #f87171;
+    --awk-fond: #0b0d12;
+    --awk-carte: #12161c;
+    --awk-carte-2: #171c24;         /* tuile dans une carte */
+    --awk-bord: rgba(255,255,255,0.07);
+    --awk-texte: #f1f5f9;
+    --awk-texte-2: #94a3b8;
+    --awk-r: 16px;
+    --awk-r-sm: 12px;
+    --awk-t-titre: 1.35rem;
+    --awk-t-sous: 1.05rem;
+    --awk-t-texte: 0.95rem;
+    --awk-t-petit: 0.78rem;
+    /* Une seule police partout (Outfit) ; Rajdhani reste pour le jeu */
+    --font-display: 'Outfit', -apple-system, sans-serif;
+}
+#gameTab, #awakRiftCombatModal, #awakRiftRewardModal, #awakHuntRewardModal,
+#storyEventOverlay, #storyPrelude, #rpgDetailsPanelOverlay {
+    --font-display: 'Rajdhani', 'Outfit', sans-serif;
+}
+h1, h2, h3, .modal-content h2, .modal-content h3, .section-title,
+.modal-header h2, .header h1 { letter-spacing: -0.01em; }
+.nav-tab { letter-spacing: 0.02em; }
+
+/* Cartes : fond plat (avant : dégradé), bordure fine */
+body.dark-mode .card { background: var(--awk-carte); border-color: var(--awk-bord); }
+
+/* Focus : anneau cyan (avant : vert) */
+:focus-visible { outline-color: rgba(34,211,238,0.65); }
+input:focus, select:focus, textarea:focus { border-color: rgba(34,211,238,0.55) !important; box-shadow: 0 0 0 3px rgba(34,211,238,0.12); }
+
+/* Silhouette « Ton corps » : gris neutre (avant : peau orangée) — les zones de
+   muscles cyan / orange / rouge, dessinées par-dessus, gardent leur couleur */
+img[src*="images/body/body_face"], img[src*="images/body/body_dos"] { filter: grayscale(1) brightness(0.78) contrast(1.05); }
+image[href*="images/body/body_face"], image[href*="images/body/body_dos"] { filter: grayscale(1) brightness(0.78) contrast(1.05); }

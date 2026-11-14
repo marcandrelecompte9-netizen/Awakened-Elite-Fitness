@@ -227,14 +227,14 @@
     }
 
     return '<div class="ahp-raccs">' +
-        ligne('liste', '#93c5fd', 'Mes routines', 'Tes séances enregistrées', 'switchTab(\'routines\')') +
-        ligne('grille', '#93c5fd', 'Exercices', 'Bibliothèque et fiches', 'switchTab(\'exercises\')') +
-        ligne('soleil', '#fbbf24', 'Réveil du corps', 'Mobilité douce, sans matériel', 'if(typeof showMorningRoutineModal===\'function\')showMorningRoutineModal()') +
-        ligne('sante', zones ? '#f87171' : '#94a3b8', 'Où as-tu mal ?',
+        ligne('liste', '#22d3ee', 'Mes routines', 'Tes séances enregistrées', 'switchTab(\'routines\')') +
+        ligne('grille', '#22d3ee', 'Exercices', 'Bibliothèque et fiches', 'switchTab(\'exercises\')') +
+        ligne('soleil', '#22d3ee', 'Réveil du corps', 'Mobilité douce, sans matériel', 'if(typeof showMorningRoutineModal===\'function\')showMorningRoutineModal()') +
+        ligne('sante', zones ? '#f87171' : '#22d3ee', 'Où as-tu mal ?',
           zones ? zones + ' zone' + (zones > 1 ? 's' : '') + ' signalée' + (zones > 1 ? 's' : '') + ' — exercices évités' : 'Adapter tes séances à une douleur',
           'if(window.AwakPainOpen)AwakPainOpen()') +
-        (jeu ? ligne('faille', '#c4b5fd', 'Failles', 'Le mode aventure', 'switchTab(\'game\')') : '') +
-        ligne('boussole', '#94a3b8', 'Tout explorer', 'Toutes les fonctionnalités', 'if(typeof showFeatureMap===\'function\')showFeatureMap()') +
+        (jeu ? ligne('faille', '#22d3ee', 'Failles', 'Le mode aventure', 'switchTab(\'game\')') : '') +
+        ligne('boussole', '#22d3ee', 'Tout explorer', 'Toutes les fonctionnalités', 'if(typeof showFeatureMap===\'function\')showFeatureMap()') +
       '</div>';
   }
 
@@ -542,9 +542,9 @@
     var _pts = '<div style="display:flex;justify-content:space-between;margin:9px 0 2px;">' + points + '</div>';
     if (_recup) {   // v1543 : mode récupération → pas d'objectif (ni mission)
       _semaine = { fait: fait2, visee: 0 };
-      return tuile('calendrier', '#a78bfa', 'CETTE SEMAINE', 'En pause', _pts, 'Mode récupération', 'switchTab(\'calendar\')');
+      return tuile('calendrier', '#22d3ee', 'CETTE SEMAINE', 'En pause', _pts, 'Mode récupération', 'switchTab(\'calendar\')');
     }
-    return tuile('calendrier', '#a78bfa', 'CETTE SEMAINE', Math.min(fait2, 99) + ' / ' + visee2 + ' séance' + (visee2 > 1 ? 's' : ''),
+    return tuile('calendrier', '#22d3ee', 'CETTE SEMAINE', Math.min(fait2, 99) + ' / ' + visee2 + ' séance' + (visee2 > 1 ? 's' : ''),
       _pts, sous, 'switchTab(\'calendar\')');
    }
   }
@@ -576,7 +576,7 @@
           : 'Les quêtes du jour sont accomplies. De nouvelles arrivent demain.';
         var detail = a ? '+' + (a.xpReward || 0) + ' XP' + (reste ? ' · ' + esc(reste) : '') : (q.length + ' / ' + q.length + ' terminées');
         return '<button class="ahp-card ahp-quest" onclick="switchTab(\'game\')">' +
-            '<span style="display:flex;align-items:center;gap:9px;">' + ico('bouclier', 19, '#a78bfa') +
+            '<span style="display:flex;align-items:center;gap:9px;">' + ico('bouclier', 19, '#22d3ee') +
               '<span style="font-size:0.95em;font-weight:800;color:#f8fafc;">' + (a ? 'Une quête à accomplir' : 'Quêtes du jour accomplies') + '</span></span>' +
             '<span style="display:block;font-size:0.82em;color:#e2e8f0;margin-top:8px;line-height:1.45;">' + texte + '</span>' +
             '<span style="display:block;font-size:0.72em;color:#94a3b8;margin-top:5px;">' + detail + '</span>' +
@@ -597,7 +597,7 @@
     var aPrevoir = MUSCLES_CLES.filter(function (m) { return !compte[m]; });
     if (!aPrevoir.length || aPrevoir.length === MUSCLES_CLES.length) return '';
     return '<div class="ahp-card ahp-quest" style="cursor:default;">' +
-        '<span style="display:flex;align-items:center;gap:9px;">' + ico('cible', 19, '#a78bfa') +
+        '<span style="display:flex;align-items:center;gap:9px;">' + ico('cible', 19, '#22d3ee') +
           '<span style="font-size:0.95em;font-weight:800;color:#f8fafc;">À prévoir cette semaine</span></span>' +
         '<span style="display:block;font-size:0.82em;color:#e2e8f0;margin-top:8px;line-height:1.45;">Pas encore travaillés : ' +
           esc(aPrevoir.slice(0, 5).join(', ')) + (aPrevoir.length > 5 ? '…' : '') + '</span>' +
@@ -630,10 +630,10 @@
       ['course', '#93c5fd', 'Course, marche ou vélo', 'Sortie au GPS ou sur tapis', f + 'switchTab(\'course\')'],
       ['soleil', '#fbbf24', 'Réveil du corps', 'Mobilité douce, sans matériel', f + 'if(typeof showMorningRoutineModal===\'function\')showMorningRoutineModal()'],
       // v1400 : yoga, pilates, sérénité (avant : rangés dans Séance › Programme › Sports)
-      ['repos', '#a78bfa', 'Yoga, pilates, sérénité', 'Postures, respiration, cours de 5 à 45 min', f + 'awakOuvrirCalme()'],
+      ['repos', '#22d3ee', 'Yoga, pilates, sérénité', 'Postures, respiration, cours de 5 à 45 min', f + 'awakOuvrirCalme()'],
       // v1403 : les sports (boxe en tête) — avant : seulement dans Séance › Programme › Sports
       ['cible', '#f87171', 'Boxe, calisthénie, HIIT', 'Séances en rounds, guide pour débuter', f + 'awakOuvrirCalme(\'' + (function () { try { var a = ((typeof getUserProfile === 'function' ? getUserProfile() : {}) || {}).aime || []; return a.indexOf('boxe') >= 0 || a.indexOf('hiit') < 0 ? 'boxe' : 'hiit'; } catch (e) { return 'boxe'; } })() + '\')'],
-      ['calendrier', '#a78bfa', 'Planifier ma semaine', 'Choisir quoi faire chaque jour', f + 'if(typeof openManualPlanEditor===\'function\')openManualPlanEditor();else switchTab(\'calendar\')']
+      ['calendrier', '#22d3ee', 'Planifier ma semaine', 'Choisir quoi faire chaque jour', f + 'if(typeof openManualPlanEditor===\'function\')openManualPlanEditor();else switchTab(\'calendar\')']
     ].map(function (x) {
       return '<button class="ahp-row" onclick="' + x[4] + '">' +
           '<span class="ahp-ic">' + ico(x[0], 18, x[1]) + '</span>' +

@@ -868,7 +868,7 @@
           'inset 0 1px 0 rgba(255,255,255,0.10);}' +
       // liseré lumineux en haut de la colonne du jour
       '.awak-k-day.today::before{content:"";position:absolute;top:0;left:12%;right:12%;height:2px;' +
-        'background:linear-gradient(90deg,transparent,#22d3ee,#a855f7,transparent);' +
+        'background:linear-gradient(90deg,transparent,#22d3ee,transparent);' +
         'box-shadow:0 0 14px rgba(34,211,238,0.8);}' +
       // 📐 PAYSAGE / grand écran : les colonnes descendent jusqu'en bas.
       // Sans ça elles s'arrêtaient à la hauteur du contenu et laissaient les
