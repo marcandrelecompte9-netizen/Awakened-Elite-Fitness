@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v1729';
+const CACHE_NAME = 'awakened-v1730';
 // v1586 : images d'exercices dans un cache DURABLE, jamais vidé à une mise à jour
 // (avant : chaque déploiement les effaçait → retéléchargées, absentes hors ligne)
 const IMG_CACHE = 'awakened-images';
@@ -105,11 +105,11 @@ const ASSETS = [
   './js/pain-mode.js',
   './js/recovery-mode.js',
   './data/items.js',
-  './manifest.json?v=1729',
-  './icons/icon-192.png?v=1729',
-  './icons/icon-512.png?v=1729',
-  './icons/icon-192-maskable.png?v=1729',
-  './icons/icon-512-maskable.png?v=1729',
+  './manifest.json?v=1730',
+  './icons/icon-192.png?v=1730',
+  './icons/icon-512.png?v=1730',
+  './icons/icon-192-maskable.png?v=1730',
+  './icons/icon-512-maskable.png?v=1730',
   // icon-1024.png : asset de soumission aux stores, volontairement hors du
   // précache (487 Ko). Reste dans manifest.json, récupérable à la demande.
   './images/banner_v3.webp',
@@ -180,13 +180,16 @@ const UI_IMAGES = [
   './images/tree_bg.webp',
 ];
 // Clé de cache d'une image : sans « ?v=NNNN ». Avant, chaque build changeait l'URL
-// (salle_bg_v5.webp?v=1621 → ?v=1729) et ajoutait une copie de plus dans le cache
+// (salle_bg_v5.webp?v=1621 → ?v=1730) et ajoutait une copie de plus dans le cache
 // durable, sans jamais la retirer.
 function cleImage(url) { return url.split('?')[0]; }
 // v1654 : images REMPLACÉES sous le même nom → retirées une fois du cache durable,
 // sinon le téléphone garde l'ancienne (ex. silhouette « Ton corps » décalée de ses zones).
 // Ajouter ici tout fichier remplacé, et monter « rev ».
-const IMAGES_REMPLACEES = { rev: 1654, fichiers: ['./images/body/body_face.webp', './images/body/body_dos.webp'] };
+// v1730 : nouvelle bannière d'accueil et nouvelles icônes (logo) — même nom de fichier.
+const IMAGES_REMPLACEES = { rev: 1730, fichiers: ['./images/body/body_face.webp', './images/body/body_dos.webp',
+  './images/banner_v3.webp', './images/banner_v3_mobile.webp',
+  './icons/icon-192.png', './icons/icon-512.png', './icons/icon-192-maskable.png', './icons/icon-512-maskable.png', './icons/icon-1024.png'] };
 function purgerRemplacees() {
   return caches.open(IMG_CACHE).then(cache => {
     const marque = new URL('./__purge_' + IMAGES_REMPLACEES.rev, self.registration.scope).href;
