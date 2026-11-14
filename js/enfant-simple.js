@@ -740,6 +740,49 @@
   }
   function tutoFermer() { var o = document.getElementById('awkKidTuto'); if (o) o.remove(); try { accueil(); } catch (e) { _e(e); } }
 
+  // ── v1767 : séance « Bouger ! » propre aux enfants — corps entier, ~15 min ──
+  // Mélange à chaque séance : sauts, déplacements d'animaux, équilibre et renforcement
+  // (haut, bas, tronc), en alternant effort et calme. Tout vient de la liste enfant validée.
+  var MIX = {
+    echauff: ['Marche sur place active', 'Cercles de bras', 'Rotations hanches', 'Jumping Jacks légers', 'Montées de genoux légères'],
+    saut: ['Jumping jacks', 'Étoile sautée', 'Sauts de grenouille', 'Marelle sur place', 'Sauts latéraux par-dessus une ligne', 'Skipping (pas sautés)', 'Sautillements sur une jambe', 'High knees', 'Montées de genoux sur place', 'Talons-fesses légers', 'Pas chassés latéraux', 'Burpees légers', 'Broad Jump (saut en longueur)'],
+    animal: ['Bear crawl', 'Marche du crabe', 'Inchworm', 'Mountain climbers lents'],
+    equilibre: ['Équilibre sur une jambe', 'Avion sur une jambe', 'Marche talon-pointe', 'Bird dog'],
+    haut: ['Pompes genoux', 'Pompes au mur', 'Pompes inclinées', 'Pompes classiques', 'Superman', 'Snow angels inversés', 'Shoulder taps en planche', 'Y-T-W au sol', 'Nageur au sol'],
+    bas: ['Squats au poids du corps', 'Squat sumo', 'Fentes arrière', 'Fentes alternées', 'Pont fessier', 'Wall sit', 'Montées sur pointes', 'Fire hydrant', 'Donkey Kicks'],
+    tronc: ['Planche courte', 'Planche (gainage)', 'Dead bug', 'Planche latérale (genoux)', 'Crunch classique']
+  };
+  var ORDRE = ['saut', 'bas', 'animal', 'haut', 'equilibre', 'tronc', 'saut', 'bas', 'animal', 'haut', 'equilibre', 'saut'];
+  var DUREE = { saut: 35, animal: 35, equilibre: 30, haut: 35, bas: 35, tronc: 25, echauff: 30 };
+  function genererSeance() {
+    try {
+      if (typeof exerciseDatabase === 'undefined') return null;
+      var db = exerciseDatabase;
+      var avant = [];
+      try { ((window.getWorkoutHistory && getWorkoutHistory()) || []).slice(0, 2).forEach(function (w) { (w.exercises || []).forEach(function (e) { avant.push(typeof e === 'string' ? e : e.name); }); }); } catch (e) { _e(e); }
+      var pris = {};
+      var trouver = function (cat) {
+        var tous = MIX[cat].map(function (n) { return db.filter(function (e) { return e.name === n; })[0]; })
+          .filter(function (e) { return e && !pris[e.name] && !(window.AwakYouth && AwakYouth.isDiscouraged(e)); });
+        var frais = tous.filter(function (e) { return avant.indexOf(e.name) < 0; });
+        var pool = frais.length ? frais : tous;
+        if (!pool.length) return null;
+        var e = pool[Math.floor(Math.random() * pool.length)]; pris[e.name] = 1; return e;
+      };
+      var item = function (e, cat) {
+        return Object.assign({}, e, { mode: 'timer', duration: DUREE[cat], sets: 1, exerciseType: 'hybrid', type: cat === 'echauff' ? (e.type || 'warmup') : 'exercise', _kidMix: cat });
+      };
+      var ex = [];
+      // Échauffement : 2 mouvements doux, enchaînés
+      for (var k = 0; k < 2; k++) { var w = trouver('echauff'); if (w) ex.push(item(w, 'echauff')); }
+      ex.push({ name: 'Repos', duration: 15, isRest: true, mode: 'timer' });
+      var corps = ORDRE.map(function (c) { var e = trouver(c); return e ? item(e, c) : null; }).filter(Boolean);
+      corps.forEach(function (e, i) { ex.push(e); if (i < corps.length - 1) ex.push({ name: 'Repos', duration: 20, isRest: true, mode: 'timer' }); });
+      if (corps.length < 4) return null;
+      return { name: 'Séance de jeux', type: 'kids', exercises: ex, _kidsMix: true, targetMuscles: ['Corps entier'], duration: 15 };
+    } catch (e) { _e(e); return null; }
+  }
+
   function bouger() {
     try {
       depart();
@@ -932,7 +975,7 @@
     window.switchTab = w;
   }
 
-  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, etirements: etirements, tutoriel: tutoriel, _tutoSuite: tutoSuite, _tutoFermer: tutoFermer,
+  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, etirements: etirements, genererSeance: genererSeance, tutoriel: tutoriel, _tutoSuite: tutoSuite, _tutoFermer: tutoFermer,
     revoirTutoriel: function () { tutoriel(prenom(), null); }, dejaEnCours: dejaEnCours, continuer: continuer, recommencer: recommencer, plusTard: plusTard, missions: missions, mission: mission, lancerMission: lancerMission, bravo: bravo, envoyer: envoyer, lireMessages: lireMessages };
   function init() { injecterCSS(); brancher(); maj(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

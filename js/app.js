@@ -14582,6 +14582,46 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
         }
         window.awakSecQuandLibre = awakSecQuandLibre;
 
+        // v1767 : supprimer un profil ENFANT depuis un profil adulte (Famille › Enfants)
+        function awakAgeDe(pid) { try { const u = JSON.parse(localStorage.getItem('profile_' + pid + '_userProfile') || 'null'); return u ? parseInt(u.age, 10) || 0 : 0; } catch (e) { return 0; } }
+        window.awakCarteProfilsEnfants = function () {
+            try {
+                if (window.AwakYouth && AwakYouth.isYoung && AwakYouth.isYoung()) return '';
+                const moi = getCurrentProfileId();
+                const kids = getAllProfiles().filter(p => p.id !== moi && (a => a >= 3 && a < 13)(awakAgeDe(p.id)));
+                if (!kids.length) return '';
+                const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+                return '<div style="margin:12px 0 4px;padding:14px;border-radius:14px;background:#12161c;border:1px solid rgba(255,255,255,0.07);">'
+                    + '<div style="font-size:0.8em;font-weight:800;color:#f1f5f9;margin-bottom:2px;">Profils des enfants</div>'
+                    + '<div style="font-size:0.68em;color:#94a3b8;margin-bottom:10px;">Supprimer un profil efface ses séances, ses étoiles, son album et son aventure.</div>'
+                    + kids.map(k => '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid rgba(255,255,255,0.06);">'
+                        + '<span style="flex:1;min-width:0;font-size:0.85em;font-weight:700;color:#e2e8f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(k.name || 'Enfant') + ' <span style="color:#64748b;font-weight:600;">· ' + awakAgeDe(k.id) + ' ans</span></span>'
+                        + '<button onclick="awakSupprimerProfilEnfant(\'' + esc(k.id) + '\')" style="min-height:36px;padding:6px 12px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:0.75em;font-weight:800;color:#f87171;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.35);">Supprimer le profil</button></div>').join('')
+                    + '</div>';
+            } catch (e) { _awkE(e); return ''; }
+        };
+        window.awakSupprimerProfilEnfant = function (pid) {
+            const moi = getCurrentProfileId();
+            const p = getAllProfiles().find(x => x.id === pid);
+            const age = awakAgeDe(pid);
+            if (!p || pid === moi || !(age >= 3 && age < 13)) return;   // jamais soi-même ni un adulte
+            awakSecGuard('supprimer le profil de ' + (p.name || 'cet enfant'), function () {
+                showConfirm('Supprimer définitivement le profil de « ' + (p.name || 'cet enfant') + ' » ? Ses séances, ses étoiles, son album et son aventure seront effacés.', function () {
+                    try {
+                        saveProfiles(getAllProfiles().filter(x => x.id !== pid));
+                        const pre = 'profile_' + pid + '_';
+                        Object.keys(localStorage).filter(k => k.indexOf(pre) === 0 || k.endsWith('_' + pid) || k.indexOf('_' + pid + '_') >= 0).forEach(k => localStorage.removeItem(k));
+                        // étoiles et messages de famille
+                        try { const d = JSON.parse(localStorage.getItem('awakEtoilesFamille') || 'null'); if (d) { if (d.enfants) delete d.enfants[pid]; if (Array.isArray(d.demandes)) d.demandes = d.demandes.filter(q => q && q.pid !== pid); localStorage.setItem('awakEtoilesFamille', JSON.stringify(d)); } } catch (e) { _awkE(e); }
+                        try { const n = JSON.parse(localStorage.getItem('awakFamilyNudges') || '[]'); localStorage.setItem('awakFamilyNudges', JSON.stringify(n.filter(x => x && x.to !== pid && x.from !== pid))); } catch (e) { _awkE(e); }
+                        showToast('Profil de ' + (p.name || 'l\'enfant') + ' supprimé', 'success', 2500);
+                        try { if (typeof renderFamilyTab === 'function') renderFamilyTab(); else switchTab('family'); } catch (e) { _awkE(e); }
+                        try { if (window.AwakFamSous) AwakFamSous('enfants'); } catch (e) { _awkE(e); }
+                    } catch (e) { _awkE(e); showToast('Erreur lors de la suppression', 'error', 3000); }
+                }, null, { title: 'Supprimer le profil ?', confirmLabel: 'Supprimer', cancelLabel: 'Annuler', danger: true });
+            });
+        };
+
         function deleteCurrentProfile() {
             const currentProfileId = getCurrentProfileId();
             const allProfiles = getAllProfiles();
@@ -17040,6 +17080,8 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                     selectedWorkoutMode = 'timer';
                     selectedDuration = 15;
                     _forcedExerciseCount = 0;
+                    // v1767 : séance enfant corps entier (sauts, animaux, équilibre, renforcement) ~15 min
+                    try { const _wk = window.AwakKid && AwakKid.genererSeance ? AwakKid.genererSeance() : null; if (_wk) { showWorkoutPreparation(_wk); return; } } catch (e3) { _awkE(e3); }
                     // v1716 : en cas d'erreur, pas de repli sur les questions d'adulte
                     try { actuallyStartRandomWorkout(); } catch (e2) { _awkE(e2); try { showToast('La séance n\'a pas pu démarrer. Réessaie.', 'error', 3500); } catch (x) { _awkE(x); } }
                     return;
@@ -24926,7 +24968,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1766);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1767);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -24979,7 +25021,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1766" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1767" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25790,7 +25832,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const cle = Math.round(r.width) + 'x' + H;
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1766)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1767)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center top';
                 } catch (e) { _awkE(e); }
@@ -31232,7 +31274,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1766");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1767");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -44958,7 +45000,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1766';
+                    let ver = 'v0.95.1767';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -45126,7 +45168,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1766" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1767" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45208,7 +45250,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1766);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1767);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45275,7 +45317,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1766);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1767);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47749,7 +47791,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1766");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1767");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

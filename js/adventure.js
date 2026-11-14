@@ -871,6 +871,8 @@ function renderFamilyTab() {
         window._awkFamSansBarre = false;
         // v1683 : étoiles des enfants (récompenses)
         try { if (window.AwakEtoiles) pEnf += AwakEtoiles.carteParent(); } catch (e) { _awkE(e); }
+        // v1767 : gérer les profils enfants (supprimer depuis un profil adulte)
+        try { if (pEnf && typeof window.awakCarteProfilsEnfants === 'function') pEnf += window.awakCarteProfilsEnfants(); } catch (e) { _awkE(e); }
         // Défis : Défis · Badges · Ma famille · Journal (avant : pied du ciel), jours, constellation, en cours
         const _ic = (n, c) => (window.AwakIcon ? AwakIcon.get(n, 20, c) : '');
         const _tuile = (fn, ico, c, titre, det) => '<button onclick="' + fn + '" style="display:flex;align-items:center;gap:10px;min-width:0;padding:12px;border-radius:13px;cursor:pointer;font-family:inherit;text-align:left;background:#12161c;border:1px solid rgba(255,255,255,0.07);min-height:auto;">'
