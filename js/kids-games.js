@@ -165,59 +165,52 @@
     global.AwakKidsDetail(k);
   };
 
-  // ── Liste des jeux ────────────────────────────────────────────────
+  // v1747 : interface refaite façon enfant — grosses cartes colorées, icônes, renard
+  var LOOK = {
+    chasseur: ['course', '#fb923c'], statue: ['pyramide', '#38bdf8'], animaux: ['arbre', '#f472b6'],
+    miroir: ['groupe', '#38bdf8'], tresor: ['couronne', '#facc15'], volcan: ['flamme', '#fb923c'],
+    ombres: ['soleil', '#facc15'], compte: ['chrono', '#38bdf8'], cirque: ['etoile', '#f472b6']
+  };
+  function ic(n, t, c) { try { return global.AwakIcon ? global.AwakIcon.get(n, t, c) : ''; } catch (e) { return ''; } }
+  function pastille(cle, taille) {
+    var l = LOOK[cle] || ['etoile', '#fb923c'];
+    return '<span style="width:' + taille + 'px;height:' + taille + 'px;border-radius:' + Math.round(taille * 0.32) + 'px;flex-shrink:0;display:flex;align-items:center;justify-content:center;'
+      + 'background:' + l[1] + '33;border:2px solid ' + l[1] + '88;">' + ic(l[0], Math.round(taille * 0.52), l[1]) + '</span>';
+  }
+  var FOND = 'position:fixed;inset:0;z-index:11000;overflow-y:auto;background:radial-gradient(circle at 50% 12%,#1e3a5f,#0b1220 70%);'
+    + 'padding:calc(12px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom));box-sizing:border-box;';
+  var GROS = 'border:none;border-radius:18px;cursor:pointer;font-family:inherit;font-weight:900;color:#fff;background:linear-gradient(135deg,#fb923c,#f472b6);box-shadow:0 8px 24px rgba(251,146,60,0.35);';
+  var RETOUR = 'min-height:44px;padding:8px 18px;flex-shrink:0;' + GROS + 'font-size:16px;box-shadow:none;';
+  global._awkKidsLook = { pastille: pastille, FOND: FOND, GROS: GROS, ic: ic, LOOK: LOOK };
+
   global.AwakKidsOpen = function () {
     try { if (global.AwakFamCloseAll) global.AwakFamCloseAll(); } catch (e) { _awkE(e); }
     document.getElementById('awakKidsModal')?.remove();
 
     var cartes = Object.keys(JEUX).map(function (k) {
       var j = JEUX[k];
-      return '<button onclick="AwakKidsDetail(\'' + k + '\')" '
-        + 'style="width:100%;text-align:left;display:flex;align-items:center;gap:12px;'
-        + 'padding:13px;margin-bottom:9px;border-radius:14px;cursor:pointer;'
-        + 'background:rgba(96,168,240,0.07);border:1px solid rgba(96,168,240,0.24);">'
-        + '<span style="font-size:1.7em;flex-shrink:0;">' + j.emoji + '</span>'
-        + '<span style="flex:1;min-width:0;">'
-        +   '<span style="display:block;font-size:0.86em;font-weight:800;color:#f1f5f9;">'
-        +     esc(j.nom) + '</span>'
-        +   '<span style="display:block;font-size:0.7em;color:#94a3b8;margin-top:2px;">'
-        +     esc(j.pitch) + '</span>'
-        +   '<span style="display:block;font-size:0.62em;color:#60a8f0;margin-top:3px;font-weight:700;">'
-        +     (j.duree * j.manches) + ' min · ' + j.manches + ' manches</span>'
-        + '</span>'
-        + '<span style="color:#60a8f0;font-size:1em;flex-shrink:0;">›</span>'
+      return '<button onclick="AwakKidsDetail(\'' + k + '\')" style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:14px 8px 12px;min-height:0;border-radius:20px;cursor:pointer;font-family:inherit;'
+        + 'background:rgba(255,255,255,0.05);border:2px solid ' + (LOOK[k] ? LOOK[k][1] : '#fb923c') + '55;">'
+        + pastille(k, 56)
+        + '<span style="font-size:15px;font-weight:900;color:#fff;line-height:1.2;">' + esc(j.nom) + '</span>'
+        + '<span style="font-size:12px;font-weight:800;color:#94a3b8;">' + (j.duree * j.manches) + ' min</span>'
         + '</button>';
     }).join('');
 
     var ov = document.createElement('div');
     ov.id = 'awakKidsModal';
-    ov.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.88);'
-      + 'backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;'
-      + 'padding:16px;overflow-y:auto;';
-    ov.innerHTML =
-      '<div style="width:100%;max-width:430px;margin:auto;padding:18px;border-radius:20px;'
-    +   'background:linear-gradient(160deg,#101822,#0a0d13);'
-    +   'border:1.5px solid rgba(96,168,240,0.35);box-shadow:0 0 40px rgba(96,168,240,0.14);">'
-    +   '<div style="width:36px;height:4px;background:rgba(255,255,255,0.18);'
-    +     'border-radius:99px;margin:0 auto 14px;"></div>'
-    +   '<div style="font-size:0.54em;letter-spacing:2.5px;color:#60a8f0;font-weight:900;">◈ À DEUX</div>'
-    +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.15em;font-weight:800;'
-    +     'color:#fff;margin:2px 0 4px;">Jeux à faire ensemble</div>'
-    +   '<div style="font-size:0.72em;color:#94a3b8;line-height:1.5;margin-bottom:15px;">'
-    +     'Pas d\'exercices à compter. On joue, et le corps travaille tout seul.</div>'
-    +   '<button onclick="AwakKidsAleatoire()" '
-    +     'style="width:100%;padding:13px;margin-bottom:12px;border-radius:14px;'
-    +     'border:1px dashed rgba(96,168,240,0.45);cursor:pointer;'
-    +     'background:rgba(96,168,240,0.05);color:#60a8f0;'
-    +     'font-size:0.8em;font-weight:800;letter-spacing:0.5px;">'
-    +     '🎲 Surprends-moi</button>'
-    +   cartes
-    +   '<button onclick="document.getElementById(\'awakKidsModal\').remove()" '
-    +     'style="width:100%;padding:12px;margin-top:6px;border-radius:13px;cursor:pointer;'
-    +     'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);'
-    +     'color:#94a3b8;font-size:0.75em;font-weight:800;letter-spacing:1px;">FERMER</button>'
-    + '</div>';
-    ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+    ov.style.cssText = FOND;
+    ov.innerHTML = '<div style="max-width:480px;margin:0 auto;">'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">'
+      +   '<img src="images/kid/renard_bravo.webp" alt="" style="width:76px;height:76px;object-fit:contain;flex-shrink:0;">'
+      +   '<div style="flex:1;min-width:0;"><div style="font-size:24px;font-weight:900;color:#fff;line-height:1.1;">Jouer ensemble</div>'
+      +   '<div style="font-size:14px;font-weight:800;color:#bae6fd;margin-top:4px;">Un jeu, et on bouge sans compter !</div></div>'
+      +   '<button onclick="document.getElementById(\'awakKidsModal\').remove()" style="' + RETOUR + '">Retour</button>'
+      + '</div>'
+      + '<button onclick="AwakKidsAleatoire()" style="width:100%;min-height:60px;margin-bottom:14px;font-size:19px;display:flex;align-items:center;justify-content:center;gap:10px;' + GROS + '">'
+      +   ic('etoile', 22, '#fff') + 'Choisis pour moi !</button>'
+      + '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">' + cartes + '</div>'
+      + '</div>';
     document.body.appendChild(ov);
   };
 
@@ -227,57 +220,38 @@
     if (!j) return;
     document.getElementById('awakKidsModal')?.remove();
     document.getElementById('awakKidsDetail')?.remove();
+    var coul = LOOK[cle] ? LOOK[cle][1] : '#fb923c';
 
     var regles = j.regles.map(function (r, i) {
-      return '<div style="display:flex;gap:9px;margin-bottom:8px;">'
-        + '<span style="flex-shrink:0;width:20px;height:20px;border-radius:99px;'
-        +   'background:rgba(96,168,240,0.15);border:1px solid rgba(96,168,240,0.35);'
-        +   'color:#60a8f0;font-size:0.62em;font-weight:900;display:flex;'
-        +   'align-items:center;justify-content:center;">' + (i + 1) + '</span>'
-        + '<span style="flex:1;font-size:0.76em;color:#cbd5e1;line-height:1.45;">'
-        +   esc(r) + '</span></div>';
+      return '<div style="display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:16px;margin-bottom:8px;background:rgba(255,255,255,0.05);">'
+        + '<span style="flex-shrink:0;width:32px;height:32px;border-radius:50%;background:' + coul + ';color:#0b1220;font-size:17px;font-weight:900;display:flex;align-items:center;justify-content:center;">' + (i + 1) + '</span>'
+        + '<span style="flex:1;font-size:16px;font-weight:700;color:#f1f5f9;line-height:1.4;">' + esc(r) + '</span></div>';
     }).join('');
 
     var ov = document.createElement('div');
     ov.id = 'awakKidsDetail';
-    ov.style.cssText = 'position:fixed;inset:0;z-index:11000;background:rgba(0,0,0,0.90);'
-      + 'backdrop-filter:blur(9px);display:flex;align-items:center;justify-content:center;'
-      + 'padding:16px;overflow-y:auto;';
-    ov.innerHTML =
-      '<div style="width:100%;max-width:430px;margin:auto;padding:20px;border-radius:20px;'
-    +   'background:linear-gradient(160deg,#101822,#0a0d13);'
-    +   'border:1.5px solid rgba(96,168,240,0.35);">'
-    +   '<div style="text-align:center;margin-bottom:14px;">'
-    +     '<div style="font-size:2.6em;line-height:1;">' + j.emoji + '</div>'
-    +     '<div style="font-family:var(--font-display),sans-serif;font-size:1.15em;'
-    +       'font-weight:800;color:#fff;margin-top:5px;">' + esc(j.nom) + '</div>'
-    +     '<div style="font-size:0.72em;color:#94a3b8;margin-top:3px;">' + esc(j.pitch) + '</div>'
-    +   '</div>'
-    +   '<div style="font-size:0.52em;letter-spacing:2px;color:#60a8f0;font-weight:900;'
-    +     'margin-bottom:9px;">◈ COMMENT ON JOUE</div>'
-    +   regles
-    +   '<div style="background:rgba(255,255,255,0.03);border-radius:11px;padding:10px 12px;'
-    +     'margin:12px 0;font-size:0.7em;color:#94a3b8;line-height:1.45;">'
-    +     '<strong style="color:#cbd5e1;">Ça travaille :</strong> ' + esc(j.qualite)
-    +     '<br><strong style="color:#cbd5e1;">Variante :</strong> ' + esc(j.variante) + '</div>'
-    +   '<button onclick="AwakKidsStart(\'' + cle + '\')" '
-    +     'style="width:100%;padding:15px;border-radius:14px;border:none;cursor:pointer;'
-    +     'background:linear-gradient(160deg,#a5f3fc,#22d3ee 45%,#0e7490);'
-    +     'color:#04162b;font-weight:900;font-size:0.86em;letter-spacing:1px;'
-    +     'box-shadow:0 0 24px rgba(96,168,240,0.3);">'
-    +     'COMMENCER · ' + (j.duree * j.manches) + ' MIN</button>'
-    +   '<div style="display:flex;gap:8px;margin-top:8px;">'
-    +   '<button onclick="AwakKidsOpen()" '
-    +     'style="flex:1;padding:11px;border-radius:13px;cursor:pointer;'
-    +     'background:transparent;border:1px solid rgba(255,255,255,0.12);'
-    +     'color:#94a3b8;font-size:0.72em;font-weight:800;">← AUTRE JEU</button>'
-    +   '<button onclick="document.getElementById(\'awakKidsDetail\')?.remove()" '
-    +     'style="flex:1;padding:11px;border-radius:13px;cursor:pointer;'
-    +     'background:transparent;border:1px solid rgba(255,255,255,0.12);'
-    +     'color:#94a3b8;font-size:0.72em;font-weight:800;">FERMER</button>'
-    +   '</div>'
-    + '</div>';
-    ov.onclick = function (e) { if (e.target === ov) ov.remove(); };
+    ov.style.cssText = FOND;
+    ov.innerHTML = '<div style="max-width:480px;margin:0 auto;">'
+      + '<div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:6px;">'
+      +   '<button onclick="AwakKidsOpen()" style="min-height:44px;padding:8px 14px;border-radius:14px;cursor:pointer;font-family:inherit;font-size:15px;font-weight:800;color:#cbd5e1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);">Autre jeu</button>'
+      +   '<button onclick="document.getElementById(\'awakKidsDetail\')?.remove()" style="' + RETOUR + '">Retour</button>'
+      + '</div>'
+      + '<div style="text-align:center;margin-bottom:16px;">'
+      +   '<div style="display:flex;justify-content:center;">' + pastille(cle, 92) + '</div>'
+      +   '<div style="font-size:26px;font-weight:900;color:#fff;margin-top:10px;line-height:1.15;">' + esc(j.nom) + '</div>'
+      +   '<div style="font-size:16px;font-weight:800;color:#bae6fd;margin-top:6px;">' + esc(j.pitch) + '</div>'
+      +   '<div style="display:inline-flex;gap:8px;margin-top:10px;">'
+      +     '<span style="padding:5px 12px;border-radius:99px;background:rgba(255,255,255,0.08);font-size:14px;font-weight:800;color:#fff;">' + (j.duree * j.manches) + ' min</span>'
+      +     '<span style="padding:5px 12px;border-radius:99px;background:rgba(255,255,255,0.08);font-size:14px;font-weight:800;color:#fff;">' + j.manches + ' manches</span></div>'
+      + '</div>'
+      + '<div style="font-size:18px;font-weight:900;color:#fdba74;margin:0 2px 10px;">Comment on joue</div>'
+      + regles
+      + '<div style="padding:12px 14px;border-radius:16px;margin:12px 0 16px;background:rgba(56,189,248,0.1);border:2px solid rgba(56,189,248,0.3);">'
+      +   '<div style="font-size:14px;font-weight:900;color:#bae6fd;">Trop facile ?</div>'
+      +   '<div style="font-size:15px;font-weight:700;color:#e0f2fe;margin-top:3px;line-height:1.4;">' + esc(j.variante) + '</div></div>'
+      + '<button onclick="AwakKidsStart(\'' + cle + '\')" style="width:100%;min-height:64px;font-size:21px;' + GROS + '">On joue !</button>'
+      + '<div style="text-align:center;font-size:13px;font-weight:700;color:#94a3b8;margin-top:10px;">Ça fait travailler : ' + esc(j.qualite.toLowerCase()) + '</div>'
+      + '</div>';
     document.body.appendChild(ov);
   };
 
@@ -302,6 +276,7 @@
     document.getElementById('awakKidsDetail')?.remove();
     partie = { cle: cle, jeu: j, manche: 1, reste: j.duree * 60, debut: Date.now(), pause: false };
     _ecran();
+    _annonce('C\'est parti !', 'Manche 1 sur ' + j.manches);
     tic = setInterval(_tick, 1000);
   };
 
@@ -314,54 +289,66 @@
       if (partie.manche >= partie.jeu.manches) { _fin(); return; }
       partie.manche++;
       partie.reste = partie.jeu.duree * 60;
-      try {
-        if (typeof showToast === 'function') {
-          showToast('🔄 Manche ' + partie.manche + ' — changez de rôle !', 'info', 3000);
-        }
-      } catch (e) { _awkE(e); }
+      _annonce('Manche ' + partie.manche + ' !', 'Changez de rôle !');
     }
     _maj();
+  }
+
+  // Grande annonce au début de chaque manche (avant : petite bulle facile à manquer)
+  function _annonce(titre, sous) {
+    try {
+      var v = document.getElementById('awakKidsAnnonce'); if (v) v.remove();
+      var o = document.createElement('div'); o.id = 'awakKidsAnnonce';
+      o.style.cssText = 'position:fixed;inset:0;z-index:11600;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:rgba(11,18,32,0.92);animation:awakFadeIn .25s ease;';
+      o.innerHTML = '<img src="images/kid/renard_saut.webp" alt="" style="width:150px;height:150px;object-fit:contain;">'
+        + '<div style="font-size:40px;font-weight:900;color:#fff;margin-top:6px;">' + esc(titre) + '</div>'
+        + '<div style="font-size:20px;font-weight:900;color:#fdba74;margin-top:6px;">' + esc(sous) + '</div>';
+      o.onclick = function () { o.remove(); };
+      document.body.appendChild(o);
+      try { if (typeof global.speak === 'function') global.speak(titre + ' ' + sous, { enfant: true }); } catch (e) { _awkE(e); }
+      setTimeout(function () { if (o.parentNode) o.remove(); }, 2400);
+    } catch (e) { _awkE(e); }
   }
 
   function _maj() {
     var t = document.getElementById('awakKidsChrono');
     if (t) t.textContent = _fmt(Math.max(0, partie.reste));
+    var arc = document.getElementById('awakKidsArc');
+    if (arc) arc.style.strokeDashoffset = ((1 - Math.max(0, partie.reste) / (partie.jeu.duree * 60)) * 597).toFixed(1);
     var m = document.getElementById('awakKidsManche');
-    if (m) m.textContent = 'Manche ' + partie.manche + ' / ' + partie.jeu.manches;
+    if (m) m.innerHTML = _points();
+  }
+  function _points() {
+    var h = '';
+    for (var i = 1; i <= partie.jeu.manches; i++) {
+      h += '<span style="width:' + (i === partie.manche ? 30 : 14) + 'px;height:14px;border-radius:99px;display:inline-block;transition:width .3s;background:'
+        + (i < partie.manche ? '#facc15' : i === partie.manche ? '#fb923c' : 'rgba(255,255,255,0.15)') + ';"></span>';
+    }
+    return h;
   }
 
   function _ecran() {
     document.getElementById('awakKidsPlay')?.remove();
+    var L = global._awkKidsLook || {};
     var ov = document.createElement('div');
     ov.id = 'awakKidsPlay';
-    ov.style.cssText = 'position:fixed;inset:0;z-index:11500;background:#080d16;'
-      + 'display:flex;align-items:center;justify-content:center;padding:20px;';
-    ov.innerHTML =
-      '<div style="width:100%;max-width:400px;text-align:center;">'
-    +   '<div style="font-size:3.4em;line-height:1;margin-bottom:6px;">' + partie.jeu.emoji + '</div>'
-    +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.1em;'
-    +     'font-weight:800;color:#fff;">' + partie.jeu.nom + '</div>'
-    +   '<div id="awakKidsManche" style="font-size:0.68em;color:#60a8f0;font-weight:800;'
-    +     'letter-spacing:1.5px;margin-top:4px;">Manche 1 / ' + partie.jeu.manches + '</div>'
-    +   '<div id="awakKidsChrono" style="font-family:var(--font-display),sans-serif;'
-    +     'font-size:4.2em;font-weight:900;color:#60a8f0;line-height:1.1;margin:14px 0;'
-    +     'text-shadow:0 0 26px rgba(96,168,240,0.45);">' + _fmt(partie.reste) + '</div>'
-    +   '<div style="font-size:0.74em;color:#94a3b8;line-height:1.5;margin-bottom:20px;">'
-    +     partie.jeu.pitch + '</div>'
-    +   '<button onclick="AwakKidsPause()" id="awakKidsPauseBtn" '
-    +     'style="width:100%;padding:14px;border-radius:14px;cursor:pointer;margin-bottom:8px;'
-    +     'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);'
-    +     'color:#cbd5e1;font-weight:800;font-size:0.8em;">PAUSE</button>'
-    +   '<button onclick="AwakKidsQuitter()" '
-    +     'style="width:100%;padding:12px;border-radius:14px;cursor:pointer;margin-bottom:8px;'
-    +     'background:transparent;border:1px solid rgba(255,255,255,0.12);'
-    +     'color:#94a3b8;font-weight:800;font-size:0.74em;">Quitter sans enregistrer</button>'
-    +   '<button onclick="AwakKidsFinir()" '
-    +     'style="width:100%;padding:14px;border-radius:14px;border:none;cursor:pointer;'
-    +     'background:linear-gradient(160deg,#a5f3fc,#22d3ee 45%,#0e7490);'
-    +     'color:#04162b;font-weight:900;font-size:0.82em;letter-spacing:1px;">'
-    +     'TERMINER MAINTENANT</button>'
-    + '</div>';
+    ov.style.cssText = (L.FOND || 'position:fixed;inset:0;background:#0b1220;').replace('z-index:11000', 'z-index:11500') + 'display:flex;align-items:center;justify-content:center;';
+    ov.innerHTML = '<div style="width:100%;max-width:400px;text-align:center;">'
+      + (L.pastille ? '<div style="display:flex;justify-content:center;">' + L.pastille(partie.cle, 64) + '</div>' : '')
+      + '<div style="font-size:24px;font-weight:900;color:#fff;margin-top:8px;line-height:1.15;">' + esc(partie.jeu.nom) + '</div>'
+      + '<div id="awakKidsManche" style="display:flex;justify-content:center;gap:6px;margin-top:10px;">' + _points() + '</div>'
+      + '<div style="position:relative;width:220px;height:220px;margin:16px auto;">'
+      +   '<svg viewBox="0 0 220 220" width="220" height="220" style="display:block;transform:rotate(-90deg);">'
+      +     '<circle cx="110" cy="110" r="95" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="14"/>'
+      +     '<circle id="awakKidsArc" cx="110" cy="110" r="95" fill="none" stroke="#fb923c" stroke-width="14" stroke-linecap="round" stroke-dasharray="597" stroke-dashoffset="0" style="transition:stroke-dashoffset 1s linear;"/></svg>'
+      +   '<div id="awakKidsChrono" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:56px;font-weight:900;color:#fff;">' + _fmt(partie.reste) + '</div>'
+      + '</div>'
+      + '<div style="font-size:17px;font-weight:800;color:#bae6fd;line-height:1.4;margin-bottom:18px;">' + esc(partie.jeu.pitch) + '</div>'
+      + '<button onclick="AwakKidsFinir()" style="width:100%;min-height:62px;font-size:20px;margin-bottom:10px;' + (L.GROS || '') + '">On a fini !</button>'
+      + '<div style="display:flex;gap:8px;">'
+      +   '<button onclick="AwakKidsPause()" id="awakKidsPauseBtn" style="flex:1;min-height:50px;border-radius:16px;cursor:pointer;font-family:inherit;font-size:16px;font-weight:900;color:#fff;background:rgba(255,255,255,0.08);border:2px solid rgba(255,255,255,0.18);">Pause</button>'
+      +   '<button onclick="AwakKidsQuitter()" style="flex:1;min-height:50px;border-radius:16px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:800;color:#94a3b8;background:transparent;border:1px solid rgba(255,255,255,0.12);">Quitter</button>'
+      + '</div></div>';
     document.body.appendChild(ov);
   }
 
@@ -369,7 +356,7 @@
     if (!partie) return;
     partie.pause = !partie.pause;
     var b = document.getElementById('awakKidsPauseBtn');
-    if (b) b.textContent = partie.pause ? 'REPRENDRE' : 'PAUSE';
+    if (b) b.textContent = partie.pause ? 'Reprendre' : 'Pause';
   };
 
   global.AwakKidsFinir = function () { _fin(); };
@@ -441,28 +428,25 @@
     var etoilesJeu = 0;
     try { if (enfant && global.AwakEtoiles) etoilesJeu = global.AwakEtoiles.gagnerSeance(minutes, partie.debut, jeu.nom); } catch (e) { _awkE(e); }
 
+    // v1747 : un enfant a la même grande fête qu'après une séance (renard, chemin, autocollant)
+    if (enfant && global.AwakKid && global.AwakKid.fin) {
+      var deb = partie.debut; partie = null;
+      try { global.AwakKid.fin(etoilesJeu, minutes, 'jeu:' + deb); return; } catch (e) { _awkE(e); }
+      partie = { debut: deb };
+    }
+    var L = global._awkKidsLook || {};
     var ov = document.createElement('div');
     ov.id = 'awakKidsFin';
     ov.style.cssText = 'position:fixed;inset:0;z-index:11500;background:rgba(0,0,0,0.92);'
       + 'backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:20px;';
-    ov.innerHTML =
-      '<div style="width:100%;max-width:390px;text-align:center;padding:26px 20px;'
-    +   'border-radius:20px;background:linear-gradient(160deg,#101822,#0a0d13);'
-    +   'border:1.5px solid rgba(96,168,240,0.4);box-shadow:0 0 40px rgba(96,168,240,0.18);">'
-    +   '<div style="font-size:3em;line-height:1;margin-bottom:8px;">🎉</div>'
-    +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.2em;'
-    +     'font-weight:800;color:#fff;">Bien joué !</div>'
-    +   '<div style="font-size:0.8em;color:#cbd5e1;line-height:1.5;margin:8px 0 16px;">'
-    +     '<strong style="color:#60a8f0;">' + minutes + ' minutes</strong> de jeu ensemble.<br>'
-    +     'Ça compte comme une vraie séance.'
-    +     (etoilesJeu ? '<br><strong style="color:#fbbf24;">+' + etoilesJeu + ' étoile' + (etoilesJeu > 1 ? 's' : '') + '</strong>' : '') + '</div>'
-    +     quiAJoue(enfant, minutes, partie.debut, jeu.nom)
-    +   '<button onclick="document.getElementById(\'awakKidsFin\').remove();'
-    +     'if(window.updateHomeStats)updateHomeStats();" '
-    +     'style="width:100%;padding:14px;border-radius:14px;border:none;cursor:pointer;'
-    +     'background:linear-gradient(160deg,#a5f3fc,#22d3ee 45%,#0e7490);'
-    +     'color:#04162b;font-weight:900;font-size:0.84em;letter-spacing:1px;">TERMINÉ</button>'
-    + '</div>';
+    ov.style.cssText = (L.FOND || 'position:fixed;inset:0;background:#0b1220;').replace('z-index:11000', 'z-index:11500') + 'display:flex;align-items:center;justify-content:center;';
+    ov.innerHTML = '<div style="width:100%;max-width:390px;text-align:center;">'
+      + '<img src="images/kid/renard_bravo.webp" alt="" style="width:170px;height:170px;object-fit:contain;">'
+      + '<div style="font-size:34px;font-weight:900;color:#fff;margin-top:4px;">Bien joué !</div>'
+      + '<div style="font-size:18px;font-weight:800;color:#bae6fd;margin:8px 0 16px;line-height:1.4;">' + minutes + ' minute' + (minutes > 1 ? 's' : '') + ' de jeu ensemble.<br>Ça compte comme une vraie séance.</div>'
+      + quiAJoue(enfant, minutes, partie.debut, jeu.nom)
+      + '<button onclick="document.getElementById(\'awakKidsFin\').remove();if(window.updateHomeStats)updateHomeStats();" style="width:100%;min-height:60px;font-size:20px;' + (L.GROS || '') + '">Super !</button>'
+      + '</div>';
     document.body.appendChild(ov);
     partie = null;
   }
