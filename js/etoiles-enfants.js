@@ -507,6 +507,9 @@
       }
       if (e) e.style.display = k ? '' : 'none';
       if (k) setTimeout(annoncer, 1200);   // v1690
+      try { if (window.AwakKid) AwakKid.maj(); } catch (x2) { _e(x2); }   // v1736 : mode enfant très simple
+      // v1736 : Séance et Plus cachés pour un enfant → retour à l'accueil enfant
+      if (k) { var a0 = document.querySelector('.tab-content.active'); if (a0 && /^(workoutsTab|routinesTab|programTab|challengesTab|settingsTab|calendarTab|exercisesTab|calculatorsTab)$/.test(a0.id) && !document.body.classList.contains('in-session') && typeof window.switchTab === 'function') window.switchTab('home'); }
       if (k) { var a = document.querySelector('.tab-content.active'); if (a && a.id === 'historyTab' && typeof window.switchTab === 'function') window.switchTab('home');
         if (a && (a.id === 'courseTab' || a.id === 'etirementsTab') && typeof window.switchTab === 'function') window.switchTab('workouts'); }
     } catch (x) { _e(x); }
