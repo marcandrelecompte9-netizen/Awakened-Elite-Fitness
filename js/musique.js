@@ -189,11 +189,11 @@
   }
   function liste() {
     var r = reglages(); if (r.externe) return [];   // « J'écoute ma musique dans une autre app »
+    if (profilEnfant()) return r.entrainement ? AWAK_MUSIQUES.filter(function (m) { return m.type === 'enfant'; }) : [];   // v1751 : enfant = ses morceaux seulement, partout
     if (seanceMatin()) return r.entrainement ? AWAK_MUSIQUES.filter(function (m) { return m.type === 'matin' && (!m.jeu || modeJeu()); }) : [];   // v1641
     var zen = seanceZen();
     // v1679 : étirements → aussi les morceaux calmes du réveil (sans « Awakening the Hero »)
     if (zen) { var et = seanceEtirement(); return r.entrainement ? AWAK_MUSIQUES.filter(function (m) { return m.type === 'zen' || (et && m.type === 'matin' && !m.jeu); }) : []; }
-    if (profilEnfant()) return r.entrainement ? AWAK_MUSIQUES.filter(function (m) { return m.type === 'enfant'; }) : [];   // v1750
     var jeu = r.jeu && modeJeu(), ctx = modeJeu() ? contexte() : null, ex = exclus();
     // v1493 : en combat (Faille, Faille unique, combat final), pas de musique d'entraînement
     return AWAK_MUSIQUES.filter(function (m) {
@@ -563,8 +563,9 @@
         + '<span style="flex-shrink:0;width:44px;height:26px;border-radius:99px;position:relative;transition:background .2s;background:' + (on ? '#22d3ee' : 'rgba(255,255,255,0.15)') + ';">'
         + '<span style="position:absolute;top:3px;left:' + (on ? '21px' : '3px') + ';width:20px;height:20px;border-radius:50%;background-color:rgb(248,250,252);transition:left .2s;"></span></span></button>';
     };
-    var l = candidats(), ex = exclus(), cur = courant();
-    h.innerHTML = '<div style="display:grid;grid-template-columns:1fr;gap:7px;">'
+    var l = candidats(), ex = exclus(), cur = courant(), kid = profilEnfant();
+    h.innerHTML = (kid ? '<div style="display:grid;grid-template-columns:1fr;gap:7px;">' + interr('auto', r.auto, 'Démarrer seule en séance', r.auto ? 'Au début de chaque séance' : 'Je lance moi-même') + '</div><div style="display:none;">' : '')
+      + '<div style="display:grid;grid-template-columns:1fr;gap:7px;">'
       + interr('auto', r.auto, 'Démarrer seule en séance', r.auto ? 'Au début de chaque séance' : 'Je lance moi-même')
       + interr('jeu', r.jeu && jeuOk, 'Musiques du jeu', jeuOk ? nJeu + ' morceau' + (nJeu > 1 ? 'x' : '') : 'Mode jeu désactivé', !jeuOk)
       + interr('entrainement', r.entrainement, 'Musiques d\'entraînement', nEnt + ' morceau' + (nEnt > 1 ? 'x' : ''))
@@ -579,7 +580,7 @@
       +     '<button data-mus="importer" style="min-height:0;flex-shrink:0;padding:9px 14px;border-radius:99px;border:1px solid rgba(34,211,238,0.5);background:rgba(34,211,238,0.12);color:#a5f3fc;font-weight:800;font-size:13px;cursor:pointer;">Ajouter</button>'
       +   '</div>'
       +   '<input type="file" accept="audio/*" multiple data-mus="fichier" style="display:none;">'
-      +   (nPer ? '<div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;">' + PERSO.map(function (m) {
+      +   (nPer && !kid ? '<div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;">' + PERSO.map(function (m) {
             return '<div style="display:flex;align-items:center;gap:8px;padding:7px 8px 7px 12px;border-radius:10px;background:rgba(255,255,255,0.03);">'
               + '<span style="flex:1;min-width:0;font-size:13px;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + m.titre.replace(/[<>&"]/g, '') + '</span>'
               + '<span style="font-size:11px;color:#8391a7;flex-shrink:0;">' + (m.taille ? (m.taille / 1048576).toFixed(1).replace('.', ',') + ' Mo' : '') + '</span>'
@@ -587,6 +588,7 @@
               + '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>';
           }).join('') + '</div>' : '')
       + '</div>'
+      + (kid ? '</div>' : '')
       + '<label style="display:flex;align-items:center;gap:12px;margin:14px 2px 6px;font-size:13px;color:#cbd5e1;font-weight:700;">Volume'
       + '<input type="range" min="0" max="100" value="' + Math.round(r.volume * 100) + '" data-r="volume" style="flex:1;accent-color:#22d3ee;"></label>'
       // v1588 : carte « En cours » (titre, source, progression, commandes)
@@ -618,7 +620,7 @@
               + '<span style="display:inline-flex;width:18px;justify-content:center;color:' + (ici ? '#67e8f9' : '#94a3b8') + ';">' + (ici ? eq(true) : IC.lect) + '</span>'
               + '<span style="flex:1;min-width:0;font-size:13px;font-weight:' + (ici ? '800' : '700') + ';color:' + (ici ? '#f8fafc' : '#e2e8f0') + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + (hors ? 'text-decoration:line-through;' : '') + '">' + t + '</span>'
               // v1588 : pastille de source colorée (jeu = or, entraînement = cyan, à moi = bleu)
-              + (function () { var k = hors ? ['Retiré', '#94a3b8', 'rgba(148,163,184,0.10)'] : m.type === 'perso' ? ['À moi', '#93c5fd', 'rgba(96,165,250,0.12)'] : m.type === 'jeu' ? ['Jeu', '#fcd34d', 'rgba(251,191,36,0.12)'] : ['Entraînement', '#67e8f9', 'rgba(34,211,238,0.10)'];
+              + (function () { var k = hors ? ['Retiré', '#94a3b8', 'rgba(148,163,184,0.10)'] : m.type === 'perso' ? ['À moi', '#93c5fd', 'rgba(96,165,250,0.12)'] : m.type === 'enfant' ? ['Enfants', '#fdba74', 'rgba(251,146,60,0.12)'] : m.type === 'jeu' ? ['Jeu', '#fcd34d', 'rgba(251,191,36,0.12)'] : ['Entraînement', '#67e8f9', 'rgba(34,211,238,0.10)'];
                   return '<span style="flex-shrink:0;font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:99px;color:' + k[1] + ';background:' + k[2] + ';">' + k[0] + '</span>'; })() + '</button>'
               + '<button data-exclure="' + m.fichier + '" aria-label="' + (hors ? 'Remettre ' : 'Retirer de la liste ') + t + '" title="' + (hors ? 'Remettre dans la liste' : 'Retirer de la liste') + '" style="min-height:0;flex-shrink:0;width:38px;height:38px;padding:0;border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:' + (hors ? '#67e8f9' : '#94a3b8') + ';cursor:pointer;display:flex;align-items:center;justify-content:center;">'
               + '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">' + (hors ? '<path d="M12 5v14M5 12h14"/>' : '<path d="M5 12h14"/>') + '</svg></button></div>';
