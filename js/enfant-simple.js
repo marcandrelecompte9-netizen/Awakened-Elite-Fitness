@@ -40,6 +40,58 @@
   function posPierre(n) { var q = n > 0 ? PIERRES[Math.min(n, PIERRES.length) - 1] : DEPART; return { x: q[0] / 572 * 100, y: q[1] / 1024 * 100 }; }
   var _aAnimer = null;
 
+  // v1742 : album d'autocollants — un nouvel autocollant par séance (9 à collectionner)
+  var AUTOS = [['basket','Basket'],['etoile','Étoile'],['medaille','Médaille'],['grenouille','Grenouille'],['fusee','Fusée'],['coeur','Cœur'],['soleil','Soleil'],['velo','Vélo'],['trophee','Trophée']];
+  function cleAlbum(ecrire) { try { return (ecrire ? window._cleProfil : window._cleProfilLecture)('awkKidAlbum'); } catch (e) { return 'awkKidAlbum'; } }
+  function album() {
+    try { var d = JSON.parse(localStorage.getItem(cleAlbum(false)) || 'null'); if (d && Array.isArray(d.ont)) return d; } catch (e) { _e(e); }
+    return { ont: [], cles: [] };
+  }
+  function gagnerAuto(cle) {
+    var d = album(); d.cles = d.cles || [];
+    cle = String(cle || '');
+    if (cle && d.cles.indexOf(cle) >= 0) return null;
+    var manque = AUTOS.filter(function (a) { return d.ont.indexOf(a[0]) < 0; });
+    if (!manque.length) return null;
+    var a = manque[Math.floor(Math.random() * manque.length)];
+    d.ont.push(a[0]);
+    if (cle) { d.cles.push(cle); if (d.cles.length > 20) d.cles.shift(); }
+    try { localStorage.setItem(cleAlbum(true), JSON.stringify(d)); } catch (e) { _e(e); }
+    return a;
+  }
+  function imgAuto(id, taille, style) {
+    return '<img src="images/kid/auto_' + id + '.webp" alt="" draggable="false" style="width:' + taille + ';aspect-ratio:1;object-fit:contain;display:block;' + (style || '') + '">';
+  }
+  function ouvrirAlbum(nouveau) {
+    try {
+      var v = document.getElementById('awkKidAlbum'); if (v) v.remove();
+      var d = album(), n = d.ont.length, N = AUTOS.length;
+      var cases = AUTOS.map(function (a) {
+        var a1 = d.ont.indexOf(a[0]) >= 0, neuf = nouveau === a[0];
+        return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:18px;'
+          + (a1 ? 'background:rgba(255,255,255,0.08);border:2px solid rgba(253,186,116,' + (neuf ? '0.9' : '0.3') + ');' : 'background:rgba(255,255,255,0.03);border:2px dashed rgba(255,255,255,0.15);') + '">'
+          + (a1 ? imgAuto(a[0], '78%', neuf ? 'animation:awkAutoPop .7s cubic-bezier(.2,1.6,.4,1) both;' : '')
+                : '<div style="width:78%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900;color:rgba(255,255,255,0.18);">?</div>')
+          + '<div style="font-size:13px;font-weight:800;color:' + (a1 ? '#fff' : 'rgba(255,255,255,0.3)') + ';">' + (a1 ? a[1] : '…') + '</div></div>';
+      }).join('');
+      var o = document.createElement('div'); o.id = 'awkKidAlbum';
+      o.style.cssText = 'position:fixed;inset:0;z-index:12800;background:radial-gradient(circle at 50% 20%,#1e3a5f,#0b1220 70%);overflow-y:auto;padding:calc(12px + env(safe-area-inset-top)) 14px calc(20px + env(safe-area-inset-bottom));box-sizing:border-box;';
+      o.innerHTML = '<style>@keyframes awkAutoPop{0%{transform:scale(0) rotate(-20deg)}100%{transform:scale(1) rotate(0)}}</style>'
+        + '<div style="max-width:480px;margin:0 auto;">'
+        + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'
+        +   '<div style="flex:1;"><div style="font-size:24px;font-weight:900;color:#fff;">Mon album</div>'
+        +   '<div style="font-size:15px;font-weight:800;color:#bae6fd;margin-top:2px;">' + (n >= N ? 'Album complet ! Bravo !' : n + ' autocollant' + (n > 1 ? 's' : '') + ' sur ' + N) + '</div></div>'
+        +   '<button onclick="AwakKid.fermerAlbum()" style="min-height:44px;padding:8px 18px;border:none;border-radius:14px;background:linear-gradient(135deg,#fb923c,#f472b6);color:#fff;font-family:inherit;font-size:16px;font-weight:900;cursor:pointer;">Retour</button>'
+        + '</div>'
+        + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">' + cases + '</div>'
+        + '<div style="text-align:center;font-size:15px;font-weight:800;color:#fdba74;margin-top:16px;">' + (n >= N ? 'Tu les as tous trouvés !' : 'Chaque séance = un nouvel autocollant') + '</div>'
+        + '</div>';
+      document.body.appendChild(o);
+    } catch (e) { _e(e); }
+  }
+  function fermerAlbum() { var o = document.getElementById('awkKidAlbum'); if (o) o.remove(); try { accueil(); } catch (e) { _e(e); } }
+  var _autoNeuf = null;
+
   function carte(anim) {
     try {
       var v = document.getElementById('awkKidCarte'); if (v) v.remove();
@@ -85,7 +137,12 @@
       }
     } catch (e) { _e(e); }
   }
-  function fermerCarte() { var o = document.getElementById('awkKidCarte'); if (o) o.remove(); try { accueil(); } catch (e) { _e(e); } }
+  var _autoMontrer = null;
+  function fermerCarte() {
+    var o = document.getElementById('awkKidCarte'); if (o) o.remove();
+    try { accueil(); } catch (e) { _e(e); }
+    if (_autoMontrer) { var a = _autoMontrer; _autoMontrer = null; ouvrirAlbum(a); }
+  }
 
   var CSS = ''
     + 'body.awk-enfant{--kid-ciel:#38bdf8;--kid-orange:#fb923c;--kid-rose:#f472b6;--kid-jaune:#facc15;}'
@@ -173,7 +230,20 @@
       +   '</button>'
       + '</div>'
       + carteAventureHTML()
+      + carteAlbumHTML()
       + etoiles;
+  }
+  function carteAlbumHTML() {
+    var d = album(), N = AUTOS.length, mini = '';
+    AUTOS.forEach(function (a) { if (d.ont.indexOf(a[0]) >= 0) mini += imgAuto(a[0], '26px'); });
+    return '<button onclick="AwakKid.album()" style="display:flex;align-items:center;gap:12px;width:100%;margin:0 0 14px;padding:12px 14px;min-height:0;border-radius:18px;cursor:pointer;font-family:inherit;text-align:left;'
+      + 'background:linear-gradient(135deg,rgba(251,146,60,0.14),rgba(250,204,21,0.08));border:2px solid rgba(251,146,60,0.35);">'
+      + imgAuto(d.ont.length ? d.ont[d.ont.length - 1] : 'etoile', '48px', d.ont.length ? '' : 'filter:grayscale(1);opacity:.4;')
+      + '<span style="flex:1;min-width:0;display:block;">'
+      +   '<span style="display:block;font-size:18px;font-weight:900;color:#fff;">Mon album</span>'
+      +   '<span style="display:block;font-size:14px;font-weight:700;color:#fed7aa;margin:2px 0 4px;">' + d.ont.length + ' sur ' + N + ' autocollants</span>'
+      +   '<span style="display:flex;gap:2px;flex-wrap:wrap;">' + mini + '</span>'
+      + '</span><span style="font-size:26px;font-weight:900;color:#fed7aa;line-height:1;">›</span></button>';
   }
   function carteAventureHTML() {
     var d = chemin(), N = PIERRES.length, pts = '';
@@ -222,20 +292,24 @@
     try {
       if (!enfant()) return;
       _aAnimer = avancer(cle || Date.now());
+      _autoNeuf = gagnerAuto(cle || Date.now());
       var v = document.getElementById('awkKidFin'); if (v) v.remove();
       var n = Math.max(0, Math.round(Number(etoiles) || 0)), m = Math.max(1, Math.round(Number(minutes) || 0));
       var o = document.createElement('div'); o.id = 'awkKidFin';
       o.style.cssText = 'position:fixed;inset:0;z-index:13000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px calc(24px + env(safe-area-inset-bottom));text-align:center;'
         + 'background:radial-gradient(circle at 50% 35%,#1e3a5f 0%,#0b1220 70%);';
       var ets = ''; for (var i = 0; i < Math.min(n, 5); i++) ets += '<span style="display:inline-flex;animation:awkKidFlotte 1.6s ease-in-out ' + (i * 0.15).toFixed(2) + 's infinite;">' + ico('etoile', i === 2 ? 40 : 30, '#facc15') + '</span>';
-      o.innerHTML = ''
+      o.innerHTML = '<style>@keyframes awkAutoPop{0%{transform:scale(0) rotate(-20deg)}100%{transform:scale(1) rotate(0)}}</style>'
         + '<div style="animation:awkRenardEntre .5s cubic-bezier(.2,1.4,.4,1) both;">'
-        +   '<div style="animation:awkRenardSaut 1.4s ease-in-out .5s infinite;">' + renard('bravo', 200) + '</div></div>'
+        +   '<div style="animation:awkRenardSaut 1.4s ease-in-out .5s infinite;">' + renard('bravo', _autoNeuf ? 170 : 200) + '</div></div>'
         + '<div style="font-size:40px;font-weight:900;color:#fff;line-height:1.05;margin-top:6px;">Bravo' + (prenom() ? ' ' + esc(prenom()) : '') + ' !</div>'
         + '<div style="font-size:18px;font-weight:800;color:#bae6fd;margin-top:8px;">Tu as bougé ' + m + ' minute' + (m > 1 ? 's' : '') + '</div>'
         + (n ? '<div style="display:flex;align-items:flex-end;justify-content:center;gap:6px;margin-top:18px;">' + ets + '</div>'
              + '<div style="font-size:20px;font-weight:900;color:#fde68a;margin-top:6px;">+' + n + ' étoile' + (n > 1 ? 's' : '') + '</div>' : '')
-        + (_aAnimer ? '<div style="font-size:16px;font-weight:800;color:#fdba74;margin-top:16px;">Le renard avance sur ton chemin !</div>' : '')
+        + (_autoNeuf ? '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px;">'
+             + imgAuto(_autoNeuf[0], '64px', 'animation:awkAutoPop .7s cubic-bezier(.2,1.6,.4,1) .6s both;')
+             + '<div style="text-align:left;font-size:16px;font-weight:900;color:#fff;">Nouvel autocollant !<div style="font-size:14px;font-weight:800;color:#fed7aa;">' + _autoNeuf[1] + '</div></div></div>' : '')
+        + (_aAnimer ? '<div style="font-size:16px;font-weight:800;color:#fdba74;margin-top:12px;">Le renard avance sur ton chemin !</div>' : '')
         + '<button onclick="AwakKid.finOk()" style="margin-top:26px;width:100%;max-width:320px;min-height:64px;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:1.3em;font-weight:900;color:#fff;'
         +   'background:linear-gradient(135deg,var(--kid-orange,#fb923c),var(--kid-rose,#f472b6));box-shadow:0 8px 26px rgba(251,146,60,0.4);">Super !</button>';
       document.body.appendChild(o);
@@ -247,6 +321,7 @@
     var o = document.getElementById('awkKidFin'); if (o) o.remove();
     try { if (typeof window.backToHome === 'function') window.backToHome(); else if (typeof window.switchTab === 'function') window.switchTab('home'); } catch (e) { _e(e); }
     var an = _aAnimer; _aAnimer = null;
+    _autoMontrer = _autoNeuf ? _autoNeuf[0] : null; _autoNeuf = null;
     if (an) setTimeout(function () { carte(an); }, 350);
     else setTimeout(function () { try { if (window.AwakEtoiles && AwakEtoiles.annoncer) AwakEtoiles.annoncer(); } catch (e) { _e(e); } }, 400);
   }
@@ -283,7 +358,7 @@
     window.switchTab = w;
   }
 
-  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin };
+  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, fermerAlbum: fermerAlbum, _album: album };
   function init() { injecterCSS(); brancher(); maj(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

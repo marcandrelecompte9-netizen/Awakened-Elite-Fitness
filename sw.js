@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v1741';
+const CACHE_NAME = 'awakened-v1742';
 // v1586 : images d'exercices dans un cache DURABLE, jamais vidé à une mise à jour
 // (avant : chaque déploiement les effaçait → retéléchargées, absentes hors ligne)
 const IMG_CACHE = 'awakened-images';
@@ -106,11 +106,11 @@ const ASSETS = [
   './js/pain-mode.js',
   './js/recovery-mode.js',
   './data/items.js',
-  './manifest.json?v=1741',
-  './icons/icon-192.png?v=1741',
-  './icons/icon-512.png?v=1741',
-  './icons/icon-192-maskable.png?v=1741',
-  './icons/icon-512-maskable.png?v=1741',
+  './manifest.json?v=1742',
+  './icons/icon-192.png?v=1742',
+  './icons/icon-512.png?v=1742',
+  './icons/icon-192-maskable.png?v=1742',
+  './icons/icon-512-maskable.png?v=1742',
   // icon-1024.png : asset de soumission aux stores, volontairement hors du
   // précache (487 Ko). Reste dans manifest.json, récupérable à la demande.
   './images/banner_v4.webp',
@@ -120,6 +120,15 @@ const ASSETS = [
   './images/kid/renard_pouce.webp',
   './images/kid/renard_saut.webp',
   './images/kid/chemin_aventure.webp',
+  './images/kid/auto_basket.webp',
+  './images/kid/auto_etoile.webp',
+  './images/kid/auto_medaille.webp',
+  './images/kid/auto_grenouille.webp',
+  './images/kid/auto_fusee.webp',
+  './images/kid/auto_coeur.webp',
+  './images/kid/auto_soleil.webp',
+  './images/kid/auto_velo.webp',
+  './images/kid/auto_trophee.webp',
   './images/avatars/avatar_homme.png',
   './images/avatars/avatar_femme.png',
   './js/vendor/chart.umd.min.js',
@@ -186,7 +195,7 @@ const UI_IMAGES = [
   './images/tree_bg.webp',
 ];
 // Clé de cache d'une image : sans « ?v=NNNN ». Avant, chaque build changeait l'URL
-// (salle_bg_v5.webp?v=1621 → ?v=1741) et ajoutait une copie de plus dans le cache
+// (salle_bg_v5.webp?v=1621 → ?v=1742) et ajoutait une copie de plus dans le cache
 // durable, sans jamais la retirer.
 function cleImage(url) { return url.split('?')[0]; }
 // v1654 : images REMPLACÉES sous le même nom → retirées une fois du cache durable,
