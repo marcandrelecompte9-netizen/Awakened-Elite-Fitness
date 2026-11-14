@@ -863,11 +863,11 @@
              + '<div style="text-align:left;font-size:16px;font-weight:900;color:#fff;">' + (_autoNeuf[2] ? 'Nouvelle page d\'album !' : 'Nouvel autocollant !') + '<div style="font-size:14px;font-weight:800;color:#fed7aa;">' + _autoNeuf[1] + '</div></div></div>' : '')
         + (_aAnimer ? '<div style="font-size:16px;font-weight:800;color:#fdba74;margin-top:12px;">Le renard avance sur ton chemin !</div>' : '')
         + (refus ? '<div style="margin-top:16px;padding:12px 14px;border-radius:16px;background:rgba(56,189,248,0.1);border:2px solid rgba(56,189,248,0.35);font-size:16px;font-weight:800;color:#e0f2fe;line-height:1.4;">'
-             + (refus === 'court' ? 'Pour gagner une étoile, bouge au moins ' + regl.minMinutes + ' minutes !' : 'Tu as gagné toutes tes étoiles aujourd\'hui. Reviens demain !') + '</div>' : '')
+             + (refus === 'court' ? 'Tu es allé trop vite : pas d\'étoile cette fois. Pour en gagner, bouge au moins ' + regl.minMinutes + ' minutes !' : 'Tu as gagné toutes tes étoiles aujourd\'hui. Reviens demain !') + '</div>' : '')
         + '<button onclick="AwakKid.finOk()" style="margin-top:26px;width:100%;max-width:320px;min-height:64px;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:1.3em;font-weight:900;color:#fff;'
         +   'background:linear-gradient(135deg,var(--kid-orange,#fb923c),var(--kid-rose,#f472b6));box-shadow:0 8px 26px rgba(251,146,60,0.4);">Super !</button>';
       document.body.appendChild(o);
-      try { if (typeof window.speak === 'function') window.speak('Bravo ! Tu as bougé ' + m + ' minutes' + (n ? ', et tu gagnes ' + n + ' étoile' + (n > 1 ? 's' : '') : '') + ' !', { enfant: true }); } catch (e) { _e(e); }
+      try { if (typeof window.speak === 'function') window.speak(refus === 'court' ? 'Tu es allé trop vite, pas d\'étoile cette fois. Bouge au moins ' + regl.minMinutes + ' minutes pour en gagner !' : 'Bravo ! Tu as bougé ' + m + ' minutes' + (n ? ', et tu gagnes ' + n + ' étoile' + (n > 1 ? 's' : '') : '') + ' !', { enfant: true }); } catch (e) { _e(e); }
       try { if (navigator.vibrate) navigator.vibrate([80, 60, 120]); } catch (e) { /* rien */ }
       victoire();
     } catch (e) { _e(e); }
