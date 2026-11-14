@@ -527,6 +527,33 @@
     try { if (typeof window.speak === 'function') window.speak(l[l.length - 1].fromName + ' te dit : ' + l[l.length - 1].msg, { enfant: true }); } catch (e) { _e(e); }
   }
 
+  // Une séance est déjà commencée : continuer ou en commencer une nouvelle
+  function dejaEnCours(nom, minutes) {
+    finDepart();
+    var v = document.getElementById('awakDejaEnCoursModal'); if (v) v.remove();
+    var o = document.createElement('div'); o.id = 'awakDejaEnCoursModal';
+    o.style.cssText = 'position:fixed;inset:0;z-index:100050;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px 20px calc(24px + env(safe-area-inset-bottom));background:radial-gradient(circle at 50% 30%,#1e3a5f 0%,#0b1220 72%);';
+    o.innerHTML = '<div style="width:100%;max-width:380px;">'
+      + '<div style="animation:awkRenardEntre .45s cubic-bezier(.2,1.4,.4,1) both;display:flex;justify-content:center;">' + renard('pouce', 150, 'animation:awkKidFlotte 2.4s ease-in-out infinite;') + '</div>'
+      + '<div style="font-size:30px;font-weight:900;color:#fff;line-height:1.15;margin-top:6px;">Tu as déjà commencé !</div>'
+      + '<div style="display:inline-block;margin-top:12px;padding:8px 14px;border-radius:14px;background:rgba(56,189,248,0.12);border:2px solid rgba(56,189,248,0.35);font-size:17px;font-weight:900;color:#e0f2fe;">'
+      +   esc(String(nom || 'Ta séance').replace(/\s*[\u26A1\u2600-\u27BF]+\s*$/, '')) + (minutes ? '<span style="display:block;font-size:14px;font-weight:800;color:#bae6fd;margin-top:2px;">Tu as bougé ' + minutes + ' minute' + (minutes > 1 ? 's' : '') + '</span>' : '') + '</div>'
+      + '<div style="font-size:17px;font-weight:800;color:#fdba74;margin:16px 0 18px;">On la termine ensemble ?</div>'
+      + '<button onclick="AwakKid.continuer()" style="width:100%;min-height:66px;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:22px;font-weight:900;color:#fff;background:linear-gradient(135deg,#fb923c,#f472b6);box-shadow:0 8px 26px rgba(251,146,60,0.4);margin-bottom:12px;">Je continue !</button>'
+      + '<button onclick="AwakKid.recommencer()" style="width:100%;min-height:54px;border-radius:18px;cursor:pointer;font-family:inherit;font-size:17px;font-weight:900;color:#fff;background:rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.2);margin-bottom:8px;">Une nouvelle séance</button>'
+      + '<button onclick="AwakKid.plusTard()" style="min-height:44px;padding:8px 20px;border:none;background:none;cursor:pointer;font-family:inherit;font-size:15px;font-weight:800;color:#94a3b8;">Plus tard</button>'
+      + '</div>';
+    document.body.appendChild(o);
+    try { if (typeof window.speak === 'function') window.speak('Tu as déjà commencé ! On la termine ensemble ?', { enfant: true }); } catch (e) { _e(e); }
+  }
+  function continuer() { window._awkKidDirect = false; try { window.awakDejaEnCoursReprendre(); } catch (e) { _e(e); } }
+  function recommencer() { depart(); window._awkKidDirect = true; try { window.awakDejaEnCoursRemplacer(); } catch (e) { _e(e); finDepart(); } }
+  function plusTard() {
+    var v = document.getElementById('awakDejaEnCoursModal'); if (v) v.remove();
+    window._awkKidDirect = false; window._awakSeanceEnAttente = null; finDepart();
+    try { if (typeof window.switchTab === 'function') window.switchTab('home'); } catch (e) { _e(e); }
+  }
+
   function bouger() {
     try {
       depart();
@@ -658,7 +685,7 @@
     window.switchTab = w;
   }
 
-  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, missions: missions, mission: mission, lancerMission: lancerMission, bravo: bravo, envoyer: envoyer, lireMessages: lireMessages };
+  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, dejaEnCours: dejaEnCours, continuer: continuer, recommencer: recommencer, plusTard: plusTard, missions: missions, mission: mission, lancerMission: lancerMission, bravo: bravo, envoyer: envoyer, lireMessages: lireMessages };
   function init() { injecterCSS(); brancher(); maj(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
