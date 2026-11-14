@@ -193,8 +193,10 @@
     + 'body.awk-enfant.in-session #awakBarreActions{display:block!important;}'
     + 'body.awk-enfant.in-session #awakBarreActions #awakSuivantBtn{width:100%!important;min-height:64px!important;border-radius:20px!important;font-size:1.25em!important;'
     +   'background:linear-gradient(135deg,var(--kid-orange),var(--kid-rose))!important;box-shadow:0 8px 26px rgba(251,146,60,0.4)!important;border:none!important;text-transform:none!important;letter-spacing:0!important;}'
-    + 'body.awk-enfant.in-session #awakSuivantBtn > span{display:none!important;}'
-    + 'body.awk-enfant.in-session #awakBarreActions #awakSuivantBtn::before{content:"J\'ai fini !";font-weight:900;color:#fff;}'
+    // v1748 : le libellé est écrit dans le bouton (le ::before ne s'affichait pas sur certains téléphones)
+    + 'body.awk-enfant.in-session #awakBarreActions #awakSuivantBtn{color:#fff!important;}'
+    + 'body.awk-enfant.in-session #awakSuivantBtn > span + span{display:none!important;}'
+    + 'body.awk-enfant.in-session #awakSuivantBtn > span:first-child{font-size:20px!important;font-weight:900!important;color:#fff!important;letter-spacing:0!important;text-transform:none!important;}'
     + 'body.awk-enfant.in-session #exerciseView #exerciseName{font-size:28px!important;color:#fff!important;}'
     + 'body.awk-enfant.in-session #awkKidConsigne{display:block;}'
     + '#awkKidConsigne{display:none;margin:10px 0 4px;padding:12px 14px;border-radius:16px;background:rgba(56,189,248,0.1);border:2px solid rgba(56,189,248,0.35);color:#e0f2fe;font-size:17px;font-weight:800;line-height:1.35;text-align:center;}'
@@ -207,11 +209,9 @@
     + '#awakKidFamille{display:none;}body.awk-enfant #awakKidFamille{display:block;}'
     // v1741 : repos entre deux séries — il couvrait « J'ai fini ! » ; version enfant
     + 'body.awk-enfant #globalRestBanner .awk-repos-pas{visibility:hidden!important;}'
-    + 'body.awk-enfant #globalRestBanner .awk-repos-lbl{font-size:0!important;}'
-    + 'body.awk-enfant #globalRestBanner .awk-repos-lbl::before{content:"Petite pause !";font-size:18px;font-weight:900;color:#fdba74;letter-spacing:0;text-transform:none;}'
-    + 'body.awk-enfant #globalRestBanner .awk-repos-passer{font-size:0!important;min-height:64px!important;border-radius:20px!important;border:none!important;'
+    + 'body.awk-enfant #globalRestBanner .awk-repos-lbl{font-size:18px!important;font-weight:900!important;color:#fdba74!important;letter-spacing:0!important;text-transform:none!important;}'
+    + 'body.awk-enfant #globalRestBanner .awk-repos-passer{font-size:20px!important;font-weight:900!important;color:#fff!important;min-height:64px!important;border-radius:20px!important;border:none!important;'
     +   'background:linear-gradient(135deg,var(--kid-orange),var(--kid-rose))!important;box-shadow:0 8px 26px rgba(251,146,60,0.4)!important;}'
-    + 'body.awk-enfant #globalRestBanner .awk-repos-passer::before{content:"Je suis prêt !";font-size:20px;font-weight:900;color:#fff;}'
     + 'body.awk-enfant #globalRestBanner #globalRestFill{background:linear-gradient(90deg,var(--kid-orange),var(--kid-jaune))!important;}'
     // v1744 : départ et repos version enfant
     + 'body.awk-enfant #smartAnalysisOverlay{display:none!important;}'
@@ -225,13 +225,11 @@
     + 'body.awk-enfant #countdownOverlay::before{content:"";position:relative;inset:auto;width:150px;height:150px;flex-shrink:0;margin-bottom:-6px;background:url(images/kid/renard_pouce.webp) center/contain no-repeat;animation:awkKidFlotte 1.8s ease-in-out infinite;}'
     + 'body.awk-enfant #countdownNumber{font-size:11rem!important;letter-spacing:-4px!important;color:#fb923c!important;text-shadow:0 0 50px rgba(251,146,60,0.6)!important;}'
     + 'body.awk-enfant #countdownExerciseName{color:#fff!important;text-transform:none!important;letter-spacing:0!important;font-size:1.6em!important;text-shadow:none!important;padding:0 16px;}'
-    + 'body.awk-enfant #countdownLabel{font-size:0!important;}'
-    + 'body.awk-enfant #countdownLabel::before{content:"Prépare-toi !";font-size:17px;letter-spacing:0;text-transform:none;color:#bae6fd;}'
+    + 'body.awk-enfant #countdownLabel{font-size:17px!important;letter-spacing:0!important;text-transform:none!important;color:#bae6fd!important;}'
     // Repos entre deux exercices
     + 'body.awk-enfant #restOverlay{background:radial-gradient(circle at 50% 30%,#1e3a5f 0%,#0b1220 72%)!important;justify-content:center!important;}'
-    + 'body.awk-enfant #restLabelTop{font-size:0!important;letter-spacing:0!important;}'
+    + 'body.awk-enfant #restLabelTop{font-size:26px!important;font-weight:900!important;color:#fdba74!important;text-transform:none!important;letter-spacing:0!important;}'
     + 'body.awk-enfant #restLabelTop::after{content:"";display:block;width:120px;height:120px;margin:0 auto -4px;background:url(images/kid/renard_salut.webp) center/contain no-repeat;animation:awkKidFlotte 2.4s ease-in-out infinite;}'
-    + 'body.awk-enfant #restLabelTop::before{content:"Petite pause !";display:block;font-size:26px;font-weight:900;color:#fdba74;text-transform:none;letter-spacing:0;}'
     + 'body.awk-enfant #restLabelTop{display:flex;flex-direction:column-reverse;align-items:center;}'
     + 'body.awk-enfant #restRingWrap{transform:scale(.78);margin:-18px 0!important;}'
     + 'body.awk-enfant #restRingArc{stroke:#fb923c!important;}'
@@ -239,13 +237,12 @@
     +   'body.awk-enfant #restBtns .rest-btn-adj,body.awk-enfant #restNextMuscle,body.awk-enfant #restNextBar,body.awk-enfant #restNextEmoji{display:none!important;}'
     + 'body.awk-enfant #restNextCard{background:rgba(56,189,248,0.1)!important;border:2px solid rgba(56,189,248,0.35)!important;border-radius:18px!important;box-shadow:none!important;padding:12px 14px!important;}'
     + 'body.awk-enfant #restNextCard::before,body.awk-enfant #restNextCard::after{display:none!important;}'
-    + 'body.awk-enfant #restNextLabel{font-size:0!important;}'
-    + 'body.awk-enfant #restNextLabel::before{content:"Ensuite";font-size:14px;font-weight:800;color:#bae6fd;letter-spacing:0;text-transform:none;}'
+    + 'body.awk-enfant #restNextLabel{font-size:14px!important;font-weight:800!important;color:#bae6fd!important;letter-spacing:0!important;text-transform:none!important;}'
     + 'body.awk-enfant #restNextName{font-size:22px!important;font-weight:900!important;text-transform:none!important;letter-spacing:0!important;color:#fff!important;}'
     + 'body.awk-enfant #restBtns{width:100%;max-width:340px;}'
-    + 'body.awk-enfant #restSkipBtn{flex:1!important;width:100%!important;min-height:64px!important;border-radius:20px!important;border:none!important;font-size:0!important;'
+    + 'body.awk-enfant #restSkipBtn{flex:1!important;width:100%!important;min-height:64px!important;border-radius:20px!important;border:none!important;font-size:21px!important;color:#fff!important;letter-spacing:0!important;text-transform:none!important;'
     +   'background:linear-gradient(135deg,var(--kid-orange),var(--kid-rose))!important;box-shadow:0 8px 26px rgba(251,146,60,0.4)!important;}'
-    + 'body.awk-enfant #restSkipBtn::before{content:"Je suis prêt !";position:static;left:auto;width:auto;height:auto;background:none;animation:none;font-size:21px;font-weight:900;color:#fff;letter-spacing:0;text-transform:none;}'
+    + 'body.awk-enfant #restSkipBtn::before{display:none!important;}'
     + '@keyframes awkBulle{from{transform:scale(0.6);opacity:0}to{transform:scale(1);opacity:1}}';
 
   function injecterCSS() {
@@ -468,9 +465,26 @@
   }
 
   // Une seule consigne, en gros, sous le nom de l'exercice
+  // Libellés écrits en vrai texte (version enfant ↔ version adulte)
+  var TEXTES = [
+    ['#awakSuivantBtn > span', 'J\'ai fini !', 'Suivant'],
+    ['#restSkipBtn', 'Je suis prêt !', 'Passer →'],
+    ['#restLabelTop', 'Petite pause !', 'REPOS'],
+    ['#restNextLabel', 'Ensuite', 'PROCHAIN EXERCICE'],
+    ['#countdownLabel', 'Prépare-toi !', 'Prochain exercice'],
+    ['#globalRestBanner .awk-repos-lbl', 'Petite pause !', 'Repos'],
+    ['#globalRestBanner .awk-repos-passer', 'Je suis prêt !', 'Passer le repos']
+  ];
+  function libelle() {
+    var k = enfant();
+    TEXTES.forEach(function (t) {
+      try { var el = document.querySelector(t[0]); if (el) { var v = k ? t[1] : t[2]; if (el.textContent !== v) el.textContent = v; } } catch (e) { _e(e); }
+    });
+  }
   function consigne(ex) {
     try {
       finDepart();
+      libelle();
       var nomEl = document.getElementById('exerciseName'); if (!nomEl) return;
       var c = document.getElementById('awkKidConsigne');
       if (!c) { c = document.createElement('div'); c.id = 'awkKidConsigne'; nomEl.parentNode.insertBefore(c, nomEl.nextSibling); }
@@ -537,6 +551,7 @@
       var k = enfant();
       var t = onglet || (document.querySelector('.tab-content.active') || {}).id || '';
       document.body.classList.toggle('awk-kid-accueil', k && (t === 'home' || t === 'homeTab'));
+      libelle();
       if (k && (t === 'home' || t === 'homeTab')) accueil();
       if (k && (t === 'family' || t === 'familyTab')) famille();
       // Onglets cachés pour un enfant → retour à l'accueil enfant
