@@ -282,6 +282,7 @@
 
   function _tick() {
     if (!partie || partie.pause) return;
+    partie.actif = (partie.actif || 0) + 1;   // v1755 : temps de jeu réel (pauses exclues)
     partie.reste--;
     if (partie.reste <= 0) {
       // Manche terminée : on enchaîne, ou on conclut.
@@ -398,7 +399,8 @@
   function _fin() {
     if (tic) { clearInterval(tic); tic = null; }
     if (!partie) return;
-    var minutes = Math.max(1, Math.round((Date.now() - partie.debut) / 60000));
+    var minActifs = (partie.actif || 0) / 60;   // v1755 : anti-triche — les pauses ne comptent pas
+    var minutes = Math.max(1, Math.round(minActifs));
     var jeu = partie.jeu;
     document.getElementById('awakKidsPlay')?.remove();
 
@@ -426,7 +428,7 @@
     } catch (e) { _awkE(e); }
     // v1685 : un jeu joué par un enfant rapporte ses étoiles, comme une séance
     var etoilesJeu = 0;
-    try { if (enfant && global.AwakEtoiles) etoilesJeu = global.AwakEtoiles.gagnerSeance(minutes, partie.debut, jeu.nom); } catch (e) { _awkE(e); }
+    try { if (enfant && global.AwakEtoiles) etoilesJeu = global.AwakEtoiles.gagnerSeance(minActifs, partie.debut, jeu.nom); } catch (e) { _awkE(e); }
 
     // v1747 : un enfant a la même grande fête qu'après une séance (renard, chemin, autocollant)
     if (enfant && global.AwakKid && global.AwakKid.fin) {

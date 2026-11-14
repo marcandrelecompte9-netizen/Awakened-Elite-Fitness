@@ -606,8 +606,12 @@
   function fin(etoiles, minutes, cle) {
     try {
       if (!enfant()) return;
-      _aAnimer = avancer(cle || Date.now());
-      _autoNeuf = gagnerAuto(cle || Date.now());
+      // v1755 : anti-triche — pas d'étoile = pas de pierre ni d'autocollant
+      var gagne = (Number(etoiles) || 0) > 0;
+      _aAnimer = gagne ? avancer(cle || Date.now()) : null;
+      _autoNeuf = gagne ? gagnerAuto(cle || Date.now()) : null;
+      var refus = gagne ? null : (window.AwakEtoiles && AwakEtoiles.refus ? AwakEtoiles.refus() : null);
+      var regl = window.AwakEtoiles && AwakEtoiles.regles ? AwakEtoiles.regles() : { minMinutes: 5 };
       var v = document.getElementById('awkKidFin'); if (v) v.remove();
       var n = Math.max(0, Math.round(Number(etoiles) || 0)), m = Math.max(1, Math.round(Number(minutes) || 0));
       var o = document.createElement('div'); o.id = 'awkKidFin';
@@ -625,6 +629,8 @@
              + imgAuto(_autoNeuf[0], '64px', 'animation:awkAutoPop .7s cubic-bezier(.2,1.6,.4,1) .6s both;')
              + '<div style="text-align:left;font-size:16px;font-weight:900;color:#fff;">' + (_autoNeuf[2] ? 'Nouvelle page d\'album !' : 'Nouvel autocollant !') + '<div style="font-size:14px;font-weight:800;color:#fed7aa;">' + _autoNeuf[1] + '</div></div></div>' : '')
         + (_aAnimer ? '<div style="font-size:16px;font-weight:800;color:#fdba74;margin-top:12px;">Le renard avance sur ton chemin !</div>' : '')
+        + (refus ? '<div style="margin-top:16px;padding:12px 14px;border-radius:16px;background:rgba(56,189,248,0.1);border:2px solid rgba(56,189,248,0.35);font-size:16px;font-weight:800;color:#e0f2fe;line-height:1.4;">'
+             + (refus === 'court' ? 'Pour gagner une étoile, bouge au moins ' + regl.minMinutes + ' minutes !' : 'Tu as gagné toutes tes étoiles aujourd\'hui. Reviens demain !') + '</div>' : '')
         + '<button onclick="AwakKid.finOk()" style="margin-top:26px;width:100%;max-width:320px;min-height:64px;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:1.3em;font-weight:900;color:#fff;'
         +   'background:linear-gradient(135deg,var(--kid-orange,#fb923c),var(--kid-rose,#f472b6));box-shadow:0 8px 26px rgba(251,146,60,0.4);">Super !</button>';
       document.body.appendChild(o);

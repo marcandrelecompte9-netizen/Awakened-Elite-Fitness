@@ -73,6 +73,16 @@
 
   // Séance terminée (appelé par completeWorkout) : une seule fois par séance
   function gagnerSeance(minutes, debut, nom) { return gagnerPour(pidActif(), minutes, debut, nom); }
+  // v1755 : ANTI-TRICHE — les étoiles se gagnent en bougeant vraiment
+  //  · au moins 5 minutes actives (pauses non comptées) ;
+  //  · au plus 3 séances ou jeux récompensés par jour, et 4 étoiles par jour.
+  //  Les étoiles données par un parent (« + Étoiles ») ne sont pas limitées.
+  var ANTI = { minMinutes: 5, seancesJour: 3, etoilesJour: 4 };
+  function etatJour(f) {
+    var j = new Date().toDateString(), s = 0, e = 0;
+    (f.journal || []).forEach(function (x) { if (x && x.k === 'seance' && new Date(x.t).toDateString() === j) { s++; e += (x.n || 0); } });
+    return { seances: s, etoiles: e, maxSeances: ANTI.seancesJour, maxEtoiles: ANTI.etoilesJour };
+  }
   function gagnerPour(pid, minutes, debut, nom) {
     if (!pid || !estEnfant(pid)) return 0;
     var d = lire(), f = fiche(d, pid);
@@ -80,7 +90,11 @@
     f.seances = f.seances || [];
     if (cleS && f.seances.indexOf(cleS) >= 0) return 0;
     if (cleS) { f.seances.push(cleS); if (f.seances.length > 30) f.seances.shift(); }
-    var n = pourMinutes(minutes);
+    if ((+minutes || 0) < ANTI.minMinutes) { f.refus = { t: Date.now(), r: 'court' }; ecrire(d); return 0; }
+    var ej = etatJour(f);
+    if (ej.seances >= ANTI.seancesJour || ej.etoiles >= ANTI.etoilesJour) { f.refus = { t: Date.now(), r: 'limite' }; ecrire(d); return 0; }
+    f.refus = null;
+    var n = Math.min(pourMinutes(minutes), ANTI.etoilesJour - ej.etoiles);
     f.solde += n; f.gagne += n;
     noter(f, n, 'Séance' + (nom ? ' · ' + nom : '') + ' (' + Math.round(minutes) + ' min)', 'seance');
     ecrire(d);
@@ -193,6 +207,11 @@
           + '<button onclick="AwakEtoiles.annulerDemande(\'' + q.id + '\')" style="' + BTN + 'padding:8px 12px;font-size:13px;background:transparent;color:#94a3b8;border:1px solid rgba(255,255,255,0.15);flex-shrink:0;">Annuler</button></div>';
       }).join('');
     }
+    var ej = etatJour(fiche(d, pid));
+    h += '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:16px;margin-bottom:12px;background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.08);">'
+      + '<div style="flex:1;min-width:0;font-size:15px;font-weight:800;color:#e0f2fe;">' + (ej.etoiles >= ANTI.etoilesJour || ej.seances >= ANTI.seancesJour ? 'Toutes tes étoiles d\'aujourd\'hui sont gagnées. Reviens demain !' : 'Aujourd\'hui : ' + ej.etoiles + ' sur ' + ANTI.etoilesJour + ' étoiles') + '</div>'
+      + '<div style="display:flex;gap:3px;">' + (function () { var x = ''; for (var i = 0; i < ANTI.etoilesJour; i++) x += i < ej.etoiles ? etoile(16) : etoileVide(16); return x; })() + '</div></div>'
+      + '<div style="font-size:13px;font-weight:700;color:#94a3b8;margin:-4px 2px 12px;">Bouge au moins ' + ANTI.minMinutes + ' minutes pour gagner une étoile.</div>';
     if (!dispo && !att.length) h += '<div style="text-align:center;font-size:16px;font-weight:800;color:#fed7aa;margin:6px 0 12px;">Chaque séance te donne des étoiles !</div>';
     h += rs.map(function (r) {
       var ok = dispo >= r.cout, manque = r.cout - Math.max(0, dispo);
@@ -551,7 +570,10 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', majNav); else majNav();
   window.AwakEtoiles = {
     majNav: majNav, annoncer: annoncer, _bravoOk: bravoOk,
-    gagnerSeance: gagnerSeance, gagnerPour: gagnerPour, pourMinutes: pourMinutes, estimation: estimation, bandeauParent: bandeauParent,
+    gagnerSeance: gagnerSeance, gagnerPour: gagnerPour,
+    regles: function () { return { minMinutes: ANTI.minMinutes, seancesJour: ANTI.seancesJour, etoilesJour: ANTI.etoilesJour }; },
+    jour: function (pid) { var d = lire(); return etatJour(fiche(d, pid || pidActif())); },
+    refus: function (pid) { try { var f = lire().enfants[pid || pidActif()]; return (f && f.refus && Date.now() - f.refus.t < 120000) ? f.refus.r : null; } catch (e) { return null; } }, pourMinutes: pourMinutes, estimation: estimation, bandeauParent: bandeauParent,
     oublier: function (pid) { try { var d = lire(); delete d.enfants[pid]; d.demandes = d.demandes.filter(function (q) { return q.pid !== pid; }); ecrire(d); } catch (e) { _e(e); } },
     carteEnfant: carteEnfant, carteParent: carteParent,
     ouvrirEnfant: ouvrirEnfant, ouvrirParent: garde(ouvrirParent), demander: demander, annulerDemande: annulerDemande,
