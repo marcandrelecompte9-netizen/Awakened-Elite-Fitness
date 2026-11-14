@@ -9070,3 +9070,14 @@ input:focus, select:focus, textarea:focus { border-color: rgba(34,211,238,0.55) 
    muscles cyan / orange / rouge, dessinées par-dessus, gardent leur couleur */
 img[src*="images/body/body_face"], img[src*="images/body/body_dos"] { filter: grayscale(1) brightness(0.78) contrast(1.05); }
 image[href*="images/body/body_face"], image[href*="images/body/body_dos"] { filter: grayscale(1) brightness(0.78) contrast(1.05); }
+
+/* v1734 · Échelle de texte — écran de séance : titre 22 · sous-titre 15 · texte 13 · petit 11-12.
+   Le nom de l'exercice devient LE titre de l'écran ; chrono et compteur lisibles. */
+#exerciseView #exerciseName { font-family: 'Outfit', sans-serif !important; font-size: 22px !important; font-weight: 800 !important;
+    text-transform: none !important; text-shadow: none !important; letter-spacing: -0.01em !important; line-height: 1.2 !important; }
+#workoutTopBar #sessionTimerChip { font-size: 13px !important; font-weight: 800 !important; text-shadow: none !important; letter-spacing: 0.2px !important; }
+#workoutTopBar #liveVolumeChip, #workoutTopBar #liveVolumeChip * { font-size: 12px !important; font-weight: 800 !important; }
+#workoutTopBar #workoutTopTitle { text-shadow: none !important; }
+#exerciseView #setIndicator { font-size: 15px !important; font-weight: 800 !important; }
+/* « Repos » : bouton secondaire neutre (l'or est réservé aux récompenses) */
+#setsGridPanel #gridRestBtn { background: rgba(255,255,255,0.04) !important; border: 1px solid rgba(255,255,255,0.14) !important; color: #cbd5e1 !important; }
