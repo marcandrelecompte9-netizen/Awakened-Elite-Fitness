@@ -116,6 +116,14 @@
     + '@keyframes awkRenardSaut{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-22px) rotate(-4deg)}60%{transform:translateY(0) rotate(3deg)}}'
     + '@keyframes awkRenardEntre{from{transform:scale(0.4) translateY(40px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}'
     + 'body:has(#awkKidFin) .toast-container{display:none!important;}'
+    // v1741 : repos entre deux séries — il couvrait « J'ai fini ! » ; version enfant
+    + 'body.awk-enfant #globalRestBanner .awk-repos-pas{visibility:hidden!important;}'
+    + 'body.awk-enfant #globalRestBanner .awk-repos-lbl{font-size:0!important;}'
+    + 'body.awk-enfant #globalRestBanner .awk-repos-lbl::before{content:"Petite pause !";font-size:18px;font-weight:900;color:#fdba74;letter-spacing:0;text-transform:none;}'
+    + 'body.awk-enfant #globalRestBanner .awk-repos-passer{font-size:0!important;min-height:64px!important;border-radius:20px!important;border:none!important;'
+    +   'background:linear-gradient(135deg,var(--kid-orange),var(--kid-rose))!important;box-shadow:0 8px 26px rgba(251,146,60,0.4)!important;}'
+    + 'body.awk-enfant #globalRestBanner .awk-repos-passer::before{content:"Je suis prêt !";font-size:20px;font-weight:900;color:#fff;}'
+    + 'body.awk-enfant #globalRestBanner #globalRestFill{background:linear-gradient(90deg,var(--kid-orange),var(--kid-jaune))!important;}'
     + '@keyframes awkBulle{from{transform:scale(0.6);opacity:0}to{transform:scale(1);opacity:1}}';
 
   function injecterCSS() {
