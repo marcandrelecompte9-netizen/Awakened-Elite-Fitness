@@ -183,6 +183,9 @@
     // Accueil : seulement l'accueil enfant (la bannière adulte et les cartes sont cachées)
     + 'body.awk-enfant.awk-kid-accueil #appHeader{display:none!important;}'
     + 'body.awk-enfant #homeTab > :not(#awakKidHome){display:none!important;}'
+    // v1756 : fond bleu des écrans enfant (Accueil, Famille)
+    + 'body.awk-enfant:not(.in-session){background:radial-gradient(circle at 50% 0%,#1e3a5f 0%,#0b1220 75%) fixed!important;}'
+    + '.awk-kid-tuiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;}'
     + '#awakKidHome{display:none;}body.awk-enfant #awakKidHome{display:block;}'
     + '@keyframes awkKidPulse{0%,100%{transform:scale(1);box-shadow:0 10px 40px rgba(251,146,60,0.45),0 0 0 0 rgba(251,146,60,0.45);}50%{transform:scale(1.04);box-shadow:0 14px 50px rgba(244,114,182,0.5),0 0 0 18px rgba(251,146,60,0);}}'
     + '@keyframes awkKidFlotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}'
@@ -291,10 +294,48 @@
       +     '<span style="font-size:14px;font-weight:800;opacity:0.92;">15 minutes de jeux</span>'
       +   '</button>'
       + '</div>'
-      + carteMissionsHTML()
-      + carteAventureHTML()
-      + carteAlbumHTML()
-      + etoiles;
+      + '<div class="awk-kid-tuiles">' + tuileMissions() + tuileAventure() + tuileAlbum() + tuileEtoiles() + '</div>';
+  }
+  // v1756 : les 4 cartes de l'accueil en tuiles, deux par rangée
+  function tuile(onclick, coul, visuel, titre, sous, bas) {
+    return '<button onclick="' + onclick + '" style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;min-height:0;padding:14px 10px 12px;border-radius:20px;cursor:pointer;font-family:inherit;'
+      + 'background:linear-gradient(160deg,' + coul + '26,' + coul + '0d);border:2px solid ' + coul + '66;">'
+      + '<span style="height:64px;display:flex;align-items:center;justify-content:center;">' + visuel + '</span>'
+      + '<span style="font-size:17px;font-weight:900;color:#fff;line-height:1.15;">' + titre + '</span>'
+      + '<span style="font-size:13px;font-weight:800;color:' + coul + ';line-height:1.25;">' + sous + '</span>'
+      + (bas || '') + '</button>';
+  }
+  function barreT(a, b) {
+    var pc = Math.max(0, Math.min(100, Math.round(a / Math.max(1, b) * 100)));
+    return '<span style="display:block;width:100%;height:8px;margin-top:2px;background:rgba(255,255,255,0.12);border-radius:99px;overflow:hidden;"><span style="display:block;height:100%;width:' + pc + '%;background:linear-gradient(90deg,#fb923c,#facc15);border-radius:99px;"></span></span>';
+  }
+  function tuileMissions() {
+    var P = progs(); if (!P.length) return '';
+    var f = faitsProg(), faits = 0;
+    P.forEach(function (p) { faits += Object.keys((f[p.id] || {}).jours || {}).length; });
+    var vis = '<span style="display:grid;grid-template-columns:repeat(2,28px);gap:4px;">' + P.slice(0, 4).map(function (p, i) { return pastilleProg(p, i, 28); }).join('') + '</span>';
+    return tuile('AwakKid.missions()', '#f472b6', vis, 'Mes missions', faits ? faits + ' réussie' + (faits > 1 ? 's' : '') : P.length + ' aventures');
+  }
+  function tuileAventure() {
+    var d = chemin(), M = mondeDe(d), N = M.pierres.length;
+    var vis = '<img src="images/kid/' + M.img + '.webp" alt="" style="width:40px;height:64px;object-fit:cover;border-radius:8px;">';
+    return tuile('AwakKid.carte()', '#38bdf8', vis, 'Mon aventure', d.pas >= N ? 'Monde terminé !' : 'Pierre ' + d.pas + ' sur ' + N, barreT(d.pas, N));
+  }
+  function tuileAlbum() {
+    var d = album(), pc = pageCourante(d), A = PAGES[pc], n = 0;
+    A.forEach(function (a) { if (d.ont.indexOf(a[0]) >= 0) n++; });
+    var der = d.ont.length ? d.ont[d.ont.length - 1] : 'etoile';
+    return tuile('AwakKid.album()', '#fb923c', imgAuto(der, '60px', d.ont.length ? '' : 'filter:grayscale(1);opacity:.4;'), 'Mon album',
+      (PAGES.length > 1 ? 'Page ' + (pc + 1) + ' · ' : '') + n + ' sur ' + A.length, barreT(n, A.length));
+  }
+  function tuileEtoiles() {
+    var r = null; try { r = window.AwakEtoiles && AwakEtoiles.resume ? AwakEtoiles.resume() : null; } catch (e) { _e(e); }
+    if (!r) return '';
+    var vis = '<span style="position:relative;display:flex;align-items:center;justify-content:center;width:64px;height:64px;">' + ico('etoile', 58, '#facc15')
+      + '<span style="position:absolute;font-size:20px;font-weight:900;color:#fde68a;">' + '</span></span>';
+    var sous = r.peut ? 'Choisis un cadeau !' : r.prochaine ? 'Encore ' + (r.prochaine.cout - r.dispo) : 'Bouge pour en gagner';
+    return tuile('AwakEtoiles.ouvrirEnfant()', '#facc15', '<span style="display:flex;align-items:center;gap:6px;">' + ico('etoile', 40, '#facc15') + '<span style="font-size:36px;font-weight:900;color:#fde68a;">' + r.dispo + '</span></span>',
+      'Mes étoiles', sous, r.prochaine && !r.peut ? barreT(r.dispo, r.prochaine.cout) : '');
   }
   // v1749 : les programmes enfant (cachés avec l'onglet Séance) reviennent ici
   var COULS = ['#fb923c', '#38bdf8', '#f472b6', '#facc15'];

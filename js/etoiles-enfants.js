@@ -576,6 +576,8 @@
     refus: function (pid) { try { var f = lire().enfants[pid || pidActif()]; return (f && f.refus && Date.now() - f.refus.t < 120000) ? f.refus.r : null; } catch (e) { return null; } }, pourMinutes: pourMinutes, estimation: estimation, bandeauParent: bandeauParent,
     oublier: function (pid) { try { var d = lire(); delete d.enfants[pid]; d.demandes = d.demandes.filter(function (q) { return q.pid !== pid; }); ecrire(d); } catch (e) { _e(e); } },
     carteEnfant: carteEnfant, carteParent: carteParent,
+    resume: function () { var pid = pidActif(); if (!pid || !suivi(pid)) return null; var d = lire(), dispo = disponible(d, pid), pr = prochaine(d, dispo);
+      return { dispo: Math.max(0, dispo), prochaine: pr ? { nom: pr.nom, cout: pr.cout } : null, peut: triees(d).some(function (r) { return r.cout <= dispo; }), attente: enAttente(d, pid).length }; },
     ouvrirEnfant: ouvrirEnfant, ouvrirParent: garde(ouvrirParent), demander: demander, annulerDemande: annulerDemande,
     repondre: garde(repondre), ajouter: garde(ajouter), editerRecompense: garde(editerRecompense),
     garde: garde, enfants: function () { return enfants().filter(function (p) { return estEnfant(p.id); }); },
