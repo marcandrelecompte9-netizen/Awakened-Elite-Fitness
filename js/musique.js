@@ -41,7 +41,11 @@
     { fichier: 'awakening_the_hero.mp3', titre: 'Awakening the Hero', type: 'matin', jeu: true },   // v1642 : Réveil matinal + mode jeu activé
     // v1750 : type 'enfant' — seule musique des séances d'un profil enfant (« Victoire » = jingle de fin, joué à part)
     { fichier: 'boing_workout.mp3', titre: 'Boing Workout', type: 'enfant' },
-    { fichier: 'groove_time.mp3', titre: 'Groove Time', type: 'enfant' }
+    { fichier: 'groove_time.mp3', titre: 'Groove Time', type: 'enfant' },
+    { fichier: 'je_monte_de_niveau.mp3', titre: 'Je monte de niveau', type: 'enfant' },
+    { fichier: 'j_ai_des_superpouvoirs.mp3', titre: 'J\'ai des superpouvoirs', type: 'enfant' },
+    { fichier: 'danser_sur_la_lune.mp3', titre: 'Danser sur la lune', type: 'enfant' },
+    { fichier: 'les_chats_sont_la.mp3', titre: 'Les chats sont là', type: 'enfant' }
   ];
   function profilEnfant() { try { return !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) { return false; } }
 
