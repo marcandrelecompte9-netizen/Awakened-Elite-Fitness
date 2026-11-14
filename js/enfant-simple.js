@@ -21,6 +21,13 @@
   // v1740 : chemin d'aventure — 14 pierres, une par séance
   var PIERRES = [[285,915],[369,835],[284,772],[193,732],[220,665],[290,623],[354,570],[410,505],[330,458],[238,380],[312,307],[236,257],[210,183],[287,123]];
   var DEPART = [285,985];
+  // v1743 : plusieurs mondes — après la dernière pierre, le monde suivant
+  var MONDES = [
+    { img: 'chemin_aventure', nom: 'La jungle et l\'espace', pierres: PIERRES },
+    { img: 'chemin_montagnes', nom: 'Les montagnes', pierres: PIERRES },
+    { img: 'chemin_chateau', nom: 'Le château de bonbons', pierres: PIERRES.slice(0, 11).concat([[300,235]]) }
+  ];
+  function mondeDe(d) { return MONDES[(d && d.monde || 0) % MONDES.length]; }
   function cleChemin(ecrire) { try { return (ecrire ? window._cleProfil : window._cleProfilLecture)('awkKidChemin'); } catch (e) { return 'awkKidChemin'; } }
   function chemin() {
     try { var d = JSON.parse(localStorage.getItem(cleChemin(false)) || 'null'); if (d && typeof d.pas === 'number') return d; } catch (e) { _e(e); }
@@ -31,17 +38,24 @@
     cle = String(cle || '');
     if (cle && d.cles.indexOf(cle) >= 0) return null;
     if (cle) { d.cles.push(cle); if (d.cles.length > 20) d.cles.shift(); }
-    var avant = d.pas;
-    if (d.pas >= PIERRES.length) { d.pas = 0; d.tours = (d.tours || 0) + 1; avant = 0; }
+    var avant = d.pas, nouveau = false;
+    if (d.pas >= mondeDe(d).pierres.length) { d.pas = 0; d.tours = (d.tours || 0) + 1; d.monde = ((d.monde || 0) + 1) % MONDES.length; avant = 0; nouveau = true; }
     d.pas++;
     try { localStorage.setItem(cleChemin(true), JSON.stringify(d)); } catch (e) { _e(e); }
-    return { avant: avant, apres: d.pas };
+    return { avant: avant, apres: d.pas, nouveau: nouveau };
   }
-  function posPierre(n) { var q = n > 0 ? PIERRES[Math.min(n, PIERRES.length) - 1] : DEPART; return { x: q[0] / 572 * 100, y: q[1] / 1024 * 100 }; }
+  function posPierre(n, m) { var P = (m || MONDES[0]).pierres; var q = n > 0 ? P[Math.min(n, P.length) - 1] : DEPART; return { x: q[0] / 572 * 100, y: q[1] / 1024 * 100 }; }
   var _aAnimer = null;
 
   // v1742 : album d'autocollants — un nouvel autocollant par séance (9 à collectionner)
-  var AUTOS = [['basket','Basket'],['etoile','Étoile'],['medaille','Médaille'],['grenouille','Grenouille'],['fusee','Fusée'],['coeur','Cœur'],['soleil','Soleil'],['velo','Vélo'],['trophee','Trophée']];
+  // v1743 : plusieurs pages — la page suivante s'ouvre quand la page est pleine
+  var PAGES = [
+    [['basket','Basket'],['etoile','Étoile'],['medaille','Médaille'],['grenouille','Grenouille'],['fusee','Fusée'],['coeur','Cœur'],['soleil','Soleil'],['velo','Vélo'],['trophee','Trophée']],
+    [['ballon','Ballon'],['dino','Dino'],['cerfvolant','Cerf-volant'],['planche','Planche'],['arcenciel','Arc-en-ciel'],['corde','Corde à sauter'],['pingouin','Pingouin'],['eclair','Éclair'],['couronne','Couronne']]
+  ];
+  function pageCourante(d) { for (var i = 0; i < PAGES.length; i++) { if (PAGES[i].some(function (a) { return d.ont.indexOf(a[0]) < 0; })) return i; } return PAGES.length - 1; }
+  function pageDe(id) { for (var i = 0; i < PAGES.length; i++) { if (PAGES[i].some(function (a) { return a[0] === id; })) return i; } return 0; }
+  function pleine(d, i) { return PAGES[i].every(function (a) { return d.ont.indexOf(a[0]) >= 0; }); }
   function cleAlbum(ecrire) { try { return (ecrire ? window._cleProfil : window._cleProfilLecture)('awkKidAlbum'); } catch (e) { return 'awkKidAlbum'; } }
   function album() {
     try { var d = JSON.parse(localStorage.getItem(cleAlbum(false)) || 'null'); if (d && Array.isArray(d.ont)) return d; } catch (e) { _e(e); }
@@ -51,9 +65,11 @@
     var d = album(); d.cles = d.cles || [];
     cle = String(cle || '');
     if (cle && d.cles.indexOf(cle) >= 0) return null;
-    var manque = AUTOS.filter(function (a) { return d.ont.indexOf(a[0]) < 0; });
+    var pc = pageCourante(d);
+    var manque = PAGES[pc].filter(function (a) { return d.ont.indexOf(a[0]) < 0; });
     if (!manque.length) return null;
-    var a = manque[Math.floor(Math.random() * manque.length)];
+    var a = manque[Math.floor(Math.random() * manque.length)].slice();
+    a[2] = pc > 0 && manque.length === PAGES[pc].length;   // 1er autocollant d'une nouvelle page
     d.ont.push(a[0]);
     if (cle) { d.cles.push(cle); if (d.cles.length > 20) d.cles.shift(); }
     try { localStorage.setItem(cleAlbum(true), JSON.stringify(d)); } catch (e) { _e(e); }
@@ -62,12 +78,21 @@
   function imgAuto(id, taille, style) {
     return '<img src="images/kid/auto_' + id + '.webp" alt="" draggable="false" style="width:' + taille + ';aspect-ratio:1;object-fit:contain;display:block;' + (style || '') + '">';
   }
-  function ouvrirAlbum(nouveau) {
+  var _albPage = 0, _albNeuf = null;
+  function ouvrirAlbum(nouveau, page) {
     try {
       var v = document.getElementById('awkKidAlbum'); if (v) v.remove();
-      var d = album(), n = d.ont.length, N = AUTOS.length;
+      var d = album();
+      if (nouveau !== undefined) _albNeuf = nouveau;
+      var pg = (typeof page === 'number') ? page : (nouveau ? pageDe(nouveau) : pageCourante(d));
+      pg = Math.max(0, Math.min(PAGES.length - 1, pg)); _albPage = pg;
+      var AUTOS = PAGES[pg], N = AUTOS.length;
+      var n = AUTOS.filter(function (a) { return d.ont.indexOf(a[0]) >= 0; }).length;
+      var tout = PAGES.every(function (x, i) { return pleine(d, i); });
+      var ouverte = function (i) { return i === 0 || pleine(d, i - 1); };
+      var fl = function (i, t) { var ok = i >= 0 && i < PAGES.length && ouverte(i); return '<button ' + (ok ? 'onclick="AwakKid._albPage(' + i + ')"' : 'disabled') + ' style="width:48px;height:48px;min-height:0;padding:0;border-radius:50%;border:2px solid rgba(255,255,255,' + (ok ? '0.3' : '0.08') + ');background:rgba(255,255,255,0.06);color:' + (ok ? '#fff' : 'rgba(255,255,255,0.2)') + ';font-size:26px;font-weight:900;line-height:1;cursor:pointer;font-family:inherit;">' + t + '</button>'; };
       var cases = AUTOS.map(function (a) {
-        var a1 = d.ont.indexOf(a[0]) >= 0, neuf = nouveau === a[0];
+        var a1 = d.ont.indexOf(a[0]) >= 0, neuf = _albNeuf === a[0];
         return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:18px;'
           + (a1 ? 'background:rgba(255,255,255,0.08);border:2px solid rgba(253,186,116,' + (neuf ? '0.9' : '0.3') + ');' : 'background:rgba(255,255,255,0.03);border:2px dashed rgba(255,255,255,0.15);') + '">'
           + (a1 ? imgAuto(a[0], '78%', neuf ? 'animation:awkAutoPop .7s cubic-bezier(.2,1.6,.4,1) both;' : '')
@@ -80,55 +105,59 @@
         + '<div style="max-width:480px;margin:0 auto;">'
         + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'
         +   '<div style="flex:1;"><div style="font-size:24px;font-weight:900;color:#fff;">Mon album</div>'
-        +   '<div style="font-size:15px;font-weight:800;color:#bae6fd;margin-top:2px;">' + (n >= N ? 'Album complet ! Bravo !' : n + ' autocollant' + (n > 1 ? 's' : '') + ' sur ' + N) + '</div></div>'
+        +   '<div style="font-size:15px;font-weight:800;color:#bae6fd;margin-top:2px;">' + (PAGES.length > 1 ? 'Page ' + (pg + 1) + ' · ' : '') + (n >= N ? 'Page complète !' : n + ' sur ' + N) + '</div></div>'
         +   '<button onclick="AwakKid.fermerAlbum()" style="min-height:44px;padding:8px 18px;border:none;border-radius:14px;background:linear-gradient(135deg,#fb923c,#f472b6);color:#fff;font-family:inherit;font-size:16px;font-weight:900;cursor:pointer;">Retour</button>'
         + '</div>'
         + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">' + cases + '</div>'
-        + '<div style="text-align:center;font-size:15px;font-weight:800;color:#fdba74;margin-top:16px;">' + (n >= N ? 'Tu les as tous trouvés !' : 'Chaque séance = un nouvel autocollant') + '</div>'
+        + (PAGES.length > 1 ? '<div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-top:16px;">' + fl(pg - 1, '‹')
+            + '<span style="font-size:16px;font-weight:900;color:#fff;">Page ' + (pg + 1) + ' sur ' + PAGES.length + '</span>' + fl(pg + 1, '›') + '</div>' : '')
+        + '<div style="text-align:center;font-size:15px;font-weight:800;color:#fdba74;margin-top:14px;">'
+        +   (tout ? 'Album complet ! Tu les as tous trouvés !' : n >= N ? 'Bravo ! La page suivante est ouverte.' : 'Chaque séance = un nouvel autocollant') + '</div>'
         + '</div>';
       document.body.appendChild(o);
     } catch (e) { _e(e); }
   }
-  function fermerAlbum() { var o = document.getElementById('awkKidAlbum'); if (o) o.remove(); try { accueil(); } catch (e) { _e(e); } }
+  function fermerAlbum() { var o = document.getElementById('awkKidAlbum'); if (o) o.remove(); _albNeuf = null; try { accueil(); } catch (e) { _e(e); } }
   var _autoNeuf = null;
 
   function carte(anim) {
     try {
       var v = document.getElementById('awkKidCarte'); if (v) v.remove();
-      var d = chemin(), N = PIERRES.length;
-      var de = anim ? anim.avant : d.pas, a = d.pas;
+      var d = chemin(), M = mondeDe(d), N = M.pierres.length;
+      var de = anim ? anim.avant : d.pas, a = d.pas, suivant = MONDES[((d.monde || 0) + 1) % MONDES.length];
       var o = document.createElement('div'); o.id = 'awkKidCarte';
       o.style.cssText = 'position:fixed;inset:0;z-index:12800;background:#0b1220;display:flex;flex-direction:column;align-items:center;padding:calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom));box-sizing:border-box;';
       var marques = '';
       for (var i = 1; i <= N; i++) {
-        var q = posPierre(i);
+        var q = posPierre(i, M);
         if (i <= a && !(anim && i === a)) marques += '<div style="position:absolute;left:' + q.x + '%;top:' + q.y + '%;transform:translate(-50%,-60%);display:flex;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.5));">' + ico('etoile', 30, '#facc15') + '</div>';
         else if (i === a + 1 || (anim && i === a)) marques += '<div class="awk-ch-suiv" style="position:absolute;left:' + q.x + '%;top:' + q.y + '%;width:16%;aspect-ratio:1.6;transform:translate(-50%,-50%);border-radius:50%;border:3px solid #fff;animation:awkChPulse 1.4s ease-in-out infinite;"></div>';
       }
-      var p0 = posPierre(de), fini = a >= N;
+      var p0 = posPierre(de, M), fini = a >= N;
       o.innerHTML = '<style>@keyframes awkChPulse{0%,100%{opacity:.9;transform:translate(-50%,-50%) scale(1)}50%{opacity:.3;transform:translate(-50%,-50%) scale(1.15)}}'
         + '#awkKidCarte svg{fill:#facc15;}'
         + '#awkChRenard{transition:left 1.2s ease-in-out,top 1.2s ease-in-out;}</style>'
         + '<div style="display:flex;align-items:center;gap:10px;width:100%;max-width:520px;margin-bottom:8px;">'
-        +   '<div style="flex:1;font-size:20px;font-weight:900;color:#fff;">' + (fini ? 'Aventure terminée !' : 'Pierre ' + a + ' sur ' + N) + '</div>'
+        +   '<div style="flex:1;min-width:0;"><div style="font-size:20px;font-weight:900;color:#fff;">' + (anim && anim.nouveau ? 'Nouveau monde !' : fini ? 'Monde terminé !' : 'Pierre ' + a + ' sur ' + N) + '</div>'
+        +   '<div style="font-size:13px;font-weight:800;color:#fdba74;">Monde ' + ((d.monde || 0) + 1) + ' · ' + esc(M.nom) + '</div></div>'
         +   '<button onclick="AwakKid.fermerCarte()" style="min-height:44px;padding:8px 18px;border:none;border-radius:14px;background:linear-gradient(135deg,#fb923c,#f472b6);color:#fff;font-family:inherit;font-size:16px;font-weight:900;cursor:pointer;">Retour</button>'
         + '</div>'
         + '<div style="position:relative;flex:1;min-height:0;aspect-ratio:572/1024;max-width:100%;">'
-        +   '<img src="images/kid/chemin_aventure.webp" alt="" draggable="false" style="position:absolute;inset:0;width:100%;height:100%;border-radius:14px;">'
+        +   '<img src="images/kid/' + M.img + '.webp" alt="" draggable="false" style="position:absolute;inset:0;width:100%;height:100%;border-radius:14px;">'
         +   marques
         +   '<div id="awkChRenard" style="position:absolute;left:' + p0.x + '%;top:' + p0.y + '%;width:22%;transform:translate(-50%,-88%);pointer-events:none;">'
         +     '<img src="images/kid/renard_' + (fini ? 'saut' : 'salut') + '.webp" alt="" style="width:100%;display:block;animation:awkKidFlotte 2s ease-in-out infinite;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.5));"></div>'
         + '</div>'
         + '<div style="font-size:15px;font-weight:800;color:#bae6fd;margin-top:8px;text-align:center;">'
-        +   (fini ? 'Bravo ! La prochaine séance commence une nouvelle aventure.' : 'Chaque séance = une pierre de plus') + '</div>';
+        +   (fini ? 'Bravo ! Prochaine séance : ' + esc(suivant.nom) + ' !' : (d.tours ? 'Mondes terminés : ' + d.tours + ' · ' : '') + 'Chaque séance = une pierre de plus') + '</div>';
       document.body.appendChild(o);
       if (anim && anim.apres !== anim.avant) {
         setTimeout(function () {
           var r = document.getElementById('awkChRenard'); if (!r) return;
-          var p1 = posPierre(anim.apres); r.style.left = p1.x + '%'; r.style.top = p1.y + '%';
+          var p1 = posPierre(anim.apres, M); r.style.left = p1.x + '%'; r.style.top = p1.y + '%';
           setTimeout(function () {
             try {
-              var q = posPierre(anim.apres), z = document.querySelector('#awkKidCarte .awk-ch-suiv');
+              var q = posPierre(anim.apres, M), z = document.querySelector('#awkKidCarte .awk-ch-suiv');
               if (z) z.outerHTML = '<div style="position:absolute;left:' + q.x + '%;top:' + q.y + '%;transform:translate(-50%,-60%);display:flex;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.5));">' + ico('etoile', 30, '#facc15') + '</div>';
               if (navigator.vibrate) navigator.vibrate(60);
             } catch (e) { _e(e); }
@@ -234,26 +263,27 @@
       + etoiles;
   }
   function carteAlbumHTML() {
-    var d = album(), N = AUTOS.length, mini = '';
-    AUTOS.forEach(function (a) { if (d.ont.indexOf(a[0]) >= 0) mini += imgAuto(a[0], '26px'); });
+    var d = album(), pc = pageCourante(d), AUTOS = PAGES[pc], N = AUTOS.length, mini = '', n = 0;
+    AUTOS.forEach(function (a) { if (d.ont.indexOf(a[0]) >= 0) { n++; mini += imgAuto(a[0], '26px'); } });
+    var tout = PAGES.every(function (x, i) { return pleine(d, i); });
     return '<button onclick="AwakKid.album()" style="display:flex;align-items:center;gap:12px;width:100%;margin:0 0 14px;padding:12px 14px;min-height:0;border-radius:18px;cursor:pointer;font-family:inherit;text-align:left;'
       + 'background:linear-gradient(135deg,rgba(251,146,60,0.14),rgba(250,204,21,0.08));border:2px solid rgba(251,146,60,0.35);">'
       + imgAuto(d.ont.length ? d.ont[d.ont.length - 1] : 'etoile', '48px', d.ont.length ? '' : 'filter:grayscale(1);opacity:.4;')
       + '<span style="flex:1;min-width:0;display:block;">'
       +   '<span style="display:block;font-size:18px;font-weight:900;color:#fff;">Mon album</span>'
-      +   '<span style="display:block;font-size:14px;font-weight:700;color:#fed7aa;margin:2px 0 4px;">' + d.ont.length + ' sur ' + N + ' autocollants</span>'
+      +   '<span style="display:block;font-size:14px;font-weight:700;color:#fed7aa;margin:2px 0 4px;">' + (tout ? 'Album complet !' : (PAGES.length > 1 ? 'Page ' + (pc + 1) + ' · ' : '') + n + ' sur ' + N + ' autocollants') + '</span>'
       +   '<span style="display:flex;gap:2px;flex-wrap:wrap;">' + mini + '</span>'
       + '</span><span style="font-size:26px;font-weight:900;color:#fed7aa;line-height:1;">›</span></button>';
   }
   function carteAventureHTML() {
-    var d = chemin(), N = PIERRES.length, pts = '';
+    var d = chemin(), M = mondeDe(d), N = M.pierres.length, pts = '';
     for (var i = 1; i <= N; i++) pts += '<span style="flex:1;height:8px;border-radius:99px;background:' + (i <= d.pas ? 'linear-gradient(90deg,#fb923c,#facc15)' : 'rgba(255,255,255,0.12)') + ';"></span>';
     return '<button onclick="AwakKid.carte()" style="display:flex;align-items:center;gap:12px;width:100%;margin:0 0 14px;padding:12px 14px;min-height:0;border-radius:18px;cursor:pointer;font-family:inherit;text-align:left;'
       + 'background:linear-gradient(135deg,rgba(56,189,248,0.14),rgba(244,114,182,0.1));border:2px solid rgba(56,189,248,0.35);">'
-      + '<img src="images/kid/chemin_aventure.webp" alt="" style="width:44px;height:78px;object-fit:cover;border-radius:8px;flex-shrink:0;">'
+      + '<img src="images/kid/' + M.img + '.webp" alt="" style="width:44px;height:78px;object-fit:cover;border-radius:8px;flex-shrink:0;">'
       + '<span style="flex:1;min-width:0;display:block;">'
       +   '<span style="display:block;font-size:18px;font-weight:900;color:#fff;">Mon aventure</span>'
-      +   '<span style="display:block;font-size:14px;font-weight:700;color:#bae6fd;margin:2px 0 7px;">' + (d.pas >= N ? 'Aventure terminée !' : 'Pierre ' + d.pas + ' sur ' + N) + '</span>'
+      +   '<span style="display:block;font-size:14px;font-weight:700;color:#bae6fd;margin:2px 0 7px;">' + 'Monde ' + ((d.monde || 0) + 1) + ' · ' + (d.pas >= N ? 'Terminé !' : 'Pierre ' + d.pas + ' sur ' + N) + '</span>'
       +   '<span style="display:flex;gap:3px;">' + pts + '</span>'
       + '</span>' + '<span style="font-size:26px;font-weight:900;color:#bae6fd;line-height:1;">›</span>' + '</button>';
   }
@@ -308,7 +338,7 @@
              + '<div style="font-size:20px;font-weight:900;color:#fde68a;margin-top:6px;">+' + n + ' étoile' + (n > 1 ? 's' : '') + '</div>' : '')
         + (_autoNeuf ? '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px;">'
              + imgAuto(_autoNeuf[0], '64px', 'animation:awkAutoPop .7s cubic-bezier(.2,1.6,.4,1) .6s both;')
-             + '<div style="text-align:left;font-size:16px;font-weight:900;color:#fff;">Nouvel autocollant !<div style="font-size:14px;font-weight:800;color:#fed7aa;">' + _autoNeuf[1] + '</div></div></div>' : '')
+             + '<div style="text-align:left;font-size:16px;font-weight:900;color:#fff;">' + (_autoNeuf[2] ? 'Nouvelle page d\'album !' : 'Nouvel autocollant !') + '<div style="font-size:14px;font-weight:800;color:#fed7aa;">' + _autoNeuf[1] + '</div></div></div>' : '')
         + (_aAnimer ? '<div style="font-size:16px;font-weight:800;color:#fdba74;margin-top:12px;">Le renard avance sur ton chemin !</div>' : '')
         + '<button onclick="AwakKid.finOk()" style="margin-top:26px;width:100%;max-width:320px;min-height:64px;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:1.3em;font-weight:900;color:#fff;'
         +   'background:linear-gradient(135deg,var(--kid-orange,#fb923c),var(--kid-rose,#f472b6));box-shadow:0 8px 26px rgba(251,146,60,0.4);">Super !</button>';
@@ -358,7 +388,7 @@
     window.switchTab = w;
   }
 
-  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, fermerAlbum: fermerAlbum, _album: album };
+  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album };
   function init() { injecterCSS(); brancher(); maj(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
