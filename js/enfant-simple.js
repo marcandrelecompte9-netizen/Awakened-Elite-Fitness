@@ -210,6 +210,39 @@
     +   'background:linear-gradient(135deg,var(--kid-orange),var(--kid-rose))!important;box-shadow:0 8px 26px rgba(251,146,60,0.4)!important;}'
     + 'body.awk-enfant #globalRestBanner .awk-repos-passer::before{content:"Je suis prêt !";font-size:20px;font-weight:900;color:#fff;}'
     + 'body.awk-enfant #globalRestBanner #globalRestFill{background:linear-gradient(90deg,var(--kid-orange),var(--kid-jaune))!important;}'
+    // v1744 : départ et repos version enfant
+    + 'body.awk-enfant #smartAnalysisOverlay{display:none!important;}'
+    + 'body.awk-enfant.in-session .toast-container{display:none!important;}'
+    + '@keyframes awkDepPoint{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}'
+    + '@keyframes awkDepSort{to{opacity:0;transform:scale(1.06)}}'
+    + '#awkKidDepart.sort{animation:awkDepSort .35s ease-in forwards;}'
+    // Décompte 3-2-1 : renard + gros chiffres orange
+    + 'body.awk-enfant #countdownOverlay.active{display:flex!important;}'
+    + 'body.awk-enfant #countdownOverlay{background:radial-gradient(circle at 50% 35%,#1e3a5f 0%,#0b1220 72%)!important;}'
+    + 'body.awk-enfant #countdownOverlay::before{content:"";position:relative;inset:auto;width:150px;height:150px;flex-shrink:0;margin-bottom:-6px;background:url(images/kid/renard_pouce.webp) center/contain no-repeat;animation:awkKidFlotte 1.8s ease-in-out infinite;}'
+    + 'body.awk-enfant #countdownNumber{font-size:11rem!important;letter-spacing:-4px!important;color:#fb923c!important;text-shadow:0 0 50px rgba(251,146,60,0.6)!important;}'
+    + 'body.awk-enfant #countdownExerciseName{color:#fff!important;text-transform:none!important;letter-spacing:0!important;font-size:1.6em!important;text-shadow:none!important;padding:0 16px;}'
+    + 'body.awk-enfant #countdownLabel{font-size:0!important;}'
+    + 'body.awk-enfant #countdownLabel::before{content:"Prépare-toi !";font-size:17px;letter-spacing:0;text-transform:none;color:#bae6fd;}'
+    // Repos entre deux exercices
+    + 'body.awk-enfant #restOverlay{background:radial-gradient(circle at 50% 30%,#1e3a5f 0%,#0b1220 72%)!important;justify-content:center!important;}'
+    + 'body.awk-enfant #restLabelTop{font-size:0!important;letter-spacing:0!important;}'
+    + 'body.awk-enfant #restLabelTop::after{content:"";display:block;width:120px;height:120px;margin:0 auto -4px;background:url(images/kid/renard_salut.webp) center/contain no-repeat;animation:awkKidFlotte 2.4s ease-in-out infinite;}'
+    + 'body.awk-enfant #restLabelTop::before{content:"Petite pause !";display:block;font-size:26px;font-weight:900;color:#fdba74;text-transform:none;letter-spacing:0;}'
+    + 'body.awk-enfant #restLabelTop{display:flex;flex-direction:column-reverse;align-items:center;}'
+    + 'body.awk-enfant #restRingWrap{transform:scale(.78);margin:-18px 0!important;}'
+    + 'body.awk-enfant #restRingArc{stroke:#fb923c!important;}'
+    + 'body.awk-enfant #restLabelBottom,body.awk-enfant #restMotivationMsg,body.awk-enfant #restActiveBtn,body.awk-enfant #restActiveExercise,'
+    +   'body.awk-enfant #restBtns .rest-btn-adj,body.awk-enfant #restNextMuscle,body.awk-enfant #restNextBar,body.awk-enfant #restNextEmoji{display:none!important;}'
+    + 'body.awk-enfant #restNextCard{background:rgba(56,189,248,0.1)!important;border:2px solid rgba(56,189,248,0.35)!important;border-radius:18px!important;box-shadow:none!important;padding:12px 14px!important;}'
+    + 'body.awk-enfant #restNextCard::before,body.awk-enfant #restNextCard::after{display:none!important;}'
+    + 'body.awk-enfant #restNextLabel{font-size:0!important;}'
+    + 'body.awk-enfant #restNextLabel::before{content:"Ensuite";font-size:14px;font-weight:800;color:#bae6fd;letter-spacing:0;text-transform:none;}'
+    + 'body.awk-enfant #restNextName{font-size:22px!important;font-weight:900!important;text-transform:none!important;letter-spacing:0!important;color:#fff!important;}'
+    + 'body.awk-enfant #restBtns{width:100%;max-width:340px;}'
+    + 'body.awk-enfant #restSkipBtn{flex:1!important;width:100%!important;min-height:64px!important;border-radius:20px!important;border:none!important;font-size:0!important;'
+    +   'background:linear-gradient(135deg,var(--kid-orange),var(--kid-rose))!important;box-shadow:0 8px 26px rgba(251,146,60,0.4)!important;}'
+    + 'body.awk-enfant #restSkipBtn::before{content:"Je suis prêt !";position:static;left:auto;width:auto;height:auto;background:none;animation:none;font-size:21px;font-weight:900;color:#fff;letter-spacing:0;text-transform:none;}'
     + '@keyframes awkBulle{from{transform:scale(0.6);opacity:0}to{transform:scale(1);opacity:1}}';
 
   function injecterCSS() {
@@ -288,12 +321,31 @@
       + '</span>' + '<span style="font-size:26px;font-weight:900;color:#bae6fd;line-height:1;">›</span>' + '</button>';
   }
 
+  function depart() {
+    var v = document.getElementById('awkKidDepart'); if (v) v.remove();
+    var o = document.createElement('div'); o.id = 'awkKidDepart';
+    o.style.cssText = 'position:fixed;inset:0;z-index:100001;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:radial-gradient(circle at 50% 35%,#1e3a5f 0%,#0b1220 72%);';
+    var pts = ''; for (var i = 0; i < 3; i++) pts += '<span style="width:12px;height:12px;border-radius:50%;background:#fb923c;display:inline-block;animation:awkDepPoint 1.1s ease-in-out ' + (i * 0.18).toFixed(2) + 's infinite;"></span>';
+    o.innerHTML = '<div style="animation:awkRenardEntre .5s cubic-bezier(.2,1.4,.4,1) both;"><div style="animation:awkRenardSaut 1.2s ease-in-out .5s infinite;">' + renard('saut', 190) + '</div></div>'
+      + '<div style="font-size:36px;font-weight:900;color:#fff;line-height:1.1;margin-top:8px;">C\'est parti' + (prenom() ? ', ' + esc(prenom()) : '') + ' !</div>'
+      + '<div style="font-size:17px;font-weight:800;color:#bae6fd;margin-top:10px;">Je prépare tes jeux</div>'
+      + '<div style="display:flex;gap:8px;margin-top:16px;">' + pts + '</div>';
+    document.body.appendChild(o);
+    try { if (typeof window.speak === 'function') window.speak('C\'est parti' + (prenom() ? ' ' + prenom() : '') + ' !', { enfant: true }); } catch (e) { _e(e); }
+    setTimeout(finDepart, 12000);   // filet
+  }
+  function finDepart() {
+    var o = document.getElementById('awkKidDepart'); if (!o || o.classList.contains('sort')) return;
+    o.classList.add('sort'); setTimeout(function () { if (o.parentNode) o.remove(); }, 380);
+  }
+
   function bouger() {
     try {
+      depart();
       window._awkKidDirect = true;
       if (typeof window.awakLancerSeanceSysteme === 'function') window.awakLancerSeanceSysteme();
       else if (typeof window.startRandomWorkout === 'function') window.startRandomWorkout();
-    } catch (e) { _e(e); window._awkKidDirect = false; }
+    } catch (e) { _e(e); window._awkKidDirect = false; finDepart(); }
   }
 
   // Après la préparation (générée en arrière-plan), la séance démarre seule.
@@ -307,6 +359,7 @@
   // Une seule consigne, en gros, sous le nom de l'exercice
   function consigne(ex) {
     try {
+      finDepart();
       var nomEl = document.getElementById('exerciseName'); if (!nomEl) return;
       var c = document.getElementById('awkKidConsigne');
       if (!c) { c = document.createElement('div'); c.id = 'awkKidConsigne'; nomEl.parentNode.insertBefore(c, nomEl.nextSibling); }
