@@ -202,6 +202,9 @@
     + '@keyframes awkRenardSaut{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-22px) rotate(-4deg)}60%{transform:translateY(0) rotate(3deg)}}'
     + '@keyframes awkRenardEntre{from{transform:scale(0.4) translateY(40px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}'
     + 'body:has(#awkKidFin) .toast-container{display:none!important;}'
+    // v1746 : onglet Famille version enfant
+    + 'body.awk-enfant #familyTab > :not(#awakKidFamille){display:none!important;}'
+    + '#awakKidFamille{display:none;}body.awk-enfant #awakKidFamille{display:block;}'
     // v1741 : repos entre deux séries — il couvrait « J'ai fini ! » ; version enfant
     + 'body.awk-enfant #globalRestBanner .awk-repos-pas{visibility:hidden!important;}'
     + 'body.awk-enfant #globalRestBanner .awk-repos-lbl{font-size:0!important;}'
@@ -339,6 +342,114 @@
     o.classList.add('sort'); setTimeout(function () { if (o.parentNode) o.remove(); }, 380);
   }
 
+  // ── Famille version enfant ──
+  var MSGS = ['Bravo !', 'On bouge ensemble ?', 'Je t\'aime !', 'Tu es super fort !'];
+  function aBougeAujourdhuiId(id) {
+    try {
+      var t0 = new Date(); t0.setHours(0, 0, 0, 0);
+      var l = (window.AwakFamilySky && AwakFamilySky.seances) ? AwakFamilySky.seances(id) : [];
+      return (l || []).some(function (t) { return t >= +t0; });
+    } catch (e) { return false; }
+  }
+  function visage(m, taille) {
+    var src = ''; try { src = window.awakPortraitSrc ? window.awakPortraitSrc(m.avatar) : ''; } catch (e) { _e(e); }
+    if (src) return '<img src="' + src + '" alt="" style="width:' + taille + 'px;height:' + taille + 'px;border-radius:50%;object-fit:cover;display:block;">';
+    var l = String(m.name || '?').trim().charAt(0).toUpperCase();
+    return '<div style="width:' + taille + 'px;height:' + taille + 'px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#38bdf8,#f472b6);color:#fff;font-size:' + Math.round(taille * 0.45) + 'px;font-weight:900;">' + esc(l) + '</div>';
+  }
+  function famille() {
+    var tab = document.getElementById('familyTab'); if (!tab) return;
+    var el = document.getElementById('awakKidFamille');
+    if (!el) { el = document.createElement('div'); el.id = 'awakKidFamille'; tab.insertBefore(el, tab.firstChild); }
+    if (!enfant()) { el.innerHTML = ''; return; }
+    var moi = ''; try { moi = getCurrentProfileId(); } catch (e) { _e(e); }
+    var mbs = []; try { mbs = (window.AwakFamily ? AwakFamily.familleMembres() : []).filter(function (p) { return p.id !== moi; }); } catch (e) { _e(e); }
+    var msgs = []; try { msgs = window.AwakFamily && AwakFamily.pendingNudges ? AwakFamily.pendingNudges() : []; } catch (e) { _e(e); }
+    var sem = null; try { sem = window.AwakFamilySky ? AwakFamilySky.etatSemaine() : null; } catch (e) { _e(e); }
+    var h = '<div style="display:flex;align-items:center;gap:6px;margin:6px 2px 14px;">'
+      + renard('salut', 90, 'animation:awkKidFlotte 3s ease-in-out infinite;')
+      + '<div style="flex:1;min-width:0;"><div style="font-size:26px;font-weight:900;color:#fff;line-height:1.1;">Ma famille</div>'
+      + '<div style="display:inline-block;margin-top:6px;padding:7px 12px;border-radius:14px 14px 14px 4px;background:#fff;color:#0c4a6e;font-size:15px;font-weight:800;">Envoie un bravo !</div></div></div>';
+    if (msgs.length) {
+      var der = msgs[msgs.length - 1];
+      h += '<button onclick="AwakKid.lireMessages()" style="display:flex;align-items:center;gap:12px;width:100%;margin:0 0 14px;padding:14px;min-height:0;border-radius:18px;cursor:pointer;font-family:inherit;text-align:left;'
+        + 'background:linear-gradient(135deg,rgba(244,114,182,0.2),rgba(251,146,60,0.14));border:2px solid rgba(244,114,182,0.55);animation:awkBulle .4s ease-out both;">'
+        + '<div style="width:50px;height:50px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(244,114,182,0.25);">' + ico('message', 26, '#fbcfe8') + '</div>'
+        + '<span style="flex:1;min-width:0;"><span style="display:block;font-size:18px;font-weight:900;color:#fff;">' + esc(der.fromName || 'Ta famille') + ' t\'a écrit !</span>'
+        + '<span style="display:block;font-size:14px;font-weight:800;color:#fbcfe8;margin-top:2px;">Touche pour lire' + (msgs.length > 1 ? ' (' + msgs.length + ' messages)' : '') + '</span></span>'
+        + '<span style="font-size:26px;font-weight:900;color:#fbcfe8;line-height:1;">›</span></button>';
+    }
+    if (mbs.length) {
+      h += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;">' + mbs.map(function (m) {
+        var ok = aBougeAujourdhuiId(m.id);
+        return '<div style="padding:14px 10px 12px;border-radius:20px;text-align:center;background:rgba(255,255,255,0.05);border:2px solid ' + (ok ? 'rgba(251,146,60,0.55)' : 'rgba(255,255,255,0.1)') + ';">'
+          + '<div style="position:relative;width:72px;margin:0 auto;">' + visage(m, 72)
+          +   (ok ? '<span style="position:absolute;right:-6px;bottom:-4px;width:30px;height:30px;border-radius:50%;background:#fb923c;display:flex;align-items:center;justify-content:center;border:3px solid #0b1220;">' + ico('etoile', 16, '#fff') + '</span>' : '') + '</div>'
+          + '<div style="font-size:18px;font-weight:900;color:#fff;margin-top:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(m.name || 'Famille') + '</div>'
+          + '<div style="font-size:13px;font-weight:800;color:' + (ok ? '#fdba74' : '#94a3b8') + ';margin-top:2px;">' + (ok ? 'A bougé aujourd\'hui !' : 'Pas encore bougé') + '</div>'
+          + '<button onclick="AwakKid.bravo(\'' + esc(m.id) + '\')" style="width:100%;min-height:46px;margin-top:10px;border:none;border-radius:14px;cursor:pointer;font-family:inherit;font-size:16px;font-weight:900;color:#fff;'
+          +   'background:linear-gradient(135deg,var(--kid-orange,#fb923c),var(--kid-rose,#f472b6));display:flex;align-items:center;justify-content:center;gap:6px;">' + ico('coeur', 18, '#fff') + 'Bravo</button>'
+          + '</div>';
+      }).join('') + '</div>';
+    }
+    h += '<button onclick="if(window.AwakKidsOpen)AwakKidsOpen()" style="display:flex;align-items:center;gap:12px;width:100%;margin:0 0 14px;padding:14px;min-height:0;border-radius:18px;cursor:pointer;font-family:inherit;text-align:left;'
+      + 'background:linear-gradient(135deg,rgba(56,189,248,0.16),rgba(244,114,182,0.1));border:2px solid rgba(56,189,248,0.4);">'
+      + '<div style="width:52px;height:52px;border-radius:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(56,189,248,0.22);">' + ico('manette', 28, '#bae6fd') + '</div>'
+      + '<span style="flex:1;min-width:0;"><span style="display:block;font-size:18px;font-weight:900;color:#fff;">Jouer ensemble</span>'
+      + '<span style="display:block;font-size:14px;font-weight:800;color:#bae6fd;margin-top:2px;">Tag, statue, marche des animaux</span></span>'
+      + '<span style="font-size:26px;font-weight:900;color:#bae6fd;line-height:1;">›</span></button>';
+    if (sem) {
+      var reste = Math.max(0, sem.cible - sem.total), pc = Math.min(100, Math.round(sem.total / Math.max(1, sem.cible) * 100));
+      h += '<div style="padding:14px;border-radius:18px;margin-bottom:14px;background:linear-gradient(135deg,rgba(250,204,21,0.12),rgba(251,146,60,0.08));border:2px solid rgba(250,204,21,0.35);">'
+        + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">' + ico('trophee', 30, '#fde68a')
+        + '<div style="flex:1;min-width:0;"><div style="font-size:18px;font-weight:900;color:#fff;">Le défi de la famille</div>'
+        + '<div style="font-size:14px;font-weight:800;color:#fed7aa;margin-top:2px;">' + (sem.complete ? 'Réussi ! Bravo la famille !' : 'Encore ' + reste + ' séance' + (reste > 1 ? 's' : '') + ' cette semaine') + '</div></div>'
+        + '<div style="font-size:20px;font-weight:900;color:#fde68a;">' + Math.min(sem.total, sem.cible) + '/' + sem.cible + '</div></div>'
+        + '<div style="height:14px;background:rgba(255,255,255,0.1);border-radius:99px;overflow:hidden;"><div style="height:100%;width:' + pc + '%;background:linear-gradient(90deg,#fb923c,#facc15);border-radius:99px;"></div></div>'
+        + '</div>';
+    }
+    el.innerHTML = h;
+  }
+  function feuilleKid(id, html) {
+    var v = document.getElementById(id); if (v) v.remove();
+    var o = document.createElement('div'); o.id = id;
+    o.style.cssText = 'position:fixed;inset:0;z-index:12600;background:rgba(5,10,20,0.88);display:flex;align-items:flex-end;justify-content:center;';
+    o.innerHTML = '<div style="width:100%;max-width:520px;background:radial-gradient(circle at 50% 0%,#1e3a5f,#0b1220 75%);border-top:2px solid rgba(251,146,60,0.5);border-radius:24px 24px 0 0;padding:18px 16px calc(22px + env(safe-area-inset-bottom));box-sizing:border-box;max-height:90vh;overflow-y:auto;">' + html + '</div>';
+    o.addEventListener('click', function (ev) { if (ev.target === o) o.remove(); });
+    document.body.appendChild(o); return o;
+  }
+  function bravo(id) {
+    var m = null; try { m = (AwakFamily.familleMembres() || []).filter(function (p) { return p.id === id; })[0]; } catch (e) { _e(e); }
+    if (!m) return;
+    feuilleKid('awkKidBravo', '<div style="text-align:center;"><div style="display:flex;justify-content:center;">' + visage(m, 64) + '</div>'
+      + '<div style="font-size:22px;font-weight:900;color:#fff;margin:8px 0 14px;">Pour ' + esc(m.name || '') + '</div>'
+      + MSGS.map(function (t, i) { return '<button onclick="AwakKid.envoyer(\'' + esc(id) + '\',' + i + ')" style="display:block;width:100%;min-height:58px;margin-bottom:10px;border-radius:18px;cursor:pointer;font-family:inherit;font-size:19px;font-weight:900;color:#fff;'
+        + 'background:rgba(255,255,255,0.07);border:2px solid rgba(251,146,60,0.45);">' + esc(t) + '</button>'; }).join('')
+      + '<button onclick="document.getElementById(\'awkKidBravo\').remove()" style="margin-top:4px;min-height:44px;padding:8px 20px;border:none;background:none;color:#94a3b8;font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;">Fermer</button></div>');
+  }
+  function envoyer(id, i) {
+    var ok = false; try { ok = AwakFamily.sendNudge(id, MSGS[i] || MSGS[0]); } catch (e) { _e(e); }
+    var v = document.getElementById('awkKidBravo'); if (v) v.remove();
+    var nom = ''; try { nom = (AwakFamily.familleMembres() || []).filter(function (p) { return p.id === id; })[0].name; } catch (e) { _e(e); }
+    var o = feuilleKid('awkKidEnvoye', '<div style="text-align:center;padding:6px 0;">' + renard('bravo', 130, 'display:block;margin:0 auto;animation:awkRenardSaut 1.2s ease-in-out infinite;')
+      + '<div style="font-size:24px;font-weight:900;color:#fff;margin-top:8px;">' + (ok ? 'Envoyé' + (nom ? ' à ' + esc(nom) : '') + ' !' : 'Oups, ça n\'a pas marché') + '</div>'
+      + '<div style="font-size:16px;font-weight:800;color:#fdba74;margin-top:4px;">' + (ok ? 'Ton message va lui faire plaisir.' : 'Réessaie plus tard.') + '</div></div>');
+    try { if (navigator.vibrate) navigator.vibrate(60); } catch (e) { /* rien */ }
+    setTimeout(function () { if (o.parentNode) o.remove(); }, 2200);
+  }
+  function lireMessages() {
+    var l = []; try { l = AwakFamily.pendingNudges(); } catch (e) { _e(e); }
+    if (!l.length) return;
+    feuilleKid('awkKidMessages', '<div style="text-align:center;">' + renard('saut', 110, 'display:block;margin:0 auto;')
+      + '<div style="font-size:24px;font-weight:900;color:#fff;margin:6px 0 14px;">Tes messages</div>'
+      + l.slice().reverse().map(function (n) { return '<div style="padding:14px;border-radius:18px;margin-bottom:10px;background:rgba(255,255,255,0.07);border:2px solid rgba(244,114,182,0.4);text-align:left;">'
+        + '<div style="font-size:14px;font-weight:900;color:#fbcfe8;">' + esc(n.fromName || 'Ta famille') + '</div>'
+        + '<div style="font-size:19px;font-weight:900;color:#fff;margin-top:4px;line-height:1.35;">' + esc(n.msg) + '</div></div>'; }).join('')
+      + '<button onclick="document.getElementById(\'awkKidMessages\').remove();AwakKid.famille()" style="width:100%;min-height:56px;margin-top:6px;border:none;border-radius:18px;cursor:pointer;font-family:inherit;font-size:18px;font-weight:900;color:#fff;background:linear-gradient(135deg,#fb923c,#f472b6);">Merci !</button></div>');
+    try { AwakFamily.markNudgesSeen(); } catch (e) { _e(e); }
+    try { if (typeof window.speak === 'function') window.speak(l[l.length - 1].fromName + ' te dit : ' + l[l.length - 1].msg, { enfant: true }); } catch (e) { _e(e); }
+  }
+
   function bouger() {
     try {
       depart();
@@ -427,6 +538,7 @@
       var t = onglet || (document.querySelector('.tab-content.active') || {}).id || '';
       document.body.classList.toggle('awk-kid-accueil', k && (t === 'home' || t === 'homeTab'));
       if (k && (t === 'home' || t === 'homeTab')) accueil();
+      if (k && (t === 'family' || t === 'familyTab')) famille();
       // Onglets cachés pour un enfant → retour à l'accueil enfant
       if (k && (t === 'more' || t === 'settings')) { /* Plus : passe par le code parent */ }
     } catch (e) { _e(e); }
@@ -441,7 +553,7 @@
     window.switchTab = w;
   }
 
-  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album };
+  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, bravo: bravo, envoyer: envoyer, lireMessages: lireMessages };
   function init() { injecterCSS(); brancher(); maj(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

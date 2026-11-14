@@ -1082,7 +1082,11 @@
     loadLinks: loadLinks,
     _meta: meta,
     currentId: currentId,
-    profileCount: function () { return allProfiles().length; }
+    profileCount: function () { return allProfiles().length; },
+    // v1746 : pour l'onglet Famille version enfant
+    sendNudge: function (to, msg) { return sendNudge(to, msg); },
+    pendingNudges: function () { return pendingNudges(); },
+    markNudgesSeen: function () { return markNudgesSeen(); }
   };
 
   // ═══════════════════════════════════════════════════════════════════

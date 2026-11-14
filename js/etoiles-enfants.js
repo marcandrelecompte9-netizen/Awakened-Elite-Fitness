@@ -135,47 +135,81 @@
     }
     return h + '</div>';
   }
+  // v1746 : version enfant — gros chiffres, une barre par récompense, gros bouton « Je la veux ! »
+  var KIDBTN = 'border:none;border-radius:16px;cursor:pointer;font-family:inherit;font-weight:900;color:#fff;background:linear-gradient(135deg,#fb923c,#f472b6);box-shadow:0 6px 18px rgba(251,146,60,0.35);';
+  function icoRecomp(nom) {
+    var n = String(nom || '').toLowerCase();
+    if (/écran|ecran|jeu vid|tablette|télé|tele/.test(n)) return 'manette';
+    if (/dessert|gâteau|gateau|bonbon|crème|creme/.test(n)) return 'coeur';
+    if (/souper|dîner|diner|repas|resto/.test(n)) return 'maison';
+    if (/coucher|dodo|lit/.test(n)) return 'repos';
+    if (/parc|sortie|plage|piscine/.test(n)) return 'soleil';
+    if (/film|cinéma|cinema/.test(n)) return 'etoile';
+    if (/activité|activite|semaine/.test(n)) return 'calendrier';
+    if (/jouet|livre|cadeau/.test(n)) return 'trophee';
+    return 'etoile';
+  }
+  function barreKid(a, b) {
+    var pc = Math.max(0, Math.min(100, Math.round(a / Math.max(1, b) * 100)));
+    return '<div style="height:12px;background:rgba(255,255,255,0.1);border-radius:99px;overflow:hidden;"><div style="height:100%;width:' + pc + '%;background:linear-gradient(90deg,#fb923c,#facc15);border-radius:99px;"></div></div>';
+  }
   function carteEnfant() {
     var pid = pidActif(); if (!pid || !suivi(pid)) return '';
     var d = lire(), f = fiche(d, pid), dispo = disponible(d, pid), pr = prochaine(d, dispo), att = enAttente(d, pid).length;
-    return '<button onclick="AwakEtoiles.ouvrirEnfant()" style="display:block;width:100%;text-align:left;margin:0 0 12px;padding:14px;border-radius:16px;cursor:pointer;font-family:inherit;background:linear-gradient(160deg,#1c1607,#0d0f13);border:1px solid rgba(251,191,36,0.35);">'
-      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
-      +   '<div style="flex:1;min-width:0;font-size:0.7em;letter-spacing:1.5px;color:#fde68a;font-weight:900;">MES ÉTOILES</div>'
-      +   '<span style="font-size:0.74em;color:#fde68a;font-weight:800;">Mes récompenses ›</span>'
+    var peut = triees(d).some(function (r) { return r.cout <= dispo; });
+    return '<button onclick="AwakEtoiles.ouvrirEnfant()" style="display:block;width:100%;text-align:left;margin:0 0 14px;padding:14px;min-height:0;border-radius:18px;cursor:pointer;font-family:inherit;'
+      + 'background:linear-gradient(135deg,rgba(250,204,21,0.14),rgba(251,146,60,0.1));border:2px solid rgba(250,204,21,0.4);">'
+      + '<div style="display:flex;align-items:center;gap:12px;">'
+      +   '<div style="position:relative;flex-shrink:0;">' + etoile(54) + '</div>'
+      +   '<div style="flex:1;min-width:0;">'
+      +     '<div style="font-size:18px;font-weight:900;color:#fff;">Mes étoiles</div>'
+      +     '<div style="font-size:30px;font-weight:900;color:#fde68a;line-height:1;margin-top:2px;">' + Math.max(0, dispo) + '</div>'
+      +   '</div><span style="font-size:26px;font-weight:900;color:#fde68a;line-height:1;">›</span>'
       + '</div>'
-      + (f.solde || pr ? rangee(f.solde, pr ? pr.cout - dispo : 0, 20) : '<div style="font-size:0.8em;color:#cbd5e1;">Fais une séance pour gagner ta première étoile !</div>')
-      + (pr ? '<div style="font-size:0.74em;color:#cbd5e1;margin-top:8px;">Les étoiles grises : ce qu\'il te manque pour « ' + esc(pr.nom) + ' »</div>'
-            : (f.solde ? '<div style="font-size:0.76em;color:#fde68a;margin-top:8px;">Tu peux choisir une récompense !</div>' : ''))
-      + (att ? '<div style="font-size:0.72em;color:#94a3b8;margin-top:4px;">' + att + ' demande' + (att > 1 ? 's' : '') + ' en attente</div>' : '')
-      + '<div style="font-size:0.68em;color:#94a3b8;margin-top:6px;">1 étoile par séance, +1 toutes les 15 minutes</div>'
+      + (peut ? '<div style="margin-top:10px;font-size:16px;font-weight:900;color:#fdba74;">Tu peux choisir une récompense !</div>'
+         : pr ? '<div style="margin-top:10px;">' + barreKid(Math.max(0, dispo), pr.cout) + '<div style="font-size:14px;font-weight:800;color:#fed7aa;margin-top:6px;">Encore ' + (pr.cout - Math.max(0, dispo)) + ' pour « ' + esc(pr.nom) + ' »</div></div>'
+         : '<div style="margin-top:10px;font-size:15px;font-weight:800;color:#fed7aa;">Fais une séance pour gagner des étoiles !</div>')
+      + (att ? '<div style="font-size:14px;font-weight:800;color:#bae6fd;margin-top:6px;">' + att + ' demande' + (att > 1 ? 's' : '') + ' : on attend un parent</div>' : '')
       + '</button>';
   }
   function ouvrirEnfant() {
     var pid = pidActif(); if (!pid) return;
-    var d = lire(), f = fiche(d, pid), dispo = disponible(d, pid), att = enAttente(d, pid);
-    var h = '<div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:10px;">Mes étoiles</div>'
-      + (f.solde ? rangee(f.solde, 0, 22) : '<div style="font-size:0.84em;color:#94a3b8;">Pas encore d\'étoile : chaque séance t\'en donne au moins une.</div>');
+    var d = lire(), dispo = disponible(d, pid), att = enAttente(d, pid);
+    var v = document.getElementById('awakEtoilesSheet'); if (v) v.remove();
+    var rs = triees(d).slice().sort(function (a, b) { var ka = a.cout <= dispo ? 0 : 1, kb = b.cout <= dispo ? 0 : 1; return ka - kb || a.cout - b.cout; });
+    var h = '<div style="max-width:480px;margin:0 auto;">'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">'
+      +   '<img src="images/kid/renard_pouce.webp" alt="" style="width:70px;height:70px;object-fit:contain;flex-shrink:0;">'
+      +   '<div style="flex:1;min-width:0;"><div style="font-size:24px;font-weight:900;color:#fff;">Mes étoiles</div>'
+      +     '<div style="display:inline-flex;align-items:center;gap:6px;margin-top:4px;padding:4px 12px;border-radius:99px;background:rgba(250,204,21,0.15);border:2px solid rgba(250,204,21,0.45);">'
+      +       etoile(22) + '<span style="font-size:22px;font-weight:900;color:#fde68a;">' + Math.max(0, dispo) + '</span></div></div>'
+      +   '<button onclick="AwakEtoiles.fermer()" style="' + KIDBTN + 'min-height:44px;padding:8px 18px;font-size:16px;flex-shrink:0;">Retour</button>'
+      + '</div>';
     if (att.length) {
-      h += '<div style="font-size:0.78em;color:#8b95a5;font-weight:700;margin:16px 0 8px;">En attente</div>'
-        + att.map(function (q) {
-          return '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:#141821;margin-bottom:6px;">'
-            + '<div style="flex:1;color:#e2e8f0;font-size:0.86em;font-weight:700;">' + esc(q.nom) + '</div>'
-            + '<span style="font-size:0.74em;color:#fde68a;">Un parent doit dire oui</span>'
-            + '<button onclick="AwakEtoiles.annulerDemande(\'' + q.id + '\')" style="' + BTN + 'padding:6px 10px;font-size:0.72em;background:transparent;color:#94a3b8;border:1px solid rgba(255,255,255,0.12);">Annuler</button></div>';
-        }).join('');
+      h += att.map(function (q) {
+        return '<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:18px;margin-bottom:10px;background:rgba(56,189,248,0.1);border:2px solid rgba(56,189,248,0.35);">'
+          + '<div style="flex:1;min-width:0;"><div style="font-size:17px;font-weight:900;color:#fff;">' + esc(q.nom) + '</div>'
+          + '<div style="font-size:14px;font-weight:800;color:#bae6fd;margin-top:2px;">On attend qu\'un parent dise oui</div></div>'
+          + '<button onclick="AwakEtoiles.annulerDemande(\'' + q.id + '\')" style="' + BTN + 'padding:8px 12px;font-size:13px;background:transparent;color:#94a3b8;border:1px solid rgba(255,255,255,0.15);flex-shrink:0;">Annuler</button></div>';
+      }).join('');
     }
-    h += '<div style="font-size:0.78em;color:#8b95a5;font-weight:700;margin:16px 0 8px;">Les récompenses</div>'
-      + triees(d).map(function (r) {
-        var ok = dispo >= r.cout;
-        return '<div style="display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;background:#141821;margin-bottom:6px;' + (ok ? 'border:1px solid rgba(251,191,36,0.4);' : 'border:1px solid transparent;') + '">'
-          + '<div style="flex:1;min-width:0;"><div style="color:#f1f5f9;font-size:0.88em;font-weight:700;">' + esc(r.nom) + '</div>'
-          + (ok ? '' : '<div style="margin-top:7px;">' + rangee(Math.max(0, Math.min(dispo, r.cout)), r.cout - Math.max(0, dispo), 12) + '</div>') + '</div>'
-          + '<span style="display:inline-flex;align-items:center;gap:3px;color:#fde68a;font-weight:900;font-size:0.86em;flex-shrink:0;">' + r.cout + etoile(13) + '</span>'
-          + (ok ? '<button onclick="AwakEtoiles.demander(\'' + r.id + '\')" style="' + BTN + 'flex-shrink:0;padding:8px 11px;font-size:0.76em;background:rgba(251,191,36,0.14);color:#fde68a;border:1px solid rgba(251,191,36,0.55);">Je la veux</button>' : '')
-          + '</div>';
-      }).join('')
-      + '<button onclick="AwakEtoiles.fermer()" style="' + VIDE + 'margin-top:10px;">Fermer</button>';
-    feuille('awakEtoilesSheet', h);
+    if (!dispo && !att.length) h += '<div style="text-align:center;font-size:16px;font-weight:800;color:#fed7aa;margin:6px 0 12px;">Chaque séance te donne des étoiles !</div>';
+    h += rs.map(function (r) {
+      var ok = dispo >= r.cout, manque = r.cout - Math.max(0, dispo);
+      return '<div style="padding:14px;border-radius:20px;margin-bottom:10px;' + (ok ? 'background:linear-gradient(135deg,rgba(251,146,60,0.18),rgba(244,114,182,0.12));border:2px solid rgba(251,146,60,0.6);' : 'background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.08);') + '">'
+        + '<div style="display:flex;align-items:center;gap:12px;">'
+        +   '<div style="width:52px;height:52px;border-radius:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:' + (ok ? 'rgba(251,146,60,0.25)' : 'rgba(255,255,255,0.07)') + ';">' + ic(icoRecomp(r.nom), 28, ok ? '#fdba74' : '#94a3b8') + '</div>'
+        +   '<div style="flex:1;min-width:0;"><div style="font-size:17px;font-weight:900;color:#fff;line-height:1.25;">' + esc(r.nom) + '</div>'
+        +     '<div style="display:inline-flex;align-items:center;gap:4px;margin-top:3px;font-size:15px;font-weight:900;color:#fde68a;">' + r.cout + ' ' + etoile(15) + '</div></div>'
+        + '</div>'
+        + (ok ? '<button onclick="AwakEtoiles.demander(\'' + r.id + '\')" style="' + KIDBTN + 'width:100%;min-height:52px;margin-top:12px;font-size:18px;">Je la veux !</button>'
+              : '<div style="margin-top:10px;">' + barreKid(Math.max(0, dispo), r.cout) + '<div style="font-size:14px;font-weight:800;color:#94a3b8;margin-top:5px;">Encore ' + manque + ' étoile' + (manque > 1 ? 's' : '') + '</div></div>')
+        + '</div>';
+    }).join('') + '</div>';
+    var o = document.createElement('div'); o.id = 'awakEtoilesSheet';
+    o.style.cssText = 'position:fixed;inset:0;z-index:12000;overflow-y:auto;background:radial-gradient(circle at 50% 15%,#1e3a5f,#0b1220 70%);padding:calc(12px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom));box-sizing:border-box;';
+    o.innerHTML = h;
+    document.body.appendChild(o);
   }
   function demander(rid) {
     var pid = pidActif(); var d = lire(); var r = d.recompenses.filter(function (x) { return x.id === rid; })[0];
@@ -183,7 +217,7 @@
     if (disponible(d, pid) < r.cout) { toast('Pas encore assez d\'étoiles', 'info'); return; }
     d.demandes.push({ id: uid(), pid: pid, rid: r.id, nom: r.nom, cout: r.cout, t: Date.now() });
     ecrire(d);
-    toast('Demande envoyée : un parent va la voir dans l\'onglet Famille');
+    toast('Demande envoyée ! Un parent va te répondre.');
     ouvrirEnfant(); rafraichir();
   }
   function annulerDemande(id) {
