@@ -2824,6 +2824,9 @@
             const exercise = session.currentExercises[exIdx];
             if (!exercise) return;
 
+            // v1720 : voile noir pendant le passage vers l'exercice (avant : l'écran de
+            // sélection de l'onglet Séance se voyait ~0,1 s entre le combat et l'exercice)
+            try { window.awakVoileCombat && awakVoileCombat('Au combat', (session.theme || {}).color); } catch (e) { _awkE(e); }
             // Fermer le modal combat (on y reviendra après la "série")
             document.getElementById('awakRiftCombatModal')?.remove();
 
@@ -2871,6 +2874,7 @@
                 if (typeof renderExerciseProgressList === 'function') renderExerciseProgressList();
                 if (typeof updateMusclesOverview === 'function') updateMusclesOverview();
                 if (typeof startExercise === 'function') startExercise();
+                try { window.awakVoileCombatRetirer && awakVoileCombatRetirer(150); } catch (e) { _awkE(e); }   // v1720
 
                 // 💡 Instructions claires pour l'utilisateur
                 setTimeout(() => {
@@ -4405,10 +4409,12 @@
             try { awakActiveRiftSession = null; } catch (e) { _awkE(e); }   // pas les PV d'une Faille dans une Chasse
             _awakNettoyerCombatUI();
 
+            try { window.awakVoileCombat && awakVoileCombat('Au combat', session.type.color); } catch (e) { _awkE(e); }   // v1720
             switchTab('workouts');
             setTimeout(() => {
                 _awakEntrerCombatSeance('🏹 CHASSE — ' + (session.type.name || 'Monstre'), session.type.color);
                 if (typeof startExercise === 'function') startExercise();
+                try { window.awakVoileCombatRetirer && awakVoileCombatRetirer(150); } catch (e) { _awkE(e); }
             }, 100);
         }
         window.awakPickHuntExercise = awakPickHuntExercise;
