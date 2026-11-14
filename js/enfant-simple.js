@@ -603,6 +603,16 @@
       document.body.appendChild(o);
       try { if (typeof window.speak === 'function') window.speak('Bravo ! Tu as bougé ' + m + ' minutes' + (n ? ', et tu gagnes ' + n + ' étoile' + (n > 1 ? 's' : '') : '') + ' !', { enfant: true }); } catch (e) { _e(e); }
       try { if (navigator.vibrate) navigator.vibrate([80, 60, 120]); } catch (e) { /* rien */ }
+      victoire();
+    } catch (e) { _e(e); }
+  }
+  // v1750 : petit air de victoire (musique en séance activée seulement)
+  function victoire() {
+    try {
+      var r = window.AwakMusique && AwakMusique.reglages ? AwakMusique.reglages() : { auto: true };
+      if (r.externe || r.entrainement === false) return;
+      var a = new Audio('audio/victoire.mp3'); a.volume = Math.min(1, (r.volume || 0.6) + 0.2);
+      setTimeout(function () { try { var p = a.play(); if (p && p.catch) p.catch(function () {}); } catch (e) { _e(e); } }, 500);
     } catch (e) { _e(e); }
   }
   function finOk() {
