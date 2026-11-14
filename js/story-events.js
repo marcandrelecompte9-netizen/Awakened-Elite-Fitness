@@ -2069,6 +2069,34 @@ function storyShowEvent(evt) {
     if (!evt || !evt.content) return;
     if (typeof window.AwakCine !== 'undefined' && window.AwakCine.defer(function () { storyShowEvent(evt); })) return;
     if (_storyEnFaille()) { _storyAttendreFinFaille(function () { storyShowEvent(evt); }); return; }   // v1644
+    // v1721 : TRANSITION avant la scène — l'écran s'assombrit, une ligne du Système,
+    // puis la scène apparaît (avant : elle surgissait d'un coup).
+    if (!evt._prelude && !document.getElementById('storyPrelude')) {
+        try {
+            const _ch = STORY_CHARS[(evt.content && evt.content.speaker)] || STORY_CHARS.systeme;
+            const _c = _ch.color || '#22d3ee';
+            const pr = document.createElement('div');
+            pr.id = 'storyPrelude';
+            pr.style.cssText = 'position:fixed;inset:0;z-index:99996;background:#020306;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;opacity:0;transition:opacity 0.6s ease;pointer-events:auto;';
+            pr.innerHTML = '<div style="width:0;height:1px;background:linear-gradient(90deg,transparent,' + _c + ',transparent);box-shadow:0 0 12px ' + _c + ';transition:width 0.9s ease 0.3s;" data-trait></div>'
+                + '<div style="font-size:0.72em;font-weight:900;letter-spacing:4px;color:' + _c + ';opacity:0;transition:opacity 0.6s ease 0.5s;" data-txt>◇ LE SYSTÈME ◇</div>'
+                + '<div style="font-size:0.95em;font-weight:700;color:#cbd5e1;opacity:0;transition:opacity 0.6s ease 0.8s;text-align:center;padding:0 24px;" data-txt>Un souvenir remonte…</div>';
+            document.body.appendChild(pr);
+            requestAnimationFrame(function () { requestAnimationFrame(function () {
+                pr.style.opacity = '1';
+                const t = pr.querySelector('[data-trait]'); if (t) t.style.width = '62%';
+                pr.querySelectorAll('[data-txt]').forEach(function (x) { x.style.opacity = '1'; });
+            }); });
+            evt._prelude = true;
+            setTimeout(function () {
+                try { storyShowEvent(evt); } catch (e) { _awkE(e); }
+                // la scène (fondu 0,45 s) est par-dessus : le prélude s'efface derrière
+                setTimeout(function () { try { pr.style.opacity = '0'; setTimeout(function () { pr.remove(); }, 650); } catch (e) { _awkE(e); } }, 500);
+            }, 2000);
+            return;
+        } catch (e) { _awkE(e); }
+    }
+    try { delete evt._prelude; } catch (e) { _awkE(e); }
     if (evt.id && _storyEnFile[evt.id]) {
         delete _storyEnFile[evt.id]; storyEventMarkSeen(evt.id);
         try { localStorage.setItem(_STORY_K_SEANCE, String(storyBuildContext().workouts || 0)); } catch (e) { _awkE(e); }
@@ -2179,18 +2207,28 @@ function _storyEnFaille() {
         // v1660 : pas non plus PENDANT une séance (reprise d'une séance en pause → la scène
         // « La Dispute » d'Esen et Nyra s'ouvrait au milieu des exercices). Elle attend la fin.
         if (document.body.classList.contains('in-session')) return true;
+        // v1721 : l'écran de récompense (Faille / Chasse) est encore ouvert → on attend
+        // que le joueur touche « Continuer » (avant : la scène s'ouvrait par-dessus après 2,6 s)
+        if (document.getElementById('awakRiftRewardModal') || document.getElementById('awakHuntRewardModal')) return true;
         const ev = document.getElementById('exerciseView');
         if (ev && !ev.classList.contains('hidden') && ev.offsetParent !== null) return true;
         return false;
     } catch (e) { return false; }
 }
+// v1721 : file d'attente (avant : une 2e demande pendant l'attente était perdue —
+// ex. la scène précise d'une Faille d'histoire cédait la place à une vérification générale)
+let _storyAttenteFile = [];
 function _storyAttendreFinFaille(fn) {
-    if (_storyAttenteFaille) return;   // une attente déjà en cours la relancera
+    if (typeof fn === 'function') _storyAttenteFile.push(fn);
+    if (_storyAttenteFaille) return;
     _storyAttenteFaille = setInterval(function () {
         if (_storyEnFaille()) return;
         clearInterval(_storyAttenteFaille); _storyAttenteFaille = null;
-        setTimeout(fn, 2500);   // laisse l'écran de récompense se fermer
-    }, 3000);
+        const file = _storyAttenteFile; _storyAttenteFile = [];
+        // l'écran de récompense est déjà fermé (détecté) → court délai ; les suivantes
+        // passent par la garde « pas de chevauchement » de storyCheckEvents / AwakCine
+        setTimeout(function () { file.forEach(function (f) { try { f(); } catch (e) { _awkE(e); } }); }, 900);
+    }, 600);
 }
 function storyCheckEvents(opts) {
     try {
@@ -2199,7 +2237,7 @@ function storyCheckEvents(opts) {
         if (_storyEnFaille()) { _storyAttendreFinFaille(function () { storyCheckEvents({ delay: 400 }); }); return false; }
         // Ne pas chevaucher un autre overlay narratif
         if (document.getElementById('storyOverlay') ||
-            document.getElementById('storyEventOverlay') ||
+            document.getElementById('storyEventOverlay') || document.getElementById('storyPrelude') ||
             document.getElementById('awakSystemCardOverlay')) return false;
         const evt = storyPickEvent();
         if (!evt) {
