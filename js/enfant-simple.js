@@ -21,6 +21,7 @@
   // v1740 : chemin d'aventure — 14 pierres, une par séance
   var PIERRES = [[285,915],[369,835],[284,772],[193,732],[220,665],[290,623],[354,570],[410,505],[330,458],[238,380],[312,307],[236,257],[210,183],[287,123]];
   var DEPART = [285,985];
+  var BONUS_MONDE = 5;
   // v1743 : plusieurs mondes — après la dernière pierre, le monde suivant
   var MONDES = [
     { img: 'chemin_aventure', nom: 'La jungle et l\'espace', pierres: PIERRES },
@@ -42,7 +43,10 @@
     if (d.pas >= mondeDe(d).pierres.length) { d.pas = 0; d.tours = (d.tours || 0) + 1; d.monde = ((d.monde || 0) + 1) % MONDES.length; avant = 0; nouveau = true; }
     d.pas++;
     try { localStorage.setItem(cleChemin(true), JSON.stringify(d)); } catch (e) { _e(e); }
-    return { avant: avant, apres: d.pas, nouveau: nouveau };
+    // v1763 : dernière pierre d'un monde → 5 étoiles en cadeau (une fois par monde fini)
+    var bonus = 0;
+    if (d.pas === mondeDe(d).pierres.length) { try { bonus = window.AwakEtoiles && AwakEtoiles.cadeau ? AwakEtoiles.cadeau(BONUS_MONDE, 'Monde terminé : ' + mondeDe(d).nom) : 0; } catch (e) { _e(e); } }
+    return { avant: avant, apres: d.pas, nouveau: nouveau, bonus: bonus };
   }
   function posPierre(n, m) { var P = (m || MONDES[0]).pierres; var q = n > 0 ? P[Math.min(n, P.length) - 1] : DEPART; return { x: q[0] / 572 * 100, y: q[1] / 1024 * 100 }; }
   var _aAnimer = null;
@@ -149,7 +153,7 @@
         +     '<img src="images/kid/renard_' + (fini ? 'saut' : 'salut') + '.webp" alt="" style="width:100%;display:block;animation:awkKidFlotte 2s ease-in-out infinite;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.5));"></div>'
         + '</div>'
         + '<div style="font-size:15px;font-weight:800;color:#bae6fd;margin-top:8px;text-align:center;">'
-        +   (fini ? 'Bravo ! Prochaine séance : ' + esc(suivant.nom) + ' !' : (d.tours ? 'Mondes terminés : ' + d.tours + ' · ' : '') + 'Chaque séance = une pierre de plus') + '</div>';
+        +   (fini ? 'Bravo ! +' + BONUS_MONDE + ' étoiles gagnées. Prochaine séance : ' + esc(suivant.nom) + ' !' : (d.tours ? 'Mondes terminés : ' + d.tours + ' · ' : '') + 'Chaque séance = une pierre de plus') + '</div>';
       document.body.appendChild(o);
       if (anim && anim.apres !== anim.avant) {
         setTimeout(function () {
@@ -161,13 +165,34 @@
               if (z) z.outerHTML = '<div style="position:absolute;left:' + q.x + '%;top:' + q.y + '%;transform:translate(-50%,-60%);display:flex;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.5));">' + ico('etoile', 30, '#facc15') + '</div>';
               if (navigator.vibrate) navigator.vibrate(60);
             } catch (e) { _e(e); }
+            if (anim.bonus) setTimeout(function () { bonusMonde(anim.bonus, M); }, 700);
           }, 1250);
         }, 500);
       }
     } catch (e) { _e(e); }
   }
   var _autoMontrer = null;
+  function bonusMonde(n, M) {
+    var c = document.getElementById('awkKidCarte'); if (!c) return;
+    var ets = ''; for (var i = 0; i < n; i++) ets += '<span style="display:inline-flex;animation:awkAutoPop .6s cubic-bezier(.2,1.6,.4,1) ' + (0.25 + i * 0.18).toFixed(2) + 's both;">' + ico('etoile', i === 2 ? 46 : 36, '#facc15') + '</span>';
+    var o = document.createElement('div'); o.id = 'awkKidBonusMonde';
+    o.style.cssText = 'position:fixed;inset:0;z-index:12900;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px 20px;background:rgba(11,18,32,0.9);';
+    o.innerHTML = '<style>@keyframes awkAutoPop{0%{transform:scale(0) rotate(-20deg)}100%{transform:scale(1) rotate(0)}}#awkKidBonusMonde svg{fill:#facc15;}</style>'
+      + '<div style="width:100%;max-width:380px;">'
+      + '<div style="display:flex;justify-content:center;"><div style="animation:awkRenardSaut 1.3s ease-in-out infinite;">' + renard('bravo', 160) + '</div></div>'
+      + '<div style="font-size:32px;font-weight:900;color:#fff;line-height:1.15;margin-top:6px;">Monde terminé !</div>'
+      + '<div style="font-size:17px;font-weight:800;color:#bae6fd;margin-top:6px;">' + esc(M.nom) + '</div>'
+      + '<div style="display:flex;align-items:flex-end;justify-content:center;gap:6px;margin:18px 0 6px;">' + ets + '</div>'
+      + '<div style="font-size:21px;font-weight:900;color:#fde68a;">+' + n + ' étoiles pour toi !</div>'
+      + '<button onclick="this.closest(\'#awkKidBonusMonde\').remove()" style="width:100%;min-height:64px;margin-top:24px;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:21px;font-weight:900;color:#fff;background:linear-gradient(135deg,#fb923c,#f472b6);box-shadow:0 8px 26px rgba(251,146,60,0.4);">Youpi !</button>'
+      + '</div>';
+    document.body.appendChild(o);
+    try { if (typeof window.speak === 'function') window.speak('Monde terminé ! Tu gagnes ' + n + ' étoiles !', { enfant: true }); } catch (e) { _e(e); }
+    try { if (navigator.vibrate) navigator.vibrate([80, 60, 120]); } catch (e) { /* rien */ }
+    try { victoire(); } catch (e) { _e(e); }
+  }
   function fermerCarte() {
+    var bm = document.getElementById('awkKidBonusMonde'); if (bm) bm.remove();
     var o = document.getElementById('awkKidCarte'); if (o) o.remove();
     try { accueil(); } catch (e) { _e(e); }
     if (_autoMontrer) { var a = _autoMontrer; _autoMontrer = null; ouvrirAlbum(a); }
