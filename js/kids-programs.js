@@ -141,13 +141,29 @@
         { name: 'Sauts', exercises: ['Saut du kangourou', 'Sauts de grenouille', 'Saut en étoile', 'Montées de genoux'] },
         { name: 'Grande finale', exercises: ['Squats (chaise invisible)', 'Pompes sur les genoux', 'Course sur place', 'Planche (tenir 10 sec)'] }
       ]
+    },
+    // v1760 : 10e programme — moment calme (musique Morning Yoga, sans décompte entre les postures)
+    {
+      id: 'kids_yoga',
+      name: 'Yoga des animaux',
+      emoji: '',
+      color: '#38bdf8',
+      calme: true,
+      desc: 'Deviens un chat, un cobra ou un flamant rose… tout en douceur.',
+      focus: 'Calme & souplesse',
+      days: 3,
+      sessions: [
+        { name: 'Le réveil des animaux', exercises: ['Le chat', 'Le chien tête en bas', 'Le cobra', 'La souris endormie'] },
+        { name: 'La forêt tranquille', exercises: ['Le flamant rose', 'La montagne', 'La grenouille', 'Le papillon'] },
+        { name: 'Le grand voyage', exercises: ['Le chat', 'Le flamant rose', 'Le cobra', 'Le papillon'] }
+      ]
     }
   ];
 
   // ── v1219 : icône, fiche de chaque mission, lancement réel, progression ──
   // Avant : l'écran ne montrait que du texte — aucun bouton pour commencer.
   var ICO = { kids_superheros: 'eclair', kids_animals: 'soleil', kids_ninja: 'epee', kids_espace: 'etoile',
-              kids_pirates: 'boussole', kids_dinosaures: 'flamme', kids_danse: 'coeur', kids_explorateur: 'arbre', kids_champions: 'trophee' };
+              kids_pirates: 'boussole', kids_dinosaures: 'flamme', kids_danse: 'coeur', kids_explorateur: 'arbre', kids_champions: 'trophee', kids_yoga: 'constel' };
   var ACCENT = '#60a8f0';
   function ic(n, t, c) { return (window.AwakIcon && window.AwakIcon.get(n, t || 18, c || 'currentColor')) || ''; }
 
@@ -172,7 +188,16 @@
     'Course du guépard (sur place)': { d: 20, m: 'Cardio',  t: 'Cours sur place le plus vite possible !' },
     'Saut du kangourou':          { d: 20, m: 'Quadriceps', t: 'Pieds joints, fais de petits bonds comme un kangourou.' },
     'Équilibre du flamant rose':  { d: 30, m: 'Mollets',    t: 'Sur un pied, l\'autre replié, comme un flamant rose.' },
-    'Ramper comme un serpent':    { d: 20, m: 'Corps entier', t: 'Allongé sur le ventre, avance en rampant.' }
+    'Ramper comme un serpent':    { d: 20, m: 'Corps entier', t: 'Allongé sur le ventre, avance en rampant.' },
+    // Yoga des animaux : postures douces, tenues courtes, sans inversion ni apnée
+    'Le chat':              { d: 32, m: 'Dos',         t: 'À quatre pattes, arrondis ton dos comme un chat qui s\'étire, puis creuse-le doucement.' },
+    'Le chien tête en bas': { d: 32, m: 'Corps entier', t: 'Mains et pieds au sol, monte les fesses vers le ciel comme un chien qui s\'étire.' },
+    'Le cobra':             { d: 32, m: 'Dos',         t: 'Couché sur le ventre, pousse sur tes mains et lève doucement la poitrine.' },
+    'La souris endormie':   { d: 32, m: 'Dos',         t: 'À genoux, pose ton front au sol, les bras le long du corps. Respire tout doucement.' },
+    'Le flamant rose':      { d: 32, m: 'Équilibre',   t: 'Debout sur un pied, l\'autre pied contre ta jambe, les bras en l\'air comme des branches.' },
+    'La montagne':          { d: 32, m: 'Posture',     t: 'Debout bien droit, pieds ensemble, étire tes bras vers le ciel.' },
+    'La grenouille':        { d: 32, m: 'Hanches',     t: 'Accroupi, genoux écartés, les mains au sol entre tes pieds.' },
+    'Le papillon':          { d: 32, m: 'Hanches',     t: 'Assis, colle tes pieds ensemble et bouge doucement tes genoux comme des ailes.' }
   };
 
   // Missions faites : lues dans l'historique (la séance porte _kidsProg)
@@ -199,13 +224,13 @@
     for (var t = 0; t < tours; t++) {
       se.exercises.forEach(function (nom, i) {
         var f = EX[nom] || { d: 30, m: 'Corps entier', t: 'Fais de ton mieux !' };
-        exos.push({ name: nom, muscle: f.m, mode: 'timer', duration: f.d, sets: 1, type: 'exercise',
+        exos.push({ name: nom, muscle: f.m, mode: 'timer', duration: f.d, sets: 1, type: p.calme ? 'yoga' : 'exercise',
           equipment: ['Poids du corps'], difficulty: 'Débutant', description: f.t, instructions: [f.t], _kids: true });
         var dernier = (t === tours - 1) && (i === se.exercises.length - 1);
-        if (!dernier) exos.push({ name: 'Repos', duration: (i === se.exercises.length - 1) ? 40 : 20, isRest: true, mode: 'timer' });
+        if (!dernier) exos.push({ name: 'Repos', duration: p.calme ? ((i === se.exercises.length - 1) ? 15 : 8) : ((i === se.exercises.length - 1) ? 40 : 20), isRest: true, mode: 'timer' });
       });
     }
-    var w = { type: 'kids', name: p.name + ' — ' + se.name, exercises: exos, _kidsProg: { id: id, idx: idx }, _cardioAsked: true, // la mission contient déjà son échauffement
+    var w = { type: 'kids', name: p.name + ' — ' + se.name, exercises: exos, _kidsProg: { id: id, idx: idx }, _discipline: p.calme ? 'yoga' : undefined, _cardioAsked: true, // la mission contient déjà son échauffement
       badgeHTML: 'Mission : ' + esc(se.name), badgeStyle: 'linear-gradient(135deg,#22d3ee,#0891b2)' };
     // L'écran de préparation vit dans l'onglet Séance : y aller d'abord.
     try { if (typeof window.switchTab === 'function') window.switchTab('workouts'); } catch (e) { _awkE(e); }
