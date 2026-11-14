@@ -416,7 +416,8 @@
       +   '<button onclick="AwakKid.parent()" aria-label="Espace parent" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 10px;min-height:0;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;font-family:inherit;font-size:11px;font-weight:800;cursor:pointer;">'
       +     ico('personne', 18, '#94a3b8') + '<span>Parent</span></button>'
       + '</div>'
-      + '<div style="display:flex;justify-content:center;margin:8px 0 26px;">'
+      + bullesEnfants()
+      + '<div style="display:flex;justify-content:center;margin:4px 0 20px;">'
       +   '<button onclick="AwakKid.bouger()" aria-label="Bouger" style="width:220px;height:220px;border-radius:50%;border:none;cursor:pointer;font-family:inherit;color:#fff;'
       +     'background:radial-gradient(circle at 35% 30%,#fdba74,#fb923c 45%,#f472b6);animation:awkKidPulse 2.4s ease-in-out infinite;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">'
       +     '<span style="display:inline-flex;animation:awkKidFlotte 2.4s ease-in-out infinite;">' + ico('eclair', 54, '#fff') + '</span>'
@@ -545,6 +546,33 @@
   function lancerMission(id, k) {
     ['awkKidMission', 'awkKidMissions'].forEach(function (x) { var v = document.getElementById(x); if (v) v.remove(); });
     try { depart(); window._awkKidDirect = true; AwakKidsPrograms.lancer(id, k); } catch (e) { _e(e); window._awkKidDirect = false; finDepart(); }
+  }
+
+  // v1770 : changer vite d'enfant (frère, sœur) — bulles à l'accueil, sans code ; un adulte demande le code parent
+  function autresEnfants() {
+    var moi = ''; try { moi = getCurrentProfileId(); } catch (e) { _e(e); }
+    var tous = []; try { tous = window.getAllProfiles ? getAllProfiles() : JSON.parse(localStorage.getItem('allProfiles') || '[]'); } catch (e) { _e(e); }
+    return tous.filter(function (p) {
+      if (!p || p.id === moi) return false;
+      try { var u = JSON.parse(localStorage.getItem('profile_' + p.id + '_userProfile') || 'null'); var a = u ? parseInt(u.age, 10) : 0; return a >= 3 && a < 13; } catch (e) { return false; }
+    });
+  }
+  function bullesEnfants() {
+    var l = autresEnfants(); if (!l.length) return '';
+    return '<div style="display:flex;align-items:center;gap:10px;margin:0 2px 6px;padding:8px 12px;border-radius:18px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);">'
+      + '<span style="font-size:13px;font-weight:800;color:#bae6fd;flex-shrink:0;">C\'est à qui ?</span>'
+      + '<div style="display:flex;gap:10px;overflow-x:auto;flex:1;">' + l.map(function (p) {
+        return '<button onclick="AwakKid.changerEnfant(\'' + esc(p.id) + '\')" aria-label="Passer à ' + esc(p.name || '') + '" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0;min-height:0;background:none;border:none;cursor:pointer;font-family:inherit;">'
+          + '<span style="display:block;border-radius:50%;border:3px solid #38bdf8;">' + visage(p, 40) + '</span>'
+          + '<span style="font-size:12px;font-weight:900;color:#fff;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(p.name || '') + '</span></button>';
+      }).join('') + '</div></div>';
+  }
+  function changerEnfant(id) {
+    if (!autresEnfants().some(function (p) { return p.id === id; })) return;   // seulement un autre enfant
+    try { if (document.body.classList.contains('in-session')) return; } catch (e) { _e(e); }
+    sfx('whoosh');
+    try { document.documentElement.classList.add('awk-kid-charge'); } catch (e) { _e(e); }
+    setTimeout(function () { try { window.switchProfile(id); } catch (e) { _e(e); document.documentElement.classList.remove('awk-kid-charge'); } }, 120);
   }
 
   function carteAlbumHTML() {
@@ -1080,7 +1108,7 @@
     window.switchTab = w;
   }
 
-  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, etirements: etirements, annoncer: annoncer, sfx: sfx, genererSeance: genererSeance, tutoriel: tutoriel, _tutoSuite: tutoSuite, _tutoFermer: tutoFermer,
+  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, changerEnfant: changerEnfant, etirements: etirements, annoncer: annoncer, sfx: sfx, genererSeance: genererSeance, tutoriel: tutoriel, _tutoSuite: tutoSuite, _tutoFermer: tutoFermer,
     revoirTutoriel: function () { tutoriel(prenom(), null); }, dejaEnCours: dejaEnCours, continuer: continuer, recommencer: recommencer, plusTard: plusTard, missions: missions, mission: mission, lancerMission: lancerMission, bravo: bravo, envoyer: envoyer, lireMessages: lireMessages };
   function init() { injecterCSS(); brancher(); maj(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
