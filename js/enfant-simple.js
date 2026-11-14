@@ -196,7 +196,8 @@
     + 'body.awk-enfant.in-session #quitBtn{border-radius:14px!important;font-size:14px!important;color:#e0f2fe!important;background:rgba(255,255,255,0.08)!important;border:1px solid rgba(255,255,255,0.18)!important;}'
     + 'body.awk-enfant.in-session #awakMusBar{background:rgba(255,255,255,0.06)!important;border:1px solid rgba(255,255,255,0.12)!important;box-shadow:none!important;border-radius:18px!important;}'
     + 'body.awk-enfant.in-session #exerciseVisualFrame{border:3px solid rgba(56,189,248,0.45)!important;border-radius:24px!important;box-shadow:0 8px 30px rgba(0,0,0,0.35)!important;}'
-    + 'body.awk-enfant.in-session #exerciseVisualFrame #timerDisplay,body.awk-enfant.in-session #timerDisplay{background:linear-gradient(135deg,#fb923c,#f472b6)!important;color:#fff!important;border:none!important;border-radius:18px!important;font-size:30px!important;padding:6px 16px!important;box-shadow:0 6px 18px rgba(251,146,60,0.45)!important;text-shadow:none!important;}'
+    // v1761 : chrono plus petit, dans le coin (il cachait trop l'image)
+    + 'body.awk-enfant.in-session #exerciseVisualFrame #timerDisplay,body.awk-enfant.in-session #timerDisplay{background:linear-gradient(135deg,#fb923c,#f472b6)!important;color:#fff!important;border:none!important;border-radius:12px!important;font-size:19px!important;padding:4px 10px!important;top:8px!important;left:8px!important;letter-spacing:0!important;box-shadow:0 3px 10px rgba(0,0,0,0.35)!important;text-shadow:none!important;}'
     + 'body.awk-enfant.in-session #awakEnsuite{font-size:15px!important;}'
     + 'body.awk-enfant.in-session #awakEnsuite .awk-ens-lbl{color:#fdba74!important;letter-spacing:0!important;text-transform:none!important;font-size:15px!important;}'
     + 'body.awk-enfant.in-session #awakBarreActions{background:linear-gradient(180deg,rgba(11,18,32,0),#0b1220 45%)!important;box-shadow:none!important;border:none!important;backdrop-filter:none!important;}'
@@ -613,6 +614,26 @@
     try { if (typeof window.switchTab === 'function') window.switchTab('home'); } catch (e) { _e(e); }
   }
 
+  // Fin de séance : « On s'étire un peu ? » (liste déjà filtrée pour les enfants)
+  function etirements(liste, sec) {
+    var v = document.getElementById('awakEtirSheet'); if (v) v.remove();
+    var min = Math.max(1, Math.round((sec || 60) / 60));
+    var o = document.createElement('div'); o.id = 'awakEtirSheet';
+    o.style.cssText = 'position:fixed;inset:0;z-index:10700;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px 20px calc(24px + env(safe-area-inset-bottom));background:radial-gradient(circle at 50% 30%,#1e3a5f 0%,#0b1220 72%);';
+    o.innerHTML = '<div style="width:100%;max-width:380px;">'
+      + '<div style="display:flex;justify-content:center;animation:awkRenardEntre .45s cubic-bezier(.2,1.4,.4,1) both;">' + renard('salut', 140, 'animation:awkKidFlotte 2.4s ease-in-out infinite;') + '</div>'
+      + '<div style="font-size:30px;font-weight:900;color:#fff;line-height:1.15;margin-top:6px;">On s\'étire un peu ?</div>'
+      + '<div style="font-size:17px;font-weight:800;color:#bae6fd;margin:8px 0 14px;">' + liste.length + ' étirement' + (liste.length > 1 ? 's' : '') + ' tout doux · ' + min + ' minute' + (min > 1 ? 's' : '') + '</div>'
+      + '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:20px;">'
+      +   liste.map(function (e) { return '<span style="padding:8px 12px;border-radius:14px;background:rgba(56,189,248,0.12);border:2px solid rgba(56,189,248,0.35);font-size:15px;font-weight:800;color:#e0f2fe;">' + esc(e.name) + '</span>'; }).join('')
+      + '</div>'
+      + '<button onclick="awakEtirOui()" style="width:100%;min-height:66px;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:22px;font-weight:900;color:#fff;background:linear-gradient(135deg,#fb923c,#f472b6);box-shadow:0 8px 26px rgba(251,146,60,0.4);margin-bottom:12px;">Oui, on s\'étire !</button>'
+      + '<button onclick="awakEtirNon()" style="width:100%;min-height:54px;border-radius:18px;cursor:pointer;font-family:inherit;font-size:17px;font-weight:900;color:#fff;background:rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.2);">Non merci, j\'ai fini</button>'
+      + '</div>';
+    document.body.appendChild(o);
+    try { if (typeof window.speak === 'function') window.speak('Bravo ! On s\'étire un peu ?', { enfant: true }); } catch (e) { _e(e); }
+  }
+
   function bouger() {
     try {
       depart();
@@ -798,7 +819,7 @@
     window.switchTab = w;
   }
 
-  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, dejaEnCours: dejaEnCours, continuer: continuer, recommencer: recommencer, plusTard: plusTard, missions: missions, mission: mission, lancerMission: lancerMission, bravo: bravo, envoyer: envoyer, lireMessages: lireMessages };
+  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, etirements: etirements, dejaEnCours: dejaEnCours, continuer: continuer, recommencer: recommencer, plusTard: plusTard, missions: missions, mission: mission, lancerMission: lancerMission, bravo: bravo, envoyer: envoyer, lireMessages: lireMessages };
   function init() { injecterCSS(); brancher(); maj(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
