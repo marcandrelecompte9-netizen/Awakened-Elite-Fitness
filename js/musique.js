@@ -45,7 +45,9 @@
     { fichier: 'je_monte_de_niveau.mp3', titre: 'Je monte de niveau', type: 'enfant' },
     { fichier: 'j_ai_des_superpouvoirs.mp3', titre: 'J\'ai des superpouvoirs', type: 'enfant' },
     { fichier: 'danser_sur_la_lune.mp3', titre: 'Danser sur la lune', type: 'enfant' },
-    { fichier: 'les_chats_sont_la.mp3', titre: 'Les chats sont là', type: 'enfant' }
+    { fichier: 'les_chats_sont_la.mp3', titre: 'Les chats sont là', type: 'enfant' },
+    // v1753 : type 'enfantzen' — séances calmes d'un enfant (Yoga des animaux, étirements)
+    { fichier: 'morning_yoga.mp3', titre: 'Morning Yoga', type: 'enfantzen' }
   ];
   function profilEnfant() { try { return !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) { return false; } }
 
@@ -187,13 +189,13 @@
   function candidats() {
     var r = reglages(); if (r.externe) return [];
     var jeu = r.jeu && modeJeu();
-    if (profilEnfant()) return AWAK_MUSIQUES.filter(function (m) { return m.type === 'enfant'; });
-    return AWAK_MUSIQUES.filter(function (m) { return SPECIAUX.indexOf(m.type) < 0 && m.type !== 'zen' && m.type !== 'matin' && m.type !== 'enfant' && (m.type === 'jeu' ? jeu : !!r.entrainement); })
+    if (profilEnfant()) return AWAK_MUSIQUES.filter(function (m) { return m.type === 'enfant' || m.type === 'enfantzen'; });
+    return AWAK_MUSIQUES.filter(function (m) { return SPECIAUX.indexOf(m.type) < 0 && m.type !== 'zen' && m.type !== 'matin' && m.type !== 'enfant' && m.type !== 'enfantzen' && (m.type === 'jeu' ? jeu : !!r.entrainement); })
       .concat(r.perso ? PERSO : []);
   }
   function liste() {
     var r = reglages(); if (r.externe) return [];   // « J'écoute ma musique dans une autre app »
-    if (profilEnfant()) return r.entrainement ? AWAK_MUSIQUES.filter(function (m) { return m.type === 'enfant'; }) : [];   // v1751 : enfant = ses morceaux seulement, partout
+    if (profilEnfant()) { var zk = seanceZen(); return r.entrainement ? AWAK_MUSIQUES.filter(function (m) { return m.type === (zk ? 'enfantzen' : 'enfant'); }) : []; }   // v1751 : enfant = ses morceaux seulement, partout · v1753 : calme → Morning Yoga
     if (seanceMatin()) return r.entrainement ? AWAK_MUSIQUES.filter(function (m) { return m.type === 'matin' && (!m.jeu || modeJeu()); }) : [];   // v1641
     var zen = seanceZen();
     // v1679 : étirements → aussi les morceaux calmes du réveil (sans « Awakening the Hero »)
@@ -202,7 +204,7 @@
     // v1493 : en combat (Faille, Faille unique, combat final), pas de musique d'entraînement
     return AWAK_MUSIQUES.filter(function (m) {
         if (SPECIAUX.indexOf(m.type) >= 0) return jeu && permisCombat(m.type, ctx, m);
-        if (m.type === 'zen' || m.type === 'matin' || m.type === 'enfant') return false;
+        if (m.type === 'zen' || m.type === 'matin' || m.type === 'enfant' || m.type === 'enfantzen') return false;
         if (m.type === 'jeu') return jeu;
         return !!r.entrainement && !ctx;
       })
@@ -293,7 +295,7 @@
     if (!file.length) { majBarre(); return; }
     pos = ((i % file.length) + file.length) % file.length;
     var m = file[pos], a = el();
-    a.loop = (m.type === 'zen' && file.length < 2) || !!reglages().repeter; etapeFinale = null;   // v1640 : zen en boucle · v1662 : répéter
+    a.loop = ((m.type === 'zen' || m.type === 'enfantzen') && file.length < 2) || !!reglages().repeter; etapeFinale = null;   // v1640 : zen en boucle · v1662 : répéter
     a.src = m.url || ('audio/' + m.fichier);
     a.volume = 0;
     actif = true;
@@ -335,7 +337,7 @@
       var m = courant(); if (!m) return;
       var fin = enFinal();
       navigator.mediaSession.metadata = new MediaMetadata(fin ? { title: 'Combat final', artist: 'Awakened' }
-        : { title: m.titre, artist: 'Awakened', album: m.type === 'enfant' ? 'Pour les enfants' : m.type === 'perso' ? 'Mes musiques' : m.type === 'entrainement' ? 'Entraînement' : m.type === 'zen' ? 'Détente' : m.type === 'matin' ? 'Réveil' : 'Musiques du jeu' });
+        : { title: m.titre, artist: 'Awakened', album: m.type === 'enfant' || m.type === 'enfantzen' ? 'Pour les enfants' : m.type === 'perso' ? 'Mes musiques' : m.type === 'entrainement' ? 'Entraînement' : m.type === 'zen' ? 'Détente' : m.type === 'matin' ? 'Réveil' : 'Musiques du jeu' });
       navigator.mediaSession.setActionHandler('play', lecture);
       navigator.mediaSession.setActionHandler('pause', pause);
       navigator.mediaSession.setActionHandler('nexttrack', suivante);
@@ -392,7 +394,7 @@
   }
   function basculerRepeter() {
     var r = reglages(); r.repeter = !r.repeter; sauver(r);
-    try { var c = courant(); if (audio) audio.loop = r.repeter || !!(c && c.type === 'zen'); } catch (e) { _awkE(e); }
+    try { var c = courant(); if (audio) audio.loop = r.repeter || !!(c && (c.type === 'zen' || c.type === 'enfantzen')); } catch (e) { _awkE(e); }
     try { if (typeof window.showToast === 'function') window.showToast(r.repeter ? 'Répéter : ce morceau en boucle' : 'Répéter désactivé', 'info', 1500); } catch (e) { _awkE(e); }
     majBarre();
   }
@@ -421,7 +423,7 @@
   }
   function eq(on) { return '<span class="awk-eq' + (on ? ' on' : '') + '" aria-hidden="true"><i></i><i></i><i></i></span>'; }
   function mmss(t) { t = Math.max(0, Math.floor(+t || 0)); return Math.floor(t / 60) + ':' + ('0' + (t % 60)).slice(-2); }
-  function source(m) { return !m ? '' : m.type === 'enfant' ? 'Pour les enfants' : m.type === 'perso' ? 'Mes musiques' : m.type === 'entrainement' ? 'Entraînement' : m.type === 'zen' ? 'Détente' : m.type === 'matin' ? 'Réveil' : m.type === 'jeu' ? 'Musiques du jeu' : 'Awakened'; }
+  function source(m) { return !m ? '' : (m.type === 'enfant' || m.type === 'enfantzen') ? 'Pour les enfants' : m.type === 'perso' ? 'Mes musiques' : m.type === 'entrainement' ? 'Entraînement' : m.type === 'zen' ? 'Détente' : m.type === 'matin' ? 'Réveil' : m.type === 'jeu' ? 'Musiques du jeu' : 'Awakened'; }
   // Progression et temps : mis à jour dans tous les lecteurs affichés
   function majProgression() {
     if (!audio) return;
@@ -521,7 +523,7 @@
         if (questionOuverte()) return;   // v1700 : la musique partira après la réponse (bon morceau choisi à ce moment)
         // v1640 : séance calme reconnue après coup → basculer sur la musique zen
         if (enSeance && reglages().auto && seanceMatin()) { var zm = courant(); if (!zm || zm.type !== 'matin') { preparerFile(); jouerIndex(0); } return; }   // v1641
-        if (enSeance && reglages().auto && seanceZen()) { var z = courant(); if (!z || (z.type !== 'zen' && !(z.type === 'matin' && seanceEtirement()))) { preparerFile(); jouerIndex(0); } return; }
+        if (enSeance && reglages().auto && seanceZen()) { var z = courant(); if (!z || (z.type !== 'zen' && z.type !== 'enfantzen' && !(z.type === 'matin' && seanceEtirement()))) { preparerFile(); jouerIndex(0); } return; }
         if (!enSeance || !reglages().auto || !contexte()) return;
         var c = courant(); if (c && SPECIAUX.indexOf(c.type) >= 0) return;
         preparerFile(); if (file[0] && SPECIAUX.indexOf(file[0].type) >= 0) jouerIndex(0);
@@ -545,7 +547,7 @@
     var e = etirFin();
     if (e && !etaitEtirFin && reglages().auto && !reglages().externe && audio && !audio.paused) {
       var c = courant();
-      if (!c || (c.type !== 'zen' && c.type !== 'matin')) { fonduVers(0, 1200, function () { preparerFile(); jouerIndex(0); }); }
+      if (!c || (c.type !== 'zen' && c.type !== 'enfantzen' && c.type !== 'matin')) { fonduVers(0, 1200, function () { preparerFile(); jouerIndex(0); }); }
     }
     etaitEtirFin = e;
   }, 1000);
@@ -624,7 +626,7 @@
               + '<span style="display:inline-flex;width:18px;justify-content:center;color:' + (ici ? '#67e8f9' : '#94a3b8') + ';">' + (ici ? eq(true) : IC.lect) + '</span>'
               + '<span style="flex:1;min-width:0;font-size:13px;font-weight:' + (ici ? '800' : '700') + ';color:' + (ici ? '#f8fafc' : '#e2e8f0') + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + (hors ? 'text-decoration:line-through;' : '') + '">' + t + '</span>'
               // v1588 : pastille de source colorée (jeu = or, entraînement = cyan, à moi = bleu)
-              + (function () { var k = hors ? ['Retiré', '#94a3b8', 'rgba(148,163,184,0.10)'] : m.type === 'perso' ? ['À moi', '#93c5fd', 'rgba(96,165,250,0.12)'] : m.type === 'enfant' ? ['Enfants', '#fdba74', 'rgba(251,146,60,0.12)'] : m.type === 'jeu' ? ['Jeu', '#fcd34d', 'rgba(251,191,36,0.12)'] : ['Entraînement', '#67e8f9', 'rgba(34,211,238,0.10)'];
+              + (function () { var k = hors ? ['Retiré', '#94a3b8', 'rgba(148,163,184,0.10)'] : m.type === 'perso' ? ['À moi', '#93c5fd', 'rgba(96,165,250,0.12)'] : m.type === 'enfant' ? ['Enfants', '#fdba74', 'rgba(251,146,60,0.12)'] : m.type === 'enfantzen' ? ['Calme', '#bae6fd', 'rgba(56,189,248,0.12)'] : m.type === 'jeu' ? ['Jeu', '#fcd34d', 'rgba(251,191,36,0.12)'] : ['Entraînement', '#67e8f9', 'rgba(34,211,238,0.10)'];
                   return '<span style="flex-shrink:0;font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:99px;color:' + k[1] + ';background:' + k[2] + ';">' + k[0] + '</span>'; })() + '</button>'
               + '<button data-exclure="' + m.fichier + '" aria-label="' + (hors ? 'Remettre ' : 'Retirer de la liste ') + t + '" title="' + (hors ? 'Remettre dans la liste' : 'Retirer de la liste') + '" style="min-height:0;flex-shrink:0;width:38px;height:38px;padding:0;border-radius:12px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:' + (hors ? '#67e8f9' : '#94a3b8') + ';cursor:pointer;display:flex;align-items:center;justify-content:center;">'
               + '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">' + (hors ? '<path d="M12 5v14M5 12h14"/>' : '<path d="M5 12h14"/>') + '</svg></button></div>';
