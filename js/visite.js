@@ -328,6 +328,9 @@
   // ── Affichage ────────────────────────────────────────────────
   var enCours = null, minuterie = null, essais = 0;
 
+  // v1762 : accueil et famille enfant = écrans refaits ; la visite se fait avec le renard (AwakKid.tutoriel)
+  delete VISITES_ENFANT.home; delete VISITES_ENFANT.family;
+
   function planifier(onglet, delai) {
     clearTimeout(minuterie);
     minuterie = setTimeout(function () { tenter(onglet); }, delai == null ? 700 : delai);

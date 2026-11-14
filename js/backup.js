@@ -369,6 +369,7 @@
     try {
       var up = (typeof getUserProfile === 'function') ? getUserProfile() : null;
       if (!up || !up.setupComplete) return;
+      if (window.AwakKid && AwakKid.enfant && AwakKid.enfant()) return;   // v1762 : rappel de sauvegarde = au parent, pas à l'enfant
       var last = parseInt(localStorage.getItem(K_DERNIERE) || '0', 10);
       var rap = parseInt(localStorage.getItem(K_RAPPEL) || '0', 10);
       if (last && Date.now() - last < 30 * JOUR) return;

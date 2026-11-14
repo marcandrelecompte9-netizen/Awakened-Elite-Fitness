@@ -576,6 +576,8 @@
     refus: function (pid) { try { var f = lire().enfants[pid || pidActif()]; return (f && f.refus && Date.now() - f.refus.t < 120000) ? f.refus.r : null; } catch (e) { return null; } }, pourMinutes: pourMinutes, estimation: estimation, bandeauParent: bandeauParent,
     oublier: function (pid) { try { var d = lire(); delete d.enfants[pid]; d.demandes = d.demandes.filter(function (q) { return q.pid !== pid; }); ecrire(d); } catch (e) { _e(e); } },
     carteEnfant: carteEnfant, carteParent: carteParent,
+    // v1762 : cadeau (fin du tutoriel) — hors limite du jour, comme les étoiles d'un parent
+    cadeau: function (n, raison) { var pid = pidActif(); if (!pid || !estEnfant(pid)) return 0; var d = lire(), f = fiche(d, pid); n = Math.max(0, n | 0); f.solde += n; f.gagne += n; noter(f, n, raison || 'Cadeau', 'parent'); ecrire(d); try { rafraichir(); } catch (e) { /* rien */ } return n; },
     resume: function () { var pid = pidActif(); if (!pid || !suivi(pid)) return null; var d = lire(), dispo = disponible(d, pid), pr = prochaine(d, dispo);
       return { dispo: Math.max(0, dispo), prochaine: pr ? { nom: pr.nom, cout: pr.cout } : null, peut: triees(d).some(function (r) { return r.cout <= dispo; }), attente: enAttente(d, pid).length }; },
     ouvrirEnfant: ouvrirEnfant, ouvrirParent: garde(ouvrirParent), demander: demander, annulerDemande: annulerDemande,

@@ -634,6 +634,86 @@
     try { if (typeof window.speak === 'function') window.speak('Bravo ! On s\'étire un peu ?', { enfant: true }); } catch (e) { _e(e); }
   }
 
+  // ── Tutoriel enfant (création du profil) : le renard fait visiter, puis 5 étoiles ──
+  var TUTO = [
+    { sel: '#awakKidHome button[onclick="AwakKid.bouger()"]', pose: 'pouce', t: 'Touche « Bouger ! » pour faire une séance. Je choisis des jeux pour toi !' },
+    { sel: '.awk-kid-tuiles button[onclick="AwakKid.missions()"]', pose: 'salut', t: 'Mes missions : super-héros, ninja, pirates… et le yoga des animaux !' },
+    { sel: '.awk-kid-tuiles button[onclick="AwakKid.carte()"]', pose: 'saut', t: 'À chaque séance, j\'avance d\'une pierre sur la carte de l\'aventure.' },
+    { sel: '.awk-kid-tuiles button[onclick="AwakKid.album()"]', pose: 'bravo', t: 'Après chaque séance, tu gagnes un autocollant pour ton album !' },
+    { sel: '.awk-kid-tuiles button[onclick="AwakEtoiles.ouvrirEnfant()"]', pose: 'pouce', t: 'En bougeant, tu gagnes des étoiles. Échange-les contre des récompenses !' },
+    { sel: '#familyNavTab', pose: 'salut', t: 'Ici, envoie des bravos à ta famille et jouez ensemble.' },
+    { sel: '#awakKidHome button[onclick="AwakKid.parent()"]', pose: 'pouce', t: 'Ce petit bouton, c\'est pour tes parents.' }
+  ];
+  var _tuto = null;
+  function cleTuto() { try { return window._cleProfil('awkKidTutoFait'); } catch (e) { return 'awkKidTutoFait'; } }
+  function tutoriel(nom, auDebut) {
+    try {
+      var v = document.getElementById('awkKidTuto'); if (v) v.remove();
+      var o = document.createElement('div'); o.id = 'awkKidTuto';
+      o.style.cssText = 'position:fixed;inset:0;z-index:100500;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px 20px calc(24px + env(safe-area-inset-bottom));background:radial-gradient(circle at 50% 30%,#1e3a5f 0%,#0b1220 72%);';
+      o.innerHTML = '<div style="width:100%;max-width:380px;">'
+        + '<div style="display:flex;justify-content:center;animation:awkRenardEntre .5s cubic-bezier(.2,1.4,.4,1) both;"><div style="animation:awkRenardSaut 1.4s ease-in-out .5s infinite;">' + renard('saut', 190) + '</div></div>'
+        + '<div style="font-size:36px;font-weight:900;color:#fff;line-height:1.1;margin-top:6px;">Salut' + (nom ? ' ' + esc(nom) : '') + ' !</div>'
+        + '<div style="font-size:19px;font-weight:800;color:#bae6fd;margin:12px 0 26px;line-height:1.4;">Moi, c\'est ton ami le renard.<br>Je vais te montrer ton appli !</div>'
+        + '<button id="awkTutoGo" style="width:100%;min-height:66px;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:22px;font-weight:900;color:#fff;background:linear-gradient(135deg,#fb923c,#f472b6);box-shadow:0 8px 26px rgba(251,146,60,0.4);">On y va !</button>'
+        + '</div>';
+      document.body.appendChild(o);
+      try { if (typeof window.speak === 'function') window.speak('Salut' + (nom ? ' ' + nom : '') + ' ! Moi, c\'est ton ami le renard. Je vais te montrer ton appli !', { enfant: true }); } catch (e) { _e(e); }
+      o.querySelector('#awkTutoGo').onclick = function () {
+        try { if (auDebut) auDebut(); } catch (e) { _e(e); }
+        try { if (typeof window.switchTab === 'function') window.switchTab('home'); accueil(); } catch (e) { _e(e); }
+        o.style.background = 'transparent'; o.innerHTML = '';
+        _tuto = { i: 0 };
+        setTimeout(etapeTuto, 700);
+      };
+    } catch (e) { _e(e); }
+  }
+  function etapeTuto() {
+    var o = document.getElementById('awkKidTuto'); if (!o || !_tuto) return;
+    // étape suivante dont la cible existe
+    while (_tuto.i < TUTO.length && !document.querySelector(TUTO[_tuto.i].sel)) _tuto.i++;
+    if (_tuto.i >= TUTO.length) return finTuto();
+    var st = TUTO[_tuto.i], el = document.querySelector(st.sel);
+    try { el.scrollIntoView({ block: 'center' }); } catch (e) { _e(e); }
+    setTimeout(function () {
+      var r = el.getBoundingClientRect(), pad = 8, H = window.innerHeight;
+      var bas = r.top + r.height / 2 < H / 2;   // cible en haut → bulle dessous
+      var pts = ''; for (var k = 0; k < TUTO.length; k++) pts += '<span style="width:' + (k === _tuto.i ? 18 : 8) + 'px;height:8px;border-radius:99px;background:' + (k <= _tuto.i ? '#fb923c' : 'rgba(255,255,255,0.25)') + ';"></span>';
+      o.innerHTML = '<div style="position:fixed;left:' + (r.left - pad) + 'px;top:' + (r.top - pad) + 'px;width:' + (r.width + pad * 2) + 'px;height:' + (r.height + pad * 2) + 'px;border-radius:24px;border:3px solid #fb923c;'
+        + 'box-shadow:0 0 0 9999px rgba(5,10,20,0.82),0 0 24px rgba(251,146,60,0.6);pointer-events:none;animation:awkProgPulse 1.6s ease-in-out infinite;"></div>'
+        + '<div style="position:fixed;left:14px;right:14px;' + (bas ? 'top:' + Math.min(H - 230, r.bottom + 18) : 'bottom:' + Math.min(H - 230, H - r.top + 18)) + 'px;max-width:440px;margin:0 auto;padding:14px;border-radius:22px;'
+        + 'background:linear-gradient(160deg,#1e3a5f,#0b1220);border:2px solid rgba(251,146,60,0.6);box-shadow:0 12px 40px rgba(0,0,0,0.5);animation:awkBulle .3s ease-out both;">'
+        +   '<div style="display:flex;align-items:center;gap:10px;">' + renard(st.pose, 70) + '<div style="flex:1;font-size:18px;font-weight:900;color:#fff;line-height:1.35;text-align:left;">' + esc(st.t) + '</div></div>'
+        +   '<div style="display:flex;align-items:center;gap:10px;margin-top:12px;"><div style="flex:1;display:flex;gap:5px;">' + pts + '</div>'
+        +   '<button onclick="AwakKid._tutoSuite()" style="min-height:52px;padding:10px 26px;border:none;border-radius:16px;cursor:pointer;font-family:inherit;font-size:18px;font-weight:900;color:#fff;background:linear-gradient(135deg,#fb923c,#f472b6);">' + (_tuto.i === TUTO.length - 1 ? 'Fini !' : 'Suivant') + '</button></div>'
+        + '</div>';
+      o.style.background = 'transparent';
+      try { if (typeof window.speak === 'function') window.speak(st.t, { enfant: true }); } catch (e) { _e(e); }
+    }, 350);
+  }
+  function tutoSuite() { if (!_tuto) return; _tuto.i++; etapeTuto(); }
+  function finTuto() {
+    _tuto = null;
+    var o = document.getElementById('awkKidTuto'); if (!o) return;
+    var deja = false; try { deja = localStorage.getItem(cleTuto()) === '1'; } catch (e) { _e(e); }
+    var n = 0;
+    if (!deja) { try { n = window.AwakEtoiles && AwakEtoiles.cadeau ? AwakEtoiles.cadeau(5, 'Visite de l\'appli') : 0; localStorage.setItem(cleTuto(), '1'); } catch (e) { _e(e); } }
+    var ets = ''; for (var i = 0; i < n; i++) ets += '<span style="display:inline-flex;animation:awkAutoPop .6s cubic-bezier(.2,1.6,.4,1) ' + (0.3 + i * 0.18).toFixed(2) + 's both;">' + ico('etoile', i === 2 ? 46 : 36, '#facc15') + '</span>';
+    o.style.cssText = 'position:fixed;inset:0;z-index:100500;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px 20px calc(24px + env(safe-area-inset-bottom));background:radial-gradient(circle at 50% 30%,#1e3a5f 0%,#0b1220 72%);';
+    o.innerHTML = '<style>@keyframes awkAutoPop{0%{transform:scale(0) rotate(-20deg)}100%{transform:scale(1) rotate(0)}}#awkKidTuto svg{fill:#facc15;}</style>'
+      + '<div style="width:100%;max-width:380px;">'
+      + '<div style="display:flex;justify-content:center;"><div style="animation:awkRenardSaut 1.4s ease-in-out infinite;">' + renard('bravo', 170) + '</div></div>'
+      + '<div style="font-size:32px;font-weight:900;color:#fff;line-height:1.15;margin-top:6px;">Bravo, tu connais tout !</div>'
+      + (n ? '<div style="display:flex;align-items:flex-end;justify-content:center;gap:6px;margin:18px 0 6px;">' + ets + '</div>'
+           + '<div style="font-size:20px;font-weight:900;color:#fde68a;">Voici ' + n + ' étoiles pour commencer !</div>' : '')
+      + '<button onclick="AwakKid._tutoFermer()" style="width:100%;min-height:66px;margin-top:26px;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:22px;font-weight:900;color:#fff;background:linear-gradient(135deg,#fb923c,#f472b6);box-shadow:0 8px 26px rgba(251,146,60,0.4);">Merci !</button>'
+      + '</div>';
+    try { if (typeof window.speak === 'function') window.speak('Bravo, tu connais tout !' + (n ? ' Voici ' + n + ' étoiles pour commencer !' : ''), { enfant: true }); } catch (e) { _e(e); }
+    try { if (navigator.vibrate) navigator.vibrate([80, 60, 120]); } catch (e) { /* rien */ }
+    try { victoire(); } catch (e) { _e(e); }
+  }
+  function tutoFermer() { var o = document.getElementById('awkKidTuto'); if (o) o.remove(); try { accueil(); } catch (e) { _e(e); } }
+
   function bouger() {
     try {
       depart();
@@ -819,7 +899,8 @@
     window.switchTab = w;
   }
 
-  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, etirements: etirements, dejaEnCours: dejaEnCours, continuer: continuer, recommencer: recommencer, plusTard: plusTard, missions: missions, mission: mission, lancerMission: lancerMission, bravo: bravo, envoyer: envoyer, lireMessages: lireMessages };
+  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, etirements: etirements, tutoriel: tutoriel, _tutoSuite: tutoSuite, _tutoFermer: tutoFermer,
+    revoirTutoriel: function () { tutoriel(prenom(), null); }, dejaEnCours: dejaEnCours, continuer: continuer, recommencer: recommencer, plusTard: plusTard, missions: missions, mission: mission, lancerMission: lancerMission, bravo: bravo, envoyer: envoyer, lireMessages: lireMessages };
   function init() { injecterCSS(); brancher(); maj(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
