@@ -105,6 +105,9 @@
       '#appHeader picture{display:block!important;height:auto!important;}' +
       '#appHeader img{width:100%!important;height:auto!important;object-fit:contain!important;transform:none!important;display:block!important;}' +
       '#appHeader > div{display:none!important;}' +
+      // v1727 : titre AWAKENED écrit en code sur la bannière (fondu + logo + mot)
+      '#appHeader > div.awk-ban-fondu{display:block!important;}#appHeader > div.awk-ban-titre{display:flex!important;}' +
+      '#appHeader .awk-ban-titre img{width:auto!important;height:clamp(22px,5.2vw,40px)!important;object-fit:contain!important;}' +
       // Composants
       '.ahp-card{background:#12161c;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:16px;margin-bottom:12px;}' +
       '.ahp-lbl{font-size:0.7em;color:#94a3b8;font-weight:600;}' +
