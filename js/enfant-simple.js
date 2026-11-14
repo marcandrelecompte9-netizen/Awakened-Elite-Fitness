@@ -185,6 +185,24 @@
     + 'body.awk-enfant #homeTab > :not(#awakKidHome){display:none!important;}'
     // v1756 : fond bleu des écrans enfant (Accueil, Famille)
     + 'body.awk-enfant:not(.in-session){background:radial-gradient(circle at 50% 0%,#1e3a5f 0%,#0b1220 75%) fixed!important;}'
+    // v1757 : séance encore plus enfant
+    + 'body.awk-enfant.in-session{background:radial-gradient(circle at 50% 0%,#1e3a5f 0%,#0b1220 75%) fixed!important;}'
+    + 'body.awk-enfant.in-session #exerciseView{background:radial-gradient(circle at 50% 0%,#1e3a5f 0%,#0b1220 75%)!important;}'
+    + 'body.awk-enfant.in-session #exerciseView .workout-main-card{background:transparent!important;border:none!important;box-shadow:none!important;}'
+    + 'body.awk-enfant.in-session #exerciseView .workout-main-card::before,body.awk-enfant.in-session #exerciseView .workout-main-card::after{display:none!important;}'
+    + 'body.awk-enfant.in-session #exerciseView .timer.awk-exo-entree{background:transparent!important;border:none!important;box-shadow:none!important;}'
+    + 'body.awk-enfant.in-session #exerciseNumber,body.awk-enfant.in-session #sessionTimerChip{display:none!important;}'
+    + 'body.awk-enfant.in-session #workoutTopBar{background:#16294a!important;border:none!important;}'
+    + 'body.awk-enfant.in-session #quitBtn{border-radius:14px!important;font-size:14px!important;color:#e0f2fe!important;background:rgba(255,255,255,0.08)!important;border:1px solid rgba(255,255,255,0.18)!important;}'
+    + 'body.awk-enfant.in-session #awakMusBar{background:rgba(255,255,255,0.06)!important;border:1px solid rgba(255,255,255,0.12)!important;box-shadow:none!important;border-radius:18px!important;}'
+    + 'body.awk-enfant.in-session #exerciseVisualFrame{border:3px solid rgba(56,189,248,0.45)!important;border-radius:24px!important;box-shadow:0 8px 30px rgba(0,0,0,0.35)!important;}'
+    + 'body.awk-enfant.in-session #exerciseVisualFrame #timerDisplay,body.awk-enfant.in-session #timerDisplay{background:linear-gradient(135deg,#fb923c,#f472b6)!important;color:#fff!important;border:none!important;border-radius:18px!important;font-size:30px!important;padding:6px 16px!important;box-shadow:0 6px 18px rgba(251,146,60,0.45)!important;text-shadow:none!important;}'
+    + 'body.awk-enfant.in-session #awakEnsuite{font-size:15px!important;}'
+    + 'body.awk-enfant.in-session #awakEnsuite .awk-ens-lbl{color:#fdba74!important;letter-spacing:0!important;text-transform:none!important;font-size:15px!important;}'
+    + 'body.awk-enfant.in-session #awakBarreActions{background:linear-gradient(180deg,rgba(11,18,32,0),#0b1220 45%)!important;box-shadow:none!important;border:none!important;backdrop-filter:none!important;}'
+    + '#awkKidProgres{display:none;}body.awk-enfant.in-session #awkKidProgres{display:flex;}'
+    + '@keyframes awkProgPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}'
+    + '@keyframes awkEncour{0%{transform:scale(.6);opacity:0}15%{transform:scale(1.05);opacity:1}25%,85%{transform:scale(1);opacity:1}100%{transform:scale(.9);opacity:0}}'
     + '.awk-kid-tuiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;}'
     + '#awakKidHome{display:none;}body.awk-enfant #awakKidHome{display:block;}'
     + '@keyframes awkKidPulse{0%,100%{transform:scale(1);box-shadow:0 10px 40px rgba(251,146,60,0.45),0 0 0 0 rgba(251,146,60,0.45);}50%{transform:scale(1.04);box-shadow:0 14px 50px rgba(244,114,182,0.5),0 0 0 18px rgba(251,146,60,0);}}'
@@ -629,10 +647,58 @@
       try { var el = document.querySelector(t[0]); if (el) { var v = k ? t[1] : t[2]; if (el.textContent !== v) el.textContent = v; } } catch (e) { _e(e); }
     });
   }
+  // Progression en étoiles (remplace « EXERCICE 2 SUR 5 »)
+  function progres() {
+    try {
+      var nomEl = document.getElementById('exerciseName'); if (!nomEl) return;
+      var b = window.AwakSSBridge, w = b && b.getWorkout(), idx = b ? b.getExIdx() : 0;
+      if (!w || !w.exercises) return;
+      var vrais = [], ici = 0;
+      w.exercises.forEach(function (e, i) { if (e && !e.isRest && !e.isInfo) { vrais.push(i); if (i <= idx) ici = vrais.length; } });
+      if (!vrais.length) return;
+      var el = document.getElementById('awkKidProgres');
+      if (!el) { el = document.createElement('div'); el.id = 'awkKidProgres'; nomEl.parentNode.insertBefore(el, nomEl); }
+      el.style.cssText = 'flex-direction:column;align-items:center;gap:6px;margin:0 0 8px;';
+      var pts = '';
+      for (var k = 1; k <= vrais.length; k++) {
+        pts += k < ici ? '<span style="display:flex;">' + ico('etoile', 22, '#facc15') + '</span>'
+          : k === ici ? '<span style="width:24px;height:24px;border-radius:50%;background:#fb923c;border:3px solid #fff;box-sizing:border-box;animation:awkProgPulse 1.4s ease-in-out infinite;"></span>'
+          : '<span style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,0.2);"></span>';
+      }
+      el.innerHTML = '<div style="display:flex;align-items:center;gap:8px;">' + pts + '</div>'
+        + '<div style="font-size:15px;font-weight:900;color:#bae6fd;">' + (ici === vrais.length ? 'Dernier défi !' : 'Défi ' + ici + ' sur ' + vrais.length) + '</div>';
+      var svg = el.querySelectorAll('svg'); for (var q = 0; q < svg.length; q++) svg[q].setAttribute('fill', '#facc15');
+    } catch (e) { _e(e); }
+  }
+  // Le renard encourage à la moitié de l'exercice
+  var _encT = null;
+  var ENCOUR = ['Tu es super fort !', 'Continue, tu y es presque !', 'Wow, quelle énergie !', 'Bravo, encore un peu !', 'Tu bouges comme un champion !'];
+  function encourager(ex) {
+    clearTimeout(_encT);
+    try {
+      if (!ex || ex.mode === 'reps' || !(ex.duration >= 16)) return;
+      var b = window.AwakSSBridge, idx = b ? b.getExIdx() : -1;
+      _encT = setTimeout(function () {
+        try {
+          if (!document.body.classList.contains('in-session') || !enfant() || (b && b.getExIdx() !== idx)) return;
+          var c = document.getElementById('awkKidConsigne'); if (!c) return;
+          var t = ENCOUR[Math.floor(Math.random() * ENCOUR.length)];
+          var bul = document.createElement('div'); bul.id = 'awkKidEncour';
+          bul.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;gap:10px;padding:8px 14px;border-radius:14px;background:linear-gradient(135deg,#fb923c,#f472b6);color:#fff;font-size:19px;font-weight:900;animation:awkEncour 3.2s ease forwards;z-index:2;';
+          bul.innerHTML = renard('bravo', 52) + '<span>' + esc(t) + '</span>';
+          c.style.position = 'relative'; var v = document.getElementById('awkKidEncour'); if (v) v.remove();
+          c.appendChild(bul); setTimeout(function () { if (bul.parentNode) bul.remove(); }, 3300);
+          try { if (typeof window.speak === 'function') window.speak(t, { enfant: true }); } catch (e) { _e(e); }
+        } catch (e) { _e(e); }
+      }, Math.round(ex.duration * 500));
+    } catch (e) { _e(e); }
+  }
   function consigne(ex) {
     try {
       finDepart();
       libelle();
+      progres();
+      encourager(ex);
       var nomEl = document.getElementById('exerciseName'); if (!nomEl) return;
       var c = document.getElementById('awkKidConsigne');
       if (!c) { c = document.createElement('div'); c.id = 'awkKidConsigne'; nomEl.parentNode.insertBefore(c, nomEl.nextSibling); }
