@@ -137,8 +137,38 @@
   // v1743 : plusieurs pages — la page suivante s'ouvre quand la page est pleine
   var PAGES = [
     [['basket','Basket'],['etoile','Étoile'],['medaille','Médaille'],['grenouille','Grenouille'],['fusee','Fusée'],['coeur','Cœur'],['soleil','Soleil'],['velo','Vélo'],['trophee','Trophée']],
-    [['ballon','Ballon'],['dino','Dino'],['cerfvolant','Cerf-volant'],['planche','Planche'],['arcenciel','Arc-en-ciel'],['corde','Corde à sauter'],['pingouin','Pingouin'],['eclair','Éclair'],['couronne','Couronne']]
+    [['ballon','Ballon'],['dino','Dino'],['cerfvolant','Cerf-volant'],['planche','Planche'],['arcenciel','Arc-en-ciel'],['corde','Corde à sauter'],['pingouin','Pingouin'],['eclair','Éclair'],['couronne','Couronne']],
+    // v1771 : page 3
+    [['licorne','Licorne'],['basket2','Ballon de basket'],['planete','Planète'],['tortue','Tortue'],['glace','Cornet de glace'],['sifflet','Sifflet'],['dauphin','Dauphin'],['chrono','Chrono'],['baguette','Baguette magique']]
   ];
+
+  // v1771 : le renard montre l'exercice — remplace l'image adulte pour un enfant
+  // (images/kid/ex/). Un adulte garde ses images : on remet les originales.
+  var RENARD_EX = {
+    'Le chat': 'yoga_chat', 'Chat-dos rond': 'yoga_chat',
+    'Le chien tête en bas': 'yoga_chien', 'Chien tête en bas': 'yoga_chien',
+    'Le cobra': 'yoga_cobra', 'Cobra': 'yoga_cobra', 'Posture du cobra': 'yoga_cobra',
+    'Le papillon': 'yoga_papillon', 'Papillon': 'yoga_papillon',
+    'Le flamant rose': 'yoga_arbre', "Posture de l'arbre": 'yoga_arbre',
+    'La grenouille': 'yoga_grenouille', 'La montagne': 'yoga_montagne',
+    'La souris endormie': 'yoga_souris', 'Posture enfant': 'yoga_souris', "Posture de l'enfant": 'yoga_souris',
+    'Sauts de grenouille': 'ex_grenouille', 'Saut de la grenouille': 'ex_grenouille',
+    "Marche de l'ours (à 4 pattes)": 'ex_ours', "Marche de l'ours": 'ex_ours', 'Bear crawl': 'ex_ours', "Bear Crawl (marche de l'ours)": 'ex_ours',
+    'Saut du kangourou': 'ex_kangourou',
+    'Équilibre sur une jambe': 'ex_flamant', 'Équilibre du flamant rose': 'ex_flamant',
+    'Ramper comme un serpent': 'ex_serpent',
+    'Course sur place': 'ex_course', 'Course du guépard (sur place)': 'ex_course'
+  };
+  var _imgAdulte = null, _imgRenard = null;
+  function imagesRenard(k) {
+    var E = window.EXERCISE_IMAGES; if (!E || _imgRenard === k) return;
+    if (!_imgAdulte) { _imgAdulte = {}; Object.keys(RENARD_EX).forEach(function (n) { _imgAdulte[n] = E[n]; }); }
+    Object.keys(RENARD_EX).forEach(function (n) {
+      if (k) E[n] = 'images/kid/ex/' + RENARD_EX[n] + '.webp';
+      else if (_imgAdulte[n]) E[n] = _imgAdulte[n]; else delete E[n];
+    });
+    _imgRenard = k;
+  }
   function pageCourante(d) { for (var i = 0; i < PAGES.length; i++) { if (PAGES[i].some(function (a) { return d.ont.indexOf(a[0]) < 0; })) return i; } return PAGES.length - 1; }
   function pageDe(id) { for (var i = 0; i < PAGES.length; i++) { if (PAGES[i].some(function (a) { return a[0] === id; })) return i; } return 0; }
   function pleine(d, i) { return PAGES[i].every(function (a) { return d.ont.indexOf(a[0]) >= 0; }); }
@@ -1077,6 +1107,7 @@
     try {
       injecterCSS();
       var k = enfant();
+      try { imagesRenard(k); } catch (e) { _e(e); }
       var t = onglet || (document.querySelector('.tab-content.active') || {}).id || '';
       document.body.classList.toggle('awk-kid-accueil', k && (t === 'home' || t === 'homeTab'));
       libelle();

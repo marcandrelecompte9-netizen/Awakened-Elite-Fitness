@@ -24970,7 +24970,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1770);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1771);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -25023,7 +25023,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1770" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1771" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25834,7 +25834,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const cle = Math.round(r.width) + 'x' + H;
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1770)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1771)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center top';
                 } catch (e) { _awkE(e); }
@@ -31281,7 +31281,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1770");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1771");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -42896,9 +42896,14 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
         // garde le préfixe « av: », que plusieurs écrans testent déjà.
         // Pour en ajouter : déposer le fichier et ajouter son numéro ici.
         const AWAK_PORTRAITS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+        // v1771 : 18 avatars d'animaux pour les profils enfants (clé « av:kdNN »)
+        const AWAK_AVATARS_ENFANT = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18'];
+        window.AWAK_AVATARS_ENFANT = AWAK_AVATARS_ENFANT;
         function awakPortraitSrc(avatar) {
             const m = /^av:pt(\d{2})$/.exec(String(avatar || ''));
-            return m ? 'images/avatars/portrait_' + m[1] + '.webp' : '';
+            if (m) return 'images/avatars/portrait_' + m[1] + '.webp';
+            const k = /^av:kd(\d{2})$/.exec(String(avatar || ''));
+            return k ? 'images/avatars/kid_' + k[1] + '.webp' : '';
         }
         window.awakPortraitSrc = awakPortraitSrc;
         window.AWAK_PORTRAITS = AWAK_PORTRAITS;
@@ -42910,7 +42915,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // Image absente ou pas encore en cache : silhouette à la place
                 return '<span style="display:inline-flex;align-items:center;justify-content:center;width:' + size + 'px;height:' + size + 'px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#0b0e13;border:1.5px solid rgba(167,139,250,0.45);vertical-align:middle;">'
                     // v1349 : petit format → on cadre sur le visage (le portrait montre aussi les épaules)
-                    + '<img src="' + _src + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;' + (size <= 64 ? 'transform:scale(1.4);transform-origin:50% 32%;' : '') + '" '
+                    + '<img src="' + _src + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;' + (size <= 64 && !/^av:kd/.test(String(avatar)) ? 'transform:scale(1.4);transform-origin:50% 32%;' : '') + '" '
                     + 'onerror="this.outerHTML=\'<svg viewBox=&quot;0 0 24 24&quot; width=&quot;60%&quot; height=&quot;60%&quot; fill=&quot;none&quot; stroke=&quot;#c4b5fd&quot; stroke-width=&quot;1.8&quot; stroke-linecap=&quot;round&quot;><circle cx=&quot;12&quot; cy=&quot;8&quot; r=&quot;4&quot;/><path d=&quot;M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8&quot;/></svg>\'"></span>';
             }
             if (typeof avatar === 'string' && avatar.indexOf('av:') === 0 && AWAK_AVATARS[avatar]) {
@@ -43494,9 +43499,20 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             // v1320 : portraits en tête de grille, puis les icônes
             const _lbl = t => '<div style="grid-column:1/-1;font-size:0.72em;font-weight:800;color:#94a3b8;letter-spacing:0.5px;margin:2px 0 -2px;">' + t + '</div>';
             const _pts = AWAK_PORTRAITS.map(n => 'av:pt' + n);
+            // v1771 : profil enfant (âge saisi < 13) → les animaux en tête, en ronds
+            const _ageEl = document.getElementById((id || 'avatarPicker') === 'avatarPickerEdit' ? 'profileAge' : 'profileEditorAge');
+            if (_ageEl && !_ageEl._awkAvKid) { _ageEl._awkAvKid = 1; let _avKidAvant = null; _ageEl.addEventListener('input', () => { const _a = parseInt(_ageEl.value, 10), _k = _a > 0 && _a < 13; if (_k !== _avKidAvant) { _avKidAvant = _k; if (_k && id !== 'avatarPickerEdit' && !/^av:kd/.test(String(selectedAvatar))) selectedAvatar = 'av:kd' + AWAK_AVATARS_ENFANT[Math.floor(Math.random() * AWAK_AVATARS_ENFANT.length)]; renderAvatarPicker(id); } }); }
+            const _ageV = _ageEl ? parseInt(_ageEl.value, 10) : NaN;
+            const _avKid = _ageV > 0 && _ageV < 13;
+            const _blocAnimaux = () => _lbl('ANIMAUX') + '<div style="grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;">' + AWAK_AVATARS_ENFANT.map(n => {
+                const key = 'av:kd' + n, sel = selectedAvatar === key;
+                return '<div data-av="' + key + '" class="avatar-option' + (sel ? ' selected' : '') + '" style="min-width:0;aspect-ratio:1;border-radius:50% !important;border:none !important;margin:0 !important;overflow:hidden;cursor:pointer;padding:0 !important;'
+                    + 'box-shadow:' + (sel ? '0 0 0 3px rgba(96,168,240,0.95),0 0 14px rgba(96,168,240,0.5)' : 'none') + ';background:transparent;">'
+                    + '<img src="' + awakPortraitSrc(key) + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.closest(\'[data-av]\').style.display=\'none\'"></div>';
+            }).join('') + '</div>';
             // v1349 : portraits en 3 colonnes (2× plus grands) et SANS la marge de 7 px
             // imposée par .avatar-option (CSS !important) qui rapetissait l'image.
-            picker.innerHTML = (_pts.length ? _lbl('PORTRAITS') + '<div style="grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;">' + _pts.map(key => {
+            picker.innerHTML = (_avKid ? _blocAnimaux() : '') + (_pts.length ? _lbl('PORTRAITS') + '<div style="grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;">' + _pts.map(key => {
                 const sel = selectedAvatar === key;
                 return '<div data-av="' + key + '" class="avatar-option' + (sel ? ' selected' : '') + '" style="min-width:0;aspect-ratio:1;border-radius:14px;overflow:hidden;cursor:pointer;padding:0 !important;'
                     + 'box-shadow:' + (sel ? '0 0 14px rgba(96,168,240,0.5)' : 'none') + ';border:2px solid ' + (sel ? 'rgba(96,168,240,0.95)' : 'rgba(255,255,255,0.1)') + ';background:#0b0e13;">'
@@ -45007,7 +45023,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1770';
+                    let ver = 'v0.95.1771';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -45175,7 +45191,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1770" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1771" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45257,7 +45273,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1770);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1771);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45324,7 +45340,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1770);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1771);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47798,7 +47814,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1770");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1771");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
