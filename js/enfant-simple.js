@@ -433,7 +433,15 @@
   function photo() {
     var m = moiProfil(); if (!m) return;
     var L = window.AWAK_AVATARS_ENFANT || [];
-    feuilleKid('awkKidPhoto', '<div style="text-align:center;">'
+    // v1773 : « C'est à qui ? » (frères, sœurs) déplacé ici, depuis l'accueil
+    var autres = autresEnfants();
+    var qui = autres.length ? '<div style="font-size:20px;font-weight:900;color:#fff;margin:2px 0 10px;">C\'est à qui ?</div>'
+      + '<div style="display:flex;justify-content:center;flex-wrap:wrap;gap:16px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.1);">' + autres.map(function (p) {
+          return '<button onclick="document.getElementById(\'awkKidPhoto\').remove();AwakKid.changerEnfant(\'' + esc(p.id) + '\')" aria-label="Passer à ' + esc(p.name || '') + '" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:0;min-height:0;background:none;border:none;cursor:pointer;font-family:inherit;">'
+            + '<span style="display:block;border-radius:50%;border:3px solid #38bdf8;">' + visage(p, 60) + '</span>'
+            + '<span style="font-size:15px;font-weight:900;color:#fff;max-width:84px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(p.name || '') + '</span></button>';
+        }).join('') + '</div>' : '';
+    feuilleKid('awkKidPhoto', '<div style="text-align:center;">' + qui
       + '<div style="font-size:24px;font-weight:900;color:#fff;margin:2px 0 4px;">Choisis ton animal</div>'
       + '<div style="font-size:15px;font-weight:700;color:#bae6fd;margin-bottom:14px;">Touche celui que tu veux</div>'
       + '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;">' + L.map(function (n) {
@@ -482,7 +490,6 @@
       +   '<button onclick="AwakKid.parent()" aria-label="Espace parent" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 10px;min-height:0;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;font-family:inherit;font-size:11px;font-weight:800;cursor:pointer;">'
       +     ico('personne', 18, '#94a3b8') + '<span>Parent</span></button>'
       + '</div>'
-      + bullesEnfants()
       + '<div style="display:flex;justify-content:center;margin:4px 0 20px;">'
       +   '<button onclick="AwakKid.bouger()" aria-label="Bouger" style="width:220px;height:220px;border-radius:50%;border:none;cursor:pointer;font-family:inherit;color:#fff;'
       +     'background:radial-gradient(circle at 35% 30%,#fdba74,#fb923c 45%,#f472b6);animation:awkKidPulse 2.4s ease-in-out infinite;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">'
@@ -622,16 +629,6 @@
       if (!p || p.id === moi) return false;
       try { var u = JSON.parse(localStorage.getItem('profile_' + p.id + '_userProfile') || 'null'); var a = u ? parseInt(u.age, 10) : 0; return a >= 3 && a < 13; } catch (e) { return false; }
     });
-  }
-  function bullesEnfants() {
-    var l = autresEnfants(); if (!l.length) return '';
-    return '<div style="display:flex;align-items:center;gap:10px;margin:0 2px 6px;padding:8px 12px;border-radius:18px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);">'
-      + '<span style="font-size:13px;font-weight:800;color:#bae6fd;flex-shrink:0;">C\'est à qui ?</span>'
-      + '<div style="display:flex;gap:10px;overflow-x:auto;flex:1;">' + l.map(function (p) {
-        return '<button onclick="AwakKid.changerEnfant(\'' + esc(p.id) + '\')" aria-label="Passer à ' + esc(p.name || '') + '" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0;min-height:0;background:none;border:none;cursor:pointer;font-family:inherit;">'
-          + '<span style="display:block;border-radius:50%;border:3px solid #38bdf8;">' + visage(p, 40) + '</span>'
-          + '<span style="font-size:12px;font-weight:900;color:#fff;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(p.name || '') + '</span></button>';
-      }).join('') + '</div></div>';
   }
   function changerEnfant(id) {
     if (!autresEnfants().some(function (p) { return p.id === id; })) return;   // seulement un autre enfant
