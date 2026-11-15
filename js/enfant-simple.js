@@ -420,6 +420,41 @@
       return (p && p.name) ? String(p.name).split(' ')[0] : '';
     } catch (e) { return ''; }
   }
+  // v1772 : l'enfant change sa photo lui-même (animaux), sans code parent
+  function moiProfil() {
+    try { var id = getCurrentProfileId(); return (getAllProfiles() || []).filter(function (x) { return x && x.id === id; })[0] || null; } catch (e) { return null; }
+  }
+  function boutonPhoto() {
+    var m = moiProfil(); if (!m) return '';
+    return '<button onclick="AwakKid.photo()" aria-label="Changer ma photo" style="position:relative;flex-shrink:0;width:52px;height:52px;min-height:0;padding:0;border-radius:50%;border:3px solid #fb923c;background:none;cursor:pointer;overflow:visible !important;">'
+      + visage(m, 46)
+      + '<span style="position:absolute;right:-5px;bottom:-5px;width:22px;height:22px;border-radius:50%;background:#fb923c;border:2px solid #0b1220;display:flex;align-items:center;justify-content:center;">' + ico('crayon', 12, '#fff') + '</span></button>';
+  }
+  function photo() {
+    var m = moiProfil(); if (!m) return;
+    var L = window.AWAK_AVATARS_ENFANT || [];
+    feuilleKid('awkKidPhoto', '<div style="text-align:center;">'
+      + '<div style="font-size:24px;font-weight:900;color:#fff;margin:2px 0 4px;">Choisis ton animal</div>'
+      + '<div style="font-size:15px;font-weight:700;color:#bae6fd;margin-bottom:14px;">Touche celui que tu veux</div>'
+      + '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;">' + L.map(function (n) {
+          var k = 'av:kd' + n, on = m.avatar === k;
+          return '<button onclick="AwakKid._choisirPhoto(\'' + k + '\')" aria-label="Animal ' + n + '" style="aspect-ratio:1;min-height:0;padding:0;border-radius:50%;cursor:pointer;background:none;'
+            + 'border:' + (on ? '4px solid #fb923c' : '4px solid transparent') + ';box-shadow:' + (on ? '0 0 16px rgba(251,146,60,0.6)' : 'none') + ';">'
+            + '<img src="' + window.awakPortraitSrc(k) + '" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;"></button>';
+        }).join('') + '</div>'
+      + '<button onclick="document.getElementById(\'awkKidPhoto\').remove()" style="margin-top:18px;width:100%;padding:14px;min-height:0;border-radius:16px;border:none;background:rgba(255,255,255,0.08);color:#fff;font-size:17px;font-weight:900;font-family:inherit;cursor:pointer;">Fermer</button></div>');
+  }
+  function choisirPhoto(k) {
+    if (!/^av:kd\d{2}$/.test(String(k))) return;
+    try {
+      var id = getCurrentProfileId(), l = getAllProfiles() || [];
+      l.forEach(function (p) { if (p && p.id === id) p.avatar = k; });
+      if (typeof window.saveProfiles === 'function') saveProfiles(l); else localStorage.setItem('allProfiles', JSON.stringify(l));
+    } catch (e) { _e(e); }
+    try { sfx('pop'); } catch (e) { _e(e); }
+    var o = document.getElementById('awkKidPhoto'); if (o) o.remove();
+    accueil();
+  }
   function aBougeAujourdhui() {
     try {
       var h = (typeof window.getWorkoutHistory === 'function') ? getWorkoutHistory() : [];
@@ -440,7 +475,8 @@
       + '<div style="display:flex;align-items:center;gap:6px;margin:6px 2px 10px;">'
       +   renard(fait ? 'saut' : 'salut', 104, 'animation:awkKidFlotte 3s ease-in-out infinite;')
       +   '<div style="flex:1;min-width:0;">'
-      +     '<div style="font-size:26px;font-weight:900;color:#fff;line-height:1.1;">Salut' + (nom ? ' ' + esc(nom) : '') + ' !</div>'
+      +     '<div style="display:flex;align-items:center;gap:8px;">' + boutonPhoto()
+      +     '<div style="font-size:26px;font-weight:900;color:#fff;line-height:1.1;min-width:0;">Salut' + (nom ? ' ' + esc(nom) : '') + ' !</div></div>'
       +     '<div style="display:inline-block;margin-top:6px;padding:7px 12px;border-radius:14px 14px 14px 4px;background:#fff;color:#0c4a6e;font-size:15px;font-weight:800;line-height:1.3;animation:awkBulle .35s ease-out both;">' + (fait ? 'Bravo, tu as bougé aujourd\'hui !' : 'On bouge ensemble ?') + '</div>'
       +   '</div>'
       +   '<button onclick="AwakKid.parent()" aria-label="Espace parent" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 10px;min-height:0;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#94a3b8;font-family:inherit;font-size:11px;font-weight:800;cursor:pointer;">'
@@ -1139,7 +1175,7 @@
     window.switchTab = w;
   }
 
-  window.AwakKid = { maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, changerEnfant: changerEnfant, etirements: etirements, annoncer: annoncer, sfx: sfx, genererSeance: genererSeance, tutoriel: tutoriel, _tutoSuite: tutoSuite, _tutoFermer: tutoFermer,
+  window.AwakKid = { photo: photo, _choisirPhoto: choisirPhoto, maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, changerEnfant: changerEnfant, etirements: etirements, annoncer: annoncer, sfx: sfx, genererSeance: genererSeance, tutoriel: tutoriel, _tutoSuite: tutoSuite, _tutoFermer: tutoFermer,
     revoirTutoriel: function () { tutoriel(prenom(), null); }, dejaEnCours: dejaEnCours, continuer: continuer, recommencer: recommencer, plusTard: plusTard, missions: missions, mission: mission, lancerMission: lancerMission, bravo: bravo, envoyer: envoyer, lireMessages: lireMessages };
   function init() { injecterCSS(); brancher(); maj(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
