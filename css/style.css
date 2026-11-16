@@ -5293,7 +5293,7 @@ body.dark-mode .card:not(#awakHunterCard) {
             inset: 0;
             background: repeating-linear-gradient(180deg,
                 transparent 0px, transparent 4px,
-                rgba(74,222,128,0.03) 4px, rgba(74,222,128,0.03) 5px);
+                rgba(96,168,240,0.03) 4px, rgba(96,168,240,0.03) 5px);
             pointer-events: none;
         }
         #countdownOverlay.active { display: flex; }
@@ -5301,7 +5301,7 @@ body.dark-mode .card:not(#awakHunterCard) {
             font-family: 'Outfit', sans-serif;
             font-size: 14rem; font-weight: 900; color: white;
             letter-spacing: -8px; line-height: 1;
-            text-shadow: 0 0 80px rgba(74,222,128,0.8), 0 0 30px rgba(74,222,128,0.6);
+            text-shadow: 0 0 80px rgba(96,168,240,0.8), 0 0 30px rgba(96,168,240,0.6);
             position: relative;
             z-index: 1;
         }
@@ -5313,11 +5313,11 @@ body.dark-mode .card:not(#awakHunterCard) {
             to   { transform: scale(1);   opacity: 1; }
         }
         #countdownExerciseName {
-            color: #4ade80; font-size: 1.2em;
+            color: #60a8f0; font-size: 1.2em;
             font-weight: 900; margin-top: 12px;
             letter-spacing: 2px;
             text-transform: uppercase;
-            text-shadow: 0 0 12px rgba(74,222,128,0.5);
+            text-shadow: 0 0 12px rgba(96,168,240,0.5);
             position: relative;
             z-index: 1;
         }

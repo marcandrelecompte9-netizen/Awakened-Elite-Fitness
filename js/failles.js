@@ -4069,7 +4069,11 @@
                     continue;
                 }
 
-                const type = pool[Math.floor(Math.random() * pool.length)];
+                // v1779 : jamais deux fois le même type dans une même explosion (si le thème en a plusieurs)
+                const _dejaSortis = spawned.map(m => m.typeId);
+                const _libres = pool.filter(t => !_dejaSortis.includes(t.id));
+                const _pioche = _libres.length ? _libres : (ESCAPED_MONSTER_TYPES.filter(t => !_dejaSortis.includes(t.id)).length ? ESCAPED_MONSTER_TYPES.filter(t => !_dejaSortis.includes(t.id)) : pool);
+                const type = _pioche[Math.floor(Math.random() * _pioche.length)];
                 const hpBase = { E: 50, D: 90, C: 140, B: 200, A: 280, S: 380, SS: 500, SSS: 650 }[rift.rank] || 100;
 
                 spawned.push({
@@ -4200,6 +4204,7 @@
             if (typeof rpgEnabled === 'function' && !rpgEnabled()) return true;
             try { if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) return true; } catch (e) { _awkE(e); }
             if (typeof _storyEnFaille === 'function' && _storyEnFaille()) return true;
+            try { if (window.AwakCine && AwakCine.anyOpen()) return true; } catch (e) { _awkE(e); }   // v1779 : une scène à la fois
             try { if (typeof window.awakFailleEnCours === 'function' && window.awakFailleEnCours(true)) return true; } catch (e) { _awkE(e); }
             const _ev = document.getElementById('exerciseView'); if (_ev && !_ev.classList.contains('hidden') && _ev.offsetParent !== null) return true;
             if (document.body.classList.contains('in-session')) return true;
@@ -5773,13 +5778,68 @@
                 const sb = SUB_BOSSES.find(s => s.id === rift.subBossId);
                 if (!sb) return;
                 if (awakSubBossProgress() <= sb.order) awakSubBossSetProgress(sb.order + 1);
-                if (typeof showAlert === 'function') {
-                    setTimeout(() => showAlert(`${sb.emoji} ${sb.name} vaincu`, sb.meetText), 2200);
-                }
+                // v1779 : scène « Épreuve vaincue » (avant : simple fenêtre d'alerte)
+                setTimeout(() => { try { awakShowSubBossVaincu(sb); } catch (e) { _awkE(e); if (typeof showAlert === 'function') showAlert(sb.name + ' vaincu', sb.meetText); } }, 2200);
                 setTimeout(() => { try { awakCheckSubBosses(); } catch(e) { _awkE(e); } }, 6000);
             } catch(e) { _awkE(e); }
         }
         window.awakOnSubBossDefeated = awakOnSubBossDefeated;
+
+        // v1779 : scène courte quand un sous-boss des Quatre Épreuves tombe.
+        // Passe par la file AwakCine (attend la fin de l'écran de fin de séance).
+        function awakShowSubBossVaincu(sb) {
+            if (typeof window.AwakCine !== 'undefined' && window.AwakCine.defer(function () { awakShowSubBossVaincu(sb); })) return;
+            document.getElementById('awakSubBossVaincuOverlay')?.remove();
+            const esc = t => String(t == null ? '' : t).replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]));
+            const col = sb.color || '#60a8f0';
+            const fic = { subboss_traque: 'sousboss_cavalier', subboss_colosse: 'sousboss_colosse', subboss_insaisissable: 'sousboss_ombre', subboss_siphon: 'sousboss_siphon' }[sb.id] || '';
+            const total = SUB_BOSSES.length, rang = (sb.order || 0) + 1;
+            if (!document.getElementById('awkSbvStyles')) {
+                const st = document.createElement('style'); st.id = 'awkSbvStyles';
+                st.textContent = '@keyframes awkSbvChute{0%{transform:scale(1.08);filter:none;opacity:1}35%{transform:scale(1.12) translateX(-6px);filter:brightness(2.4)}45%{transform:scale(1.12) translateX(6px);filter:brightness(1.6)}100%{transform:scale(1) translateY(14px);filter:grayscale(1) brightness(0.45);opacity:0.75}}'
+                  + '@keyframes awkSbvFlash{0%{opacity:0}30%{opacity:0.9}100%{opacity:0}}'
+                  + '@keyframes awkSbvTrait{0%{transform:scaleX(0) rotate(-8deg);opacity:0.9}25%{transform:scaleX(1) rotate(-8deg);opacity:0.9}100%{transform:scaleX(1) rotate(-8deg);opacity:0}}'
+                  + '@keyframes awkSbvMonte{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}'
+                  + '@keyframes awkSbvTitre{from{opacity:0;letter-spacing:12px}to{opacity:1;letter-spacing:4px}}'
+                  + '#awakSubBossVaincuOverlay.fini *{animation-duration:0.01s!important;animation-delay:0s!important}'
+                  + '@media(prefers-reduced-motion:reduce){#awakSubBossVaincuOverlay *{animation-duration:0.01s!important;animation-delay:0s!important}}';
+                document.head.appendChild(st);
+            }
+            const points = SUB_BOSSES.map((x, i) => '<span style="width:' + (i < rang ? 26 : 10) + 'px;height:6px;border-radius:99px;background:' + (i < rang ? col : 'rgba(255,255,255,0.18)') + ';"></span>').join('');
+            const o = document.createElement('div');
+            o.id = 'awakSubBossVaincuOverlay';
+            o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', sb.name + ' vaincu');
+            o.style.cssText = 'position:fixed;inset:0;z-index:30003;background:#04050a;overflow:hidden;color:#fff;font-family:inherit;display:flex;flex-direction:column;';
+            o.innerHTML =
+                '<div style="position:relative;flex:1;min-height:0;overflow:hidden;">'
+              +   (fic ? '<div style="position:absolute;inset:0;background:url(images/Monstres/' + fic + '.webp) 50% 30%/cover no-repeat;animation:awkSbvChute 2.4s ease-out .3s both;"></div>' : '')
+              +   '<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,5,10,0.35) 0%,rgba(4,5,10,0) 30%,rgba(4,5,10,0.85) 82%,#04050a 100%);"></div>'
+              +   '<div style="position:absolute;inset:0;background:#fff;opacity:0;animation:awkSbvFlash .7s ease-out 1.05s both;pointer-events:none;"></div>'
+              +   '<div style="position:absolute;left:8%;right:8%;top:46%;height:3px;background:' + col + ';box-shadow:0 0 18px ' + col + ';transform-origin:0 50%;transform:scaleX(0) rotate(-8deg);opacity:0;animation:awkSbvTrait 1.1s ease-out 1s both;"></div>'
+              +   '<div style="position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 26px);text-align:center;">'
+              +     '<div style="font-size:12px;font-weight:900;letter-spacing:4px;color:' + col + ';">LES QUATRE ÉPREUVES</div>'
+              +     '<div style="display:flex;justify-content:center;gap:6px;margin-top:10px;">' + points + '</div>'
+              +   '</div>'
+              + '</div>'
+              + '<div style="padding:0 20px calc(env(safe-area-inset-bottom,0px) + 20px);text-align:center;margin-top:-70px;position:relative;">'
+              +   '<div style="max-width:440px;margin:0 auto;">'
+              +     '<div style="font-size:13px;font-weight:900;color:' + col + ';opacity:0;animation:awkSbvTitre .8s ease-out 1.5s both;">ÉPREUVE ' + rang + ' SUR ' + total + ' · VAINCUE</div>'
+              +     '<div style="font-size:26px;font-weight:900;line-height:1.15;margin:6px 0 12px;text-shadow:0 2px 10px #000;opacity:0;animation:awkSbvMonte .6s ease-out 1.8s both;">' + esc(sb.name) + '</div>'
+              +     '<div style="font-size:14.5px;line-height:1.55;color:#cbd5e1;opacity:0;animation:awkSbvMonte .6s ease-out 2.3s both;">' + esc(sb.meetText || '') + '</div>'
+              +     '<div style="font-size:12.5px;color:#7c8aa0;font-weight:700;margin-top:12px;opacity:0;animation:awkSbvMonte .6s ease-out 2.7s both;">' + (rang < total ? 'La prochaine épreuve va se présenter.' : 'Les quatre épreuves sont tombées.') + '</div>'
+              +     '<button data-sbv="ok" style="width:100%;min-height:0;margin-top:16px;padding:14px;border-radius:12px;border:1px solid ' + col + ';background:' + col + '22;color:#fff;font-weight:900;font-size:15px;letter-spacing:.5px;cursor:pointer;font-family:inherit;opacity:0;animation:awkSbvMonte .6s ease-out 3s both;">Continuer</button>'
+              +   '</div>'
+              + '</div>';
+            document.body.appendChild(o);
+            try { if (typeof _echSon === 'function') { setTimeout(() => _echSon('boum'), 1000); } } catch (e) { _awkE(e); }
+            try { if (navigator.vibrate) setTimeout(() => { try { navigator.vibrate([80, 40, 180]); } catch (e) { _awkE(e); } }, 1000); } catch (e) { _awkE(e); }
+            const t = setTimeout(() => o.classList.add('fini'), 3700);
+            o.addEventListener('click', (e) => {
+                if (!o.classList.contains('fini')) { clearTimeout(t); o.classList.add('fini'); return; }
+                if (e.target.closest && e.target.closest('[data-sbv]')) { o.style.transition = 'opacity .3s'; o.style.opacity = '0'; setTimeout(() => o.remove(), 300); }
+            });
+        }
+        window.awakShowSubBossVaincu = awakShowSubBossVaincu;
 
         // ═══════════════════════════════════════════════════════════════
         // 🕳️ L'ABYSSE — descente infinie, palier par palier (post-Effaceur)

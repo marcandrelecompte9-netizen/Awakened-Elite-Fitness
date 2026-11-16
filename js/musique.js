@@ -106,11 +106,13 @@
 
   function reglages() {
     var r = {};
-    try { r = JSON.parse(localStorage.getItem(CLE) || '{}') || {}; } catch (e) { _awkE(e); }
+    // v1779 : réglages PAR PROFIL (avant : communs — ceux d'un adulte s'appliquaient aux enfants).
+    // Lecture avec repli sur l'ancienne clé commune : personne ne perd ses réglages.
+    try { r = JSON.parse(localStorage.getItem(window._cleProfilLecture ? window._cleProfilLecture(CLE) : CLE) || '{}') || {}; } catch (e) { _awkE(e); }
     var o = {}; for (var k in DEF) o[k] = (k in r) ? r[k] : DEF[k];
     return o;
   }
-  function sauver(r) { try { localStorage.setItem(CLE, JSON.stringify(r)); } catch (e) { _awkE(e); } }
+  function sauver(r) { try { localStorage.setItem(window._cleProfil ? window._cleProfil(CLE) : CLE, JSON.stringify(r)); } catch (e) { _awkE(e); } }
   function modeJeu() { try { return typeof window.rpgEnabled === 'function' ? window.rpgEnabled() : localStorage.getItem('fitproGameMode') === '1'; } catch (e) { return false; } }
 
   // Morceaux retenus par le filtre (les morceaux « jeu » exigent le mode jeu)

@@ -41,6 +41,8 @@
     if (!d.enfants) d.enfants = {};
     if (!Array.isArray(d.demandes)) d.demandes = [];
     if (!Array.isArray(d.recompenses)) d.recompenses = BASE.map(function (r) { return { id: uid(), nom: r.nom, cout: r.cout }; });
+    // v1779 : règles anti-triche réglables par le parent (onglet « Règles »)
+    try { var g = d.regles || {}; Object.keys(BORNES).forEach(function (k) { var v = parseInt(g[k], 10); ANTI[k] = isNaN(v) ? ANTI_DEF[k] : Math.max(BORNES[k][0], Math.min(BORNES[k][1], v)); }); } catch (e) { /* rien */ }
     return d;
   }
   function ecrire(d) { try { localStorage.setItem(CLE, JSON.stringify(d)); } catch (e) { _e(e); } }
@@ -78,6 +80,39 @@
   //  · au plus 3 séances ou jeux récompensés par jour, et 4 étoiles par jour.
   //  Les étoiles données par un parent (« + Étoiles ») ne sont pas limitées.
   var ANTI = { minMinutes: 5, seancesJour: 3, etoilesJour: 4 };
+  var ANTI_DEF = { minMinutes: 5, seancesJour: 3, etoilesJour: 4 };
+  var BORNES = { minMinutes: [2, 15], seancesJour: [1, 6], etoilesJour: [1, 10] };
+  function regler(k, pas) {
+    if (!BORNES[k]) return;
+    var d = lire(); d.regles = d.regles || {};
+    d.regles[k] = Math.max(BORNES[k][0], Math.min(BORNES[k][1], ANTI[k] + pas));
+    ecrire(d); lire(); ouvrirParent('regles');
+  }
+  function reglesDefaut() { var d = lire(); delete d.regles; ecrire(d); lire(); ouvrirParent('regles'); }
+  // v1779 : résumé des 7 derniers jours d'un enfant, tiré de son journal d'étoiles
+  function semaine(f) {
+    var jours = [], auj = new Date(); auj.setHours(0, 0, 0, 0);
+    for (var i = 6; i >= 0; i--) { var j = new Date(auj.getTime() - i * 86400000); jours.push({ t: j.getTime(), l: 'DLMMJVS'.charAt(j.getDay()), n: 0 }); }
+    var r = { jours: jours, activites: 0, minutes: 0, etoiles: 0, depense: 0, actifs: 0 };
+    (f.journal || []).forEach(function (x) {
+      if (!x || x.t < jours[0].t) return;
+      if (x.k === 'seance') {
+        r.activites++; r.etoiles += (x.n || 0);
+        var m = /\((\d+) min\)/.exec(String(x.r || '')); if (m) r.minutes += parseInt(m[1], 10);
+        var d0 = new Date(x.t); d0.setHours(0, 0, 0, 0);
+        jours.forEach(function (j) { if (j.t === d0.getTime()) j.n++; });
+      } else if (x.k === 'recompense') r.depense += Math.abs(x.n || 0);
+    });
+    r.actifs = jours.filter(function (j) { return j.n > 0; }).length;
+    return r;
+  }
+  function pointsSemaine(sm, taille) {
+    return '<div style="display:flex;gap:' + (taille > 24 ? 6 : 4) + 'px;">' + sm.jours.map(function (j, i) {
+      var on = j.n > 0, auj = i === 6;
+      return '<div style="width:' + taille + 'px;text-align:center;"><div style="width:' + taille + 'px;height:' + taille + 'px;border-radius:50%;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:' + Math.round(taille * 0.42) + 'px;font-weight:900;'
+        + (on ? 'background:#22d3ee;color:#04121f;' : 'background:transparent;color:#64748b;border:1px solid ' + (auj ? 'rgba(34,211,238,0.6)' : 'rgba(255,255,255,0.14)') + ';') + '">' + j.l + '</div></div>';
+    }).join('') + '</div>';
+  }
   function etatJour(f) {
     var j = new Date().toDateString(), s = 0, e = 0;
     (f.journal || []).forEach(function (x) { if (x && x.k === 'seance' && new Date(x.t).toDateString() === j) { s++; e += (x.n || 0); } });
@@ -260,6 +295,8 @@
         +   '<button onclick="AwakEtoiles.ajouter(\'' + e.id + '\')" aria-label="Ajouter des étoiles à ' + esc(e.name || '') + '" style="' + BTN + 'padding:7px 11px;font-size:0.78em;background:rgba(251,191,36,0.14);color:#fde68a;border:1px solid rgba(251,191,36,0.45);">+ Étoiles</button>'
         + '</div>'
         + (pr ? '<div style="margin-top:8px;">' + barre(Math.max(0, dispo), pr.cout) + '<div style="font-size:0.7em;color:#94a3b8;margin-top:4px;">Prochaine : ' + esc(pr.nom) + ' (' + Math.max(0, dispo) + ' / ' + pr.cout + ')</div></div>' : '')
+        + (function () { var sm = semaine(f); return '<button onclick="AwakEtoiles.ouvrirParent(\'semaine\',\'' + e.id + '\')" aria-label="Semaine de ' + esc(e.name || '') + '" style="' + BTN + 'display:flex;align-items:center;gap:10px;width:100%;margin-top:9px;padding:8px 10px;background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.2);text-align:left;">'
+            + pointsSemaine(sm, 20) + '<span style="flex:1;min-width:0;font-size:0.72em;color:#a5f3fc;font-weight:700;">' + (sm.activites ? sm.activites + ' activité' + (sm.activites > 1 ? 's' : '') + ' · ' + sm.minutes + ' min' : 'Rien cette semaine') + '</span></button>'; })()
         + '</div>';
     }).join('');
     return '<div style="margin:0 0 14px;padding:14px 14px 6px;border-radius:16px;background:linear-gradient(160deg,#1c1607,#0d0f13);border:1px solid rgba(251,191,36,0.3);">'
@@ -288,7 +325,7 @@
     var ong = function (id, t) { return pastille(_onglet === id, t, 'AwakEtoiles.ouvrirParent(\'' + id + '\')'); };
     var nbAtt = d.demandes.length;
     var h = '<div style="font-size:1.2em;font-weight:900;color:#fff;margin-bottom:12px;">Étoiles des enfants</div>'
-      + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">' + ong('demandes', 'Demandes' + (nbAtt ? ' (' + nbAtt + ')' : '')) + ong('historique', 'Historique') + ong('recompenses', 'Récompenses') + '</div>';
+      + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">' + ong('demandes', 'Demandes' + (nbAtt ? ' (' + nbAtt + ')' : '')) + ong('semaine', 'Semaine') + ong('historique', 'Historique') + ong('recompenses', 'Récompenses') + ong('regles', 'Règles') + '</div>';
     if (_onglet === 'demandes') {
       var ds = d.demandes.filter(function (q) { return ens.some(function (e) { return e.id === q.pid; }); });
       h += ds.length ? ds.map(function (q) {
@@ -301,6 +338,32 @@
           +   '<button onclick="AwakEtoiles.repondre(\'' + q.id + '\',false)" style="' + BTN + 'flex:1;padding:10px;font-size:0.84em;background:transparent;color:#cbd5e1;border:1px solid rgba(255,255,255,0.14);">Pas maintenant</button>'
           + '</div></div>';
       }).join('') : '<div style="padding:16px;border-radius:12px;background:#141821;color:#94a3b8;font-size:0.84em;text-align:center;">Aucune demande. Quand un enfant choisit une récompense, elle apparaît ici : tu décides si tu l\'appliques.</div>';
+    } else if (_onglet === 'semaine') {
+      h += '<div style="font-size:0.78em;color:#94a3b8;margin-bottom:10px;line-height:1.45;">Les 7 derniers jours de chaque enfant : séances et jeux qui ont rapporté des étoiles.</div>'
+        + ens.map(function (e) {
+          var f = fiche(d, e.id), sm = semaine(f);
+          var caseS = function (v, t) { return '<div style="flex:1;padding:9px 4px;border-radius:10px;background:#0d0f13;text-align:center;"><div style="font-size:1.1em;font-weight:900;color:#fff;">' + v + '</div><div style="font-size:0.66em;color:#94a3b8;margin-top:1px;">' + t + '</div></div>'; };
+          return '<div style="padding:12px;border-radius:12px;background:#141821;margin-bottom:8px;' + (e.id === _pidVue ? 'border:1px solid rgba(34,211,238,0.4);' : '') + '">'
+            + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><div style="flex:1;min-width:0;color:#fff;font-weight:800;font-size:0.95em;">' + esc(e.name || 'Enfant') + '</div>' + pointsSemaine(sm, 26) + '</div>'
+            + '<div style="display:flex;gap:6px;">' + caseS(sm.actifs + ' / 7', 'jours actifs') + caseS(sm.activites, 'activités') + caseS(sm.minutes, 'minutes') + caseS('+' + sm.etoiles, 'étoiles') + '</div>'
+            + '<div style="font-size:0.74em;color:#94a3b8;margin-top:8px;line-height:1.4;">' + (sm.activites ? (sm.actifs >= 4 ? 'Belle semaine : ' + esc(e.name || 'il') + ' a bougé ' + sm.actifs + ' jours sur 7.' : 'A bougé ' + sm.actifs + ' jour' + (sm.actifs > 1 ? 's' : '') + ' sur 7.') : 'Aucune activité récompensée ces 7 derniers jours.')
+            + (sm.depense ? ' ' + sm.depense + ' étoile' + (sm.depense > 1 ? 's' : '') + ' dépensée' + (sm.depense > 1 ? 's' : '') + '.' : '') + '</div></div>';
+        }).join('');
+    } else if (_onglet === 'regles') {
+      var ligneR = function (k, titre, detail) {
+        var b = 'width:40px;height:40px;padding:0;font-size:1.2em;background:#1a1e26;color:#fff;border:1px solid rgba(255,255,255,0.12);';
+        return '<div style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:#141821;margin-bottom:6px;">'
+          + '<div style="flex:1;min-width:0;"><div style="color:#f1f5f9;font-size:0.88em;font-weight:800;">' + titre + '</div><div style="font-size:0.72em;color:#94a3b8;margin-top:2px;line-height:1.35;">' + detail + '</div></div>'
+          + '<button onclick="AwakEtoiles._regle(\'' + k + '\',-1)" aria-label="Diminuer : ' + titre + '" style="' + BTN + b + (ANTI[k] <= BORNES[k][0] ? 'opacity:0.35;' : '') + '">−</button>'
+          + '<b style="width:30px;text-align:center;color:#fff;font-size:1.1em;">' + ANTI[k] + '</b>'
+          + '<button onclick="AwakEtoiles._regle(\'' + k + '\',1)" aria-label="Augmenter : ' + titre + '" style="' + BTN + b + (ANTI[k] >= BORNES[k][1] ? 'opacity:0.35;' : '') + '">+</button></div>';
+      };
+      var modifie = Object.keys(ANTI_DEF).some(function (k) { return ANTI[k] !== ANTI_DEF[k]; });
+      h += '<div style="font-size:0.78em;color:#94a3b8;margin-bottom:10px;line-height:1.45;">Les étoiles se gagnent en bougeant vraiment. Ces règles valent pour tous les enfants ; les étoiles que tu donnes toi-même ne sont pas limitées.</div>'
+        + ligneR('minMinutes', 'Minutes pour une étoile', 'Temps actif minimum d\'une séance ou d\'un jeu')
+        + ligneR('seancesJour', 'Activités récompensées par jour', 'Au-delà, l\'enfant peut bouger mais ne gagne plus d\'étoile')
+        + ligneR('etoilesJour', 'Étoiles par jour', 'Maximum gagné en bougeant dans une journée')
+        + (modifie ? '<button onclick="AwakEtoiles._reglesDefaut()" style="' + VIDE + 'margin-top:6px;">Remettre 5 min · 3 activités · 4 étoiles</button>' : '');
     } else if (_onglet === 'historique') {
       if (!_pidVue || !ens.some(function (e) { return e.id === _pidVue; })) _pidVue = ens[0].id;
       var f = fiche(d, _pidVue);
@@ -582,6 +645,7 @@
       return { dispo: Math.max(0, dispo), prochaine: pr ? { nom: pr.nom, cout: pr.cout } : null, peut: triees(d).some(function (r) { return r.cout <= dispo; }), attente: enAttente(d, pid).length }; },
     ouvrirEnfant: ouvrirEnfant, ouvrirParent: garde(ouvrirParent), demander: demander, annulerDemande: annulerDemande,
     repondre: garde(repondre), ajouter: garde(ajouter), editerRecompense: garde(editerRecompense),
+    _regle: garde(regler), _reglesDefaut: garde(reglesDefaut), semaine: function (pid) { return semaine(fiche(lire(), pid)); },
     garde: garde, enfants: function () { return enfants().filter(function (p) { return estEnfant(p.id); }); },
     _touche: touche, _oublie: oublie, _oublieOk: oublieOk, _codeAnnuler: function () { _code = null; fermer('awakEtoilesSheet'); },
     fermer: function () { fermer('awakEtoilesSheet'); },
