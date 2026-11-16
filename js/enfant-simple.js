@@ -467,14 +467,26 @@
   // S'efface quand la musique de séance, un jeu ou le Bravo commence. Coupée par le son muet,
   // « J'écoute ma musique ailleurs » ou l'interrupteur « Musique de fond » (Réglages > Musique).
   var _fond = null, _fondFondu = null;
-  function fondDoitJouer() {
-    if (!enfant() || muet() || document.hidden) return false;
+  // v1778 : les réglages de musique sont communs à tous les profils — « J'écoute ma musique
+  // ailleurs » d'un adulte coupait la musique de l'enfant. On ne garde que le son muet
+  // et l'interrupteur « Musique de fond ». fondRaison() dit pourquoi elle ne joue pas.
+  function fondRaison() {
+    if (!enfant()) return 'pas un profil enfant';
+    if (muet()) return 'son coupé dans l\'app';
+    if (document.hidden) return 'app en arrière-plan';
     var r = window.AwakMusique && AwakMusique.reglages ? AwakMusique.reglages() : {};
-    if (r.fond === false || r.externe) return false;
-    if (window.AwakMusique && AwakMusique.joue && AwakMusique.joue()) return false;
-    var wt = document.getElementById('workoutTopBar'); if (wt && wt.offsetParent) return false;
-    if (document.getElementById('awakKidsPlay') || document.getElementById('awakKidsAnnonce') || document.getElementById('awkKidFin')) return false;
-    return true;
+    if (r.fond === false) return 'interrupteur désactivé';
+    if (window.AwakMusique && AwakMusique.joue && AwakMusique.joue()) return 'musique de séance en cours';
+    var wt = document.getElementById('workoutTopBar'); if (wt && wt.offsetParent) return 'séance en cours';
+    if (document.getElementById('awakKidsPlay') || document.getElementById('awakKidsAnnonce') || document.getElementById('awkKidFin')) return 'jeu ou Bravo en cours';
+    return '';
+  }
+  var _fondErreur = '';
+  function fondDoitJouer() { return !fondRaison(); }
+  function fondEtat() {
+    var r = fondRaison(); if (r) return 'En pause : ' + r;
+    if (_fond && !_fond.paused) return 'En lecture';
+    return _fondErreur ? 'Bloquée : ' + _fondErreur : 'Démarre au prochain toucher';
   }
   function fondVers(v, ms, apres) {
     if (_fondFondu) clearInterval(_fondFondu);
@@ -486,9 +498,9 @@
       var ok = fondDoitJouer();
       if (ok) {
         var r = AwakMusique && AwakMusique.reglages ? AwakMusique.reglages() : {};
-        var cible = Math.min(0.35, (r.volume == null ? 0.6 : r.volume) * 0.5);
-        if (!_fond) { _fond = new Audio('audio/magical_adventure.mp3'); _fond.loop = true; _fond.preload = 'auto'; try { _fond.setAttribute('playsinline', ''); } catch (e) { _e(e); } _fond.volume = 0; }
-        if (_fond.paused) { var p = _fond.play(); if (p && p.then) p.then(function () { fondVers(cible, 1200); }).catch(function () { /* attend un toucher */ }); }
+        var cible = 0.15 + 0.2 * Math.min(1, Math.max(0, r.volume == null ? 0.6 : r.volume));   // v1778 : jamais inaudible
+        if (!_fond) { _fond = new Audio('audio/magical_adventure.mp3'); _fond.loop = true; _fond.preload = 'auto'; try { _fond.setAttribute('playsinline', ''); } catch (e) { _e(e); } _fond.volume = 0; _fond.addEventListener('error', function () { _fondErreur = 'fichier audio illisible'; }); }
+        if (_fond.paused) { var p = _fond.play(); if (p && p.then) p.then(function () { _fondErreur = ''; fondVers(cible, 1200); }).catch(function (er) { _fondErreur = (er && er.name === 'NotAllowedError') ? 'le téléphone attend un toucher sur l\'écran' : ((er && (er.name || er.message)) || 'refus'); }); }
         else if (!_fondFondu && Math.abs(_fond.volume - cible) > 0.02) fondVers(cible, 400);
       } else if (_fond && !_fond.paused && !_fondArret) {
         _fondArret = true;
@@ -1210,7 +1222,7 @@
     window.switchTab = w;
   }
 
-  window.AwakKid = { _fondEtat: function () { return _fond ? { joue: !_fond.paused, vol: Math.round(_fond.volume * 100) / 100 } : null; }, photo: photo, _choisirPhoto: choisirPhoto, maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, changerEnfant: changerEnfant, etirements: etirements, annoncer: annoncer, sfx: sfx, genererSeance: genererSeance, tutoriel: tutoriel, _tutoSuite: tutoSuite, _tutoFermer: tutoFermer,
+  window.AwakKid = { fondEtat: fondEtat, _fondEtat: function () { return _fond ? { joue: !_fond.paused, vol: Math.round(_fond.volume * 100) / 100 } : null; }, photo: photo, _choisirPhoto: choisirPhoto, maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, changerEnfant: changerEnfant, etirements: etirements, annoncer: annoncer, sfx: sfx, genererSeance: genererSeance, tutoriel: tutoriel, _tutoSuite: tutoSuite, _tutoFermer: tutoFermer,
     revoirTutoriel: function () { tutoriel(prenom(), null); }, dejaEnCours: dejaEnCours, continuer: continuer, recommencer: recommencer, plusTard: plusTard, missions: missions, mission: mission, lancerMission: lancerMission, bravo: bravo, envoyer: envoyer, lireMessages: lireMessages };
   function init() { injecterCSS(); brancher(); maj(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
