@@ -487,7 +487,7 @@
       if (ok) {
         var r = AwakMusique && AwakMusique.reglages ? AwakMusique.reglages() : {};
         var cible = Math.min(0.35, (r.volume == null ? 0.6 : r.volume) * 0.5);
-        if (!_fond) { _fond = new Audio('audio/magical_adventure.mp3'); _fond.loop = true; _fond.volume = 0; }
+        if (!_fond) { _fond = new Audio('audio/magical_adventure.mp3'); _fond.loop = true; _fond.preload = 'auto'; try { _fond.setAttribute('playsinline', ''); } catch (e) { _e(e); } _fond.volume = 0; }
         if (_fond.paused) { var p = _fond.play(); if (p && p.then) p.then(function () { fondVers(cible, 1200); }).catch(function () { /* attend un toucher */ }); }
         else if (!_fondFondu && Math.abs(_fond.volume - cible) > 0.02) fondVers(cible, 400);
       } else if (_fond && !_fond.paused && !_fondArret) {
@@ -498,7 +498,8 @@
   }
   var _fondArret = false;
   setInterval(majFond, 800);
-  document.addEventListener('pointerdown', function () { setTimeout(majFond, 0); }, true);
+  // v1776 : iPhone — play() doit être appelé PENDANT le toucher (touchend / click), pas dans un setTimeout
+  ['touchend', 'click', 'pointerup', 'keydown'].forEach(function (ev) { document.addEventListener(ev, majFond, true); });
   document.addEventListener('visibilitychange', majFond);
   function aBougeAujourdhui() {
     try {
