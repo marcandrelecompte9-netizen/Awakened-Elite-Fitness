@@ -463,6 +463,43 @@
     var o = document.getElementById('awkKidPhoto'); if (o) o.remove();
     accueil();
   }
+  // v1774 : musique de fond (Magical Adventure) sur les écrans de l'enfant, hors séance et hors jeu.
+  // S'efface quand la musique de séance, un jeu ou le Bravo commence. Coupée par le son muet,
+  // « J'écoute ma musique ailleurs » ou l'interrupteur « Musique de fond » (Réglages > Musique).
+  var _fond = null, _fondFondu = null;
+  function fondDoitJouer() {
+    if (!enfant() || muet() || document.hidden) return false;
+    var r = window.AwakMusique && AwakMusique.reglages ? AwakMusique.reglages() : {};
+    if (r.fond === false || r.externe) return false;
+    if (window.AwakMusique && AwakMusique.joue && AwakMusique.joue()) return false;
+    var wt = document.getElementById('workoutTopBar'); if (wt && wt.offsetParent) return false;
+    if (document.getElementById('awakKidsPlay') || document.getElementById('awakKidsAnnonce') || document.getElementById('awkKidFin')) return false;
+    return true;
+  }
+  function fondVers(v, ms, apres) {
+    if (_fondFondu) clearInterval(_fondFondu);
+    var a = _fond, d = a.volume, n = Math.max(1, Math.round(ms / 50)), i = 0;
+    _fondFondu = setInterval(function () { i++; try { a.volume = Math.max(0, Math.min(1, d + (v - d) * i / n)); } catch (e) { /* rien */ } if (i >= n) { clearInterval(_fondFondu); _fondFondu = null; if (apres) apres(); } }, 50);
+  }
+  function majFond() {
+    try {
+      var ok = fondDoitJouer();
+      if (ok) {
+        var r = AwakMusique && AwakMusique.reglages ? AwakMusique.reglages() : {};
+        var cible = Math.min(0.35, (r.volume == null ? 0.6 : r.volume) * 0.5);
+        if (!_fond) { _fond = new Audio('audio/magical_adventure.mp3'); _fond.loop = true; _fond.volume = 0; }
+        if (_fond.paused) { var p = _fond.play(); if (p && p.then) p.then(function () { fondVers(cible, 1200); }).catch(function () { /* attend un toucher */ }); }
+        else if (!_fondFondu && Math.abs(_fond.volume - cible) > 0.02) fondVers(cible, 400);
+      } else if (_fond && !_fond.paused && !_fondArret) {
+        _fondArret = true;
+        fondVers(0, 600, function () { _fondArret = false; try { if (!fondDoitJouer()) _fond.pause(); } catch (e) { _e(e); } });
+      }
+    } catch (e) { _e(e); }
+  }
+  var _fondArret = false;
+  setInterval(majFond, 800);
+  document.addEventListener('pointerdown', function () { setTimeout(majFond, 0); }, true);
+  document.addEventListener('visibilitychange', majFond);
   function aBougeAujourdhui() {
     try {
       var h = (typeof window.getWorkoutHistory === 'function') ? getWorkoutHistory() : [];
@@ -1172,7 +1209,7 @@
     window.switchTab = w;
   }
 
-  window.AwakKid = { photo: photo, _choisirPhoto: choisirPhoto, maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, changerEnfant: changerEnfant, etirements: etirements, annoncer: annoncer, sfx: sfx, genererSeance: genererSeance, tutoriel: tutoriel, _tutoSuite: tutoSuite, _tutoFermer: tutoFermer,
+  window.AwakKid = { _fondEtat: function () { return _fond ? { joue: !_fond.paused, vol: Math.round(_fond.volume * 100) / 100 } : null; }, photo: photo, _choisirPhoto: choisirPhoto, maj: maj, bouger: bouger, parent: parent, apresPreparation: apresPreparation, consigne: consigne, enfant: enfant, accueil: accueil, fin: fin, finOk: finOk, carte: function () { carte(null); }, fermerCarte: fermerCarte, _chemin: chemin, album: function () { ouvrirAlbum(null); }, _albPage: function (i) { ouvrirAlbum(undefined, i); }, fermerAlbum: fermerAlbum, _album: album, famille: famille, changerEnfant: changerEnfant, etirements: etirements, annoncer: annoncer, sfx: sfx, genererSeance: genererSeance, tutoriel: tutoriel, _tutoSuite: tutoSuite, _tutoFermer: tutoFermer,
     revoirTutoriel: function () { tutoriel(prenom(), null); }, dejaEnCours: dejaEnCours, continuer: continuer, recommencer: recommencer, plusTard: plusTard, missions: missions, mission: mission, lancerMission: lancerMission, bravo: bravo, envoyer: envoyer, lireMessages: lireMessages };
   function init() { injecterCSS(); brancher(); maj(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

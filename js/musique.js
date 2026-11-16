@@ -52,7 +52,7 @@
   function profilEnfant() { try { return !!(window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()); } catch (e) { return false; } }
 
   var CLE = 'awakMusique';
-  var DEF = { auto: true, jeu: true, entrainement: true, perso: true, externe: false, volume: 0.6, exclus: [], repeter: false };
+  var DEF = { auto: true, jeu: true, entrainement: true, perso: true, externe: false, volume: 0.6, exclus: [], repeter: false, fond: true };   // v1774 : fond = musique de fond du profil enfant
 
   // ── v1476 : MES MUSIQUES — fichiers audio importés depuis le téléphone,
   // gardés dans le navigateur (IndexedDB, sur cet appareil seulement).
@@ -570,7 +570,7 @@
         + '<span style="position:absolute;top:3px;left:' + (on ? '21px' : '3px') + ';width:20px;height:20px;border-radius:50%;background-color:rgb(248,250,252);transition:left .2s;"></span></span></button>';
     };
     var l = candidats(), ex = exclus(), cur = courant(), kid = profilEnfant();
-    h.innerHTML = (kid ? '<div style="display:grid;grid-template-columns:1fr;gap:7px;">' + interr('auto', r.auto, 'Démarrer seule en séance', r.auto ? 'Au début de chaque séance' : 'Je lance moi-même') + '</div><div style="display:none;">' : '')
+    h.innerHTML = (kid ? '<div style="display:grid;grid-template-columns:1fr;gap:7px;">' + interr('auto', r.auto, 'Démarrer seule en séance', r.auto ? 'Au début de chaque séance' : 'Je lance moi-même') + interr('fond', r.fond !== false, 'Musique de fond', r.fond !== false ? 'Magical Adventure, hors des séances' : 'Silence hors des séances') + '</div><div style="display:none;">' : '')
       + '<div style="display:grid;grid-template-columns:1fr;gap:7px;">'
       + interr('auto', r.auto, 'Démarrer seule en séance', r.auto ? 'Au début de chaque séance' : 'Je lance moi-même')
       + interr('jeu', r.jeu && jeuOk, 'Musiques du jeu', jeuOk ? nJeu + ' morceau' + (nJeu > 1 ? 'x' : '') : 'Mode jeu désactivé', !jeuOk)
