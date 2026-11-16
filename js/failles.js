@@ -4157,31 +4157,205 @@
                     if (spawned.length > 0) {
                         rift._breachSpawned = true;
                         changed = true;
-                        // Notification
-                        setTimeout(() => {
-                            if (typeof showToast === 'function') {
-                                showToast(`👹 ${spawned[0].typeId === 'gobelin' ? 'Un gobelin' : 'Un monstre'} s'est échappé de la Faille`, 'warning', 5000);
-                            }
-                        }, 1000);
+                        // v1775 : cinématique « la Faille a cédé » (avant : toast)
+                        awakEvtEchappeAjouter(rift, false, spawned); awakEvtEchappeTenter();
                     }
                 }
 
                 // Si explosée → 2 monstres
                 if (rift.state === 'exploded' && !rift._explosionSpawned) {
-                    awakSpawnEscapedMonsters(rift, true);
+                    const spawnedX = awakSpawnEscapedMonsters(rift, true);
                     rift._explosionSpawned = true;
                     changed = true;
-                    setTimeout(() => {
-                        if (typeof showToast === 'function') {
-                            showToast(`💥 La Faille a explosé ! Plusieurs monstres s'échappent.`, 'warning', 6000);
-                        }
-                    }, 1000);
+                    // v1775 : cinématique « la Faille a explosé » (avant : toast)
+                    awakEvtEchappeAjouter(rift, true, spawnedX); awakEvtEchappeTenter();
                 }
             }
 
             if (changed) awakRiftsSave(rifts);
         }
         window.awakCheckRiftsForMonsterSpawn = awakCheckRiftsForMonsterSpawn;
+
+        // ═══════════════════════════════════════════════════════════════
+        // v1775 : ÉVÉNEMENT « LA FAILLE CÈDE » — courte cinématique quand une Faille
+        // passe en brèche (1 monstre) ou explose (2 monstres). Remplace les 2 toasts.
+        // File d'attente par profil : l'événement attend la fin d'une séance, d'une
+        // Faille, d'une scène d'histoire. Touche l'écran pour passer l'animation.
+        // ═══════════════════════════════════════════════════════════════
+        const _AWK_EVT_ECH = 'awakEvtEchappe';
+        function _echFileLire() {
+            try { const k = window._cleProfilLecture ? window._cleProfilLecture(_AWK_EVT_ECH) : _AWK_EVT_ECH; return JSON.parse(localStorage.getItem(k) || '[]') || []; } catch (e) { return []; }
+        }
+        function _echFileEcrire(l) {
+            try { const k = window._cleProfil ? window._cleProfil(_AWK_EVT_ECH) : _AWK_EVT_ECH; localStorage.setItem(k, JSON.stringify(l.slice(-4))); } catch (e) { _awkE(e); }
+        }
+        function awakEvtEchappeAjouter(rift, explose, spawned) {
+            const l = _echFileLire();
+            l.push({ nom: rift.name || 'Faille', rang: rift.rank || '', explose: !!explose, ids: (spawned || []).map(m => m.id), quand: Date.now() });
+            _echFileEcrire(l);
+        }
+        let _echMinuteur = null;
+        function _echBloque() {
+            if (document.hidden) return true;
+            if (typeof rpgEnabled === 'function' && !rpgEnabled()) return true;
+            try { if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) return true; } catch (e) { _awkE(e); }
+            if (typeof _storyEnFaille === 'function' && _storyEnFaille()) return true;
+            try { if (typeof window.awakFailleEnCours === 'function' && window.awakFailleEnCours(true)) return true; } catch (e) { _awkE(e); }
+            const _ev = document.getElementById('exerciseView'); if (_ev && !_ev.classList.contains('hidden') && _ev.offsetParent !== null) return true;
+            if (document.body.classList.contains('in-session')) return true;
+            const occupe = ['storyOverlay', 'storyEventOverlay', 'storyPrelude', 'awakSystemCardOverlay', 'awakEvtEchappe',
+                'awakRiftRewardModal', 'awakHuntRewardModal', 'premiumOnboarding', 'awakSeuil'];
+            for (const id of occupe) if (document.getElementById(id)) return true;
+            return false;
+        }
+        function awakEvtEchappeTenter(delai) {
+            clearTimeout(_echMinuteur);
+            _echMinuteur = setTimeout(() => {
+                const l = _echFileLire(); if (!l.length) return;
+                if (_echBloque()) { awakEvtEchappeTenter(5000); return; }
+                const evt = l.shift(); _echFileEcrire(l);
+                if (Date.now() - (evt.quand || 0) > 3 * 24 * 3600 * 1000) { awakEvtEchappeTenter(200); return; }   // trop vieux : on saute
+                awakEvtEchappeJouer(evt);
+            }, delai == null ? 1200 : delai);
+        }
+        window.awakEvtEchappeTenter = awakEvtEchappeTenter;
+
+        function _echSon(t) {
+            try {
+                if (localStorage.getItem('fitproMuted') === 'true') return;
+                const C = window._awkEchCtx || (window._awkEchCtx = new (window.AudioContext || window.webkitAudioContext)());
+                if (C.state === 'suspended') C.resume();
+                const n = C.currentTime;
+                const bruit = (dur, freq, vol, debut) => {
+                    const b = C.createBuffer(1, Math.floor(C.sampleRate * dur), C.sampleRate), d = b.getChannelData(0);
+                    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 2);
+                    const s = C.createBufferSource(); s.buffer = b;
+                    const f = C.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = freq;
+                    const g = C.createGain(); g.gain.setValueAtTime(0.0001, n + debut); g.gain.exponentialRampToValueAtTime(vol, n + debut + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, n + debut + dur);
+                    s.connect(f); f.connect(g); g.connect(C.destination); s.start(n + debut);
+                };
+                const grave = (f0, f1, dur, vol, debut) => {
+                    const o = C.createOscillator(), g = C.createGain(); o.type = 'sine';
+                    o.frequency.setValueAtTime(f0, n + debut); o.frequency.exponentialRampToValueAtTime(f1, n + debut + dur);
+                    g.gain.setValueAtTime(0.0001, n + debut); g.gain.exponentialRampToValueAtTime(vol, n + debut + 0.05); g.gain.exponentialRampToValueAtTime(0.0001, n + debut + dur);
+                    o.connect(g); g.connect(C.destination); o.start(n + debut); o.stop(n + debut + dur + 0.05);
+                };
+                if (t === 'gronde') { grave(55, 38, 1.8, 0.35, 0); bruit(1.8, 180, 0.12, 0); }
+                else if (t === 'boum') { grave(90, 28, 1.4, 0.7, 0); bruit(1.2, 900, 0.5, 0); bruit(0.5, 3000, 0.15, 0); }
+                else if (t === 'cri') { grave(420, 160, 0.5, 0.08, 0); grave(300, 120, 0.6, 0.06, 0.1); }
+            } catch (e) { _awkE(e); }
+        }
+
+        function awakEvtEchappeJouer(evt) {
+            document.getElementById('awakEvtEchappe')?.remove();
+            const tous = awakMonstersLoad();
+            const mons = (evt.ids || []).map(id => tous.find(m => m.id === id)).filter(m => m && !m.defeated);
+            const types = mons.map(m => ESCAPED_MONSTER_TYPES.find(t => t.id === m.typeId)).filter(Boolean);
+            const alpha = tous.filter(m => !m.defeated && m.isAlpha).length;
+            const esc = s => String(s == null ? '' : s).replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]));
+            const rouge = '#ef4444';
+
+            if (!document.getElementById('awkEchStyles')) {
+                const st = document.createElement('style'); st.id = 'awkEchStyles';
+                st.textContent =
+                    '@keyframes awkEchZoom{from{transform:scale(1.05)}to{transform:scale(1.22)}}'
+                  + '@keyframes awkEchTremble{0%,100%{transform:translate(0,0)}20%{transform:translate(-3px,2px)}40%{transform:translate(3px,-2px)}60%{transform:translate(-2px,-3px)}80%{transform:translate(2px,3px)}}'
+                  + '@keyframes awkEchSecousse{0%,100%{transform:translate(0,0) rotate(0)}10%{transform:translate(-14px,8px) rotate(-1deg)}25%{transform:translate(12px,-10px) rotate(1deg)}40%{transform:translate(-9px,-6px)}60%{transform:translate(7px,6px)}80%{transform:translate(-3px,2px)}}'
+                  + '@keyframes awkEchFlash{0%{opacity:0}8%{opacity:1}100%{opacity:0}}'
+                  + '@keyframes awkEchPouls{0%,100%{opacity:0.15}50%{opacity:0.5}}'
+                  + '@keyframes awkEchClign{0%,49%{opacity:1}50%,100%{opacity:0.25}}'
+                  + '@keyframes awkEchSort{0%{opacity:0;transform:translate(var(--dx0),-6%) scale(0.15);filter:brightness(4) blur(6px)}45%{opacity:1;filter:brightness(1.8) blur(1px)}100%{opacity:1;transform:translate(0,0) scale(1);filter:none}}'
+                  + '@keyframes awkEchFlotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}'
+                  + '@keyframes awkEchMonte{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}'
+                  + '@keyframes awkEchTexte{from{opacity:0;letter-spacing:10px}to{opacity:1;letter-spacing:3px}}'
+                  + '#awakEvtEchappe.fini *{animation-delay:0s!important;animation-duration:0.01s!important}'
+                  + '#awakEvtEchappe.fini .awk-ech-flotte{animation:awkEchFlotte 3s ease-in-out infinite!important}'
+                  + '@media(prefers-reduced-motion:reduce){#awakEvtEchappe *{animation-duration:0.01s!important;animation-delay:0s!important}}';
+                document.head.appendChild(st);
+            }
+
+            const n = types.length;
+            const monstresHTML = types.map((t, i) => {
+                const dx = n > 1 ? (i === 0 ? '40%' : '-40%') : '0%';
+                return '<div style="--dx0:' + dx + ';opacity:0;animation:awkEchSort .9s cubic-bezier(.2,.9,.3,1.2) ' + (2.35 + i * 0.25) + 's forwards;">'
+                    + '<div class="awk-ech-flotte" style="animation:awkEchFlotte 3s ease-in-out ' + (3.3 + i * 0.4) + 's infinite;">' + (window.awakEchappeImg ? awakEchappeImg(t, n > 1 ? 150 : 200, mons[i].isAlpha) : '') + '</div></div>';
+            }).join('');
+            const titre = evt.explose ? 'LA FAILLE A EXPLOSÉ' : 'LA FAILLE A CÉDÉ';
+            const phrase = (evt.explose ? 'Personne ne l\'a fermée à temps. Elle s\'est déchirée.' : 'Le délai est passé. La brèche s\'est ouverte.');
+            const liste = types.length ? types.map((t, i) => '<div style="display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:12px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.25);text-align:left;">'
+                    + '<span style="flex-shrink:0;">' + (window.awakEchappeImg ? awakEchappeImg(t, 38, mons[i].isAlpha) : '') + '</span>'
+                    + '<span style="flex:1;min-width:0;"><span style="display:block;font-size:14px;font-weight:900;color:#fff;">' + esc(t.name) + '</span>'
+                    + '<span style="display:block;font-size:12px;color:#fca5a5;font-weight:700;margin-top:1px;">' + esc(t.handicap && t.handicap.label) + '</span></span></div>').join('')
+                : '<div style="font-size:13.5px;color:#fca5a5;font-weight:700;line-height:1.45;">Trop de monstres rôdent déjà. Ils ont rejoint le plus ancien : il devient <b>Alpha</b> et ses effets doublent.</div>';
+
+            const o = document.createElement('div');
+            o.id = 'awakEvtEchappe';
+            o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', titre);
+            o.style.cssText = 'position:fixed;inset:0;z-index:100060;background:#000;overflow:hidden;color:#fff;font-family:inherit;';
+            o.innerHTML =
+                '<div class="awk-ech-scene" style="position:absolute;inset:0;animation:awkEchTremble .18s linear 0.6s 9,awkEchSecousse .7s ease-out 2.1s 1;">'
+              +   '<div style="position:absolute;inset:-4%;background:#000 url(images/faille_ouverte.webp) 49% 40%/cover no-repeat;opacity:0;animation:awkEchMonte 1.2s ease-out .3s forwards;"></div>'
+              +   '<div style="position:absolute;inset:-4%;background:url(images/faille_ouverte.webp) 49% 40%/cover no-repeat;animation:awkEchZoom 6s ease-out .3s forwards;opacity:0;" class="awk-ech-zoom"></div>'
+              +   '<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,transparent 20%,rgba(0,0,0,0.85) 75%);"></div>'
+              +   '<div style="position:absolute;inset:0;background:' + rouge + ';mix-blend-mode:overlay;opacity:0;animation:awkEchPouls 1.1s ease-in-out 0.5s infinite;"></div>'
+              +   '<div style="position:absolute;left:0;right:0;top:20%;display:flex;justify-content:center;align-items:flex-end;gap:4px;padding:0 10px;">' + monstresHTML + '</div>'
+              + '</div>'
+              + '<div style="position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;animation:awkEchFlash .9s ease-out 2.05s forwards;"></div>'
+              + '<div style="position:absolute;top:calc(env(safe-area-inset-top,0px) + 22px);left:0;right:0;text-align:center;pointer-events:none;">'
+              +   '<div style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border:1px solid ' + rouge + ';background:rgba(127,29,29,0.55);border-radius:4px;font-size:12px;font-weight:900;letter-spacing:3px;color:#fecaca;animation:awkEchClign .8s steps(1) 0s 4;">'
+              +     (window.AwakIcon ? AwakIcon.get('alerte', 15, '#fca5a5') : '') + 'ALERTE DU SYSTÈME</div>'
+              +   '<div style="margin-top:12px;font-size:25px;font-weight:900;color:#fff;text-shadow:0 0 18px rgba(239,68,68,0.9),0 2px 6px #000;opacity:0;animation:awkEchTexte .9s ease-out 2.2s forwards;">' + titre + '</div>'
+              + '</div>'
+              + '<div class="awk-ech-panneau" style="position:absolute;left:0;right:0;bottom:0;padding:18px 16px calc(env(safe-area-inset-bottom,0px) + 18px);background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(5,5,10,0.92) 18%,#05050a 100%);opacity:0;animation:awkEchMonte .6s ease-out 3.4s forwards;">'
+              +   '<div style="max-width:440px;margin:0 auto;text-align:center;">'
+              +     '<div style="font-size:13px;color:#94a3b8;font-weight:700;">« ' + esc(evt.nom) + ' »' + (evt.rang ? ' · rang ' + esc(evt.rang) : '') + '</div>'
+              +     '<div style="font-size:15px;color:#e2e8f0;font-weight:700;margin:4px 0 12px;">' + phrase + (types.length ? ' ' + (types.length > 1 ? types.length + ' monstres se sont échappés.' : 'Un monstre s\'est échappé.') : '') + '</div>'
+              +     '<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px;">' + liste + '</div>'
+              +     '<div style="display:flex;gap:10px;">'
+              +       '<button data-ech="plus-tard" style="flex:1;min-height:0;padding:13px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#cbd5e1;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;">Plus tard</button>'
+              +       '<button data-ech="traquer" style="flex:1.4;min-height:0;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;font-weight:900;font-size:14px;letter-spacing:.5px;cursor:pointer;font-family:inherit;box-shadow:0 0 18px rgba(220,38,38,0.45);">' + (mons.length ? 'Traquer' : 'Voir les monstres') + '</button>'
+              +     '</div>'
+              +     '<div style="font-size:11.5px;color:#64748b;margin-top:10px;">Chaque monstre libre affaiblit tes séances jusqu\'à ce que tu le chasses.</div>'
+              +   '</div>'
+              + '</div>'
+              + '<button data-ech="passer" style="position:absolute;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);min-height:0;padding:7px 12px;border-radius:99px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.5);color:#cbd5e1;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;">Passer</button>';
+            document.body.appendChild(o);
+            // le 2e calque (zoom) apparaît avec le 1er
+            setTimeout(() => { const z = o.querySelector('.awk-ech-zoom'); if (z) z.style.opacity = '1'; }, 1300);
+
+            const timers = [];
+            const fin = () => {
+                if (o.classList.contains('fini')) return;
+                o.classList.add('fini');
+                timers.forEach(clearTimeout);
+                const z = o.querySelector('.awk-ech-zoom'); if (z) z.style.opacity = '1';
+                const p = o.querySelector('[data-ech="passer"]'); if (p) p.remove();
+            };
+            _echSon('gronde');
+            timers.push(setTimeout(() => { _echSon('boum'); try { if (navigator.vibrate) navigator.vibrate([60, 40, 220]); } catch (e) { _awkE(e); } }, 2050));
+            timers.push(setTimeout(() => _echSon('cri'), 2500));
+            timers.push(setTimeout(fin, 4100));
+
+            const fermer = (suite) => {
+                o.style.transition = 'opacity .35s'; o.style.opacity = '0';
+                setTimeout(() => { o.remove(); if (suite) suite(); else awakEvtEchappeTenter(900); }, 360);
+            };
+            o.addEventListener('click', (e) => {
+                const b = e.target.closest && e.target.closest('[data-ech]');
+                const a = b ? b.getAttribute('data-ech') : null;
+                if (!o.classList.contains('fini') || a === 'passer') { fin(); return; }
+                if (a === 'plus-tard') fermer();
+                else if (a === 'traquer') fermer(() => {
+                    try {
+                        if (mons.length && typeof awakOpenMonsterDetail === 'function') awakOpenMonsterDetail(mons[0].id);
+                        else if (typeof switchTab === 'function') switchTab('rpg');
+                    } catch (e) { _awkE(e); }
+                });
+            });
+        }
+        window.awakEvtEchappeJouer = awakEvtEchappeJouer;
+        document.addEventListener('visibilitychange', () => { if (!document.hidden && _echFileLire().length) awakEvtEchappeTenter(1500); });
+        setTimeout(() => { try { if (_echFileLire().length) awakEvtEchappeTenter(2500); } catch (e) { _awkE(e); } }, 4000);
 
         /**
          * Récupère le handicap global actif (somme de tous les monstres)
