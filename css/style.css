@@ -7418,12 +7418,13 @@ body.dark-mode tr:nth-child(even) td {
     background: #070b12 !important;
     border: 1px solid rgba(96,168,240,0.14) !important;
     border-left: 2px solid rgba(96,168,240,0.45) !important;
-    border-radius: 8px !important;
-    padding: 12px 13px !important;
+    border-radius: 12px !important;
+    padding: 14px 14px !important;   /* v1777 : cartes plus grandes */
     display: flex;
     align-items: center;
-    gap: 11px;
-    margin-bottom: 8px;
+    gap: 14px;
+    margin-bottom: 4px;
+    min-height: 86px;
 }
 #profileSelectionModal .profile-card.current {
     border-left-color: #60a8f0 !important;
@@ -7432,19 +7433,21 @@ body.dark-mode tr:nth-child(even) td {
 }
 #profileSelectionModal .profile-card:active { background: #0d141d !important; }
 
+#profileSelectionModal .profile-info { min-width: 0; }
 #profileSelectionModal .profile-avatar {
-    width: 40px !important;
-    height: 40px !important;
+    width: 58px !important;
+    height: 58px !important;
     font-size: 1.5em !important;
     flex-shrink: 0;
 }
 /* Le nom est précédé d'un chevron, comme une commande saisie. */
 #profileSelectionModal .profile-name {
     font-family: inherit;
-    font-size: 0.86em !important;
+    font-size: 1.12em !important;
     font-weight: 800 !important;
-    color: #e2e8f0 !important;
-    margin-bottom: 2px !important;
+    color: #f1f5f9 !important;
+    margin-bottom: 0 !important;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 #profileSelectionModal .profile-name::before {
     content: '> ';
