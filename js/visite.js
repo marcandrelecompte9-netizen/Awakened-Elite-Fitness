@@ -159,21 +159,14 @@
       { c: function () { return $('#awakCalcSrc_plaques'); }, t: 'Les disques', d: 'Quels disques mettre de chaque côté de la barre pour une charge donnée.' }
     ],
     family: [
-      // Famille à plusieurs
-      // v1709 : sous-onglets Ensemble · Enfants · Défis — chaque étape ouvre le sien (fs)
-      { c: function () { fs('ensemble'); return $('#awakFamBarre'); }, t: 'Trois volets', d: 'Ensemble : la semaine et le ciel de la famille. Enfants : leurs étoiles et récompenses. Défis : défis, badges, membres, journal et vos jours en famille.' },
-      { c: function () { fs('ensemble'); return $('#awakFamSemaine'); }, t: 'Notre semaine', d: 'Combien de séances chacun a faites cette semaine. Touche le résumé en haut à droite pour voir jour par jour, ou un membre pour l\'encourager. « Bouger ensemble » : 15 minutes pour toute la famille, au même rythme.' },
-      { c: function () { fs('ensemble'); return cielFamille(); }, t: 'Votre ciel', d: 'Chaque étoile est un membre de ta famille. Elle s\'allume et grossit quand il s\'entraîne. Toi, tu es au centre.' },
-      { c: function () { fs('ensemble'); var c = cielFamille(); return c ? c.querySelector('svg') : null; }, t: 'Touche une étoile', d: 'Pour encourager, jouer ou lancer un défi à ce membre. Ton étoile au centre lance un défi d\'équipe.' },
-      { c: function () { fs('ensemble'); return $('#familyContainer [onclick="AwakKidsOpen()"]'); }, t: 'Jeux à faire ensemble', d: 'Avec un enfant dans la famille : tag, statue, marche des animaux, des jeux pour bouger ensemble.' },
-      { c: function () { fs('enfants'); var b = $('#familyContainer button[onclick^="AwakEtoiles.ouvrirParent"]'); return b ? b.parentElement.parentElement : null; }, t: 'Étoiles des enfants', d: 'Chaque séance d\'un enfant rapporte 1 étoile, puis 1 de plus toutes les 15 minutes. « + Étoiles » pour féliciter autre chose (une tâche, un effort). « Gérer » : accepter ou non les récompenses demandées, voir l\'historique et choisir les récompenses.' },
-      // v1424 : boutons sous le ciel (onglet allégé)
-      { c: function () { fs('defis'); var b = $('#familyContainer [onclick="AwakEnsembleOpen()"]'); return b ? b.parentElement : null; }, t: 'Ensemble', d: 'Défis et objectif commun, badges de famille, les membres de la famille, et le journal de ce que chacun a fait.' },
-      { c: function () { fs('defis'); return $('#familyContainer [onclick="AwakFamJours.ouvrir()"]'); }, t: 'Nos jours en famille', d: 'Choisissez vos jours et votre heure : « Bouger ensemble » s\'ajoute au plan de chaque membre, à l\'accueil et dans l\'agenda.' },
-      { c: function () { fs('defis'); return $('#familyContainer [onclick="AwakFamConstOuvrir()"]'); }, t: 'La constellation de la semaine', d: 'Chaque séance de n\'importe quel membre allume une étoile. Complétez la figure avant dimanche pour gagner un badge de famille.' },
-      // Famille encore seule (avant : avec plusieurs membres, le projecteur entourait tout l'onglet)
-      { c: function () { if (document.getElementById('awakFamSemaine')) return null; var b = parTexte('familyContainer', 'button', /Ajouter un membre/); return b ? b.parentElement : null; }, t: 'La famille', d: 'Chaque membre a son profil, ses séances et sa progression. Ensemble, vous vous encouragez et vous vous lancez des défis.' },
-      { c: function () { fs('defis'); return parTexte('familyContainer', 'button', /Ajouter un membre/); }, t: 'Ajouter quelqu\'un', d: 'Un enfant, un conjoint, un ami : crée son profil ici.' }
+      // v1781 : page unique (js/famille-page.js) — membres, à faire ensemble, plus
+      { c: function () { return document.querySelectorAll('#awakFamMembres [data-fam-membre]').length > 1 ? $('#awakFamMembres') : null; }, t: 'Ta famille', d: 'Une carte par membre : ses jours actifs de la semaine, et les étoiles d\'un enfant. Les points bleus sont les jours où il a bougé.' },
+      { c: function () { var l = document.querySelectorAll('#awakFamMembres [data-fam-membre]'); return l.length > 1 ? l[1] : null; }, t: 'Touche un membre', d: 'Sa fiche regroupe tout : l\'encourager, jouer à deux, lui lancer un défi, passer à son profil. Pour un enfant : ses étoiles, sa semaine et ses demandes de récompense.' },
+      { c: function () { return $('#awakFamEnsemble'); }, t: 'À faire ensemble', d: 'Séance ensemble : 15 minutes pour toute la famille, au même rythme. Jeux ensemble : tag, statue, marche des animaux, avec un enfant.' },
+      { c: function () { return $('#familyContainer [onclick="AwakFamJours.ouvrir()"]'); }, t: 'Nos jours en famille', d: 'Choisissez vos jours et votre heure : la séance ensemble s\'ajoute au plan de chaque membre.' },
+      { c: function () { return $('#awakFamPlus'); }, t: 'Plus', d: 'Étoiles et récompenses des enfants, défis, badges, journal de la famille, et « Notre ciel » où chaque membre est une étoile.' },
+      // Famille encore seule
+      { c: function () { if (document.querySelectorAll('#awakFamMembres [data-fam-membre]').length > 1) return null; return parTexte('familyContainer', 'button', /Ajouter un membre/); }, t: 'La famille', d: 'Un enfant, un conjoint, un ami : crée son profil ici. Chaque membre a ses séances et sa progression.' }
     ],
     game: [
       { c: function () { var f = $('#gameTab') && $('#gameTab').firstElementChild; return (f && f.id !== 'awakHunterCard') ? f : null; }, t: 'La carte', d: 'Ta ville. Les Failles y apparaissent après tes vraies séances : touche-en une pour combattre.' },

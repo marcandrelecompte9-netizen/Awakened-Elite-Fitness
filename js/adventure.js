@@ -859,6 +859,9 @@ function renderFamilyTab() {
         html += constCard;
         // v1694 : « Bouger ensemble » retiré pour l'enfant (onglet trop chargé) : ciel + jeux + constellation
         if (_sky) { try { html += (_sky.apresEnfant || _sky.apres)(); } catch (e) { _awkE(e); } }
+    } else if (window.AwakFamPage) {
+        // v1781 : page unique rangée par personne et par action (js/famille-page.js)
+        try { html += AwakFamPage.render({ sky: _sky }); } catch (e) { _awkE(e); }
     } else {
         // v1709 : 3 sous-onglets (Ensemble · Enfants · Défis) — l'onglet était trop chargé.
         // Les trois volets sont dans le DOM ; seul l'actif est affiché (AwakFamSous).

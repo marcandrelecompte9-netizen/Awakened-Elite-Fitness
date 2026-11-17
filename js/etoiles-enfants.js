@@ -645,6 +645,7 @@
       return { dispo: Math.max(0, dispo), prochaine: pr ? { nom: pr.nom, cout: pr.cout } : null, peut: triees(d).some(function (r) { return r.cout <= dispo; }), attente: enAttente(d, pid).length }; },
     ouvrirEnfant: ouvrirEnfant, ouvrirParent: garde(ouvrirParent), demander: demander, annulerDemande: annulerDemande,
     repondre: garde(repondre), ajouter: garde(ajouter), editerRecompense: garde(editerRecompense),
+    infos: function (pid) { try { if (!estEnfant(pid)) return null; var d = lire(), f = fiche(d, pid), dispo = disponible(d, pid), pr = prochaine(d, dispo); return { solde: f.solde, gagne: f.gagne, dispo: dispo, prochaine: pr ? { nom: pr.nom, cout: pr.cout } : null, attente: d.demandes.filter(function (q) { return q.pid === pid; }).length }; } catch (e) { return null; } },
     _regle: garde(regler), _reglesDefaut: garde(reglesDefaut), semaine: function (pid) { return semaine(fiche(lire(), pid)); },
     garde: garde, enfants: function () { return enfants().filter(function (p) { return estEnfant(p.id); }); },
     _touche: touche, _oublie: oublie, _oublieOk: oublieOk, _codeAnnuler: function () { _code = null; fermer('awakEtoilesSheet'); },
