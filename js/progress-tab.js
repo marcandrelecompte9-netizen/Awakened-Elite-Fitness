@@ -207,6 +207,85 @@
     }).join('');
   }
 
+  // ── v1785 : héros de la semaine (anneau + 7 jours) et records en « moments » ──
+  // Même langage visuel que l'onglet Famille (js/famille-page.js).
+  function stylesHeros() {
+    if (document.getElementById('awkProgStyles')) return;
+    var st = document.createElement('style'); st.id = 'awkProgStyles';
+    st.textContent = '@keyframes awkProgTrace{from{stroke-dashoffset:var(--c)}to{stroke-dashoffset:var(--o)}}'
+      + '@keyframes awkProgPop{from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}'
+      + '@keyframes awkProgEntre{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}'
+      + '@media(prefers-reduced-motion:reduce){#awakProgHaut *{animation:none!important;}}';
+    document.head.appendChild(st);
+  }
+  function herosSemaine(hist, cetteSem, ceMois, sa) {
+    stylesHeros();
+    var but = objectifSem(), debut = lundi(new Date()).getTime(), a = (new Date().getDay() + 6) % 7;
+    var jours = [0, 0, 0, 0, 0, 0, 0], minutes = 0;
+    hist.forEach(function (e) {
+      var t = new Date(e.date).getTime(); if (!(t >= debut)) return;
+      var d = new Date(t); d.setHours(0, 0, 0, 0);
+      var i = Math.round((d.getTime() - debut) / 86400000);
+      if (i >= 0 && i < 7) jours[i]++;
+      minutes += parseInt(e.duration, 10) || 0;
+    });
+    var T = 136, E = 12, r = (T - E) / 2, c = 2 * Math.PI * r, part = Math.min(1, cetteSem / but), fini = cetteSem >= but;
+    var reste = but - cetteSem, joursRestants = 7 - a;
+    var phrase = fini ? (cetteSem > but ? 'Objectif dépassé : ' + cetteSem + ' séances cette semaine.' : 'Objectif de la semaine atteint.')
+      : (!cetteSem ? 'Semaine pas encore commencée. Une séance et l\'anneau démarre.'
+        : (reste > joursRestants ? 'Encore ' + reste + ' séance' + (reste > 1 ? 's' : '') + ' pour l\'objectif : serré, mais chaque séance compte.'
+          : 'Encore ' + reste + ' séance' + (reste > 1 ? 's' : '') + ' pour atteindre ton objectif.'));
+    var L = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+    var pts = jours.map(function (n, i) {
+      var on = n > 0, auj = i === a;
+      return '<div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;">'
+        + '<div style="width:100%;max-width:36px;aspect-ratio:1;border-radius:50%;box-sizing:border-box;display:flex;align-items:center;justify-content:center;'
+        + (on ? 'background:linear-gradient(135deg,#22d3ee,#60a8f0);box-shadow:0 0 10px rgba(96,168,240,0.5);animation:awkProgPop .4s ease-out ' + (0.07 * i).toFixed(2) + 's both;'
+              : 'border:1.5px ' + (i > a ? 'dashed' : 'solid') + ' ' + (auj ? 'rgba(96,168,240,0.8)' : 'rgba(255,255,255,0.14)') + ';') + '">'
+        + (on ? ico('valide', 15, '#06121f') : '') + '</div>'
+        + '<div style="font-size:11px;font-weight:900;color:' + (auj ? '#93c5fd' : (on ? '#cbd5e1' : '#5b6779')) + ';">' + L[i] + '</div></div>';
+    }).join('');
+    var puce = function (v, t) { return '<span style="display:inline-flex;align-items:baseline;gap:5px;padding:5px 10px;border-radius:99px;background:rgba(10,15,28,0.6);border:1px solid rgba(255,255,255,0.1);font-size:12px;color:#a9bdd6;font-weight:700;white-space:nowrap;"><b style="color:#fff;font-size:14px;font-weight:900;">' + v + '</b>' + t + '</span>'; };
+    return '<div id="awakProgHeros" style="border-radius:20px;margin-bottom:12px;overflow:hidden;background:#101826;border:1px solid rgba(96,168,240,0.3);">'
+      + '<div style="position:relative;min-height:172px;background:radial-gradient(110% 130% at 0% 0%,rgba(96,168,240,0.28),rgba(16,24,38,0) 62%),#101826;">'
+      +   '<div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,15,26,0.5) 0%,rgba(10,15,26,0.1) 50%,rgba(10,15,26,0) 62%),linear-gradient(180deg,rgba(16,24,38,0) 60%,#101826 100%);"></div>'
+      +   '<div style="position:relative;display:flex;align-items:center;gap:14px;padding:18px 16px 10px;">'
+      +     '<div style="position:relative;flex-shrink:0;width:' + T + 'px;height:' + T + 'px;">'
+      +       '<svg width="' + T + '" height="' + T + '" viewBox="0 0 ' + T + ' ' + T + '" style="transform:rotate(-90deg);" aria-hidden="true">'
+      +         '<defs><linearGradient id="awkProgDeg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#60a8f0"/></linearGradient></defs>'
+      +         '<circle cx="' + T / 2 + '" cy="' + T / 2 + '" r="' + r + '" fill="rgba(10,15,28,0.55)" stroke="rgba(255,255,255,0.12)" stroke-width="' + E + '"/>'
+      +         '<circle cx="' + T / 2 + '" cy="' + T / 2 + '" r="' + r + '" fill="none" stroke="url(#awkProgDeg)" stroke-width="' + E + '" stroke-linecap="round" stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + (c * (1 - part)).toFixed(1) + '" style="--c:' + c.toFixed(1) + ';--o:' + (c * (1 - part)).toFixed(1) + ';animation:awkProgTrace 1.1s cubic-bezier(.3,.8,.3,1) both;' + (part ? 'filter:drop-shadow(0 0 6px rgba(96,168,240,0.7));' : 'opacity:0;') + '"/>'
+      +       '</svg>'
+      +       '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;" role="img" aria-label="' + cetteSem + ' séances sur ' + but + ' cette semaine">'
+      +         '<div style="font-size:2.3em;font-weight:900;color:#fff;line-height:1;font-variant-numeric:tabular-nums;">' + cetteSem + '<span style="font-size:0.45em;color:#9fb0c8;font-weight:800;"> / ' + but + '</span></div>'
+      +         '<div style="font-size:10.5px;font-weight:900;letter-spacing:1.5px;color:#93c5fd;margin-top:5px;">SÉANCES</div>'
+      +       '</div></div>'
+      +     '<div style="flex:1;min-width:0;">'
+      +       '<div style="font-size:11px;font-weight:900;letter-spacing:2px;color:' + BLEU + ';">TA SEMAINE</div>'
+      +       '<div style="font-size:15.5px;font-weight:800;color:#f1f5f9;line-height:1.35;margin-top:6px;text-shadow:0 1px 6px rgba(0,0,0,0.7);">' + phrase + '</div>'
+      +       (minutes ? '<div style="font-size:12.5px;color:#a9bdd6;font-weight:700;margin-top:6px;text-shadow:0 1px 6px rgba(0,0,0,0.7);">' + minutes + ' min d\'effort</div>' : '')
+      +     '</div></div></div>'
+      + '<div style="padding:6px 16px 14px;">'
+      +   '<div style="display:flex;gap:6px;">' + pts + '</div>'
+      +   '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:13px;">' + puce(ceMois, 'ce mois-ci') + puce(sa, sa > 1 ? 'semaines d\'affilée' : 'semaine active') + puce(hist.length, 'au total') + '</div>'
+      + '</div></div>';
+  }
+  function momentsRecords() {
+    var r = records(); if (!r.length) return '';
+    var quand = function (d) { var j = Math.floor((Date.now() - new Date(d).getTime()) / 86400000); return j <= 0 ? 'aujourd\'hui' : (j === 1 ? 'hier' : 'il y a ' + j + ' jours'); };
+    return '<div style="margin-bottom:12px;"><div style="font-size:11px;font-weight:900;letter-spacing:2px;color:' + BLEU + ';margin:2px 2px 9px;">TES DERNIERS RECORDS</div>'
+      + r.map(function (x, i) {
+        var val = x.poids ? poids(x.val) + ' ' + unite() : x.val + ' reps';
+        var gain = x.poids ? Math.max(1, poids(x.val) - poids(x.avant)) : (x.val - x.avant);
+        return '<div style="animation:awkProgEntre .4s ease-out ' + (0.06 * i).toFixed(2) + 's both;display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;background:#12161c;border:1px solid rgba(251,191,36,0.22);margin-bottom:8px;">'
+          + '<span style="flex-shrink:0;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.45);">' + ico('trophee', 20, OR) + '</span>'
+          + '<span style="flex:1;min-width:0;"><span style="display:block;font-size:14.5px;font-weight:800;color:#f1f5f9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(x.nom) + '</span>'
+          + '<span style="display:block;font-size:12px;color:#7c8aa0;font-weight:700;margin-top:2px;">Nouveau record · ' + quand(x.date) + '</span></span>'
+          + '<span style="flex-shrink:0;text-align:right;"><span style="display:block;font-size:17px;font-weight:900;color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums;">' + val + '</span>'
+          + '<span style="display:block;font-size:12px;font-weight:900;color:#67e8f9;">+' + gain + '</span></span></div>';
+      }).join('') + '</div>';
+  }
+
   // ⌚ v1232 : pas + sommeil de la montre (si connectée)
   function _ligneMontre() {
     try {
@@ -268,17 +347,10 @@
       h += carteBloc('Mes records', 'trophee', OR, blocRecords(true));
     } else {
       var sa = semainesActives(hist);
-      h += carteBloc('Ta progression', 'stats', CLAIR,
-        '<div style="display:flex;gap:7px;margin-bottom:14px;">'
-        + tuile(cetteSem, 'cette semaine', BLEU)
-        + tuile(ceMois, 'ce mois-ci', VIOLET)
-        + tuile(sa, sa > 1 ? 'semaines d\'affilée' : 'semaine active', OR)
-        + '</div>'
-        + _ligneMontre()
-        + '<div style="font-size:0.66em;color:#94a3b8;font-weight:800;margin-bottom:8px;">Séances par semaine</div>'
-        + graphe8(hist));
-      // v1245 : carte masquée tant qu'il n'y a aucun record (elle ne disait que « bientôt »)
-      if (records().length) h += carteBloc('Tes derniers records', 'trophee', OR, blocRecords(false));
+      // v1785 : anneau de la semaine + 7 jours, puis les 8 semaines, puis les records en cartes
+      h += herosSemaine(hist, cetteSem, ceMois, sa);
+      h += momentsRecords();
+      h += carteBloc('Tes 8 dernières semaines', 'stats', CLAIR, _ligneMontre() + graphe8(hist));
     }
     hote.innerHTML = h;
   }
