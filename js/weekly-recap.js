@@ -118,6 +118,8 @@ if (typeof window.awakJourLocal !== 'function') window.awakJourLocal = function 
   function _autoRecap() {
     try {
       if (localStorage.getItem('fitproOnboardingDone') !== '1') return;
+      // v1780 : jamais de récap automatique sur un profil enfant (écran d'adulte)
+      try { if (window.AwakYouth && AwakYouth.isChild && AwakYouth.isChild()) return; } catch (e) { /* rien */ }
       var lastMonday = _mondayOf(new Date());
       var prevMonday = new Date(lastMonday); prevMonday.setDate(prevMonday.getDate() - 7);
       var key = awakJourLocal(prevMonday);
