@@ -247,8 +247,8 @@
     }).join('');
     var puce = function (v, t) { return '<span style="display:inline-flex;align-items:baseline;gap:5px;padding:5px 10px;border-radius:99px;background:rgba(10,15,28,0.6);border:1px solid rgba(255,255,255,0.1);font-size:12px;color:#a9bdd6;font-weight:700;white-space:nowrap;"><b style="color:#fff;font-size:14px;font-weight:900;">' + v + '</b>' + t + '</span>'; };
     return '<div id="awakProgHeros" style="border-radius:20px;margin-bottom:12px;overflow:hidden;background:#101826;border:1px solid rgba(96,168,240,0.3);">'
-      + '<div style="position:relative;min-height:172px;background:radial-gradient(110% 130% at 0% 0%,rgba(96,168,240,0.28),rgba(16,24,38,0) 62%),#101826;">'
-      +   '<div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,15,26,0.5) 0%,rgba(10,15,26,0.1) 50%,rgba(10,15,26,0) 62%),linear-gradient(180deg,rgba(16,24,38,0) 60%,#101826 100%);"></div>'
+      + '<div style="position:relative;min-height:172px;background:radial-gradient(110% 130% at 0% 0%,rgba(96,168,240,0.28),rgba(16,24,38,0) 62%),#101826 url(images/progres/bandeau.webp) 20% 35%/cover no-repeat;">'
+      +   '<div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,15,26,0.45) 0%,rgba(10,15,26,0) 45%),linear-gradient(180deg,rgba(16,24,38,0) 55%,#101826 100%);"></div>'
       +   '<div style="position:relative;display:flex;align-items:center;gap:14px;padding:18px 16px 10px;">'
       +     '<div style="position:relative;flex-shrink:0;width:' + T + 'px;height:' + T + 'px;">'
       +       '<svg width="' + T + '" height="' + T + '" viewBox="0 0 ' + T + ' ' + T + '" style="transform:rotate(-90deg);" aria-hidden="true">'
@@ -260,12 +260,13 @@
       +         '<div style="font-size:2.3em;font-weight:900;color:#fff;line-height:1;font-variant-numeric:tabular-nums;">' + cetteSem + '<span style="font-size:0.45em;color:#9fb0c8;font-weight:800;"> / ' + but + '</span></div>'
       +         '<div style="font-size:10.5px;font-weight:900;letter-spacing:1.5px;color:#93c5fd;margin-top:5px;">SÉANCES</div>'
       +       '</div></div>'
-      +     '<div style="flex:1;min-width:0;">'
-      +       '<div style="font-size:11px;font-weight:900;letter-spacing:2px;color:' + BLEU + ';">TA SEMAINE</div>'
-      +       '<div style="font-size:15.5px;font-weight:800;color:#f1f5f9;line-height:1.35;margin-top:6px;text-shadow:0 1px 6px rgba(0,0,0,0.7);">' + phrase + '</div>'
-      +       (minutes ? '<div style="font-size:12.5px;color:#a9bdd6;font-weight:700;margin-top:6px;text-shadow:0 1px 6px rgba(0,0,0,0.7);">' + minutes + ' min d\'effort</div>' : '')
-      +     '</div></div></div>'
+      +     '</div></div>'
       + '<div style="padding:6px 16px 14px;">'
+      +     '<div style="margin:2px 0 14px;">'
+      +       '<div style="font-size:11px;font-weight:900;letter-spacing:2px;color:' + BLEU + ';">TA SEMAINE</div>'
+      +       '<div style="font-size:15.5px;font-weight:800;color:#f1f5f9;line-height:1.35;margin-top:6px;">' + phrase + '</div>'
+      +       (minutes ? '<div style="font-size:12.5px;color:#a9bdd6;font-weight:700;margin-top:6px;">' + minutes + ' min d\'effort</div>' : '')
+      +     '</div>'
       +   '<div style="display:flex;gap:6px;">' + pts + '</div>'
       +   '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:13px;">' + puce(ceMois, 'ce mois-ci') + puce(sa, sa > 1 ? 'semaines d\'affilée' : 'semaine active') + puce(hist.length, 'au total') + '</div>'
       + '</div></div>';
