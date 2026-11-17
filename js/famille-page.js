@@ -4,7 +4,7 @@
    Maintenant : une page rangée par PERSONNE et par ACTION.
      1. les membres en grandes cartes → fiche du membre (tout au même endroit)
      2. « À faire ensemble » : séance ensemble + jeux
-     3. « Plus » : défis, badges, journal, ciel, étoiles, membres
+     3. « Plus » : jours en famille, étoiles, défis, badges, journal, liens
    Le rendu est appelé par renderFamilyTab (adventure.js). La version enfant
    de l'onglet (enfant-simple.js) n'est pas touchée.
    ═══════════════════════════════════════════════════════════════════ */
@@ -99,11 +99,12 @@
   }
   function blocPlus(plusieurs, aEnfant, apres) {
     var l = '';
+    // v1782 : « Notre ciel » et la constellation de la semaine sont retirés de l'onglet
+    if (plusieurs && window.AwakFamJours && AwakFamJours.ouvrir) { var jr = ''; try { jr = AwakFamJours.resume ? AwakFamJours.resume() : ''; } catch (e) { jr = ''; } l += ligne('AwakFamJours.ouvrir()', 'calendrier', 'Nos jours en famille', esc(jr || 'Vos jours et votre heure')); }
     if (aEnfant && window.AwakEtoiles) l += ligne('AwakEtoiles.ouvrirParent()', 'etoile', 'Étoiles et récompenses', 'Demandes, semaine des enfants, règles', AMBRE);
     if (plusieurs && typeof window.AwakEnsembleOpen === 'function') l += ligne('AwakEnsembleOpen()', 'trophee', 'Défis', 'Objectif commun, duels');
     if (plusieurs && typeof window.AwakFamBadgesOpen === 'function') l += ligne('AwakFamBadgesOpen()', 'couronne', 'Badges', 'Ceux de la famille');
     if (plusieurs && typeof window.AwakFamilyFeedOpen === 'function') l += ligne('AwakFamilyFeedOpen()', 'liste', 'Journal', 'Qui a fait quoi');
-    if (plusieurs) l += ligne('AwakFamPage.ciel()', 'constel', 'Notre ciel', 'Chaque membre est une étoile');
     if (plusieurs && typeof window.AwakFamilyManage === 'function') l += ligne('AwakFamilyManage()', 'groupe', 'Liens de famille', 'Qui est qui pour toi');
     if (!l && !apres) return '';
     return '<div id="awakFamPlus" style="margin-bottom:14px;">' + titre('PLUS')
@@ -123,7 +124,7 @@
     h += blocMembres(liste, nbMax);
     if (plusieurs) h += blocEnsemble(aEnfant);
     var apres = '';
-    try { if (plusieurs && ctx.sky) apres = ctx.sky.apres(); } catch (e) { _e(e); }
+    try { if (plusieurs && ctx.sky && ctx.sky.enCours) apres = ctx.sky.enCours(); } catch (e) { _e(e); }
     h += blocPlus(plusieurs, aEnfant, apres);
     if (!plusieurs) h += '<div style="padding:4px 6px 14px;font-size:0.8em;color:#94a3b8;line-height:1.5;text-align:center;">Ajoute un enfant, un conjoint ou un ami : chacun a son profil, et vous bougez ensemble.</div>';
     return h;
@@ -191,15 +192,5 @@
     feuille('awakFamFiche', h);
   }
 
-  // « Notre ciel » : la constellation, sortie de la page (elle prenait presque tout l'écran)
-  function ciel() {
-    var c = '';
-    try { window._awkFamSansBarre = true; c = (window.AwakFamily && AwakFamily.renderConstellation) ? AwakFamily.renderConstellation() : ''; } catch (e) { _e(e); }
-    window._awkFamSansBarre = false;
-    if (!c) return;
-    feuille('awakFamCiel', '<div style="margin:0 -4px;">' + c + '</div>'
-      + '<button type="button" onclick="AwakFamPage.fermer(\'awakFamCiel\')" style="width:100%;min-height:0;margin-top:6px;padding:13px;border-radius:14px;cursor:pointer;font-family:inherit;font-size:0.9em;font-weight:800;background:transparent;color:#cbd5e1;border:1px solid rgba(255,255,255,0.14);">Fermer</button>');
-  }
-
-  window.AwakFamPage = { render: render, membre: membre, ciel: ciel, fermer: fermer };
+  window.AwakFamPage = { render: render, membre: membre, fermer: fermer };
 })();

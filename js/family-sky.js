@@ -311,6 +311,8 @@
     // v1423 adulte : rangée compacte + « en cours » seulement s'il y a quelque chose
     apres: function () { styles(); return rangee() + sectionEnCours(false, true); },
     apresEnfant: function () { styles(); return carteSemaine() + sectionEnCours(true); },
+    // v1782 : page Famille sans constellation ni ciel — seulement ce qui est en cours
+    enCours: function () { styles(); return sectionEnCours(false, true); },
     etatSemaine: etatSemaine,
     seances: seances
   };

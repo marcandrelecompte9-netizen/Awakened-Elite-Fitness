@@ -163,8 +163,7 @@
       { c: function () { return document.querySelectorAll('#awakFamMembres [data-fam-membre]').length > 1 ? $('#awakFamMembres') : null; }, t: 'Ta famille', d: 'Une carte par membre : ses jours actifs de la semaine, et les étoiles d\'un enfant. Les points bleus sont les jours où il a bougé.' },
       { c: function () { var l = document.querySelectorAll('#awakFamMembres [data-fam-membre]'); return l.length > 1 ? l[1] : null; }, t: 'Touche un membre', d: 'Sa fiche regroupe tout : l\'encourager, jouer à deux, lui lancer un défi, passer à son profil. Pour un enfant : ses étoiles, sa semaine et ses demandes de récompense.' },
       { c: function () { return $('#awakFamEnsemble'); }, t: 'À faire ensemble', d: 'Séance ensemble : 15 minutes pour toute la famille, au même rythme. Jeux ensemble : tag, statue, marche des animaux, avec un enfant.' },
-      { c: function () { return $('#familyContainer [onclick="AwakFamJours.ouvrir()"]'); }, t: 'Nos jours en famille', d: 'Choisissez vos jours et votre heure : la séance ensemble s\'ajoute au plan de chaque membre.' },
-      { c: function () { return $('#awakFamPlus'); }, t: 'Plus', d: 'Étoiles et récompenses des enfants, défis, badges, journal de la famille, et « Notre ciel » où chaque membre est une étoile.' },
+      { c: function () { return $('#awakFamPlus'); }, t: 'Plus', d: 'Vos jours en famille, les étoiles et récompenses des enfants, les défis, les badges et le journal de la famille.' },
       // Famille encore seule
       { c: function () { if (document.querySelectorAll('#awakFamMembres [data-fam-membre]').length > 1) return null; return parTexte('familyContainer', 'button', /Ajouter un membre/); }, t: 'La famille', d: 'Un enfant, un conjoint, un ami : crée son profil ici. Chaque membre a ses séances et sa progression.' }
     ],
