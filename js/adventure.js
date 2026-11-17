@@ -765,20 +765,22 @@ function renderFamilyTab() {
     // (encouragements, objectif commun, défis, jeux à deux).
     // En-tête aligné sur le langage des autres onglets : surtitre discret,
     // titre en police d'affichage, pas de paragraphe explicatif.
-    let html = '<div class="awk-entete" data-echelle-garder style="border-left:2px solid #ec4899;padding-left:11px;margin-bottom:14px;">'
-        + '<div style="font-size:0.56em;letter-spacing:2.5px;color:#ec4899;font-weight:900;">LES TIENS</div>'
+    let html = '<div class="awk-entete" data-echelle-garder style="border-left:2px solid #60a8f0;padding-left:11px;margin-bottom:14px;">'
+        + '<div style="font-size:0.56em;letter-spacing:2.5px;color:#60a8f0;font-weight:900;">LES TIENS</div>'
         + '<h2 style="font-size:1.15em;font-weight:900;color:#fff;margin:2px 0 0;'
         +   'font-family:var(--font-display),sans-serif;letter-spacing:0.5px;">Ma famille</h2>'
         + '</div>';
 
     // Cas : un seul profil → inviter à en créer un second
     if (profileCount < 2) {
-        html += '<div style="background:linear-gradient(160deg,#1a1018,#0d0d12);border:1px solid rgba(236,72,153,0.2);border-radius:18px;padding:22px;text-align:center;">'
-            + '<div style="width:58px;height:58px;margin:0 auto 10px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(236,72,153,0.14);">' + ((window.AwakIcon && AwakIcon.get('groupe', 30, '#f9a8d4')) || '') + '</div>'
-            + '<div style="font-size:1.05em;font-weight:800;color:#fff;margin-bottom:6px;">La famille se construit à plusieurs</div>'
-            + '<p style="font-size:0.82em;color:#94a3b8;line-height:1.5;margin:0 0 16px;">Crée un profil pour chaque membre de ta famille. Vous pourrez vous encourager, relever des défis et allumer un ciel d\'étoiles ensemble.</p>'
-            + '<button onclick="showProfileSelectionModal()" style="padding:12px 22px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;font-weight:800;font-size:0.9em;">Ajouter un membre</button>'
-            + '</div>';
+        // v1784 : image « famille encore seule » (images/famille/vide.webp), sans rose
+        html += '<div style="position:relative;overflow:hidden;border:1px solid rgba(96,168,240,0.3);border-radius:20px;text-align:center;background:#16233f;">'
+            + '<img src="images/famille/vide.webp" alt="" style="display:block;width:100%;aspect-ratio:1200/720;object-fit:cover;object-position:50% 0;" onerror="this.style.display=\'none\'">'
+            + '<div style="padding:4px 20px 22px;margin-top:-34px;position:relative;background:linear-gradient(180deg,rgba(22,35,63,0) 0,#16233f 34px);">'
+            + '<div style="font-size:1.15em;font-weight:900;color:#fff;margin-bottom:6px;padding-top:30px;">La famille se construit à plusieurs</div>'
+            + '<p style="font-size:0.84em;color:#b6c4d8;line-height:1.5;margin:0 0 16px;">Crée un profil pour chaque membre de ta famille. Vous pourrez bouger ensemble, vous encourager et relever des défis.</p>'
+            + '<button onclick="if(typeof showCreateProfileModal===\'function\')showCreateProfileModal();else showProfileSelectionModal()" style="padding:13px 24px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;font-weight:900;font-size:0.92em;font-family:inherit;">Ajouter un membre</button>'
+            + '</div></div>';
         container.innerHTML = html;
         return;
     }

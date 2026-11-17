@@ -93,23 +93,27 @@
     else if (sansSem.length && sansSem.length < ordre.length) { phrase = 'Il manque ' + liste(sansSem) + ' cette semaine.'; cible = sansSem.filter(function (p) { return p.id !== m; })[0]; }
     else if (sansAuj.length < ordre.length) { phrase = 'Pas encore bougé aujourd\'hui : ' + liste(sansAuj) + '.'; cible = sansAuj.filter(function (p) { return p.id !== m; })[0]; }
     else phrase = 'Personne n\'a encore bougé aujourd\'hui. Qui commence ?';
-    return '<div id="awakFamHeros" style="display:flex;align-items:center;gap:16px;padding:16px;border-radius:20px;margin-bottom:16px;background:radial-gradient(120% 140% at 0% 0%,rgba(96,168,240,0.22),rgba(96,168,240,0.03) 60%),#10141b;border:1px solid rgba(96,168,240,0.3);">'
-      + '<div style="position:relative;flex-shrink:0;width:' + T + 'px;height:' + T + 'px;">'
+    // v1784 : bandeau illustré (images/famille/bandeau.webp) — l'anneau sur la moitié sombre, la famille à droite
+    return '<div id="awakFamHeros" style="border-radius:20px;margin-bottom:16px;overflow:hidden;background:#141d33;border:1px solid rgba(96,168,240,0.3);">'
+      + '<div style="position:relative;height:168px;background:#1b2a4a url(images/famille/bandeau.webp) 100% 50%/cover no-repeat;">'
+      +   '<div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(13,19,34,0.55) 0%,rgba(13,19,34,0.15) 48%,rgba(13,19,34,0) 60%),linear-gradient(180deg,rgba(20,29,51,0) 62%,#141d33 100%);"></div>'
+      +   '<div style="position:absolute;left:5.5%;top:18px;width:' + T + 'px;height:' + T + 'px;">'
       +   '<svg width="' + T + '" height="' + T + '" viewBox="0 0 ' + T + ' ' + T + '" style="transform:rotate(-90deg);" aria-hidden="true">'
       +     '<defs><linearGradient id="awkFamDeg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#60a8f0"/></linearGradient></defs>'
-      +     '<circle cx="' + T / 2 + '" cy="' + T / 2 + '" r="' + r + '" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="' + E + '"/>'
+      +     '<circle cx="' + T / 2 + '" cy="' + T / 2 + '" r="' + r + '" fill="rgba(10,15,28,0.55)" stroke="rgba(255,255,255,0.12)" stroke-width="' + E + '"/>'
       +     '<circle cx="' + T / 2 + '" cy="' + T / 2 + '" r="' + r + '" fill="none" stroke="url(#awkFamDeg)" stroke-width="' + E + '" stroke-linecap="round" stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + (c * (1 - part)).toFixed(1) + '" style="--c:' + c.toFixed(1) + ';--o:' + (c * (1 - part)).toFixed(1) + ';animation:awkFamTrace 1.1s cubic-bezier(.3,.8,.3,1) both;' + (part ? 'filter:drop-shadow(0 0 6px rgba(96,168,240,0.7));' : 'opacity:0;') + '"/>'
       +   '</svg>'
       +   '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">'
-      +     '<div style="font-size:2em;font-weight:900;color:#fff;line-height:1;">' + fait + '<span style="font-size:0.5em;color:#7c8aa0;font-weight:800;"> / ' + but + '</span></div>'
+      +     '<div style="font-size:2em;font-weight:900;color:#fff;line-height:1;">' + fait + '<span style="font-size:0.5em;color:#9fb0c8;font-weight:800;"> / ' + but + '</span></div>'
       +     '<div style="font-size:0.62em;font-weight:900;letter-spacing:1.5px;color:#93c5fd;margin-top:4px;">JOURS</div>'
-      +   '</div></div>'
-      + '<div style="flex:1;min-width:0;">'
+      +   '</div></div></div>'
+      + '<div style="padding:2px 16px 16px;">'
       +   '<div style="font-size:0.66em;font-weight:900;letter-spacing:2px;color:' + BLEU + ';">LA SEMAINE DE LA FAMILLE</div>'
-      +   '<div style="font-size:0.95em;font-weight:800;color:#f1f5f9;line-height:1.35;margin:6px 0 4px;">' + esc(phrase.charAt(0).toUpperCase() + phrase.slice(1)) + '</div>'
-      +   '<div style="font-size:0.7em;color:#8391a7;font-weight:700;line-height:1.35;">Objectif : ' + CIBLE + ' jours actifs chacun.</div>'
-      +   (cible ? '<button type="button" onclick="AwakConstAction(\'nudge\',\'' + String(cible.id).replace(/'/g, '') + '\')" style="margin-top:10px;min-height:0;padding:9px 13px;border-radius:11px;cursor:pointer;font-family:inherit;font-size:0.8em;font-weight:900;display:inline-flex;align-items:center;gap:7px;background:rgba(251,146,60,0.14);color:#fdba74;border:1px solid rgba(251,146,60,0.5);">' + ic('coeur', 15, ORANGE) + 'Encourager ' + esc(cible.name || '') + '</button>' : '')
-      + '</div></div>';
+      +   '<div style="display:flex;align-items:center;gap:12px;margin-top:6px;">'
+      +     '<div style="flex:1;min-width:0;"><div style="font-size:1em;font-weight:800;color:#f1f5f9;line-height:1.35;">' + esc(phrase.charAt(0).toUpperCase() + phrase.slice(1)) + '</div>'
+      +     '<div style="font-size:0.72em;color:#8fa0b8;font-weight:700;line-height:1.35;margin-top:3px;">Objectif : ' + CIBLE + ' jours actifs chacun.</div></div>'
+      +     (cible ? '<button type="button" onclick="AwakConstAction(\'nudge\',\'' + String(cible.id).replace(/'/g, '') + '\')" style="flex-shrink:0;min-height:0;padding:10px 13px;border-radius:12px;cursor:pointer;font-family:inherit;font-size:0.8em;font-weight:900;display:inline-flex;align-items:center;gap:7px;background:rgba(251,146,60,0.14);color:#fdba74;border:1px solid rgba(251,146,60,0.5);max-width:46%;">' + ic('coeur', 15, ORANGE) + '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Encourager ' + esc(cible.name || '') + '</span></button>' : '')
+      +   '</div></div></div>';
   }
   function blocMembres(liste, nbMax) {
     styles();
@@ -191,12 +195,14 @@
   }
 
   // ── 2. À faire ensemble ──
-  function grosBouton(fn, icone, t, d, plein) {
-    return '<button type="button" onclick="' + fn + '" style="display:flex;' + (plein ? 'align-items:center;gap:12px;text-align:left;' : 'flex-direction:column;align-items:flex-start;gap:9px;text-align:left;') + 'min-width:0;min-height:0;padding:14px;border-radius:16px;cursor:pointer;font-family:inherit;'
-      + 'background:linear-gradient(160deg,rgba(96,168,240,0.16),rgba(96,168,240,0.05));border:1px solid rgba(96,168,240,0.4);color:#fff;">'
-      + '<span style="flex-shrink:0;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(96,168,240,0.2);">' + ic(icone, 22, '#bfdbfe') + '</span>'
-      + '<span style="min-width:0;"><span style="display:block;font-size:0.95em;font-weight:900;">' + t + '</span>'
-      + '<span style="display:block;font-size:0.7em;color:#a9bdd6;margin-top:2px;line-height:1.35;">' + d + '</span></span></button>';
+  // v1784 : cartes illustrées (images/famille/seance.webp, jeux.webp) ; le titre se lit sur le bas sombre
+  function grosBouton(fn, icone, t, d, plein, image) {
+    return '<button type="button" onclick="' + fn + '" style="position:relative;display:block;min-width:0;min-height:0;padding:0 !important;overflow:hidden;border-radius:18px;cursor:pointer;font-family:inherit;text-align:left;'
+      + 'background:#16233f;border:1px solid rgba(96,168,240,0.4);color:#fff;">'
+      + '<img src="images/famille/' + image + '.webp" alt="" loading="lazy" style="display:block;width:100%;' + (plein ? 'height:150px;' : 'aspect-ratio:1200/800;') + 'object-fit:cover;object-position:50% 12%;" onerror="this.style.display=\'none\'">'
+      + '<span style="display:block;position:relative;margin-top:-30px;padding:30px 12px 13px;background:linear-gradient(180deg,rgba(22,35,63,0) 0,#16233f 30px);">'
+      +   '<span style="display:flex;align-items:center;gap:7px;font-size:0.98em;font-weight:900;">' + ic(icone, 17, '#bfdbfe') + t + '</span>'
+      +   '<span style="display:block;font-size:0.7em;color:#b6c4d8;margin-top:3px;line-height:1.35;">' + d + '</span></span></button>';
   }
   function blocEnsemble(aEnfant) {
     var a = typeof window.AwakFamilyMove === 'function', j = aEnfant && typeof window.AwakKidsOpen === 'function';
@@ -204,8 +210,8 @@
     var deux = a && j;
     return '<div id="awakFamEnsemble" style="margin-bottom:16px;">' + titre('À FAIRE ENSEMBLE')
       + '<div style="display:grid;grid-template-columns:' + (deux ? 'repeat(2,minmax(0,1fr))' : '1fr') + ';gap:9px;">'
-      + (a ? grosBouton('AwakFamilyMove()', 'groupe', 'Séance ensemble', '15 min, tout le monde au même rythme', !deux) : '')
-      + (j ? grosBouton('AwakKidsOpen()', 'manette', 'Jeux ensemble', 'Tag, statue, marche des animaux', !deux) : '')
+      + (a ? grosBouton('AwakFamilyMove()', 'groupe', 'Séance ensemble', '15 min, tout le monde au même rythme', !deux, 'seance') : '')
+      + (j ? grosBouton('AwakKidsOpen()', 'manette', 'Jeux ensemble', 'Tag, statue, marche des animaux', !deux, 'jeux') : '')
       + '</div></div>';
   }
 
