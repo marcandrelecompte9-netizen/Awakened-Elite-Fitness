@@ -475,10 +475,32 @@
         '<div class="ahp-kick" style="color:' + (auj && !auj.faite ? ACCENT : '#94a3b8') + ';">' + etiq + '</div>' +
         '<div style="font-family:var(--font-display);font-size:1.18em;font-weight:800;color:#f8fafc;margin-top:6px;line-height:1.2;">' + esc(titre) + '</div>' +
         (meta ? '<div class="ahp-meta">' + meta + '</div>' : '') +
+        mentorHTML() +
         '<div style="margin-top:14px;">' + bouton + '</div>' +
         lienAutre() +
         rituelsHTML(info, hist) +
       '</div>';
+  }
+
+  // v1791 : le mentor choisi (programme actif) — portrait rond + semaine ; toucher ouvre son programme
+  function mentorHTML() {
+    try {
+      if (estEnfant() || typeof getActiveCelebrity !== 'function') return '';
+      var m = getActiveCelebrity(); if (!m) return '';
+      var pr = typeof getCelebProgression === 'function' ? getCelebProgression(m.id) : null;
+      var col = m.color || ACCENT;
+      var rond = typeof window.awakMentorIco === 'function' ? window.awakMentorIco(m, 20, col) : '';
+      return '<button type="button" onclick="switchTab(\'program\');window.scrollTo(0,0)" aria-label="Ton mentor : ' + esc(m.nickname) + '" ' +
+          'style="display:flex;align-items:center;gap:11px;width:100%;margin-top:12px;min-height:auto;padding:8px 10px;border-radius:12px;cursor:pointer;font-family:inherit;text-align:left;' +
+          'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);color:#f8fafc;">' +
+        '<span style="flex-shrink:0;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:' + col + '22;border:1.5px solid ' + col + '88;">' + rond + '</span>' +
+        '<span style="flex:1;min-width:0;">' +
+          '<span style="display:block;font-size:0.66em;font-weight:900;letter-spacing:1.5px;color:#94a3b8;">TON MENTOR</span>' +
+          '<span style="display:block;font-size:0.92em;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(m.nickname) +
+            (pr ? '<span style="color:#94a3b8;font-weight:700;"> · semaine ' + pr.week + ' sur ' + (pr.totalWeeks || 12) + '</span>' : '') + '</span>' +
+        '</span>' +
+        '<span style="flex-shrink:0;color:#64748b;font-size:1.2em;">›</span></button>';
+    } catch (e) { _awkE(e); return ''; }
   }
 
   // v1570 : rituels du jour (Rituels) sur la carte du jour — avant : affichés nulle part
