@@ -215,7 +215,7 @@
   function pt(n) { return n + ' pt' + (n > 1 ? 's' : ''); }
 
   // Emblèmes illustrés (images/Objets/skill_<id>.webp) : n'ajouter ici que les images livrées
-  var SKILL_IMG = {};
+  var SKILL_IMG = { full_sets: 1, record_breaker: 1, long_breath: 1 };
   // Icône SVG selon le premier effet de la compétence
   var ICONE_EFFET = { xpAll: 'etoile', xpCompound: 'halter', xpIsolation: 'cible', streakStart: 'flamme', mineralBonus: 'boussole',
     graceExtend: 'bouclier', secondWind: 'sante', riftLifesteal: 'coeur', critChance: 'eclair', critDmg: 'cible', doubleDropChance: 'trophee',

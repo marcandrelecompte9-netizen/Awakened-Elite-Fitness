@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v1797';
+const CACHE_NAME = 'awakened-v1798';
 // v1586 : images d'exercices dans un cache DURABLE, jamais vidé à une mise à jour
 // (avant : chaque déploiement les effaçait → retéléchargées, absentes hors ligne)
 const IMG_CACHE = 'awakened-images';
@@ -107,11 +107,11 @@ const ASSETS = [
   './js/pain-mode.js',
   './js/recovery-mode.js',
   './data/items.js',
-  './manifest.json?v=1797',
-  './icons/icon-192.png?v=1797',
-  './icons/icon-512.png?v=1797',
-  './icons/icon-192-maskable.png?v=1797',
-  './icons/icon-512-maskable.png?v=1797',
+  './manifest.json?v=1798',
+  './icons/icon-192.png?v=1798',
+  './icons/icon-512.png?v=1798',
+  './icons/icon-192-maskable.png?v=1798',
+  './icons/icon-512-maskable.png?v=1798',
   // icon-1024.png : asset de soumission aux stores, volontairement hors du
   // précache (487 Ko). Reste dans manifest.json, récupérable à la demande.
   './images/banner_v4.webp',
@@ -248,7 +248,7 @@ const UI_IMAGES = [
   './images/tree_bg.webp',
 ];
 // Clé de cache d'une image : sans « ?v=NNNN ». Avant, chaque build changeait l'URL
-// (salle_bg_v5.webp?v=1621 → ?v=1797) et ajoutait une copie de plus dans le cache
+// (salle_bg_v5.webp?v=1621 → ?v=1798) et ajoutait une copie de plus dans le cache
 // durable, sans jamais la retirer.
 function cleImage(url) { return url.split('?')[0]; }
 // v1654 : images REMPLACÉES sous le même nom → retirées une fois du cache durable,
@@ -258,6 +258,7 @@ function cleImage(url) { return url.split('?')[0]; }
 const IMAGES_REMPLACEES = { rev: 1730, fichiers: ['./images/body/body_face.webp', './images/body/body_dos.webp',
   './images/banner_v4.webp', './images/banner_v4_mobile.webp',
   './images/progres/bandeau.webp',
+  './images/Objets/skill_full_sets.webp', './images/Objets/skill_record_breaker.webp', './images/Objets/skill_long_breath.webp',
   './images/Objets/jeu_competences.webp', './images/Objets/jeu_equipement.webp',
   './images/onglets/course.webp', './images/onglets/defis.webp', './images/onglets/routines_vide.webp',
   './images/seance/tabata.webp', './images/seance/superset.webp', './images/seance/circuit.webp', './images/seance/amrap.webp',
