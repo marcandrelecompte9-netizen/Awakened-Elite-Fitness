@@ -24970,7 +24970,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1798);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1799);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -25023,7 +25023,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1798" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1799" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25834,7 +25834,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const cle = Math.round(r.width) + 'x' + H;
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1798)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1799)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center top';
                 } catch (e) { _awkE(e); }
@@ -31280,7 +31280,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1798");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1799");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -39914,21 +39914,21 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 listEl.innerHTML = filtered.map(p => {
                     const isActive = activeCeleb && activeCeleb.id === p.id;
                     return `<div onclick="showCelebrityDetail('${p.id}')"
-                         style="background:linear-gradient(135deg,${p.color}${isActive?'28':'18'},${p.color}08);border:${isActive?'2':'1.5'}px solid ${p.color}${isActive?'80':'50'};border-radius:14px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:14px;touch-action:manipulation;">
-                            <div style="width:52px;height:52px;border-radius:14px;background:${p.color}20;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${awakMentorIco(p, 26)}</div>
+                         style="background:${isActive?'rgba(96,168,240,0.12)':'#12161c'};border:${isActive?'2px solid rgba(96,168,240,0.7)':'1px solid rgba(255,255,255,0.08)'};border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:14px;touch-action:manipulation;">
+                            <div style="width:56px;height:56px;border-radius:50%;background:rgba(96,168,240,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${awakMentorIco(p, 26, '#93c5fd')}</div>
                             <div style="flex:1;min-width:0;">
                                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:1px;">
                                     <div style="font-weight:900;font-size:1.05em;color:white;">${p.nickname}</div>
-                                    ${isActive ? `<span style="background:${p.color}30;color:${p.color};padding:1px 7px;border-radius:99px;font-size:0.6em;font-weight:800;">● ACTIF</span>` : ''}
+                                    ${isActive ? `<span style="background:rgba(96,168,240,0.2);color:#93c5fd;padding:1px 7px;border-radius:99px;font-size:0.6em;font-weight:800;">ACTIF</span>` : ''}
                                 </div>
-                                <div style="font-size:0.72em;color:${p.color};font-weight:700;margin-bottom:5px;">${p.name}</div>
+                                <div style="font-size:0.72em;color:#94a3b8;font-weight:700;margin-bottom:6px;">${p.name}</div>
                                 <div style="display:flex;gap:5px;flex-wrap:wrap;">
-                                    <span style="background:${p.color}22;color:${p.color};padding:2px 8px;border-radius:99px;font-size:0.62em;font-weight:800;">${p.level}</span>
-                                    <span style="background:rgba(16,185,129,0.15);color:#34d399;padding:2px 8px;border-radius:99px;font-size:0.62em;font-weight:700;">${p.days}j/sem</span>
-                                    <span style="background:rgba(251,191,36,0.12);color:#fbbf24;padding:2px 8px;border-radius:99px;font-size:0.62em;font-weight:700;">${p.duration}</span>
+                                    <span style="background:rgba(96,168,240,0.14);color:#93c5fd;padding:2px 8px;border-radius:99px;font-size:0.62em;font-weight:800;">${p.level}</span>
+                                    <span style="background:rgba(255,255,255,0.06);color:#cbd5e1;padding:2px 8px;border-radius:99px;font-size:0.62em;font-weight:700;">${p.days}j/sem</span>
+                                    <span style="background:rgba(255,255,255,0.06);color:#cbd5e1;padding:2px 8px;border-radius:99px;font-size:0.62em;font-weight:700;">${p.duration}</span>
                                 </div>
                             </div>
-                            <div style="color:${p.color};font-size:1.1em;flex-shrink:0;">›</div>
+                            <div style="color:#64748b;font-size:1.2em;flex-shrink:0;">›</div>
                         </div>`;
                 }).join('');
 
@@ -39936,8 +39936,8 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 ['homme','femme'].forEach(g => {
                     const btn = document.getElementById('_celebGender_' + g);
                     if (!btn) return;
-                    btn.style.background  = g === gender ? 'rgba(22,163,74,0.2)'  : 'rgba(255,255,255,0.05)';
-                    btn.style.borderColor = g === gender ? 'rgba(22,163,74,0.6)'  : 'rgba(255,255,255,0.15)';
+                    btn.style.background  = g === gender ? 'rgba(96,168,240,0.18)'  : 'rgba(255,255,255,0.05)';
+                    btn.style.borderColor = g === gender ? 'rgba(96,168,240,0.6)'  : 'rgba(255,255,255,0.15)';
                     btn.style.color       = g === gender ? 'white' : 'rgba(255,255,255,0.45)';
                     btn.style.fontWeight  = g === gender ? '800' : '600';
                 });
@@ -39948,11 +39948,11 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             overlay.style.cssText = 'position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,0.85);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);';
 
             const activeSection = activeCeleb ? `
-                <div style="background:linear-gradient(135deg,${activeCeleb.color}25,${activeCeleb.color}10);border:2px solid ${activeCeleb.color}60;border-radius:14px;padding:14px 16px;margin-bottom:14px;">
+                <div style="background:rgba(96,168,240,0.1);border:2px solid rgba(96,168,240,0.55);border-radius:14px;padding:14px 16px;margin-bottom:14px;">
                     <div style="display:flex;align-items:center;gap:12px;">
-                        <div style="width:44px;height:44px;border-radius:14px;background:${activeCeleb.color}25;display:flex;align-items:center;justify-content:center;">${awakMentorIco(activeCeleb, 22)}</div>
+                        <div style="width:48px;height:48px;border-radius:50%;background:rgba(96,168,240,0.14);display:flex;align-items:center;justify-content:center;">${awakMentorIco(activeCeleb, 22, '#93c5fd')}</div>
                         <div style="flex:1;">
-                            <div style="font-size:0.65em;color:${activeCeleb.color};font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">● Personnalité active</div>
+                            <div style="font-size:0.65em;color:#93c5fd;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Personnalité active</div>
                             <div style="font-weight:900;color:white;font-size:1em;">${activeCeleb.nickname}</div>
                             <div style="font-size:0.72em;color:rgba(255,255,255,0.5);">${activeCeleb.name}</div>
                         </div>
@@ -39974,7 +39974,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                         <div style="display:flex;align-items:flex-start;gap:10px;">
                             <span style="font-size:1.2em;flex-shrink:0;">⚡</span>
                             <div>
-                                <div style="font-size:0.78em;font-weight:800;color:#4ade80;">Démarrer la séance</div>
+                                <div style="font-size:0.78em;font-weight:800;color:#93c5fd;">Démarrer la séance</div>
                                 <div style="font-size:0.73em;color:rgba(255,255,255,0.45);line-height:1.4;margin-top:1px;">Lance <em>exactement</em> le programme de la star — exercices, séries, repos.</div>
                             </div>
                         </div>
@@ -40007,7 +40007,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 <!-- Filtre genre -->
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
                     <button id="_celebGender_homme" onclick="_renderCelebList('homme')"
-                        style="padding:11px;border-radius:14px;border:2px solid rgba(22,163,74,0.6);background:rgba(22,163,74,0.2);color:white;font-size:0.88em;font-weight:800;cursor:pointer;">
+                        style="padding:11px;border-radius:14px;border:2px solid rgba(96,168,240,0.6);background:rgba(96,168,240,0.18);color:white;font-size:0.88em;font-weight:800;cursor:pointer;">
                         💪 Hommes (${CELEBRITY_PROGRAMS.filter(p=>p.gender==='homme').length})
                     </button>
                     <button id="_celebGender_femme" onclick="_renderCelebList('femme')"
@@ -40032,8 +40032,10 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             _renderList(initGender);
         }
         function showCelebrityDetail(programId) {
-            const p = CELEBRITY_PROGRAMS.find(x => x.id === programId);
-            if (!p) return;
+            const _p0 = CELEBRITY_PROGRAMS.find(x => x.id === programId);
+            if (!_p0) return;
+            // v1799 : fiche aux couleurs de l'app (bleu) au lieu de la couleur propre à chaque mentor
+            const p = Object.assign({}, _p0, { color: '#60a8f0' });
             document.getElementById('celebrityDetailOverlay')?.remove();
 
             const activeCeleb = getActiveCelebrity();
@@ -40111,7 +40113,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 <!-- Corps DÉFILANT : la barre d'action reste visible en bas. -->
                 <div style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;">
                 <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
-                    <div style="width:70px;height:70px;border-radius:20px;background:${p.color}25;border:2px solid ${p.color}60;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${awakMentorIco(p, 34)}</div>
+                    <div style="width:76px;height:76px;border-radius:50%;background:${p.color}25;border:2px solid ${p.color}60;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${awakMentorIco(p, 34, '#93c5fd')}</div>
                     <div style="flex:1;">
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                             <div style="font-size:1.5em;font-weight:900;color:white;">${p.nickname}</div>
@@ -40120,8 +40122,8 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                         <div style="font-size:0.82em;color:${p.color};font-weight:700;margin:3px 0 8px;">${p.name}</div>
                         <div style="display:flex;gap:5px;flex-wrap:wrap;">
                             <span style="background:${p.color}25;color:${p.color};padding:3px 9px;border-radius:99px;font-size:0.62em;font-weight:800;">⚡ ${p.level}</span>
-                            <span style="background:rgba(16,185,129,0.15);color:#34d399;padding:3px 9px;border-radius:99px;font-size:0.62em;font-weight:700;">📅 ${p.days}j/sem</span>
-                            <span style="background:rgba(251,191,36,0.12);color:#fbbf24;padding:3px 9px;border-radius:99px;font-size:0.62em;font-weight:700;">⏱️ ${p.duration}</span>
+                            <span style="background:rgba(255,255,255,0.06);color:#cbd5e1;padding:3px 9px;border-radius:99px;font-size:0.62em;font-weight:700;">${p.days}j/sem</span>
+                            <span style="background:rgba(255,255,255,0.06);color:#cbd5e1;padding:3px 9px;border-radius:99px;font-size:0.62em;font-weight:700;">⏱️ ${p.duration}</span>
                         </div>
                     </div>
                 </div>
@@ -40152,17 +40154,17 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 <div id="celebContent_${p.id}_nutr" style="display:none;">
                     <div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:14px;padding:16px;margin-bottom:12px;">
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-                            <div style="text-align:center;"><div style="font-size:1.2em;font-weight:900;color:#4ade80;">${nutr.calories}</div><div style="font-size:0.62em;color:#8391a7;text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Calories / jour</div></div>
-                            <div style="text-align:center;"><div style="font-size:1.2em;font-weight:900;color:#4ade80;">${nutr.protein}</div><div style="font-size:0.62em;color:#8391a7;text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Protéines</div></div>
+                            <div style="text-align:center;"><div style="font-size:1.2em;font-weight:900;color:#93c5fd;">${nutr.calories}</div><div style="font-size:0.62em;color:#8391a7;text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Calories / jour</div></div>
+                            <div style="text-align:center;"><div style="font-size:1.2em;font-weight:900;color:#93c5fd;">${nutr.protein}</div><div style="font-size:0.62em;color:#8391a7;text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Protéines</div></div>
                         </div>
                         <div style="font-size:0.82em;color:#94a3b8;line-height:1.5;">${nutr.approach}</div>
                     </div>
                     <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:13px;margin-bottom:10px;">
-                        <div style="font-size:0.62em;color:#4ade80;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">📝 Note</div>
+                        <div style="font-size:0.62em;color:#93c5fd;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Note</div>
                         <div style="font-size:0.82em;color:rgba(255,255,255,0.75);line-height:1.5;font-style:italic;">${nutr.note}</div>
                     </div>
-                    <div style="background:rgba(22,163,74,0.1);border:1px solid rgba(22,163,74,0.3);border-radius:14px;padding:13px;">
-                        <div style="font-size:0.62em;color:#16a34a;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">💡 Conseil pratique</div>
+                    <div style="background:rgba(96,168,240,0.08);border:1px solid rgba(96,168,240,0.3);border-radius:14px;padding:13px;">
+                        <div style="font-size:0.62em;color:#93c5fd;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Conseil pratique</div>
                         <div style="font-size:0.82em;color:rgba(255,255,255,0.75);line-height:1.5;">${nutr.tip}</div>
                     </div>
                 </div>
@@ -40190,8 +40192,8 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const isSelected = t === tab;
                 if (content) content.style.display = isSelected ? 'block' : 'none';
                 if (btn) {
-                    btn.style.background  = isSelected ? ((cp ? cp.color : '#16a34a') + '20') : 'rgba(255,255,255,0.05)';
-                    btn.style.borderColor = isSelected ? ((cp ? cp.color : '#16a34a') + '60') : 'rgba(255,255,255,0.12)';
+                    btn.style.background  = isSelected ? 'rgba(96,168,240,0.13)' : 'rgba(255,255,255,0.05)';
+                    btn.style.borderColor = isSelected ? 'rgba(96,168,240,0.38)' : 'rgba(255,255,255,0.12)';
                     btn.style.color       = isSelected ? 'white' : 'rgba(255,255,255,0.5)';
                 }
             });
@@ -45031,7 +45033,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1798';
+                    let ver = 'v0.95.1799';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -45199,7 +45201,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1798" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1799" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45281,7 +45283,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1798);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1799);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45348,7 +45350,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1798);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1799);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47822,7 +47824,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1798");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1799");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
