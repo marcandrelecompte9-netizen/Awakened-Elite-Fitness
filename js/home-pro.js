@@ -338,7 +338,7 @@
 
     // Objectif du jour
     var auj = seanceDu(pl, id, d), aPlan = Object.keys(pl.plan || {}).length > 0;
-    var etiq = 'TON OBJECTIF DU JOUR', titre, meta = '', bouton;
+    var etiq = 'TON OBJECTIF DU JOUR', titre, meta = '', bouton, _bandC = false;
     var go = 'if(window.awakLancerSeanceSysteme)awakLancerSeanceSysteme();else{switchTab(\'workouts\');window.scrollTo(0,0)}';   // v1411 : directement
     // v1399 : Parcours de l'Éveil actif → SA séance est l'objectif du jour.
     // Avant : « Jour de repos » (plan automatique) juste au-dessus de la carte
@@ -381,6 +381,7 @@
       }
     } else if (runP && runP.titre && !faiteAuj) {
       // v1400 : plan de course en cours → sa prochaine sortie est l'objectif du jour
+      _bandC = true;
       titre = runP.titre;
       meta = '<span class="ahp-m">' + ico('calendrier', 15, '#cbd5e1') + '<span>Plan ' + esc(runP.plan) + ' · semaine ' + runP.semaine + ' / ' + runP.S + ' · ' + runP.faites + ' / ' + runP.total + ' sorties</span></span>';
       bouton = '<button class="ahp-cta" onclick="switchTab(\'course\');setTimeout(function(){AwakCoachRun.lancerPlan(' + runP.w + ',' + runP.i + ')},150)">Lancer cette sortie</button>';
@@ -471,7 +472,7 @@
             'style="flex-shrink:0;width:86px;height:86px;min-height:auto;padding:0 !important;border-radius:16px;overflow:hidden;cursor:pointer;' +
             'background:#0b0e13;border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;">' + portrait + '</button>' +
         '</div>' +
-        '<div style="height:1px;background:rgba(255,255,255,0.06);margin:14px -16px 14px;"></div>' +
+        bandeauJour(faiteAuj || (auj && auj.faite) || (ev && ev.faite) ? 'faite' : _bandC ? 'course' : (/repos/i.test(titre || '') || /Mobilit|Yoga doux/.test(bouton || '')) ? 'repos' : 'seance') +
         '<div class="ahp-kick" style="color:' + (auj && !auj.faite ? ACCENT : '#94a3b8') + ';">' + etiq + '</div>' +
         '<div style="font-family:var(--font-display);font-size:1.18em;font-weight:800;color:#f8fafc;margin-top:6px;line-height:1.2;">' + esc(titre) + '</div>' +
         (meta ? '<div class="ahp-meta">' + meta + '</div>' : '') +
@@ -480,6 +481,16 @@
         lienAutre() +
         rituelsHTML(info, hist) +
       '</div>';
+  }
+
+  // v1801 : bandeau illustré de l'objectif du jour (images/accueil/jour_<etat>.webp).
+  // Image absente → simple dégradé, comme le séparateur d'avant. Pas chez l'enfant.
+  function bandeauJour(etat) {
+    if (estEnfant()) return '<div style="height:1px;background:rgba(255,255,255,0.06);margin:14px -16px 14px;"></div>';
+    var src = 'images/accueil/jour_' + etat + '.webp';
+    // Séparateur tant que l'image n'est pas chargée (ou si elle manque)
+    return '<div aria-hidden="true" data-bj="' + src + '" style="height:1px;background:rgba(255,255,255,0.06);margin:14px -16px 14px;">' +
+      '<img src="' + src + '" alt="" style="display:none" onload="var d=this.parentNode;d.style.cssText=\'height:118px;margin:14px -16px 12px;border-top:1px solid rgba(255,255,255,0.06);background:linear-gradient(180deg,rgba(18,22,28,0) 45%,#12161c 100%),linear-gradient(90deg,rgba(18,22,28,0.35),rgba(18,22,28,0) 60%),#161c26 url(\'+d.getAttribute(\'data-bj\')+\') 70% 40%/cover no-repeat\';this.remove()"></div>';
   }
 
   // v1791 : le mentor choisi (programme actif) — portrait rond + semaine ; toucher ouvre son programme
