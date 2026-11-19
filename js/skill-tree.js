@@ -215,7 +215,7 @@
   function pt(n) { return n + ' pt' + (n > 1 ? 's' : ''); }
 
   // Emblèmes illustrés (images/Objets/skill_<id>.webp) : n'ajouter ici que les images livrées
-  var SKILL_IMG = { full_sets: 1, record_breaker: 1, long_breath: 1, apex_predator: 1, as_eagle_eye: 1, compound_pro: 1, iron_will: 1, limit_break: 1, prospector: 1, sa_critical: 1, sa_phantom: 1, sa_shadow_step: 1, sa_silent_hunt: 1, second_wind: 1, streak_lord: 1, tg_atlas: 1, transcendence: 1, vital_drain: 1, xp_surge: 1 };
+  var SKILL_IMG = { full_sets: 1, record_breaker: 1, long_breath: 1, apex_predator: 1, as_eagle_eye: 1, compound_pro: 1, iron_will: 1, limit_break: 1, prospector: 1, sa_critical: 1, sa_phantom: 1, sa_shadow_step: 1, sa_silent_hunt: 1, second_wind: 1, streak_lord: 1, tg_atlas: 1, transcendence: 1, vital_drain: 1, xp_surge: 1, ib_bloodlust: 1, ib_immortal: 1, ib_iron_skin: 1, ib_overpower: 1, ib_rampage: 1, ib_war_god: 1, sa_eclipse: 1, sa_void_blade: 1 };
   // Icône SVG selon le premier effet de la compétence
   var ICONE_EFFET = { xpAll: 'etoile', xpCompound: 'halter', xpIsolation: 'cible', streakStart: 'flamme', mineralBonus: 'boussole',
     graceExtend: 'bouclier', secondWind: 'sante', riftLifesteal: 'coeur', critChance: 'eclair', critDmg: 'cible', doubleDropChance: 'trophee',

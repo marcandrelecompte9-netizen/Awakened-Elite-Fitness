@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v1802';
+const CACHE_NAME = 'awakened-v1803';
 // v1586 : images d'exercices dans un cache DURABLE, jamais vidé à une mise à jour
 // (avant : chaque déploiement les effaçait → retéléchargées, absentes hors ligne)
 const IMG_CACHE = 'awakened-images';
@@ -107,11 +107,11 @@ const ASSETS = [
   './js/pain-mode.js',
   './js/recovery-mode.js',
   './data/items.js',
-  './manifest.json?v=1802',
-  './icons/icon-192.png?v=1802',
-  './icons/icon-512.png?v=1802',
-  './icons/icon-192-maskable.png?v=1802',
-  './icons/icon-512-maskable.png?v=1802',
+  './manifest.json?v=1803',
+  './icons/icon-192.png?v=1803',
+  './icons/icon-512.png?v=1803',
+  './icons/icon-192-maskable.png?v=1803',
+  './icons/icon-512-maskable.png?v=1803',
   // icon-1024.png : asset de soumission aux stores, volontairement hors du
   // précache (487 Ko). Reste dans manifest.json, récupérable à la demande.
   './images/banner_v4.webp',
@@ -248,7 +248,7 @@ const UI_IMAGES = [
   './images/tree_bg.webp',
 ];
 // Clé de cache d'une image : sans « ?v=NNNN ». Avant, chaque build changeait l'URL
-// (salle_bg_v5.webp?v=1621 → ?v=1802) et ajoutait une copie de plus dans le cache
+// (salle_bg_v5.webp?v=1621 → ?v=1803) et ajoutait une copie de plus dans le cache
 // durable, sans jamais la retirer.
 function cleImage(url) { return url.split('?')[0]; }
 // v1654 : images REMPLACÉES sous le même nom → retirées une fois du cache durable,
@@ -259,6 +259,7 @@ const IMAGES_REMPLACEES = { rev: 1730, fichiers: ['./images/body/body_face.webp'
   './images/banner_v4.webp', './images/banner_v4_mobile.webp',
   './images/progres/bandeau.webp',
   './images/Objets/skill_full_sets.webp', './images/Objets/skill_record_breaker.webp', './images/Objets/skill_long_breath.webp',
+  './images/Objets/skill_ib_bloodlust.webp', './images/Objets/skill_ib_immortal.webp', './images/Objets/skill_ib_iron_skin.webp', './images/Objets/skill_ib_overpower.webp', './images/Objets/skill_ib_rampage.webp', './images/Objets/skill_ib_war_god.webp', './images/Objets/skill_sa_eclipse.webp', './images/Objets/skill_sa_void_blade.webp',
   './images/Objets/skill_apex_predator.webp', './images/Objets/skill_as_eagle_eye.webp', './images/Objets/skill_compound_pro.webp', './images/Objets/skill_iron_will.webp', './images/Objets/skill_limit_break.webp', './images/Objets/skill_prospector.webp', './images/Objets/skill_sa_critical.webp', './images/Objets/skill_sa_phantom.webp', './images/Objets/skill_sa_shadow_step.webp', './images/Objets/skill_sa_silent_hunt.webp', './images/Objets/skill_second_wind.webp', './images/Objets/skill_streak_lord.webp', './images/Objets/skill_tg_atlas.webp', './images/Objets/skill_transcendence.webp', './images/Objets/skill_vital_drain.webp', './images/Objets/skill_xp_surge.webp',
   './images/Objets/jeu_competences.webp', './images/Objets/jeu_equipement.webp',
   './images/onglets/course.webp', './images/onglets/defis.webp', './images/onglets/routines_vide.webp',
