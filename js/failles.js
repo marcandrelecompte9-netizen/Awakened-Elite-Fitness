@@ -511,7 +511,24 @@
             try {
                 const profileId = typeof getCurrentProfileId === 'function' ? getCurrentProfileId() : null;
                 const key = profileId ? `${RIFT_STORAGE_KEY}_${profileId}` : RIFT_STORAGE_KEY;
-                return JSON.parse(localStorage.getItem(key) || '[]');
+                const l = JSON.parse(localStorage.getItem(key) || '[]');
+                // v1800 : Failles de compagnon déjà ouvertes → PV ramenés au nouveau calcul
+                // (boss ×2.5 → ×1.3 ; Marcus hpMult 1.6 → 0.8). Proportionnel : la vie déjà enlevée reste enlevée.
+                let ch = false;
+                (l || []).forEach(r => {
+                    if (!r || !r.isCompanionRift || r.completed || r._hpV1800 || !Array.isArray(r.waves)) return;
+                    const fM = r.companionRiftId === 'rift_marcus' ? 0.8 / 1.6 : 1;
+                    r.waves.forEach(w => {
+                        if (!w) return;
+                        const f = fM * (w.isBoss ? 1.3 / 2.5 : 1);
+                        if (f >= 1) return;
+                        w.hpMax = Math.max(1, Math.round((w.hpMax || 0) * f));
+                        w.hpCurrent = Math.max(w.hpCurrent > 0 ? 1 : 0, Math.round((w.hpCurrent || 0) * f));
+                    });
+                    r._hpV1800 = 1; ch = true;
+                });
+                if (ch) { try { localStorage.setItem(key, JSON.stringify(l)); } catch (e) { _awkE(e); } }
+                return l;
             } catch(e) { return []; }
         }
 
@@ -5447,7 +5464,7 @@
                 description: 'Une Faille saturée de rage pure. Une présence puissante t\'y attend — et te jauge.',
                 briefing: 'Quelqu\'un veut voir si tu tiens le choc. Frappe fort. Il n\'aime pas la faiblesse.',
                 levelRequired: 12,
-                rank: 'D', waves: 3, hpMult: 1.6, primaryStat: 'STR', themeEmoji: '🥊',
+                rank: 'D', waves: 3, hpMult: 0.8, primaryStat: 'STR', themeEmoji: '🥊',   // v1800 : 1.6 → 0.8
                 exerciseFilter: ex => /pompe|push|squat|press|fente|burpee/.test((ex.name || '').toLowerCase())
             },
             {
