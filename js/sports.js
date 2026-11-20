@@ -38,10 +38,13 @@
     return '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;">'
       + list.map(function (d) {
           var on = d.id === selId;
-          return '<button onclick="selectDisciplineCard(\'' + d.id + '\')" style="min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 4px 9px;border-radius:13px;cursor:pointer;font-family:inherit;'
-            + (on ? 'background:' + d.color + '24;border:1.5px solid ' + d.color + ';' : 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);') + '">'
+          // v1806 : vignette illustrée (images/sports/<id>.webp) par-dessus l'icône ; image absente → tuile d'avant
+          return '<button onclick="selectDisciplineCard(\'' + d.id + '\')" style="position:relative;overflow:hidden;min-width:0;min-height:76px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;padding:10px 4px 8px;border-radius:13px;cursor:pointer;font-family:inherit;'
+            + (on ? 'background:' + d.color + '24;border:1.5px solid ' + d.color + ';box-shadow:0 0 12px ' + d.color + '55;' : 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);') + '">'
             + '<span style="width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:' + d.color + (on ? '33' : '1a') + ';">' + mico(d, 17) + '</span>'
-            + '<span style="font-size:0.64em;font-weight:800;color:' + (on ? '#fff' : '#cbd5e1') + ';line-height:1.2;text-align:center;max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">' + esc(d.name) + '</span>'
+            + '<span aria-hidden="true" style="position:absolute;inset:0;z-index:1;"><img src="images/sports/' + d.id + '.webp" alt="" draggable="false" style="width:100%;height:100%;object-fit:cover;object-position:50% 35%;display:block;' + (on ? '' : 'filter:saturate(0.75) brightness(0.8);') + '" onerror="this.parentNode.remove()">'
+            +   '<span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,10,14,0) 35%,rgba(8,10,14,0.92) 100%);"></span></span>'
+            + '<span style="position:relative;z-index:2;font-size:0.64em;font-weight:800;color:' + (on ? '#fff' : '#cbd5e1') + ';line-height:1.2;text-align:center;max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;text-shadow:0 1px 3px #000;">' + esc(d.name) + '</span>'
             + '</button>';
         }).join('') + '</div>';
   }
@@ -95,7 +98,11 @@
       .sort(function (a, b) { return (a.minLevel || 1) - (b.minLevel || 1); });
     dispo.sort(function (a, b) { if (!!a.goal !== !!b.goal) return a.goal ? -1 : 1; return (a.minLevel || 1) - (b.minLevel || 1); });
 
-    var h = '<div style="display:flex;align-items:center;gap:12px;">'
+    // v1806 : bandeau illustré du sport (même image que la vignette) ; absent → rien
+    var h = '<div aria-hidden="true" style="position:relative;height:118px;margin:-16px -16px 14px;background:#0d1016;">'
+      + '<img src="images/sports/' + d.id + '.webp" alt="" draggable="false" style="width:100%;height:100%;object-fit:cover;object-position:50% 35%;display:block;" onerror="this.parentNode.remove()">'
+      + '<span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,16,22,0) 40%,rgba(14,16,22,0.96) 100%),linear-gradient(90deg,' + c + '22,rgba(0,0,0,0) 60%);"></span></div>'
+      + '<div style="display:flex;align-items:center;gap:12px;">'
       + '<span style="flex-shrink:0;width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:' + c + '1f;border:1px solid ' + c + '55;">' + mico(d, 24) + '</span>'
       + '<span style="flex:1;min-width:0;">'
       +   '<span style="display:block;font-weight:900;color:#fff;font-size:1.06em;">' + esc(d.name) + '</span>'
@@ -146,7 +153,7 @@
         + (ouvG && typeof _renderYogaGenerator === 'function' ? '<div style="margin:2px 0 6px;">' + _renderYogaGenerator() + '</div>' : '');
     }
     h += arbre(d);
-    return '<div class="card" style="padding:16px;background:linear-gradient(160deg,' + c + '14,rgba(255,255,255,0.015) 55%) !important;border:1px solid ' + c + '3a;">' + h + '</div>';
+    return '<div class="card" style="padding:16px !important;overflow:hidden;background:linear-gradient(160deg,' + c + '14,rgba(255,255,255,0.015) 55%) !important;border:1px solid ' + c + '3a;">' + h + '</div>';
   }
 
   function rendre() {

@@ -337,8 +337,10 @@
           + (ouvert ? apercu(p.id, k, a) : '');
       }).join('');
       var mat = materiel(p.id), deplie = _progOuvert === p.id;
-      return '<div class="card" style="background:rgba(255,255,255,0.025);border:1px solid ' + (deplie ? a + '55' : 'rgba(255,255,255,0.08)') + ';border-left:3px solid ' + a + ';border-radius:16px;padding:12px 14px;margin-bottom:0;">'
-        + '<button onclick="AwakSalle.ouvrirProg(\'' + p.id + '\')" aria-expanded="' + deplie + '" style="display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:none !important;border:none;padding:0 !important;min-height:auto !important;cursor:pointer;font-family:inherit;">'
+      // v1806 : image du programme en fond à droite (images/salle/<id>.webp), fondue dans la carte ; absente → fond uni
+      return '<div class="card" style="position:relative;overflow:hidden;background:#11141b !important;border:1px solid ' + (deplie ? a + '55' : 'rgba(255,255,255,0.08)') + ';border-left:3px solid ' + a + ';border-radius:16px;padding:12px 14px;margin-bottom:0;">'
+        + '<div aria-hidden="true" style="position:absolute;top:0;right:0;width:100%;aspect-ratio:3/1;pointer-events:none;background:linear-gradient(90deg,#11141b 26%,rgba(17,20,27,0.62) 58%,rgba(17,20,27,0.12) 100%),linear-gradient(180deg,rgba(17,20,27,0) 50%,#11141b 100%),url(images/salle/' + p.id + '.webp) 100% 40%/cover no-repeat;"></div>'
+        + '<button onclick="AwakSalle.ouvrirProg(\'' + p.id + '\')" aria-expanded="' + deplie + '" style="position:relative;z-index:1;display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:none !important;border:none;padding:0 !important;min-height:auto !important;cursor:pointer;font-family:inherit;">'
         +   '<span style="flex-shrink:0;width:38px;height:38px;border-radius:11px;background:' + a + '1a;border:1px solid ' + a + '44;display:grid;place-items:center;">' + ic('halter', 20, a) + '</span>'
         +   '<span style="flex:1;min-width:0;">'
         +     '<span style="display:block;font-weight:900;color:#fff;font-size:0.98em;">' + esc(p.name)
@@ -348,9 +350,9 @@
         +   '<span style="flex-shrink:0;color:#94a3b8;font-size:1.2em;transform:rotate(' + (deplie ? '90' : '0') + 'deg);transition:transform .2s;">›</span>'
         + '</button>'
         + (deplie
-          ? (p.intro ? '<div style="font-size:0.76em;color:#b4c0cf;margin-top:10px;line-height:1.45;">' + esc(p.intro) + '</div>' : '')
+          ? '<div style="position:relative;z-index:1;">' + (p.intro ? '<div style="font-size:0.76em;color:#b4c0cf;margin-top:10px;line-height:1.45;">' + esc(p.intro) + '</div>' : '')
             + (mat ? '<div style="display:flex;gap:6px;align-items:flex-start;font-size:0.7em;color:#cbd5e1;margin-top:8px;line-height:1.4;">' + ic('gym', 13, '#94a3b8') + '<span><b style="color:#a3b1c2;">Matériel :</b> ' + esc(mat) + '</span></div>' : '')
-            + jours
+            + jours + '</div>'
           : '')
         + '</div>';
     }).join('');
