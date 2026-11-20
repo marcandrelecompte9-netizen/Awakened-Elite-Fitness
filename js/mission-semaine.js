@@ -98,7 +98,7 @@
   function pastilles(e) {
     var h = '';
     for (var i = 0; i < e.visee; i++) {
-      h += '<span style="flex:1;height:7px;border-radius:99px;' + (i < e.fait ? 'background:linear-gradient(90deg,#60a8f0,#1d5fa8);' : 'background:rgba(255,255,255,0.08);') + '"></span>';
+      h += '<span style="flex:1;height:9px;border-radius:99px;' + (i < e.fait ? 'background:linear-gradient(90deg,#1d5fa8,#60a8f0);box-shadow:0 0 8px rgba(96,168,240,0.55);' : 'background:rgba(255,255,255,0.07);border:1px solid rgba(96,168,240,0.18);') + '"></span>';
     }
     return '<div style="display:flex;gap:4px;margin:10px 0 7px;">' + h + '</div>';
   }
@@ -113,7 +113,12 @@
     var bas = e.payee || e.finie
       ? '<span style="color:#93c5fd;font-weight:800;">Mission accomplie</span> · +' + e.xp + ' XP reçus'
       : e.fait + ' / ' + e.visee + ' séance' + (e.visee > 1 ? 's' : '') + ' · <span style="color:#93c5fd;font-weight:800;">+' + e.xp + ' XP</span> à la fin';
-    c.innerHTML = '<div style="display:flex;align-items:center;gap:8px;">' + ico('bouclier', 17, '#93c5fd')
+    c.style.overflow = 'hidden';
+    // v1805 : bandeau illustré (images/jeu/mission.webp) ; image absente → carte texte comme avant
+    c.innerHTML = '<div aria-hidden="true" style="height:96px;margin:-14px -16px 12px;position:relative;background:#0d1522;">'
+      + '<img src="images/jeu/mission.webp" alt="" draggable="false" style="width:100%;height:100%;object-fit:cover;object-position:60% 40%;display:block;" onerror="this.parentNode.remove()">'
+      + '<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(9,16,28,0) 40%,rgba(12,22,38,0.95) 100%);"></div></div>'
+      + '<div style="display:flex;align-items:center;gap:8px;">' + ico('bouclier', 17, '#93c5fd')
       + '<span style="font-size:0.66em;font-weight:800;letter-spacing:1.2px;color:#93c5fd;text-transform:uppercase;">Mission de la semaine</span></div>'
       + '<div style="font-size:1em;font-weight:900;color:#f8fafc;margin-top:6px;">' + e.titre + '</div>'
       + '<div style="font-size:0.78em;color:#cbd5e1;line-height:1.45;margin-top:3px;">' + e.texte + '</div>'

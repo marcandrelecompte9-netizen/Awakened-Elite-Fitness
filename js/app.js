@@ -24970,7 +24970,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1804);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1805);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -25023,7 +25023,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1804" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1805" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25834,7 +25834,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const cle = Math.round(r.width) + 'x' + H;
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1804)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1805)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center top';
                 } catch (e) { _awkE(e); }
@@ -26285,7 +26285,9 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             // pour « Aucune brèche ») ; la Carte de Chasseur et la mission remontent.
             const _compacte = !rifts.length;
             return ''
-            + '<div class="awak-carte' + (_compacte ? ' awak-carte-compacte' : '') + '" style="position:relative;border-radius:18px;overflow:hidden;background:#08090c;'
+            // v1805 : bandeau — on ne garde que la hauteur utile (zone reconquise), plus de grand vide gris
+            + '<div class="awak-carte' + (_compacte ? ' awak-carte-compacte' : ' awak-carte-bandeau') + '" style="position:relative;border-radius:18px;overflow:hidden;background:#08090c;'
+            +   (_compacte ? '' : 'aspect-ratio:400/' + Math.min(400, Math.round(2 * (R * 0.9 + 26))) + ';')
             +   'border:1px solid ' + rangCol + '33;margin-bottom:14px;">'
             +   '<svg viewBox="0 0 400 400" style="width:100%;height:auto;display:block;">'
             +     '<defs>'
@@ -26387,6 +26389,55 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             + '</div>';
         }
         window.awakRenderCarte = awakRenderCarte;
+
+        // v1805 : liste des Failles ouvertes, en cartes illustrées sous la carte de la ville.
+        // Le marqueur sur la carte reste cliquable ; la liste rend chaque donjon lisible
+        // (rang, monstre, PV restants, jours avant rupture) et à 1 tap.
+        function awakRenderListeFailles() {
+            let rifts = [];
+            try { rifts = (awakRiftsLoad() || []).filter(r => !r.completed && r.state !== 'exploded'); } catch (e) { _awkE(e); }
+            if (!rifts.length) return '';
+            const esc = (t) => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+            const ico = (n, px, c) => (window.AwakIcon && AwakIcon.get) ? AwakIcon.get(n, px, c) : '';
+            const rangCol = (id) => { const r = AWAKENED_RANKS.find(x => x.id === id); return r ? r.color : '#94a3b8'; };
+            let h = '<div id="awakListeFailles" style="display:flex;flex-direction:column;gap:9px;margin:-4px 0 14px;">';
+            rifts.slice(0, 6).forEach(r => {
+                let th = null;
+                try { th = (typeof RIFT_THEMES !== 'undefined') ? RIFT_THEMES.find(t => t.id === r.themeId) : null; } catch (e) { _awkE(e); }
+                const col = r.isAssaut ? '#f59e0b' : ((r.narrativeData && r.narrativeData.color) || (th && th.color) || '#a855f7');
+                const waves = r.waves || [];
+                const boss = waves.find(w => w.isBoss) || waves[waves.length - 1] || null;
+                const hpMax = waves.reduce((t, w) => t + (w.hpMax || 0), 0);
+                const hpCur = waves.reduce((t, w) => t + Math.max(0, w.hpCurrent || 0), 0);
+                const pct = hpMax ? Math.max(0, Math.min(100, Math.round(hpCur / hpMax * 100))) : 100;
+                const jours = r.expiresAt ? Math.max(0, Math.ceil((r.expiresAt - Date.now()) / 86400000)) : null;
+                const rc = rangCol(r.rank);
+                const etat = r.state === 'breach' ? { t: 'RUPTURE', c: '#ef4444' } : (r.state === 'unstable' ? { t: 'INSTABLE', c: '#fbbf24' } : null);
+                let mon = '';
+                try { mon = (boss && window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre(String(boss.name || '').replace(/ \(Boss\)$/, ''), col, 62, !!boss.isBoss) : ''; } catch (e) { _awkE(e); }
+                let nom = r.name || (r.narrativeData && r.narrativeData.name) || (th && th.name) || 'Faille';
+                nom = nom.charAt(0).toUpperCase() + nom.slice(1);
+                const rid = String(r.id || '').replace(/'/g, "\\'");
+                const puce = (t, c) => '<span style="font-size:0.6em;font-weight:900;letter-spacing:1px;padding:2px 7px;border-radius:99px;color:' + c + ';border:1px solid ' + c + '66;background:' + c + '14;white-space:nowrap;">' + t + '</span>';
+                h += '<button type="button" onclick="awakOpenRiftBriefing(\'' + rid + '\')" style="position:relative;display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;font-family:inherit;color:#e2e8f0;'
+                    + 'padding:10px 12px 10px 8px;border-radius:16px;overflow:hidden;border:1px solid ' + col + '55;'
+                    + 'background:radial-gradient(circle at 12% 50%,' + col + '2e,transparent 45%),linear-gradient(135deg,#10131b,#0a0c12);box-shadow:inset 3px 0 0 ' + col + ';">'
+                    + '<div style="flex-shrink:0;width:66px;height:66px;display:flex;align-items:center;justify-content:center;">' + mon + '</div>'
+                    + '<div style="flex:1;min-width:0;">'
+                    +   '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px;">' + puce('RANG ' + esc(r.rank || '?'), rc)
+                    +     (r.isAssaut ? puce('ASSAUT', '#f59e0b') : '') + (etat ? puce(etat.t, etat.c) : '') + '</div>'
+                    +   '<div style="font-weight:900;font-size:0.92em;line-height:1.2;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(nom) + '</div>'
+                    +   (boss ? '<div style="font-size:0.7em;color:#94a3b8;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(String(boss.name || '').replace(/ \(Boss\)$/, '')) + (boss.isBoss ? ' · boss' : '') + '</div>' : '')
+                    +   '<div style="height:5px;border-radius:99px;background:rgba(255,255,255,0.08);overflow:hidden;margin-top:7px;"><div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,' + col + 'aa,' + col + ');border-radius:99px;"></div></div>'
+                    +   '<div style="display:flex;justify-content:space-between;font-size:0.62em;color:#7c8aa0;margin-top:4px;font-weight:700;"><span>PV ' + pct + ' %</span>'
+                    +     (jours != null ? '<span style="color:' + (jours <= 1 ? '#fca5a5' : '#7c8aa0') + ';">' + (jours <= 0 ? 'rupture imminente' : (jours === 1 ? '1 jour avant rupture' : jours + ' jours avant rupture')) + '</span>' : '') + '</div>'
+                    + '</div>'
+                    + '<div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:' + col + '22;border:1px solid ' + col + '77;">' + ico('epee', 16, col) + '</div>'
+                    + '</button>';
+            });
+            return h + '</div>';
+        }
+        window.awakRenderListeFailles = awakRenderListeFailles;
 
         function getFatiguedMuscles() {
             const statuses = getAllMusclesRecoveryStatus();
@@ -31280,7 +31331,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1804");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1805");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -31304,11 +31355,20 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                             ⟨ Carte de Chasseur ⟩ ${rpgGetPrestigeLevel()>0?'<span style="background:rgba(251,191,36,0.25);color:#fbbf24;padding:1px 6px;border-radius:99px;font-size:0.9em;">⭐×'+rpgGetPrestigeLevel()+'</span>':''}
                         </div>
                         ${awakRank ? `
-                            <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
-                                <span style="font-family:var(--font-display);font-size:2.8em;font-weight:700;color:${awakRank.color};line-height:1;letter-spacing:0.02em;text-shadow:0 0 16px ${awakRank.color}70;">${window.awakRangImg ? awakRangImg(awakRank.id, 58, awakRank.id, 'filter:drop-shadow(0 0 10px ' + awakRank.color + '66);') : awakRank.id}</span>
-                                <span style="font-size:0.78em;color:#94a3b8;font-weight:600;">Niveau ${profileLevel}</span>
-                            </div>
-                            <div style="font-size:0.7em;color:#94a3b8;font-weight:600;margin-top:4px;">${awakRank.desc}</div>
+                            ${(() => {
+                                // v1805 : portrait du joueur + emblème de rang en médaillon ; le rang en toutes lettres
+                                let _src = '';
+                                try { const _pid = getCurrentProfileId(); const _pp = (getAllProfiles() || []).find(x => x && x.id === _pid); _src = _pp ? awakPortraitSrc(_pp.avatar) : ''; } catch (e) { _awkE(e); }
+                                const _emb = window.awakRangImg ? awakRangImg(awakRank.id, _src ? 30 : 58, awakRank.id, 'filter:drop-shadow(0 0 8px ' + awakRank.color + '88);') : awakRank.id;
+                                const _vis = _src
+                                    ? '<div style="position:relative;flex-shrink:0;width:66px;height:66px;">'
+                                        + '<img src="' + _src + '" alt="" draggable="false" style="width:66px;height:66px;border-radius:16px;object-fit:cover;object-position:50% 20%;display:block;border:2px solid ' + awakRank.color + ';box-shadow:0 0 16px ' + awakRank.color + '55;" onerror="this.style.visibility=\'hidden\'">'
+                                        + '<div style="position:absolute;right:-9px;bottom:-9px;line-height:0;">' + _emb + '</div></div>'
+                                    : '<div style="flex-shrink:0;line-height:0;">' + _emb + '</div>';
+                                return '<div style="display:flex;align-items:center;gap:14px;">' + _vis
+                                    + '<div style="min-width:0;"><div style="font-family:var(--font-display);font-size:1.7em;font-weight:700;line-height:1;color:' + awakRank.color + ';text-shadow:0 0 14px ' + awakRank.color + '66;">Rang ' + awakRank.id + '</div>'
+                                    + '<div style="font-size:0.78em;color:#cbd5e1;font-weight:700;margin-top:5px;">Niveau ' + profileLevel + '</div></div></div>';
+                            })()}
                         ` : `
                             <div style="font-size:2em;font-weight:900;line-height:1;">Niveau ${profileLevel}</div>
                         `}
@@ -31325,7 +31385,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
 
                 <!-- Barre XP vers prochain niveau -->
                 <div style="background:rgba(255,255,255,0.08);border-radius:99px;height:8px;overflow:hidden;margin-bottom:4px;">
-                    <div class="rpg-bar-anim" data-pct="${pct}" style="height:100%;background:${barColor(profileLevel)};border-radius:99px;width:0%;"></div>
+                    <div class="rpg-bar-anim" data-pct="${pct}" style="height:100%;background:${(() => { const _c = (awakRank && awakRank.id !== 'E') ? awakRank.color : '#60a8f0'; return 'linear-gradient(90deg,' + _c + '99,' + _c + ');box-shadow:0 0 10px ' + _c + '88;min-width:' + (pct > 0 ? '6px' : '0'); })()};border-radius:99px;width:0%;"></div>
                 </div>
                 <div style="display:flex;justify-content:space-between;font-size:0.65em;opacity:0.55;margin-bottom:14px;">
                     <span>${(lifetimeXP-xpLow).toLocaleString('fr-CA')} XP</span>
@@ -31336,7 +31396,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 ${awakProgress && awakNext ? `
                     <!-- v1463 : une seule jauge (XP) ; le rang tient sur une ligne -->
                     <div style="margin:-6px 0 14px;font-size:0.68em;font-weight:700;color:#94a3b8;">
-                        <span style="color:${awakRank.color};">Rang ${awakRank.id}</span> · ${awakProgress.pointsNeeded} niv. avant <span style="color:${awakNext.color};">${awakNext.id}</span>
+                        ${awakProgress.pointsNeeded} niv. avant le <span style="color:${awakNext.color};">rang ${awakNext.id}</span>
                     </div>
                 ` : (awakProgress && !awakNext ? `
                     <div style="margin-bottom:14px;text-align:center;padding:9px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;">
@@ -31389,7 +31449,17 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const _wrapCarte = document.createElement('div');
                     _wrapCarte.innerHTML = awakRenderCarte();
                     const _c = _wrapCarte.firstElementChild;
-                    if (_c) tab.insertBefore(_c, tab.firstChild);
+                    // v1805 : la Carte de Chasseur passe en tête ; la carte (bandeau) et
+                    // la liste des Failles viennent sous la mission de la semaine.
+                    if (_c) {
+                        const _apres = (cardProfile.nextElementSibling && cardProfile.nextElementSibling.id === 'awakMissionSemaine') ? cardProfile.nextElementSibling : cardProfile;
+                        _apres.insertAdjacentElement('afterend', _c);
+                        if (typeof awakRenderListeFailles === 'function') {
+                            const _wl = document.createElement('div');
+                            _wl.innerHTML = awakRenderListeFailles();
+                            if (_wl.firstElementChild) _c.insertAdjacentElement('afterend', _wl.firstElementChild);
+                        }
+                    }
                 }
             } catch (e) { _awkE(e); }
 
@@ -31437,11 +31507,14 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             try {
                 const _mkBtn = (emoji, label, action, couleur, badge) => {
                     const b = document.createElement('button');
+                    // v1805 : tuiles avec icône (même famille que Compétences / Équipement) ;
+                    // `emoji` = nom d'icône AwakIcon (les emojis sont retirés par no-emoji.js)
                     b.style.cssText = 'position:relative;flex:1;min-width:0;display:flex;flex-direction:column;'
-                        + 'align-items:center;justify-content:center;gap:4px;padding:11px 4px;border-radius:14px;'
-                        + 'cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid ' + couleur + '33;';
-                    b.innerHTML = '<div style="font-size:1.35em;line-height:1;">' + emoji + '</div>'
-                        + '<div style="font-size:0.58em;font-weight:800;letter-spacing:0.3px;color:' + couleur + ';'
+                        + 'align-items:center;justify-content:center;gap:6px;padding:10px 4px 9px;border-radius:14px;'
+                        + 'cursor:pointer;background:linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02));border:1.5px solid rgba(148,163,184,0.22);';
+                    b.innerHTML = '<div style="width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:rgba(96,168,240,0.12);border:1px solid rgba(96,168,240,0.35);">'
+                        + ((window.AwakIcon && AwakIcon.get) ? AwakIcon.get(emoji, 17, '#93c5fd') : '') + '</div>'
+                        + '<div style="font-size:0.66em;font-weight:800;letter-spacing:0.2px;color:#e2e8f0;'
                         + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">' + label + '</div>'
                         + (badge ? '<div style="position:absolute;top:5px;right:6px;min-width:17px;height:17px;'
                             + 'border-radius:9px;background:#ef4444;color:#fff;font-size:0.55em;font-weight:900;'
@@ -31475,14 +31548,14 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // 🎨 Boutons NEUTRES : la couleur est réservée aux badges d'alerte.
                 // Trois couleurs de boutons sous six attributs déjà colorés,
                 // ça faisait neuf accents concurrents sur une seule carte.
-                row2.appendChild(_mkBtn('📖', 'JOURNAL', function () {
+                row2.appendChild(_mkBtn('liste', 'Journal', function () {
                     if (typeof showStoryJournal === 'function') showStoryJournal();
                 }, '#94a3b8', _bJournal));
-                row2.appendChild(_mkBtn('⚠️', 'MALUS', function () {
+                row2.appendChild(_mkBtn('alerte', 'Malus', function () {
                     if (typeof showActiveMalusScreen === 'function') showActiveMalusScreen();
                 }, '#94a3b8', _bMalus));
                 // 💪 Classement musculaire : séparé des Compétences (v842)
-                const _bStats = _mkBtn('', 'STATISTIQUES', function () {
+                const _bStats = _mkBtn('stats', 'Statistiques', function () {
                     if (typeof rpgShowMusclesPanel === 'function') rpgShowMusclesPanel();
                 }, '#94a3b8', 0);
                 _bStats.id = 'awakBtnStats';
@@ -45035,7 +45108,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1804';
+                    let ver = 'v0.95.1805';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -45203,7 +45276,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1804" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1805" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45285,7 +45358,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1804);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1805);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45352,7 +45425,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1804);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1805);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -47826,7 +47899,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1804");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1805");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

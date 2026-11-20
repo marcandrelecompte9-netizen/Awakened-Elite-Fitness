@@ -8784,6 +8784,7 @@ body:has(#completionView:not(.hidden)) .toast-container { top: calc(12px + env(s
 /* 2. Carte de l'effacement sans brèche : une bande au lieu d'un grand disque vide */
 .awak-carte-compacte { height: 132px; }
 .awak-carte-compacte > svg { position: absolute; left: 0; top: 50%; transform: translateY(-50%); }
+.awak-carte-bandeau > svg { position: absolute; left: 0; top: 50%; transform: translateY(-50%); }
 
 /* 3. Cartes un peu plus vivantes : reflet en haut, ombre douce, retour au toucher */
 .ahp-card, .ahp-tile, #gameTab .card, #historyTab .card, #familyTab .card, #routinesTab .card {
