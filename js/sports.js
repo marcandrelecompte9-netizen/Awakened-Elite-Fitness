@@ -99,9 +99,9 @@
     dispo.sort(function (a, b) { if (!!a.goal !== !!b.goal) return a.goal ? -1 : 1; return (a.minLevel || 1) - (b.minLevel || 1); });
 
     // v1806 : bandeau illustré du sport (même image que la vignette) ; absent → rien
-    var h = '<div aria-hidden="true" style="position:relative;height:118px;margin:-16px -16px 14px;background:#0d1016;">'
+    var h = '<div aria-hidden="true" style="position:relative;height:auto;aspect-ratio:2/1;max-height:220px;margin:-16px -16px 14px;background:#0d1016;">'
       + '<img src="images/sports/' + d.id + '.webp" alt="" draggable="false" style="width:100%;height:100%;object-fit:cover;object-position:50% 4%;display:block;" onerror="this.parentNode.remove()">'
-      + '<span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,16,22,0) 40%,rgba(14,16,22,0.96) 100%),linear-gradient(90deg,' + c + '22,rgba(0,0,0,0) 60%);"></span></div>'
+      + '<span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,16,22,0) 60%,rgba(14,16,22,0.95) 100%),linear-gradient(90deg,' + c + '22,rgba(0,0,0,0) 60%);"></span></div>'
       + '<div style="display:flex;align-items:center;gap:12px;">'
       + '<span style="flex-shrink:0;width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:' + c + '1f;border:1px solid ' + c + '55;">' + mico(d, 24) + '</span>'
       + '<span style="flex:1;min-width:0;">'
