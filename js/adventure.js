@@ -962,16 +962,14 @@ function renderAdventureTab() {
     // POINTS ROUGES sur la carte de l'Effacement (v1029), cliquables.
     const monstersCard = '';
     // 🎭 Compagnons (Phase 4)
-    const companionsCard = (typeof window.renderCompanionsCard === 'function')
-        ? window.renderCompanionsCard() : '';
+    const companionsCard = '';
     // 🧪 Consommables (Phase 5)
-    const consumablesCard = (typeof window.renderConsumablesCard === 'function')
-        ? window.renderConsumablesCard() : '';
+    const consumablesCard = '';
+    // v1818 : Alliés et Objets s'ouvrent depuis la Carte de Chasseur (tuiles), plus en bas de l'onglet
+    void companionsCard; void consumablesCard;
     container.innerHTML = familyBossCard
         + monstersCard
         + riftsCard
-        + companionsCard
-        + consumablesCard
         + (typeof renderChallengeSection==='function' ? renderChallengeSection() : '');
     if (typeof startChallengeTimer==='function') startChallengeTimer();
 }
