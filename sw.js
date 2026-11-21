@@ -2,7 +2,7 @@
 // Enables full offline support and PWA installation
 // Strategy: network-first for code files (HTML/JS/CSS), cache-first for assets (images/fonts)
 
-const CACHE_NAME = 'awakened-v1816';
+const CACHE_NAME = 'awakened-v1817';
 // v1586 : images d'exercices dans un cache DURABLE, jamais vidé à une mise à jour
 // (avant : chaque déploiement les effaçait → retéléchargées, absentes hors ligne)
 const IMG_CACHE = 'awakened-images';
@@ -107,11 +107,11 @@ const ASSETS = [
   './js/pain-mode.js',
   './js/recovery-mode.js',
   './data/items.js',
-  './manifest.json?v=1816',
-  './icons/icon-192.png?v=1816',
-  './icons/icon-512.png?v=1816',
-  './icons/icon-192-maskable.png?v=1816',
-  './icons/icon-512-maskable.png?v=1816',
+  './manifest.json?v=1817',
+  './icons/icon-192.png?v=1817',
+  './icons/icon-512.png?v=1817',
+  './icons/icon-192-maskable.png?v=1817',
+  './icons/icon-512-maskable.png?v=1817',
   // icon-1024.png : asset de soumission aux stores, volontairement hors du
   // précache (487 Ko). Reste dans manifest.json, récupérable à la demande.
   './images/banner_v4.webp',
@@ -236,6 +236,7 @@ const UI_IMAGES = [
   './images/companions/elise.webp',
   './images/companions/kira.webp',
   './images/companions/marcus.webp',
+  './images/companions/visage_marcus.webp', './images/companions/visage_kira.webp', './images/companions/visage_chen.webp', './images/companions/visage_elise.webp', './images/companions/visage_yuna.webp',
   './images/companions/yuna.webp',
   './images/constellation_bg.webp',
   './images/faille_fermee_bg.webp',
@@ -248,7 +249,7 @@ const UI_IMAGES = [
   './images/tree_bg.webp',
 ];
 // Clé de cache d'une image : sans « ?v=NNNN ». Avant, chaque build changeait l'URL
-// (salle_bg_v5.webp?v=1621 → ?v=1816) et ajoutait une copie de plus dans le cache
+// (salle_bg_v5.webp?v=1621 → ?v=1817) et ajoutait une copie de plus dans le cache
 // durable, sans jamais la retirer.
 function cleImage(url) { return url.split('?')[0]; }
 // v1654 : images REMPLACÉES sous le même nom → retirées une fois du cache durable,
