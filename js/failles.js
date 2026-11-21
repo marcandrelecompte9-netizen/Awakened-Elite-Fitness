@@ -3133,6 +3133,11 @@
             // v1652 : PV du monstre avant / après chaque coup d'allié (la jauge de la fenêtre descend)
             let _pv = Math.max(0, (wave.hpCurrent || 0) - degats);
             L.forEach(x => { x.avant = _pv; _pv = Math.max(0, _pv - x.d); x.apres = _pv; });
+            // v1814 : un monstre déjà mort ne prend plus de coups (avant : des alliés frappaient
+            // un monstre à 0 PV, et leurs dégâts comptaient pour rien)
+            const _vivants = L.filter(x => x.avant > 0);
+            extra = _vivants.reduce((t, x) => t + (x.avant - x.apres), 0);
+            L.length = 0; _vivants.forEach(x => { x.d = x.avant - x.apres; L.push(x); });
             L.forEach(x => {
                 try { if (typeof awakCombatLogAdd === 'function') awakCombatLogAdd({ t: Date.now(), type: 'effet', msg: x.nom + ' frappe ' + (wave.name || 'le monstre') + ' : −' + x.d + ' PV', ton: 'success' }); } catch (e) { _awkE(e); }
                 setTimeout(() => { try { _awakAideEpique({ nom: x.nom, val: '−' + x.d + ' PV', ton: 'coup', cibleNom: wave.name || 'le monstre', monstre: wave.name, couleurCible: col, boss: !!wave.isBoss, pvAvant: x.avant, pvApres: x.apres, pvMax: wave.hpMax }); } catch (e) { _awkE(e); } }, 1100);
