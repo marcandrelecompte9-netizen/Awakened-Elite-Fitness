@@ -24970,7 +24970,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1825);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1826);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -25023,7 +25023,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1825" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1826" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25834,7 +25834,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const cle = Math.round(r.width) + 'x' + H;
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1825)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1826)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center top';
                 } catch (e) { _awkE(e); }
@@ -31334,7 +31334,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1825");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1826");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -31512,17 +31512,18 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const b = document.createElement('button');
                     // v1805 : tuiles avec icône (même famille que Compétences / Équipement) ;
                     // `emoji` = nom d'icône AwakIcon (les emojis sont retirés par no-emoji.js)
-                    b.style.cssText = 'position:relative;flex:1;min-width:0;display:flex;flex-direction:column;'
-                        + 'align-items:center;justify-content:center;gap:6px;padding:10px 4px 9px;border-radius:14px;'
+                    // v1826 : rangée « Consulter » plus fine — icône et texte côte à côte
+                    b.style.cssText = 'position:relative;flex:1;min-width:0;display:flex;flex-direction:row;'
+                        + 'align-items:center;justify-content:center;gap:7px;padding:7px 6px !important;min-height:44px !important;border-radius:12px;'
                         + 'cursor:pointer;background:linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02));border:1.5px solid rgba(148,163,184,0.22);';
                     // v1821 : image d'icône (images/Objets/jeu_*.webp) par-dessus l'icône ; absente → icône
                     const _imgJ = { liste: 'jeu_journal', alerte: 'jeu_malus', stats: 'jeu_stats' }[emoji];
-                    b.innerHTML = '<div style="position:relative;overflow:hidden;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(96,168,240,0.12);border:1px solid rgba(96,168,240,0.35);">'
+                    b.innerHTML = '<div style="position:relative;overflow:hidden;flex-shrink:0;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(96,168,240,0.12);border:1px solid rgba(96,168,240,0.35);">'
                         + ((window.AwakIcon && AwakIcon.get) ? AwakIcon.get(emoji, 17, '#93c5fd') : '')
                         + (_imgJ ? '<img src="images/Objets/' + _imgJ + '.webp" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" onerror="this.remove()">' : '') + '</div>'
                         + '<div style="font-size:0.66em;font-weight:800;letter-spacing:0.2px;color:#e2e8f0;'
                         + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">' + label + '</div>'
-                        + (badge ? '<div style="position:absolute;top:5px;right:6px;min-width:17px;height:17px;'
+                        + (badge ? '<div style="position:absolute;top:4px;right:5px;min-width:16px;height:16px;'
                             + 'border-radius:9px;background:#ef4444;color:#fff;font-size:0.55em;font-weight:900;'
                             + 'display:flex;align-items:center;justify-content:center;padding:0 4px;">' + badge + '</div>' : '');
                     b.onclick = action;
@@ -31608,7 +31609,15 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     try { const _cd = (typeof awakConsumablesLoad === 'function') ? awakConsumablesLoad() : {}; _nObj = Object.values(_cd).reduce((t, n) => t + (n > 0 ? n : 0), 0); } catch (e) { _awkE(e); }
                     row3.appendChild(_tuile('awakBtnObjets', 'sante', 'Objets', _nObj ? (_nObj + ' à utiliser') : 'Aucun objet', '',
                         function () { awakOuvrirPanneauJeu('objets'); }));
-                    cardProfile.appendChild(row3);
+                    // v1826 : « Préparer le combat » = grille 2×2 (Compétences, Équipement, Alliés, Objets)
+                    const _grille = document.getElementById('awakRowBtns');
+                    if (_grille) {
+                        _grille.style.display = 'grid';
+                        _grille.style.gridTemplateColumns = '1fr 1fr';
+                        _grille.style.gap = '8px';
+                        [...row3.children].forEach(b => { b.style.flex = ''; b.style.padding = '10px 12px'; _grille.appendChild(b); });
+                        [..._grille.children].forEach(b => { b.style.minHeight = '64px'; b.style.margin = '0'; });
+                    } else cardProfile.appendChild(row3);
                 } catch (e) { _awkE(e); }
                 cardProfile.appendChild(row2);
 
@@ -45278,7 +45287,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1825';
+                    let ver = 'v0.95.1826';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -45446,7 +45455,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1825" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1826" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45528,7 +45537,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1825);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1826);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45595,7 +45604,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1825);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1826);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -48069,7 +48078,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1825");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1826");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
