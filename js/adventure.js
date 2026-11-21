@@ -972,6 +972,7 @@ function renderAdventureTab() {
         + riftsCard
         + (typeof renderChallengeSection==='function' ? renderChallengeSection() : '');
     if (typeof startChallengeTimer==='function') startChallengeTimer();
+    try { if (typeof window.awakGrouperEnCours === 'function') window.awakGrouperEnCours(); } catch (e) { _awkE(e); }   // v1827
 }
 
 function showItemDetail(itemId, context, invId) {
