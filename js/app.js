@@ -24970,7 +24970,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1823);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1824);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -25023,7 +25023,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1823" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1824" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25834,7 +25834,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const cle = Math.round(r.width) + 'x' + H;
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1823)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1824)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center top';
                 } catch (e) { _awkE(e); }
@@ -31333,7 +31333,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1823");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1824");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -45277,7 +45277,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1823';
+                    let ver = 'v0.95.1824';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -45445,7 +45445,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1823" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1824" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45527,7 +45527,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1823);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1824);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45594,7 +45594,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1823);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1824);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -48068,7 +48068,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1823");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1824");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
@@ -49133,6 +49133,10 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const puce = (txt, c) => `<span style="display:inline-block;font-size:11px;font-weight:800;color:${c};background:${c}14;border:1px solid ${c}40;padding:1px 8px;border-radius:99px;margin:4px 4px 0 0;white-space:nowrap;">${txt}</span>`;
             const action = (txt, js, c) => `<button onclick="${js}" style="flex-shrink:0;min-height:36px;padding:7px 12px;border-radius:10px;font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;white-space:nowrap;background:${c}1c;border:1px solid ${c}77;color:${c};">${txt}</button>`;
             const ligne = (contenu) => `<div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:#12161c;border:1px solid rgba(255,255,255,0.07);border-radius:16px;">${contenu}</div>`;
+            // v1824 : bandeau (comme Alliés / Objets) — grand visuel à gauche fondu vers la droite
+            const bandeau = (visuel, c, texte, droite) => `<div style="position:relative;overflow:hidden;min-height:96px;display:flex;align-items:center;gap:12px;padding:12px 12px 12px 112px;border-radius:16px;background:radial-gradient(circle at 52px 50%,${c}2e,transparent 115px),#12161c;border:1px solid ${c}40;">
+                <div style="position:absolute;left:0;top:0;bottom:0;width:128px;display:flex;align-items:center;justify-content:center;-webkit-mask-image:linear-gradient(90deg,#000 55%,transparent 100%);mask-image:linear-gradient(90deg,#000 55%,transparent 100%);pointer-events:none;">${visuel}</div>
+                <div style="position:relative;flex:1;min-width:0;">${texte}</div>${droite ? `<div style="position:relative;flex-shrink:0;">${droite}</div>` : ''}</div>`;
             const section = (titre, sous, c, items) => !items.length ? '' : `
                 <div style="margin-bottom:16px;">
                     <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 2px 8px;">
@@ -49147,33 +49151,28 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const lignesMonstres = monstres.map(mo => {
                 const type = (typeof ESCAPED_MONSTER_TYPES !== 'undefined') ? ESCAPED_MONSTER_TYPES.find(t => t.id === mo.typeId) : null;
                 const c = (type && type.color && !/^#(22c55e|16a34a|4ade80)$/i.test(type.color)) ? type.color : OR;
-                return ligne(`${type ? `<div style="width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">${window.awakEchappeImg(type, 44, mo.isAlpha)}</div>` : tuile(ic('faille', 20, c), c)}
-                    <div style="flex:1;min-width:0;">
+                const vis = type ? `<div style="width:112px;height:112px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 14px ${c}88);">${window.awakEchappeImg(type, 112, mo.isAlpha)}</div>` : ic('faille', 46, c);
+                return bandeau(vis, c, `
                         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                            <span style="font-size:14px;font-weight:800;color:#f1f5f9;">${esc(type ? type.name : 'Monstre échappé')}</span>
+                            <span style="font-size:15px;font-weight:900;color:${c};text-shadow:0 1px 4px #000;">${esc(type ? type.name : 'Monstre échappé')}</span>
                             ${mo.isAlpha ? `<span style="font-size:11px;font-weight:800;color:${ROUGE};background:${ROUGE}18;border:1px solid ${ROUGE}55;padding:0 7px;border-radius:99px;">Alpha · effet ×2</span>` : ''}
                         </div>
-                        <div style="font-size:12.5px;color:#a3b1c2;line-height:1.4;margin-top:2px;">${esc(type && type.handicap ? type.handicap.label : 'Handicap actif')}</div>
-                    </div>
-                    ${action('Chasser', `document.getElementById('activeMalusOverlay').remove();awakOpenMonsterDetail('${mo.id}')`, OR)}`);
+                        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;line-height:1.4;margin-top:3px;text-shadow:0 1px 3px #000;">${esc(type && type.handicap ? type.handicap.label : 'Handicap actif')}</div>`,
+                    action('Chasser', `document.getElementById('activeMalusOverlay').remove();awakOpenMonsterDetail('${mo.id}')`, OR));
             });
 
             // 2) Malédictions d'équipement
-            const lignesMaudits = m.curses.map(cu => ligne(`${tuile(ic('alerte', 20, VIOLET), VIOLET)}
-                <div style="flex:1;min-width:0;">
-                    <div style="font-size:14px;font-weight:800;color:#f1f5f9;">${esc(cu.name)}</div>
+            const lignesMaudits = m.curses.map(cu => bandeau(ic('alerte', 46, VIOLET), VIOLET, `
+                    <div style="font-size:15px;font-weight:900;color:${VIOLET};">${esc(cu.name)}</div>
                     ${cu.curseLabel ? `<div style="font-size:12.5px;color:#d8b4fe;line-height:1.4;margin-top:2px;">${esc(cu.curseLabel)}</div>` : ''}
-                    ${cu.negStats.length ? `<div>${cu.negStats.map(s => { const [k, v] = s.split(' '); return puce((STAT_FR[k] || k) + ' ' + v.replace('-', '−'), ROUGE); }).join('')}</div>` : ''}
-                </div>
-                ${action('Retirer', `document.getElementById('activeMalusOverlay').remove();showRPGEquipmentModal()`, VIOLET)}`));
+                    ${cu.negStats.length ? `<div>${cu.negStats.map(s => { const [k, v] = s.split(' '); return puce((STAT_FR[k] || k) + ' ' + v.replace('-', '−'), ROUGE); }).join('')}</div>` : ''}`,
+                action('Retirer', `document.getElementById('activeMalusOverlay').remove();showRPGEquipmentModal()`, VIOLET)));
 
             // 3) Pénalités de défi (temporaires)
-            const lignesPenalites = m.penalties.map(p => ligne(`${tuile(ic('chrono', 20, ROUGE), ROUGE)}
-                <div style="flex:1;min-width:0;">
-                    <div style="font-size:14px;font-weight:800;color:#f1f5f9;">${esc(p.name)}</div>
-                    ${p.desc ? `<div style="font-size:12.5px;color:#a3b1c2;line-height:1.4;margin-top:2px;">${esc(p.desc)}</div>` : ''}
-                </div>
-                ${p.remaining ? `<span style="flex-shrink:0;font-size:12.5px;font-weight:800;color:${ROUGE};white-space:nowrap;">encore ${esc(p.remaining.replace('j ', ' j ').replace(/h$/, ' h'))}</span>` : ''}`));
+            const lignesPenalites = m.penalties.map(p => bandeau(ic('chrono', 46, ROUGE), ROUGE, `
+                    <div style="font-size:15px;font-weight:900;color:${ROUGE};">${esc(p.name)}</div>
+                    ${p.desc ? `<div style="font-size:12.5px;color:#e2e8f0;font-weight:600;line-height:1.4;margin-top:3px;">${esc(p.desc)}</div>` : ''}`,
+                p.remaining ? `<span style="font-size:12.5px;font-weight:800;color:${ROUGE};white-space:nowrap;">encore ${esc(p.remaining.replace('j ', ' j ').replace(/h$/, ' h'))}</span>` : ''));
 
             // Résumé des effets cumulés des monstres
             const effets = [];
