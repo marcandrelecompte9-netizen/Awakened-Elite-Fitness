@@ -2090,8 +2090,13 @@
                 if (r) { r.discovered = true; awakRiftsSave(rifts); }
             }
 
+            // v1812 : couleur du rang (bordure), danger (secousse)
+            const _rangCol = ((typeof AWAKENED_RANKS !== 'undefined' && AWAKENED_RANKS.find(x => x.id === rift.rank)) || {}).color || theme.color;
+            const _perilleux = diff && diff.stars >= 5;
+            awakBriefCss();
+
             const modal = document.createElement('div');
-            modal.className = 'modal active';
+            modal.className = 'modal active awk-brief-ouvre';
             modal.id = 'awakRiftBriefingModal';
             // 📱 Fix mobile : scroll fiable avec align-items:flex-start sur petits écrans
             // 📱 center quand ça tient, flex-start sinon : sur un petit écran, un
@@ -2099,7 +2104,7 @@
             modal.style.cssText = 'background:rgba(0,0,0,0.92);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:16px 12px 32px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
 
             modal.innerHTML = `
-            <div class="modal-content" style="max-width:520px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${theme.color}50;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;">
+            <div class="modal-content awk-brief-carte${_perilleux ? ' awk-brief-peril' : ''}" style="max-width:520px;background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${_rangCol}88;box-shadow:0 0 34px ${_rangCol}33,0 0 0 1px ${theme.color}22 inset;padding:0;overflow:visible;border-radius:20px;max-height:none;margin:auto;">
                 <!-- Header thématique -->
                 <!-- 🌀 En-tête : la brèche elle-même en fond (image déjà utilisée
                      sur l'écran de victoire), voilée pour garder le texte net.
@@ -2113,8 +2118,12 @@
                     <!-- v1289 : le losange tournait mal (l'animation écrasait la rotation) et
                          ressemblait à une image manquante : on montre le boss de la Faille. -->
                     <!-- v1458 : boss en grand, nom, ambiance, puis UNE ligne de puces -->
-                    <div style="margin:4px auto 12px;width:128px;height:128px;display:flex;align-items:center;justify-content:center;animation:awakBriefFloat 4s ease-in-out infinite;filter:drop-shadow(0 0 18px ${theme.color}55);">
-                        ${(() => { const _b = (rift.waves || []).find(x => x.isBoss) || (rift.waves || [])[0]; return (_b && window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre(_b.name, theme.color, 124, true) : ''; })()}
+                    <!-- v1812 : l'adversaire en grand, avec une lueur du thème qui respire -->
+                    <div style="position:relative;margin:-4px auto 10px;width:196px;height:196px;display:flex;align-items:center;justify-content:center;">
+                        <div class="awk-brief-aura" style="position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle,${theme.color}55 0%,${theme.color}1a 45%,transparent 70%);"></div>
+                        <div style="position:relative;animation:awakBriefFloat 4s ease-in-out infinite;filter:drop-shadow(0 0 22px ${theme.color}77);">
+                        ${(() => { const _b = (rift.waves || []).find(x => x.isBoss) || (rift.waves || [])[0]; return (_b && window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre(_b.name, theme.color, 184, true) : ''; })()}
+                        </div>
                     </div>
                     <h2 style="margin:0;color:#fff !important;font-size:1.42em;font-weight:900;letter-spacing:0.5px;line-height:1.2;font-family:var(--font-display),sans-serif;text-wrap:balance;">${awakNomFailleAffiche(rift.name)}</h2>
                     <div style="margin-top:8px;color:#cbd5e1;font-size:0.82em;line-height:1.55;font-style:italic;max-width:340px;margin-left:auto;margin-right:auto;">${theme.description}</div>
@@ -2125,6 +2134,22 @@
                             if (rift.isAssaut) h += puce('ASSAUT', '#f59e0b', 'eclair');
                             if (!time.permanent) h += puce(time.expired ? 'Expirée' : time.label, time.expired ? '#ef4444' : '#cbd5e1', 'chrono');
                             h += puce(diff.label, diff.color);
+                            return h;
+                        })()}
+                    </div>
+                    <!-- v1812 : l'essentiel sans ouvrir « Détails » -->
+                    <div style="display:flex;justify-content:center;gap:16px;margin-top:12px;flex-wrap:wrap;font-size:0.74em;color:#cbd5e1;font-weight:700;">
+                        ${(() => {
+                            const ic = (n, c) => window.AwakIcon ? AwakIcon.get(n, 14, c || '#94a3b8') : '';
+                            const item = (i, t) => '<span style="display:inline-flex;align-items:center;gap:5px;">' + i + t + '</span>';
+                            const W = rift.waves || [], nb = W.length, boss = W.some(w => w.isBoss);
+                            let min = nb * 5 + (boss ? 3 : 0);
+                            try { if (rift.isAssaut && typeof awakAssautApercu === 'function') { const A = awakAssautApercu(rift); if (A && A.label) min = null; } } catch (e) { _awkE(e); }
+                            const xpR = { E: 200, D: 400, C: 700, B: 1100, A: 1700, S: 2500, SS: 3600, SSS: 5000 }[rift.rank] || 200;
+                            const xp = Math.round(xpR * (window.AWAK_RIFT_XP_FACTOR || 0.35) / 10) * 10;
+                            let h = item(ic('epee', theme.color), rift.isAssaut ? 'Assaut chronométré' : (nb + ' vague' + (nb > 1 ? 's' : '') + (boss ? ' · boss' : '')));
+                            h += item(ic('chrono'), rift.isAssaut ? (awakAssautApercu(rift).label || '') : ('≈ ' + min + ' min'));
+                            h += item(ic('etoile', '#fbbf24'), '<span style="color:#fde68a;">~' + xp + ' XP</span> + butin');
                             return h;
                         })()}
                     </div>
@@ -2163,9 +2188,9 @@
                     })()}
 
                     <!-- Actions -->
-                    <div style="display:flex;gap:8px;">
-                        <button onclick="document.getElementById('awakRiftBriefingModal').remove()" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;border-radius:10px;padding:14px;font-weight:800;font-size:0.85em;cursor:pointer;">↩ Plus tard</button>
-                        <button onclick="awakEntrerFaille('${rift.id}')" style="flex:2;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:10px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">ENTRER</button>
+                    <div style="display:flex;flex-direction:column;align-items:stretch;gap:4px;">
+                        <button onclick="awakEntrerFaille('${rift.id}')" style="width:100%;font-size:1em !important;padding:16px !important;letter-spacing:3px !important;background:linear-gradient(135deg,${theme.color},${theme.color}dd);border:none;color:white;border-radius:10px;padding:14px;font-weight:900;font-size:0.9em;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px ${theme.color}40;">ENTRER</button>
+                        <button onclick="document.getElementById('awakRiftBriefingModal').remove()" style="background:none !important;border:none !important;box-shadow:none !important;color:#94a3b8;padding:10px !important;font-weight:700;font-size:0.82em;cursor:pointer;min-height:auto !important;">Plus tard</button>
                     </div>
 
                     <!-- v1458 : le reste, repliable -->
@@ -2226,8 +2251,48 @@
 
             document.body.appendChild(modal);
             dismissOnBackdrop(modal);
+            awakBriefDechirure(modal, theme.color);
         }
         window.awakOpenRiftBriefing = awakOpenRiftBriefing;
+
+        // v1812 : ouverture d'une Faille — la brèche se déchire (≈ 1 s), puis la carte en sort.
+        // Un tap la passe. Mouvement réduit → la carte apparaît simplement.
+        function awakBriefCss() {
+            if (document.getElementById('awkBriefCss')) return;
+            const st = document.createElement('style');
+            st.id = 'awkBriefCss';
+            st.textContent = ''
+                + '@keyframes awkBriefSort{0%{opacity:0;transform:translateY(26px) scale(.86);filter:blur(6px)}100%{opacity:1;transform:none;filter:none}}'
+                + '@keyframes awkBriefSecousse{0%,100%{transform:none}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}'
+                + '@keyframes awkBriefRespire{0%,100%{opacity:.55;transform:scale(.92)}50%{opacity:1;transform:scale(1.06)}}'
+                + '@keyframes awkTearTrait{0%{transform:scaleY(0);opacity:0}25%{opacity:1}100%{transform:scaleY(1);opacity:1}}'
+                + '@keyframes awkTearOuvre{0%{transform:scaleX(1)}100%{transform:scaleX(150)}}'
+                + '@keyframes awkTearFlash{0%{opacity:0}40%{opacity:.85}100%{opacity:0}}'
+                + '@keyframes awkTearFin{to{opacity:0;visibility:hidden}}'
+                + '.awk-brief-aura{animation:awkBriefRespire 3.2s ease-in-out infinite}'
+                + '.awk-brief-ouvre .awk-brief-carte{animation:awkBriefSort .45s cubic-bezier(.2,.9,.3,1.2) .62s both}'
+                + '.awk-brief-ouvre .awk-brief-carte.awk-brief-peril{animation:awkBriefSort .45s cubic-bezier(.2,.9,.3,1.2) .62s both,awkBriefSecousse .4s ease-in-out 1.08s 1}'
+                + '.awk-brief-vite .awk-brief-carte{animation-delay:0s !important}'
+                + '.awk-tear{position:fixed;inset:0;z-index:100001;background:#000;display:flex;align-items:center;justify-content:center;animation:awkTearFin .25s ease-out .72s forwards;cursor:pointer}'
+                + '.awk-tear i{display:block;width:3px;height:72vh;border-radius:3px;transform-origin:center;animation:awkTearTrait .32s cubic-bezier(.5,0,.2,1) both,awkTearOuvre .32s cubic-bezier(.6,0,.9,.4) .38s forwards}'
+                + '.awk-tear b{position:absolute;inset:0;background:#fff;opacity:0;animation:awkTearFlash .34s ease-out .58s both}'
+                + '@media (prefers-reduced-motion:reduce){.awk-tear{display:none}.awk-brief-ouvre .awk-brief-carte,.awk-brief-aura{animation:none !important}}';
+            document.head.appendChild(st);
+        }
+        function awakBriefDechirure(modal, col) {
+            try {
+                if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                const t = document.createElement('div');
+                t.className = 'awk-tear';
+                t.setAttribute('aria-hidden', 'true');
+                t.innerHTML = '<i style="background:' + col + ';box-shadow:0 0 18px ' + col + ',0 0 46px ' + col + ',0 0 90px ' + col + '88;"></i><b style="background:radial-gradient(circle,#fff 0%,' + col + ' 45%,transparent 80%);"></b>';
+                const fin = () => { try { t.remove(); } catch (e) { _awkE(e); } };
+                t.addEventListener('click', () => { modal.classList.add('awk-brief-vite'); fin(); });
+                document.body.appendChild(t);
+                try { if (typeof vibrate === 'function') setTimeout(() => vibrate([18, 40, 30]), 380); } catch (e) { _awkE(e); }
+                setTimeout(fin, 1100);
+            } catch (e) { _awkE(e); }
+        }
 
         // ═══════════════════════════════════════════════════════════════
         // ⚔️ COMBAT EN VAGUES — état de session de Faille
