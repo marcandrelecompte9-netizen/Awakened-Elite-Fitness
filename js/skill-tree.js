@@ -81,7 +81,9 @@
     return m;
   }
 
-  function gagnes(lv) { return lv >= 3 ? 1 + Math.floor(lv / 5) : 0; }
+  // v1815 : 1 point tous les 2 niveaux (avant : 1 au niv. 3 puis 1 tous les 5 — trop lent).
+  // Toujours ≥ à l'ancien calcul : personne ne perd de point.
+  function gagnes(lv) { return Math.max(lv >= 3 ? 1 + Math.floor(lv / 5) : 0, Math.floor((lv || 0) / 2)); }
   function depenses(unl, rg) {
     unl = unl || debloques(); rg = rg || rangs();
     var m = carte(), s = 0;
@@ -359,7 +361,7 @@
       var ids = idsDe(o);
       VUE.sel = ids.filter(function (id) { var e = etat(id, lv, unl); return e === 'dispo' || e === 'ameliorable'; })[0] || ids[0] || null;
     }
-    var pts = points(lv, unl), g = gagnes(lv), prochain = lv < 3 ? 3 : (Math.floor(lv / 5) + 1) * 5;
+    var pts = points(lv, unl), g = gagnes(lv), prochain = (Math.floor(lv / 2) + 1) * 2;
     var p = prochaineReinit(), reinitOk = !p || p <= Date.now();
     var h = '<style>@keyframes awkPulse{0%,100%{box-shadow:0 0 0 0 var(--awk-c)}50%{box-shadow:0 0 0 9px transparent}}@keyframes awkTrait{to{stroke-dashoffset:-24}}</style>';
     h += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">'
