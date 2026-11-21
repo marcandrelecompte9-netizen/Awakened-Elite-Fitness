@@ -2251,7 +2251,6 @@
 
             document.body.appendChild(modal);
             dismissOnBackdrop(modal);
-            awakBriefDechirure(modal, theme.color);
         }
         window.awakOpenRiftBriefing = awakOpenRiftBriefing;
 
@@ -2270,8 +2269,8 @@
                 + '@keyframes awkTearFlash{0%{opacity:0}40%{opacity:.85}100%{opacity:0}}'
                 + '@keyframes awkTearFin{to{opacity:0;visibility:hidden}}'
                 + '.awk-brief-aura{animation:awkBriefRespire 3.2s ease-in-out infinite}'
-                + '.awk-brief-ouvre .awk-brief-carte{animation:awkBriefSort .45s cubic-bezier(.2,.9,.3,1.2) .62s both}'
-                + '.awk-brief-ouvre .awk-brief-carte.awk-brief-peril{animation:awkBriefSort .45s cubic-bezier(.2,.9,.3,1.2) .62s both,awkBriefSecousse .4s ease-in-out 1.08s 1}'
+                + '.awk-brief-ouvre .awk-brief-carte{animation:awkBriefSort .38s cubic-bezier(.2,.9,.3,1.2) both}'
+                + '.awk-brief-ouvre .awk-brief-carte.awk-brief-peril{animation:awkBriefSort .38s cubic-bezier(.2,.9,.3,1.2) both,awkBriefSecousse .4s ease-in-out .4s 1}'
                 + '.awk-brief-vite .awk-brief-carte{animation-delay:0s !important}'
                 + '.awk-tear{position:fixed;inset:0;z-index:100001;background:#000;display:flex;align-items:center;justify-content:center;animation:awkTearFin .25s ease-out .72s forwards;cursor:pointer}'
                 + '.awk-tear i{display:block;width:3px;height:72vh;border-radius:3px;transform-origin:center;animation:awkTearTrait .32s cubic-bezier(.5,0,.2,1) both,awkTearOuvre .32s cubic-bezier(.6,0,.9,.4) .38s forwards}'
@@ -2414,10 +2413,13 @@
             AwakSeuil.ouvrir({
                 complet,
                 couleur: nd.color || theme.color,   // v1518 : la faille prend la couleur de son thème
-                titre: rift.discovered === false ? 'Une Faille inconnue' : (rift.name || theme.name || 'Faille'),
+                titre: rift.discovered === false ? 'Une Faille inconnue' : ((typeof awakNomFailleAffiche === 'function' ? awakNomFailleAffiche(rift.name) : rift.name) || theme.name || 'Faille'),
                 sous: [rang, vagues ? vagues + ' vague' + (vagues > 1 ? 's' : '') : ''].filter(Boolean).join(' · '),
                 titre2: phr(nd.description || theme.description, 70) || 'Au-delà, le silence est plus lourd.',
                 sous2: phr(nd.briefing || theme.briefing, 150),
+                // v1813 : ce qui attend dans la brèche, et la voix du Système
+                monstre: (() => { try { const _b = (rift.waves || []).find(x => x.isBoss) || (rift.waves || [])[0]; return (_b && window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre(_b.name, nd.color || theme.color || '#a855f7', 220, false) : ''; } catch (e) { return ''; } })(),
+                systeme: [(rift.waves || []).some(w => w.isBoss) ? 'Un gardien attend au fond.' : 'Des ombres bougent de l\'autre côté.', (() => { try { const d = awakRiftDifficulty(rift); return d && d.stars >= 5 ? 'Le seuil est instable.' : (d && d.stars >= 4 ? 'Reste sur tes gardes.' : ''); } catch (e) { return ''; } })()].filter(Boolean).join(' '),
                 onEntrer: () => awakStartRift(riftId)
             });
         }

@@ -65,6 +65,16 @@
       '#' + ID + ' .sl-flash{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(' + CYAN_C + ',.95),rgba(' + CYAN + ',.35) 40%,#000 75%);opacity:0;pointer-events:none;transition:opacity .45s ease}' +
       '#' + ID + '.entre .sl-flash{opacity:1}' +
       '@keyframes slChev{0%{opacity:.12}40%{opacity:.85}100%{opacity:.12}}' +
+      // v1813 : fond qui se rapproche, silhouette du gardien, voix du Système, sortie en fondu
+      '#' + ID + ' .sl-bg{position:absolute;inset:-4%;background-size:cover;background-position:center;transform-origin:50% 40%;will-change:transform}' +
+      '#' + ID + ' .sl-mon{position:absolute;left:50%;top:0;width:220px;height:220px;margin-left:-110px;margin-top:-110px;pointer-events:none;opacity:0;will-change:transform,opacity,filter}' +
+      '#' + ID + ' .sl-mon > *{width:100% !important;height:100% !important}' +
+      '#' + ID + ' .sl-mon .awk-mon-aura,#' + ID + ' .sl-mon .awk-mon-anneau{display:none !important}' +
+      '#' + ID + ' .sl-sys{margin:14px auto 0;max-width:420px;min-height:1.6em;font-family:ui-monospace,Menlo,Consolas,monospace !important;font-size:12px !important;letter-spacing:1.5px;color:rgba(' + CYAN_C + ',.9) !important;text-transform:uppercase}' +
+      '#' + ID + ' .sl-sys i{display:inline-block;width:7px;height:12px;margin-left:3px;vertical-align:-1px;background:currentColor;animation:slCur 1s steps(1) infinite}' +
+      '@keyframes slCur{50%{opacity:0}}' +
+      '@keyframes slSortie{0%{opacity:1}100%{opacity:0}}' +
+      '@keyframes slArrive{0%{transform:scale(1.07);filter:brightness(1.8) blur(3px)}100%{transform:none;filter:none}}' +
       '@media (prefers-reduced-motion: reduce){#' + ID + ' .sl-chev{animation:none;opacity:.5}}';
     document.head.appendChild(st);
   }
@@ -108,10 +118,12 @@
     var chev = '';
     for (var c = 0; c < 9; c++) chev += '<span class="sl-chev" style="top:' + (6 + c * 8.5) + '%;animation-delay:' + (-(c * 0.16)).toFixed(2) + 's"></span>';
     el.innerHTML =
+      '<div class="sl-bg"></div>' +
       '<canvas></canvas>' +
+      (o.monstre ? '<div class="sl-mon">' + o.monstre + '</div>' : '') +
       '<div class="sl-et">' + esc(o.etiquette || 'SYSTÈME') + '<i></i></div>' +
       '<button type="button" class="sl-x" aria-label="Fermer" onclick="AwakSeuil.reculer()">RECULER</button>' +
-      '<div class="sl-t sl-t1"><h2>' + esc(o.titre || 'Une Faille s\'est ouverte.') + '</h2>' + (o.sous ? '<p>' + esc(o.sous) + '</p>' : '') + '</div>' +
+      '<div class="sl-t sl-t1"><h2>' + esc(o.titre || 'Une Faille s\'est ouverte.') + '</h2>' + (o.sous ? '<p>' + esc(o.sous) + '</p>' : '') + (o.systeme ? '<p class="sl-sys"><span></span><i></i></p>' : '') + '</div>' +
       (complet ? '<div class="sl-t sl-t2"><h2>' + esc(o.titre2 || 'Au-delà, le silence est plus lourd.') + '</h2><div class="sl-trait"></div>' + (o.sous2 ? '<p>' + esc(o.sous2) + '</p>' : '') + '</div>' : '') +
       '<div class="sl-hold"><b>MAINTENIR POUR APPROCHER</b><i><u></u></i></div>' +
       (complet ? '<div class="sl-glis"><span class="sl-rail"></span>' + chev + '<b>GLISSER<br>POUR ENTRER</b></div><div class="sl-recul">RELÂCHER POUR RECULER</div>'
@@ -120,6 +132,13 @@
     document.body.appendChild(el);
     requestAnimationFrame(function () { el.classList.add('on'); });
     vib([30]);
+    // v1813 : la voix du Système s'écrit lettre par lettre
+    (function () {
+      var sp = el.querySelector('.sl-sys span'); if (!sp || !o.systeme) return;
+      var txt = String(o.systeme), i = 0;
+      if (reduit()) { sp.textContent = txt; return; }
+      setTimeout(function tape() { if (!el.isConnected) return; sp.textContent = txt.slice(0, ++i); if (i < txt.length) setTimeout(tape, 34 + (/[.,]/.test(txt[i - 1]) ? 180 : 0)); }, 650);
+    })();
 
     var cv = el.querySelector('canvas'), ctx = cv.getContext('2d');
     var dpr = Math.min(2, window.devicePixelRatio || 1), W = 0, H = 0;
@@ -131,7 +150,7 @@
     // v1519 : image de fond (images/seuil_fond.webp) — si elle charge, elle remplace le ciel
     // et la ville dessinés ; la faille, ses éclairs et ses débris restent dessinés par-dessus.
     var fondOk = false;
-    (function () { var im = new Image(); im.onload = function () { fondOk = true; el.style.backgroundImage = 'url(images/seuil_fond.webp)'; el.style.backgroundSize = 'cover'; el.style.backgroundPosition = 'center'; }; im.src = 'images/seuil_fond.webp'; })();
+    (function () { var im = new Image(); im.onload = function () { fondOk = true; var bgd = el.querySelector('.sl-bg'); if (bgd) bgd.style.backgroundImage = 'url(images/seuil_fond.webp)'; else { el.style.backgroundImage = 'url(images/seuil_fond.webp)'; el.style.backgroundSize = 'cover'; el.style.backgroundPosition = 'center'; } }; im.src = 'images/seuil_fond.webp'; })();
     try { el.querySelector('.sl-flash').style.background = 'radial-gradient(ellipse at 50% 50%,rgba(255,255,255,.95),rgba(' + COLC + ',.6) 30%,rgba(' + COL + ',.3) 50%,#000 78%)'; } catch (e) { _awkE(e); }
     var T = trace(H), parts = [], debris = [], eclairs = [], ondes = [], ville = [];
     for (var p = 0; p < 90; p++) parts.push({ x: (Math.random() - 0.5) * 2, y: Math.random(), v: 0.0004 + Math.random() * 0.0012, r: Math.random() * 1.4 + 0.2, a: Math.random() });
@@ -295,9 +314,29 @@
       ctx.fillStyle = vg; ctx.fillRect(-20, -20, W + 40, H + 40);
       ctx.restore();
 
+      // v1813 : on avance — le fond se rapproche, le gardien sort de l'ombre, le cœur bat
+      if (!calme) {
+        var bg = el.querySelector('.sl-bg');
+        if (bg) bg.style.transform = 'scale(' + (1 + Math.min(1, o2) * 0.14 + st.p2 * 0.04).toFixed(4) + ')';
+      }
+      var mon = el.querySelector('.sl-mon');
+      if (mon) {
+        var rv = Math.max(0, Math.min(1, (o2 - 0.09) / 0.36));          // 0 → 1 pendant l'approche
+        mon.style.top = cy + 'px';
+        mon.style.left = cx + 'px';
+        mon.style.opacity = (rv * 0.95).toFixed(3);
+        mon.style.transform = 'scale(' + (0.55 + rv * 0.5 + (calme ? 0 : Math.sin(t * 1.6) * 0.015)).toFixed(3) + ')';
+        // ombre d'abord, puis il s'éclaire un peu (contour de la couleur de la faille)
+        mon.style.filter = 'brightness(' + (0.04 + rv * rv * 0.75).toFixed(3) + ') drop-shadow(0 0 ' + Math.round(6 + rv * 18) + 'px rgba(' + COL + ',' + (0.35 + rv * 0.5).toFixed(2) + '))';
+      }
+      if (st.phase === 1 && st.appuiDebut && !calme && now > (st.prochainBat || 0)) {
+        vib([22]);
+        st.prochainBat = now + 640 - st.appui * 440;                      // le battement accélère
+      }
+
       // jauge d'appui
       if (st.phase === 1 && st.appuiDebut) {
-        st.appui = Math.min(1, (now - st.appuiDebut) / 1100);
+        st.appui = Math.min(1, (now - st.appuiDebut) / 1700);
         st.cible = 0.08 + st.appui * 0.45;
         var u = el.querySelector('.sl-hold u'); if (u) u.style.width = (st.appui * 100) + '%';
         if (st.appui >= 1) passer2();
@@ -313,7 +352,21 @@
         vib([60, 40, 120]);
         st.cible = 1.2; onde(1.5);
         el.classList.add('entre');
-        setTimeout(function () { el.remove(); try { if (o.onEntrer) o.onEntrer(); } catch (e) { _awkE(e); } }, 520);
+        setTimeout(function () {
+          el.remove();
+          try { if (o.onEntrer) o.onEntrer(); } catch (e) { _awkE(e); }
+          // v1813 : éclair qui se dissipe sur l'écran suivant (plus de coupure sèche)
+          try {
+            if (!calme) {
+              var f = document.createElement('div');
+              f.setAttribute('aria-hidden', 'true');
+              f.style.cssText = 'position:fixed;inset:0;z-index:100004;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,#fff 0%,rgba(' + COLC + ',.85) 35%,rgba(' + COL + ',.5) 65%,#000 100%);animation:slSortie .7s ease-out .05s forwards';
+              document.body.appendChild(f);
+              setTimeout(function () { f.remove(); }, 900);
+              setTimeout(function () { var m = document.getElementById('awakRiftCombatModal'); var c = m && m.firstElementChild; if (c) c.style.animation = 'slArrive .6s ease-out'; }, 60);
+            }
+          } catch (e) { _awkE(e); }
+        }, 520);
       } else {
         el.classList.remove('on');
         setTimeout(function () { el.remove(); try { if (o.onReculer) o.onReculer(); } catch (e) { _awkE(e); } }, 450);
