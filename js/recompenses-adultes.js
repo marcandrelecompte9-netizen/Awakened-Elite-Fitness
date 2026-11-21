@@ -299,6 +299,10 @@
   function annoncer() {
     try {
       if (document.body.classList.contains('in-session') || document.getElementById('awakRecompBravo')) return;
+      // v1811 : pas pendant une Faille ou une Chasse (entre deux attaques, la séance de combat
+      // est déjà comptée et l'accueil se redessine) ; l'annonce attend la fin du combat.
+      if (document.getElementById('awakRiftCombatModal') || document.getElementById('awakHuntCombatModal')) return;
+      try { if (typeof currentWorkout !== 'undefined' && currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt)) return; } catch (e) { _e(e); }
       var pid = pidActif(); if (estEnfant(pid)) return;
       var d = lire(); var ch = majEtats(d);
       var l = mes(d, pid), r;
