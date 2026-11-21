@@ -324,7 +324,7 @@
         var rv = Math.max(0, Math.min(1, (o2 - 0.09) / 0.36));          // 0 → 1 pendant l'approche
         mon.style.top = cy + 'px';
         mon.style.left = cx + 'px';
-        mon.style.opacity = (rv * 0.95).toFixed(3);
+        mon.style.opacity = (rv * 0.95 * (1 - st.p2 * 0.75)).toFixed(3);   // 2e temps : il s'efface derrière le texte
         mon.style.transform = 'scale(' + (0.55 + rv * 0.5 + (calme ? 0 : Math.sin(t * 1.6) * 0.015)).toFixed(3) + ')';
         // ombre d'abord, puis il s'éclaire un peu (contour de la couleur de la faille)
         mon.style.filter = 'brightness(' + (0.04 + rv * rv * 0.75).toFixed(3) + ') drop-shadow(0 0 ' + Math.round(6 + rv * 18) + 'px rgba(' + COL + ',' + (0.35 + rv * 0.5).toFixed(2) + '))';

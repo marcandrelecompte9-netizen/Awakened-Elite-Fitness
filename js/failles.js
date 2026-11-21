@@ -2402,6 +2402,10 @@
             const rift = awakGetRiftById(riftId);
             if (!rift || !window.AwakSeuil) { awakStartRift(riftId); return; }
             if (currentWorkout && (currentWorkout._isRift || currentWorkout._isHunt)) { awakStartRift(riftId); return; }
+            // v1816 : Seuil déjà franchi il y a moins de 10 min (ex. Faille de l'histoire : apparition
+            // → briefing → ENTRER) → on entre directement, sans refaire le Seuil
+            const _vuRecent = (window._awakSeuilVu || {})[rift.id];
+            if (_vuRecent && Date.now() - _vuRecent < 600000) { document.getElementById('awakRiftBriefingModal')?.remove(); awakStartRift(riftId); return; }
             const speciale = !!(rift.narrativeId || rift.isAbyss || rift.isSubBoss || rift.subBossId || rift.isCompanionRift || rift.companionId);
             const vu = (window._awakSeuilVu || {})[rift.id];
             const complet = speciale && !(vu && Date.now() - vu < 600000) && !(rift.attempts > 0);
