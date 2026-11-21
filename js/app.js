@@ -24970,7 +24970,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1824);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1825);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -25023,7 +25023,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1824" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1825" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25834,7 +25834,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const cle = Math.round(r.width) + 'x' + H;
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1824)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1825)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center top';
                 } catch (e) { _awkE(e); }
@@ -26414,25 +26414,26 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const rc = rangCol(r.rank);
                 const etat = r.state === 'breach' ? { t: 'RUPTURE', c: '#ef4444' } : (r.state === 'unstable' ? { t: 'INSTABLE', c: '#fbbf24' } : null);
                 let mon = '';
-                try { mon = (boss && window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre(String(boss.name || '').replace(/ \(Boss\)$/, ''), col, 62, !!boss.isBoss) : ''; } catch (e) { _awkE(e); }
+                try { mon = (boss && window.AwakRiftVis && AwakRiftVis.monstre) ? AwakRiftVis.monstre(String(boss.name || '').replace(/ \(Boss\)$/, ''), col, 100, false) : ''; } catch (e) { _awkE(e); }
                 let nom = r.name || (r.narrativeData && r.narrativeData.name) || (th && th.name) || 'Faille';
                 nom = nom.charAt(0).toUpperCase() + nom.slice(1);
                 const rid = String(r.id || '').replace(/'/g, "\\'");
                 const puce = (t, c) => '<span style="font-size:0.6em;font-weight:900;letter-spacing:1px;padding:2px 7px;border-radius:99px;color:' + c + ';border:1px solid ' + c + '66;background:' + c + '14;white-space:nowrap;">' + t + '</span>';
-                h += '<button type="button" onclick="awakOpenRiftBriefing(\'' + rid + '\')" style="position:relative;display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;font-family:inherit;color:#e2e8f0;'
-                    + 'padding:10px 12px 10px 8px;border-radius:16px;overflow:hidden;border:1px solid ' + col + '55;'
-                    + 'background:radial-gradient(circle at 12% 50%,' + col + '2e,transparent 45%),linear-gradient(135deg,#10131b,#0a0c12);box-shadow:inset 3px 0 0 ' + col + ';">'
-                    + '<div style="flex-shrink:0;width:66px;height:66px;display:flex;align-items:center;justify-content:center;">' + mon + '</div>'
-                    + '<div style="flex:1;min-width:0;">'
+                // v1825 : bandeau comme Alliés / Objets — monstre en grand à gauche, fondu vers la droite
+                h += '<button type="button" onclick="awakOpenRiftBriefing(\'' + rid + '\')" style="position:relative;display:flex;align-items:center;gap:12px;width:100%;min-height:106px;text-align:left;cursor:pointer;font-family:inherit;color:#e2e8f0;'
+                    + 'padding:12px 12px 12px 114px !important;border-radius:16px;overflow:hidden;border:1px solid ' + col + '55;'
+                    + 'background:radial-gradient(circle at 56px 50%,' + col + '33,transparent 120px),linear-gradient(135deg,#10131b,#0a0c12) !important;box-shadow:inset 3px 0 0 ' + col + ';">'
+                    + '<div style="position:absolute;left:0;top:0;bottom:0;width:130px;display:flex;align-items:center;justify-content:center;-webkit-mask-image:linear-gradient(90deg,#000 55%,transparent 100%);mask-image:linear-gradient(90deg,#000 55%,transparent 100%);pointer-events:none;filter:drop-shadow(0 0 12px ' + col + '77);">' + mon + '</div>'
+                    + '<div style="position:relative;flex:1;min-width:0;">'
                     +   '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px;">' + puce('RANG ' + esc(r.rank || '?'), rc)
                     +     (r.isAssaut ? puce('ASSAUT', '#f59e0b') : '') + (etat ? puce(etat.t, etat.c) : '') + '</div>'
-                    +   '<div style="font-weight:900;font-size:0.92em;line-height:1.2;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(nom) + '</div>'
+                    +   '<div style="font-weight:900;font-size:0.98em;line-height:1.2;color:#f8fafc;text-shadow:0 1px 4px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(nom) + '</div>'
                     +   (boss ? '<div style="font-size:0.7em;color:#94a3b8;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(String(boss.name || '').replace(/ \(Boss\)$/, '')) + (boss.isBoss ? ' · boss' : '') + '</div>' : '')
                     +   '<div style="height:5px;border-radius:99px;background:rgba(255,255,255,0.08);overflow:hidden;margin-top:7px;"><div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,' + col + 'aa,' + col + ');border-radius:99px;"></div></div>'
                     +   '<div style="display:flex;justify-content:space-between;font-size:0.62em;color:#7c8aa0;margin-top:4px;font-weight:700;"><span>PV ' + pct + ' %</span>'
                     +     (jours != null ? '<span style="color:' + (jours <= 1 ? '#fca5a5' : '#7c8aa0') + ';">' + (jours <= 0 ? 'rupture imminente' : (jours === 1 ? '1 jour avant rupture' : jours + ' jours avant rupture')) + '</span>' : '') + '</div>'
                     + '</div>'
-                    + '<div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:' + col + '22;border:1px solid ' + col + '77;">' + ico('epee', 16, col) + '</div>'
+                    + '<div style="position:relative;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:' + col + '22;border:1px solid ' + col + '77;">' + ico('epee', 16, col) + '</div>'
                     + '</button>';
             });
             return h + '</div>';
@@ -31333,7 +31334,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1824");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1825");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -45277,7 +45278,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1824';
+                    let ver = 'v0.95.1825';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -45445,7 +45446,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1824" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1825" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45527,7 +45528,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1824);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1825);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45594,7 +45595,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1824);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1825);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -48068,7 +48069,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1824");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1825");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
