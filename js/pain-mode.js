@@ -309,6 +309,10 @@
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:flex-end;justify-content:center;padding:0;';
     overlay.onclick = function (e) { if (e.target === overlay) _closeModal(); };
     overlay.innerHTML = '<div style="background:linear-gradient(160deg,#1a1410,#0d0d12);border-top:1px solid rgba(245,158,11,0.35);border-radius:22px 22px 0 0;padding:22px;max-width:460px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.6);">'
+      // v1837 : bandeau illustré (même image que l'accueil)
+      + '<div aria-hidden="true" style="position:relative;height:140px;margin:-22px -22px 10px;border-radius:22px 22px 0 0;overflow:hidden;background:#101826;">'
+      +   '<img src="images/accueil/douleur.webp" alt="" style="width:100%;height:100%;object-fit:cover;object-position:78% 25%;display:block;" onerror="this.remove()">'
+      +   '<span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(26,20,16,0) 45%,#18130f 100%);"></span></div>'
       + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;">'
       +   '<svg viewBox="0 0 24 24" width="24" height="24" style="flex-shrink:0;" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="#ef4444"/></svg>'
       +   '<div style="flex:1;"><div style="font-size:1.1em;font-weight:900;color:#fff;">Où as-tu mal ?</div>'
