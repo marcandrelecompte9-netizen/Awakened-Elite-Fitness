@@ -522,7 +522,7 @@
     box.dataset.img = img;
     box.setAttribute('aria-hidden', 'true');
     box.style.cssText = 'position:absolute;inset:0;pointer-events:none;';
-    box.innerHTML = '<img src="images/accueil/' + img + '.webp" alt="" style="position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:cover!important;object-position:70% 30%;" onerror="this.parentNode.remove()">';
+    box.innerHTML = '<img src="images/accueil/' + img + '.webp" alt="" style="position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:cover!important;object-position:' + (img === 'jour_faite' ? '90%' : '70%') + ' 30%;" onerror="this.parentNode.remove()">';
     var pic = hd.querySelector('picture');
     if (pic) pic.insertAdjacentElement('afterend', box); else hd.insertBefore(box, hd.firstChild);
   }
