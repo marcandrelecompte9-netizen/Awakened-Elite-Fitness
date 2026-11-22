@@ -106,6 +106,7 @@
       '#appHeader img{width:100%!important;height:auto!important;object-fit:contain!important;transform:none!important;display:block!important;}' +
       '#appHeader > div{display:none!important;}' +
       // v1727 : titre AWAKENED écrit en code sur la bannière (fondu + logo + mot)
+      '#appHeader > div.awk-ban-diapo{display:block!important;}' +
       '#appHeader > div.awk-ban-fondu{display:block!important;}#appHeader > div.awk-ban-titre{display:flex!important;}' +
       '#appHeader .awk-ban-titre img{width:auto!important;height:clamp(22px,5.2vw,40px)!important;object-fit:contain!important;}' +
       // Composants
@@ -498,11 +499,48 @@
   // v1801 : bandeau illustré de l'objectif du jour (images/accueil/jour_<etat>.webp).
   // Image absente → simple dégradé, comme le séparateur d'avant. Pas chez l'enfant.
   function bandeauJour(etat) {
-    if (estEnfant()) return '<div style="height:1px;background:rgba(255,255,255,0.06);margin:14px -16px 14px;"></div>';
+    // v1849 : l'image du jour passe dans la bannière du haut (diaporama) ; ici, simple séparateur
+    try { setTimeout(function () { banniereDiapo(etat); }, 0); } catch (e) { _awkE(e); }
+    return '<div style="height:1px;background:rgba(255,255,255,0.06);margin:14px -16px 14px;"></div>';
     var src = 'images/accueil/jour_' + etat + '.webp';
     // Séparateur tant que l'image n'est pas chargée (ou si elle manque)
     return '<div aria-hidden="true" data-bj="' + src + '" style="height:1px;background:rgba(255,255,255,0.06);margin:14px -16px 14px;">' +
       '<img src="' + src + '" alt="" style="display:none" onload="var d=this.parentNode;d.style.cssText=\'height:118px;margin:14px -16px 12px;border-top:1px solid rgba(255,255,255,0.06);background:linear-gradient(180deg,rgba(18,22,28,0) 45%,#12161c 100%),linear-gradient(90deg,rgba(18,22,28,0.35),rgba(18,22,28,0) 60%),#161c26 url(\'+d.getAttribute(\'data-bj\')+\') 70% 40%/cover no-repeat\';this.remove()"></div>';
+  }
+
+  // v1849 : bannière du haut en diaporama — l'affiche AWAKENED, puis l'image du jour
+  // (séance / faite / repos), puis les autres. Fondu toutes les 6 s ; titre AWAKENED par-dessus.
+  var _diapoT = null, _diapoEtat = null;
+  function banniereDiapo(etat) {
+    var hd = document.getElementById('appHeader'); if (!hd) return;
+    var box = hd.querySelector('.awk-ban-diapo');
+    if (estEnfant()) { if (box) box.remove(); if (_diapoT) { clearInterval(_diapoT); _diapoT = null; } return; }
+    if (box && _diapoEtat === etat) return;
+    _diapoEtat = etat;
+    var autres = ['seance', 'faite', 'repos'].filter(function (x) { return x !== etat; });
+    var liste = ['images/accueil/jour_' + etat + '.webp'].concat(autres.map(function (x) { return 'images/accueil/jour_' + x + '.webp'; }), ['images/accueil/groupe.webp', 'images/accueil/reveil.webp']);
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'awk-ban-diapo';
+      box.setAttribute('aria-hidden', 'true');
+      box.style.cssText = 'position:absolute;inset:0;pointer-events:none;';
+      var pic = hd.querySelector('picture');
+      if (pic) pic.insertAdjacentElement('afterend', box); else hd.insertBefore(box, hd.firstChild);
+    }
+    box.innerHTML = liste.map(function (src) {
+      return '<img src="' + src + '" alt="" style="position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:cover!important;object-position:70% 30%;opacity:0;transition:opacity 1.2s ease;" onerror="this.remove()">';
+    }).join('');
+    var i = -1;   // -1 = l'affiche AWAKENED (aucune image du diaporama visible)
+    if (_diapoT) clearInterval(_diapoT);
+    var reduit = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function suivant() {
+      if (!box.isConnected) { clearInterval(_diapoT); _diapoT = null; return; }
+      var ims = box.querySelectorAll('img');
+      i = i + 1;
+      if (i >= ims.length) i = -1;
+      for (var k = 0; k < ims.length; k++) ims[k].style.opacity = (k === i) ? '1' : '0';
+    }
+    if (!reduit) _diapoT = setInterval(suivant, 6000);
   }
 
   // v1791 : le mentor choisi (programme actif) — portrait rond + semaine ; toucher ouvre son programme
