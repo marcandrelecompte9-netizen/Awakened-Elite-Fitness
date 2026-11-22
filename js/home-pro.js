@@ -513,13 +513,16 @@
   function banniereDiapo(etat) {
     var hd = document.getElementById('appHeader'); if (!hd) return;
     var box = hd.querySelector('.awk-ban-diapo');
-    if (estEnfant() || etat !== 'faite') { if (box) box.remove(); return; }
-    if (box) return;
+    var img = { faite: 'jour_faite', repos: 'jour_repos' }[etat];   // v1851 : repos → Nyra au balcon
+    if (estEnfant() || !img) { if (box) box.remove(); return; }
+    if (box && box.dataset.img === img) return;
+    if (box) box.remove();
     box = document.createElement('div');
     box.className = 'awk-ban-diapo';
+    box.dataset.img = img;
     box.setAttribute('aria-hidden', 'true');
     box.style.cssText = 'position:absolute;inset:0;pointer-events:none;';
-    box.innerHTML = '<img src="images/accueil/jour_faite.webp" alt="" style="position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:cover!important;object-position:70% 30%;" onerror="this.parentNode.remove()">';
+    box.innerHTML = '<img src="images/accueil/' + img + '.webp" alt="" style="position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:cover!important;object-position:70% 30%;" onerror="this.parentNode.remove()">';
     var pic = hd.querySelector('picture');
     if (pic) pic.insertAdjacentElement('afterend', box); else hd.insertBefore(box, hd.firstChild);
   }
