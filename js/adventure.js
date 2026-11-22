@@ -480,7 +480,18 @@ window.getActiveRingEffects = getActiveRingEffects;
 function tryEquipmentDrop(muscle, workoutQuality) {
     if (!getAdventureEnabled()) return null;
     const daily = getDailyDrops();
-    if (daily.count >= MAX_DROPS_PER_DAY) return null;
+    // v1835 : les 4 premières séances d'un profil donnent un équipement à coup sûr
+    // (ni le plafond du jour ni la chance de butin ne s'appliquent). Compteur par profil ;
+    // un profil qui a déjà plus de 5 séances au premier passage n'est pas concerné.
+    let _depart = false;
+    try {
+        const _ck = (typeof window._cleProfil === 'function') ? window._cleProfil('awakDropDepart') : 'awakDropDepart';
+        const _n = parseInt(localStorage.getItem(_ck) || '0', 10) || 0;
+        const _h = (typeof getWorkoutHistory === 'function' ? (getWorkoutHistory() || []) : []).length;
+        if (_n < 4 && (_n > 0 || _h <= 5)) _depart = true;
+        else if (_n === 0 && _h > 5) localStorage.setItem(_ck, '4');   // profil déjà lancé : on ferme
+    } catch (e) { _awkE(e); }
+    if (daily.count >= MAX_DROPS_PER_DAY && !_depart) return null;
     // v1537 : défis du Système — butin interdit / bonus de chance / butin garanti (avant : sans effet)
     let _garanti = null, _bonusDrop = 1;
     try { if (typeof window.awkDefiEffets === 'function' && window.awkDefiEffets().ban) return null; } catch (e) { _awkE(e); }
@@ -542,7 +553,7 @@ function tryEquipmentDrop(muscle, workoutQuality) {
         if (_c.lootMalus > 0) baseDrop = baseDrop * (1 - _c.lootMalus);
     }
     baseDrop *= _bonusDrop;
-    if (!_garanti && Math.random() > baseDrop) return null;
+    if (!_garanti && !_depart && Math.random() > baseDrop) return null;
 
     // ── Rang du chasseur ── v1537 : même rang que l'affichage (avant : XP des muscles seule, SS 120 / SSS 200)
     const hunterRankIndex = getHunterRankIndex();
@@ -667,6 +678,7 @@ function tryEquipmentDrop(muscle, workoutQuality) {
     saveDailyDrops(daily);
 
     // Retourner aussi la qualité pour le modal
+    if (_depart) { try { const _ck = (typeof window._cleProfil === 'function') ? window._cleProfil('awakDropDepart') : 'awakDropDepart'; localStorage.setItem(_ck, String((parseInt(localStorage.getItem(_ck) || '0', 10) || 0) + 1)); } catch (e) { _awkE(e); } }
     return { item, rarity: RARITIES[rarity], qualityScore, effectiveRank, bonusItem };
 }
 
