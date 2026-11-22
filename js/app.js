@@ -20707,18 +20707,13 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 }
                 // Routines existent mais pas de plan → invitation
                 container.style.display = 'block';
+                // v1840 : invitation en une ligne fine (en bas de l'onglet)
                 container.innerHTML = `
-                <div class="card" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1.5px dashed rgba(34,211,238,0.4);padding:14px 16px;margin-bottom:14px;">
-                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-                        <div style="line-height:1;display:flex;">${window.AwakIcon ? AwakIcon.get('calendrier', 24, '#22d3ee') : ''}</div>
-                        <div style="flex:1;min-width:0;">
-                            <div style="font-size:0.58em;color:#22d3ee;font-weight:900;letter-spacing:2px;">PLAN HEBDO</div>
-                            <div style="font-size:0.88em;font-weight:800;color:white;">Assigner mes routines aux jours</div>
-                        </div>
-                    </div>
-                    <div style="font-size:0.75em;color:#94a3b8;line-height:1.5;margin-bottom:11px;">Choisis quelle routine faire chaque jour. Elle apparaîtra sur la carte "Aujourd'hui" à l'accueil.</div>
-                    <button onclick="openWeeklyPlanEditor()" style="width:100%;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;border-radius:10px;padding:11px;font-weight:900;font-size:0.85em;cursor:pointer;letter-spacing:0.5px;">Créer mon plan hebdo</button>
-                </div>`;
+                <button onclick="openWeeklyPlanEditor()" style="width:100%;display:flex;align-items:center;gap:10px;min-height:auto !important;padding:12px 14px !important;border-radius:12px;cursor:pointer;text-align:left;font-family:inherit;background:rgba(255,255,255,0.02) !important;border:1px dashed rgba(96,168,240,0.35) !important;">
+                    <span style="display:flex;flex-shrink:0;">${window.AwakIcon ? AwakIcon.get('calendrier', 18, '#60a8f0') : ''}</span>
+                    <span style="flex:1;min-width:0;font-size:0.8em;color:#cbd5e1;font-weight:700;">Plan de la semaine <span style="color:#8391a7;font-weight:600;">· pas encore défini</span></span>
+                    <span style="color:#60a8f0;font-size:1.2em;">›</span>
+                </button>`;
                 return;
             }
             container.style.display = 'block';
@@ -20932,6 +20927,7 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             const noMsg = document.getElementById('noRoutinesMessage');
             if (!container) return;
             const routines = getRoutines();
+            try { const _nb = document.getElementById('awkRtNb'); if (_nb) _nb.textContent = routines.length ? '· ' + routines.length : ''; } catch (e) { _awkE(e); }   // v1840
 
             // Render plan hebdo en parallèle
             renderWeeklyPlanCard();
@@ -21008,33 +21004,21 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
                 };
                 const _min = (_RE && _RE.estimer && exCount) ? _RE.estimer(r.exercises) : 0;
                 const _nbSS = (_RE && _RE.nbSupersets) ? _RE.nbSupersets(r.exercises) : 0;
+                // v1840 : une routine = une ligne compacte (barre de couleur, nom, durée, exercices
+                // en une ligne, rond ▶). Toucher la ligne = modifier ; ⋯ = autres actions.
+                const _apercu = (r.exercises || []).slice(0, 3).map(e => _esc(e.name)).join(', ') + (exCount > 3 ? ' +' + (exCount - 3) : '');
                 return `
-                <div data-awak-routine="${idx}" style="background:linear-gradient(160deg,#0a0e18,#0F1014);border:1px solid ${color}30;border-left:3px solid ${color};border-radius:14px;padding:13px 14px;">
-                    <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:9px;">
-                        <div style="line-height:1;flex-shrink:0;filter:drop-shadow(0 0 6px ${color}60);">${awakRoutineIcon(r, 26, color)}</div>
-                        <div style="flex:1;min-width:0;">
-                            <div style="font-weight:800;color:white;font-size:0.92em;line-height:1.3;">${_esc(r.name)}</div>
-                            ${r.description ? `<div style="font-size:0.7em;color:#94a3b8;margin-top:2px;">${_esc(r.description)}</div>` : ''}
-                            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:5px;font-size:0.65em;color:#8391a7;font-weight:600;">
-                                <span>${exCount} exo${exCount>1?'s':''}</span>
-                                ${_min ? `<span>· ≈ ${_min} min</span>` : ''}
-                                ${_nbSS ? `<span style="color:#fb923c;">· ${_nbSS} superset${_nbSS>1?'s':''}</span>` : ''}
-                                ${r.level ? `<span>· ${r.level}</span>` : ''}
-                                ${r.muscles && r.muscles.length ? `<span>· ${r.muscles.slice(0,2).join('/')}${r.muscles.length>2?'…':''}</span>` : ''}
-                            </div>
-                        </div>
+                <div data-awak-routine="${idx}" onclick="if(!event.target.closest('button'))editRoutine(${idx})" style="position:relative;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:76px;padding:11px 10px 11px 16px;border-radius:14px;background:#11151c;border:1px solid rgba(255,255,255,0.07);overflow:hidden;">
+                    <span aria-hidden="true" style="position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:0 4px 4px 0;background:${color};"></span>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-weight:800;color:#f1f5f9;font-size:0.95em;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_esc(r.name)}</div>
+                        <div style="font-size:0.7em;color:#8391a7;font-weight:600;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${exCount} exo${exCount>1?'s':''}${_min ? ' · ≈ ' + _min + ' min' : ''}${_nbSS ? ' · ' + _nbSS + ' superset' + (_nbSS>1?'s':'') : ''}${r.description ? ' · ' + _esc(r.description) : ''}</div>
+                        <div style="font-size:0.7em;color:${exCount ? '#a3b1c2' : '#fca5a5'};margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${exCount ? _apercu : 'Aucun exercice — touche pour en ajouter'}</div>
                     </div>
-                    ${exCount > 0 ? `
-                        <div style="background:rgba(0,0,0,0.25);border-radius:6px;padding:7px 9px;font-size:0.7em;color:#94a3b8;line-height:1.5;margin-bottom:9px;">
-                            ${r.exercises.slice(0,3).map(e => `• ${_esc(e.name)}`).join('<br>')}
-                            ${exCount > 3 ? `<br><span style="color:${color}cc;">+ ${exCount - 3} autres</span>` : ''}
-                        </div>` : `
-                        <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:6px;padding:8px 10px;font-size:0.7em;color:#fca5a5;text-align:center;margin-bottom:9px;">⚠ Aucun exercice — édite ou supprime</div>`}
-                    <div style="display:flex;gap:6px;">
-                        <button onclick="startRoutine(${idx})" ${exCount === 0 ? 'disabled' : ''} style="flex:1;padding:10px;border-radius:10px;background:${exCount > 0 ? `linear-gradient(135deg,${color},${color}cc)` : 'rgba(255,255,255,0.05)'};border:none;color:${exCount > 0 ? _txtSur(color) : '#7c8aa0'}!important;font-weight:800;font-size:0.82em;cursor:${exCount > 0 ? 'pointer' : 'not-allowed'};letter-spacing:0.5px;${exCount > 0 ? `box-shadow:0 3px 10px ${color}30;` : ''}"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:-1px;margin-right:6px;"><path d="M7 4.5v15l13-7.5z"/></svg>Démarrer</button>
-                        <button onclick="editRoutine(${idx})" style="padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;font-weight:700;font-size:0.78em;cursor:pointer;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button>
-                        <button onclick="awakRoutineActions(${idx})" aria-label="Plus d'actions" title="Imprimer, dupliquer, supprimer" style="padding:10px 13px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#cbd5e1;font-weight:900;font-size:0.85em;cursor:pointer;min-height:auto;letter-spacing:1px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="display:block;"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
-                    </div>
+                    <button onclick="awakRoutineActions(${idx})" aria-label="Plus d'actions" title="Imprimer, dupliquer, supprimer" style="flex-shrink:0;min-height:auto !important;width:34px;height:34px;padding:0 !important;border-radius:10px;background:none !important;border:none !important;color:#7c8aa0;font-size:1.1em;font-weight:900;cursor:pointer;">⋯</button>
+                    <button onclick="startRoutine(${idx})" ${exCount === 0 ? 'disabled' : ''} aria-label="Démarrer ${_esc(r.name)}" style="flex-shrink:0;min-height:auto !important;width:46px;height:46px;padding:0 !important;border-radius:50%;cursor:${exCount ? 'pointer' : 'default'};display:flex;align-items:center;justify-content:center;background:${exCount ? color + '22' : 'rgba(255,255,255,0.04)'} !important;border:1.5px solid ${exCount ? color : 'rgba(255,255,255,0.1)'} !important;color:${exCount ? color : '#475569'};">
+                        <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true" style="margin-left:2px;"><path d="M7 4.5 L20 12 L7 19.5 Z"/></svg>
+                    </button>
                 </div>`;
             }).join('');
             const _liste = document.getElementById('awakRtListe');
@@ -24986,7 +24970,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1839);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1840);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -25039,7 +25023,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1839" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1840" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25850,7 +25834,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const cle = Math.round(r.width) + 'x' + H;
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1839)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1840)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center top';
                 } catch (e) { _awkE(e); }
@@ -31352,7 +31336,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1839");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1840");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -45377,7 +45361,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1839';
+                    let ver = 'v0.95.1840';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -45545,7 +45529,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1839" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1840" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45627,7 +45611,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1839);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1840);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45694,7 +45678,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1839);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1840);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -48168,7 +48152,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1839");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1840");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
