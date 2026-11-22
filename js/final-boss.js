@@ -35,7 +35,9 @@
       type: 'exercise',
       mode: opts.timer ? 'timer' : 'reps',
       duration: opts.timer || 0,
-      sets: opts.sets || 1,
+      // v1831 : exercices en séries → au moins 3 séries (à 2, on oubliait d'en ajouter une
+      // et on ratait la séance du combat). Les exercices chronométrés restent tels quels.
+      sets: opts.timer ? (opts.sets || 1) : Math.max(3, opts.sets || 1),
       targetReps: opts.reps || null,
       difficulty: 'Avancé',
       instructions: opts.instructions || [],
