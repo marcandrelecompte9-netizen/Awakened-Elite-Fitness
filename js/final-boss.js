@@ -443,6 +443,8 @@
     var avant = (workout._bossHp || 0) / max * 100;
     var ph = workout._phase || 0;
     if (ph >= 2) degats = Math.round(degats * 0.9);   // v1491 : plus de bonus +30 % en dernière phase
+    // v1832 : « Silence blanc » — tes 2 séries suivantes portent 30 % de moins
+    if (workout._silence > 0) { degats = Math.max(1, Math.round(degats * 0.7)); workout._silence--; }
     var aides = aidesCoup(workout, degats);            // v1511 : les alliés frappent aussi
     workout._bossHp = Math.max(0, (workout._bossHp || 0) - degats - aides.extra);
     var apres = workout._bossHp / max * 100;
@@ -675,7 +677,7 @@
     var n = Math.max(8, _coups(workout).length || 0);
     // Sur tout le combat, le chasseur de référence encaisse ≈ 2 × ses PV (avant
     // blocage, esquive et régénération) : il finit à la limite, un chasseur équipé tient.
-    workout._riposteBase = Math.max(4, Math.round(2.0 * refPV / (n * 1.2) * facteurRiposteEquipe(workout)));   // v1501 : 1,6 → 2,0
+    workout._riposteBase = Math.max(4, Math.round(1.85 * refPV / (n * 1.2) * facteurRiposteEquipe(workout)));   // v1501 : 1,6 → 2,0 ; v1832 : 1,85 (les attaques spéciales compensent)
     return workout._riposteBase;
   }
   function riposteEffaceur(workout, part) {
@@ -707,6 +709,9 @@
     var vit = 0;
     try { vit = (window.awakGetTotalStats ? window.awakGetTotalStats() : {}).VIT || 0; } catch (e) { _awkE(e); }
     var red = Math.min(0.40, vit / (vit + 300));
+    // v1832 : ATTAQUES SPÉCIALES — dès la phase 2, une riposte sur trois en est une
+    var sp = attaqueSpeciale(workout, ph, f);
+    if (sp) { brut *= sp.mult; if (sp.ignoreVIT) red = 0; if (sp.fixe) brut = Math.max(brut * 1.6, workout._joueurPVMax * sp.fixe * f); res.special = sp; }
     var dmg = Math.max(1, Math.round(brut * (1 - red)));
     res.bloque = Math.max(0, Math.round(brut) - dmg);
     res.dmg = dmg;
@@ -733,6 +738,66 @@
     return res;
   }
   window.awakFinalRiposte = riposteEffaceur;
+
+  // v1832 : les attaques spéciales de l'Effaceur. Elles arrivent à partir de la phase 2,
+  // une riposte sur trois, à tour de rôle parmi celles que la phase permet.
+  var SPECIALES = [
+    { id: 'effacement', ph: 1, nom: 'Effacement', ligne: 'Il efface l\'air entre vous. Le coup arrive deux fois plus fort.', couleur: '#e2e8f0', mult: 2 },
+    { id: 'silence', ph: 1, nom: 'Silence blanc', ligne: 'Tout devient blanc et sourd. Tes 2 prochaines séries frappent 30 % moins fort.', couleur: '#a855f7', mult: 0.6, silence: 2 },
+    { id: 'memoire', ph: 2, nom: 'Mémoire volée', ligne: 'Il arrache un souvenir à la ville et s\'en nourrit. Il regagne 4 % de ses PV.', couleur: '#dc2626', mult: 0.8, soinBoss: 0.04 },
+    { id: 'rien', ph: 3, nom: 'Le Rien', ligne: 'Un vide sans forme. Ni ta Vitalité ni ton armure ne l\'arrêtent.', couleur: '#fbbf24', mult: 1, fixe: 0.12, ignoreVIT: true }
+  ];
+  function attaqueSpeciale(workout, ph, f) {
+    if (ph < 1) return null;
+    workout._ripN = (workout._ripN || 0) + 1;
+    if (workout._ripN % 3 !== 0) return null;
+    var dispo = SPECIALES.filter(function (x) { return x.ph <= ph; });
+    if (!dispo.length) return null;
+    // une attaque jamais vue passe en premier (la nouvelle de chaque phase), puis rotation
+    var vu = workout._spVu || (workout._spVu = {});
+    var sp = dispo.filter(function (x) { return !vu[x.id]; })[0];
+    if (!sp) { sp = dispo[(workout._spIdx || 0) % dispo.length]; workout._spIdx = (workout._spIdx || 0) + 1; }
+    vu[sp.id] = 1;
+    if (sp.silence) workout._silence = sp.silence;
+    if (sp.soinBoss && workout._bossHp > 0) {
+      var max = workout._bossHpMax || 1;
+      var soin = Math.round(max * sp.soinBoss * (f || 1));
+      // il ne remonte jamais au-dessus du palier de sa phase (75 / 50 / 25 %)
+      var plafond = Math.round(max * ([1, 0.75, 0.5, 0.25][ph] || 1));
+      var av = workout._bossHp;
+      workout._bossHp = Math.min(plafond, workout._bossHp + soin);
+      sp = Object.assign({}, sp, { soinFait: Math.max(0, workout._bossHp - av) });
+    }
+    setTimeout(function () { try { annonceSpeciale(sp); } catch (e) { _awkE(e); } }, 650);
+    return sp;
+  }
+  // Annonce courte (≈ 2 s) : nom de l'attaque, ce qu'elle fait. Un tap la ferme.
+  function annonceSpeciale(sp) {
+    if (!sp) return;
+    document.getElementById('awakFinalSpeciale')?.remove();
+    if (!document.getElementById('awakFinalSpecialeCss')) {
+      var st = document.createElement('style'); st.id = 'awakFinalSpecialeCss';
+      st.textContent = '@keyframes fsIn{0%{opacity:0;transform:scale(1.25);filter:blur(6px)}100%{opacity:1;transform:none;filter:none}}'
+        + '@keyframes fsBand{0%{transform:scaleX(0)}100%{transform:scaleX(1)}}'
+        + '@keyframes fsTremble{0%,100%{transform:translate(0,0)}20%{transform:translate(-6px,3px)}40%{transform:translate(5px,-4px)}60%{transform:translate(-4px,-2px)}80%{transform:translate(3px,3px)}}'
+        + '@media(prefers-reduced-motion:reduce){#awakFinalSpeciale *{animation:none!important}}';
+      document.head.appendChild(st);
+    }
+    var ov = document.createElement('div');
+    ov.id = 'awakFinalSpeciale';
+    ov.setAttribute('data-emoji-keep', '');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:100003;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,' + sp.couleur + '33,rgba(3,3,8,0.82) 65%);animation:fsTremble .45s ease-in-out;cursor:pointer;';
+    ov.innerHTML = '<div style="width:100%;text-align:center;padding:22px 18px;background:linear-gradient(90deg,transparent,rgba(8,8,14,0.92) 18%,rgba(8,8,14,0.92) 82%,transparent);border-top:1px solid ' + sp.couleur + '88;border-bottom:1px solid ' + sp.couleur + '88;transform-origin:center;animation:fsBand .3s ease-out both;">'
+      + '<div style="font-size:11px;letter-spacing:6px;font-weight:800;color:' + sp.couleur + ';opacity:.85;">ATTAQUE SPÉCIALE</div>'
+      + '<div style="font-family:var(--font-display),sans-serif;font-size:clamp(28px,8.5vw,42px);font-weight:900;color:#fff !important;line-height:1.1;margin-top:6px;text-shadow:0 0 24px ' + sp.couleur + ';animation:fsIn .45s .1s ease-out both;">' + sp.nom + '</div>'
+      + '<div style="font-size:13.5px;color:#e2e8f0;margin:10px auto 0;max-width:360px;line-height:1.45;">' + sp.ligne + (sp.soinFait ? ' <b style="color:' + sp.couleur + ';">+' + sp.soinFait + ' PV</b>' : '') + '</div></div>';
+    var fin = function () { ov.style.transition = 'opacity .3s'; ov.style.opacity = '0'; setTimeout(function () { ov.remove(); }, 320); };
+    ov.addEventListener('click', fin);
+    document.body.appendChild(ov);
+    try { if (navigator.vibrate) navigator.vibrate([60, 40, 160]); } catch (e) { _awkE(e); }
+    setTimeout(fin, 2600);
+  }
+  window.awakFinalSpeciale = annonceSpeciale;
 
   // « Le Système te relève » : courte carte plein écran
   function releveFinale(restants, apres) {
