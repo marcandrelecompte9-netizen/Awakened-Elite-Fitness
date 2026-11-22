@@ -5494,7 +5494,7 @@ body.dark-mode #exerciseView {
 
 #completeSetBtn:active {
     transform: scale(0.97);
-    box-shadow: 0 3px 12px rgba(16,185,129,0.4),0 0 0 1px rgba(255,255,255,0.1) inset !important;
+    box-shadow: 0 3px 12px rgba(96,168,240,0.4),0 0 0 1px rgba(255,255,255,0.1) inset !important;
 }
 
 /* Inputs reps/poids — focus state */
