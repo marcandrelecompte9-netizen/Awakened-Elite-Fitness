@@ -537,15 +537,21 @@
       + '</div>';
   }
 
+  // v1844 : bandeau illustré en haut de la fenêtre (même image que l'accueil)
+  function _bandeauGroupe() {
+    return '<div aria-hidden="true" style="position:relative;height:140px;margin:-18px -16px 12px;border-radius:20px 20px 0 0;overflow:hidden;background:#101826;">'
+      + '<img src="images/accueil/groupe.webp" alt="" style="width:100%;height:100%;object-fit:cover;object-position:78% 30%;display:block;" onerror="this.remove()">'
+      + '<span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(22,18,31,0) 45%,#16121f 100%);"></span></div>';
+  }
   function _renderModal() {
     var existing = document.getElementById('awakGroupModal');
-    if (existing) { existing.querySelector('.awak-group-card').innerHTML = _modalContent(); return; }
+    if (existing) { existing.querySelector('.awak-group-card').innerHTML = _bandeauGroupe() + _modalContent(); return; }
     var overlay = document.createElement('div');
     overlay.id = 'awakGroupModal';
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;';
     overlay.onclick = function (e) { if (e.target === overlay) AwakGroupClose(); };
     overlay.innerHTML = '<div class="awak-group-card" style="background:linear-gradient(160deg,#16121f,#0d0d12);border:1px solid rgba(34,211,238,0.3);border-radius:20px;padding:18px 16px !important;max-width:400px;width:100%;box-sizing:border-box;max-height:88vh;overflow-y:auto;overflow-x:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.6);">'
-      + _modalContent() + '</div>';
+      + _bandeauGroupe() + _modalContent() + '</div>';
     document.body.appendChild(overlay);
   }
 
