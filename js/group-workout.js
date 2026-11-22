@@ -407,14 +407,17 @@
       + 'width:100%;margin:8px 0 14px;background:linear-gradient(135deg,rgba(34,211,238,0.13) 0%,rgba(8,145,178,0.09) 100%);color:white;border:1px solid rgba(103,232,249,0.34);'
       + 'border-radius:14px;padding:13px 16px;font-size:0.95em;font-weight:800;cursor:pointer;'
       + 'box-shadow:0 4px 18px rgba(34,211,238,0.3);position:relative;overflow:hidden;'
-      + 'text-align:left;display:flex;align-items:center;gap:11px;">'
-      + '<div style="flex-shrink:0;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(34,211,238,0.18);">' + _ico('groupe', 22, '#cffafe') + '</div>'
-      + '<div style="flex:1;min-width:0;">'
+      + 'text-align:left;display:flex;align-items:center;gap:11px;min-height:92px;">'
+      // v1838 : image en bandeau à droite (images/accueil/groupe.webp), fondue vers la gauche
+      + '<span aria-hidden="true" style="position:absolute;top:0;right:0;bottom:0;width:62%;background:url(images/accueil/groupe.webp) 70% 35%/cover no-repeat;-webkit-mask-image:linear-gradient(270deg,#000 40%,transparent 100%);mask-image:linear-gradient(270deg,#000 40%,transparent 100%);"></span>'
+      + '<span aria-hidden="true" style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,22,30,0.92) 30%,rgba(10,22,30,0.3) 70%,rgba(10,22,30,0.05));"></span>'
+      + '<div style="position:relative;flex-shrink:0;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(34,211,238,0.18);">' + _ico('groupe', 22, '#cffafe') + '</div>'
+      + '<div style="position:relative;flex:1;min-width:0;text-shadow:0 1px 4px #000;">'
       +   '<div style="font-size:0.6em;letter-spacing:2px;opacity:0.9;font-weight:700;">ENSEMBLE</div>'
       +   '<div style="font-size:0.95em;font-weight:900;line-height:1.2;margin-top:2px;">' + label + '</div>'
       +   '<div style="font-size:0.68em;opacity:0.85;margin-top:2px;">' + sub + '</div>'
       + '</div>'
-      + '<div style="flex-shrink:0;color:#a5f3fc;font-size:1.3em;">›</div>'
+      + '<div style="position:relative;flex-shrink:0;color:#a5f3fc;font-size:1.3em;">›</div>'
       + '</button>';
   }
 
