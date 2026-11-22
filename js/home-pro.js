@@ -226,15 +226,27 @@
         '</button>';
     }
 
-    return '<div class="ahp-raccs">' +
-        ligne('liste', '#22d3ee', 'Mes routines', 'Tes séances enregistrées', 'switchTab(\'routines\')') +
-        ligne('grille', '#22d3ee', 'Exercices', 'Bibliothèque et fiches', 'switchTab(\'exercises\')') +
-        ligne('soleil', '#22d3ee', 'Réveil du corps', 'Mobilité douce, sans matériel', 'if(typeof showMorningRoutineModal===\'function\')showMorningRoutineModal()') +
-        ligne('sante', zones ? '#f87171' : '#22d3ee', 'Où as-tu mal ?',
+    // v1834 : deux bandeaux longs illustrés (Mes routines, Exercices, Failles et Tout explorer retirés ;
+    // ils restent dans la barre du bas et dans Plus). Image à droite fondue vers la gauche ;
+    // absente → simple dégradé.
+    function bandeau(img, icone, couleur, titre, detail, action) {
+      return '<button class="ahp-row ahp-band" onclick="' + action + '" style="position:relative;overflow:hidden;width:100%;min-height:92px;display:flex;align-items:center;gap:12px;padding:14px 16px;text-align:left;border-radius:16px;border:1px solid ' + couleur + '33;background:#11151c;cursor:pointer;font-family:inherit;">' +
+          '<span aria-hidden="true" style="position:absolute;top:0;right:0;bottom:0;width:62%;background:url(images/accueil/' + img + '.webp) 70% 35%/cover no-repeat;-webkit-mask-image:linear-gradient(270deg,#000 40%,transparent 100%);mask-image:linear-gradient(270deg,#000 40%,transparent 100%);"></span>' +
+          '<span aria-hidden="true" style="position:absolute;inset:0;background:linear-gradient(90deg,#11151c 30%,rgba(17,21,28,0.35) 70%,rgba(17,21,28,0.05));"></span>' +
+          '<span class="ahp-ic" style="position:relative;background:' + couleur + '24;">' + ico(icone, 18, couleur) + '</span>' +
+          '<span style="position:relative;flex:1;min-width:0;">' +
+            '<span style="display:block;font-size:0.98em;font-weight:900;color:#f1f5f9;text-shadow:0 1px 4px #000;">' + titre + '</span>' +
+            '<span style="display:block;font-size:0.76em;color:#cbd5e1;margin-top:3px;line-height:1.35;text-shadow:0 1px 3px #000;max-width:62%;">' + detail + '</span>' +
+          '</span>' +
+          '<span style="position:relative;color:#cbd5e1;font-size:1.3em;">›</span>' +
+        '</button>';
+    }
+    void ligne; void jeu;
+    return '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px;">' +
+        bandeau('reveil', 'soleil', '#fbbf24', 'Réveil du corps', 'Mobilité douce, sans matériel', 'if(typeof showMorningRoutineModal===\'function\')showMorningRoutineModal()') +
+        bandeau('douleur', 'sante', zones ? '#f87171' : '#60a8f0', 'Où as-tu mal ?',
           zones ? zones + ' zone' + (zones > 1 ? 's' : '') + ' signalée' + (zones > 1 ? 's' : '') + ' — exercices évités' : 'Adapter tes séances à une douleur',
           'if(window.AwakPainOpen)AwakPainOpen()') +
-        (jeu ? ligne('faille', '#22d3ee', 'Failles', 'Le mode aventure', 'switchTab(\'game\')') : '') +
-        ligne('boussole', '#22d3ee', 'Tout explorer', 'Toutes les fonctionnalités', 'if(typeof showFeatureMap===\'function\')showFeatureMap()') +
       '</div>';
   }
 
