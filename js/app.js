@@ -5929,65 +5929,55 @@ window.awakJourLocal = window.awakJourLocal || function (d) { var x = d ? new Da
             overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:10200;display:flex;align-items:flex-end;justify-content:center;padding:0;';
             overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
 
+            // v1839 : fenêtre apaisée — une seule teinte douce (or pâle), lignes sobres, pas de
+            // couleurs vives par niveau ni de gros boutons. L'intensité se lit en 1 à 3 points.
+            const OR = '#f5d48a';
+            const niv = (r) => { const i = MORNING_ROUTINES.indexOf(r); return Math.max(1, Math.min(3, i + 1)); };
+            const points = (n) => '<span style="display:inline-flex;gap:3px;vertical-align:1px;">' + [1, 2, 3].map(k => '<span style="width:6px;height:6px;border-radius:50%;background:' + (k <= n ? OR : 'rgba(255,255,255,0.14)') + ';"></span>').join('') + '</span>';
+            const ligneR = (onclick, titre, sous, meta, gauche) => `
+                <button onclick="${onclick}" style="width:100%;text-align:left;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:13px 14px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:12px;font-family:inherit;">
+                    ${gauche}
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-weight:800;font-size:0.95em;color:#f1f5f9;">${titre}</div>
+                        <div style="font-size:0.74em;color:#94a3b8;line-height:1.4;margin-top:2px;">${sous}</div>
+                        ${meta ? `<div style="font-size:0.68em;color:#a8a29e;margin-top:4px;">${meta}</div>` : ''}
+                    </div>
+                    <div style="flex-shrink:0;color:${OR};opacity:0.7;font-size:1.2em;">›</div>
+                </button>`;
             const cards = MORNING_ROUTINES.map(r => {
                 const exCount = (MORNING_RECIPES[r.id] ? (
                     (MORNING_RECIPES[r.id].breathStart ? 1 : 0) +
                     MORNING_RECIPES[r.id].mobility + MORNING_RECIPES[r.id].activation +
                     MORNING_RECIPES[r.id].cardio + MORNING_RECIPES[r.id].finish
                 ) : 6);
-                return `
-                <button onclick="startMorningRoutine('${r.id}')" style="
-                    width:100%;text-align:left;background:linear-gradient(135deg,${r.color}18,${r.color}08);
-                    border:1.5px solid ${r.color}55;border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;
-                    display:flex;align-items:center;gap:13px;transition:transform 0.15s;"
-                    onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
-                    <div style="flex-shrink:0;line-height:1;">${awakRoutineIcon(r, 34)}</div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                            <span style="font-weight:900;font-size:0.98em;color:#ffffff;">${r.name}</span>
-                            <span style="font-size:0.62em;font-weight:800;color:white;background:${r.color};padding:2px 7px;border-radius:99px;">${r.level}</span>
-                        </div>
-                        <div style="font-size:0.74em;color:#8391a7;line-height:1.4;margin-top:3px;">${r.desc}</div>
-                        <div style="font-size:0.68em;color:${r.color};font-weight:800;margin-top:4px;">${r.duration} · ~${exCount} mouvements · varie à chaque fois</div>
-                    </div>
-                    <div style="font-size:1.3em;color:${r.color};flex-shrink:0;"><svg viewBox="0 0 24 24" width="15" height="15" style="display:inline-block;vertical-align:-0.15em;" fill="currentColor" aria-hidden="true"><path d="M6 3.5 L20 12 L6 20.5 Z"/></svg></div>
-                </button>
-            `;}).join('');
+                return ligneR(`startMorningRoutine('${r.id}')`, r.name, r.desc,
+                    points(niv(r)) + '&nbsp; ' + r.level + ' · ' + r.duration.replace('~', '≈ ') + ' · ' + exCount + ' mouvements',
+                    '');
+            }).join('');
 
-            // Carte routine personnalisée
+            // Routine personnalisée
             const custom = loadCustomMorningRoutine();
-            const customCard = `
-                <button onclick="startMorningRoutine('morning_custom')" style="
-                    width:100%;text-align:left;background:linear-gradient(135deg,rgba(168,85,247,0.094),rgba(168,85,247,0.031));
-                    border:1.5px solid rgba(168,85,247,0.333);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;
-                    display:flex;align-items:center;gap:13px;">
-                    <div style="flex-shrink:0;display:flex;">${window.AwakIcon ? AwakIcon.get('etoile', 32, '#a855f7') : ''}</div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                            <span style="font-weight:900;font-size:0.98em;color:#ffffff;">Ma Routine</span>
-                            <span style="font-size:0.62em;font-weight:800;color:white;background:#a855f7;padding:2px 7px;border-radius:99px;">Perso</span>
-                        </div>
-                        <div style="font-size:0.74em;color:#8391a7;line-height:1.4;margin-top:3px;">${custom && custom.length ? `Ta routine sur mesure (${custom.length} exercices)` : 'Pas encore créée — appuie sur Personnaliser ci-dessous'}</div>
-                    </div>
-                    <div style="font-size:1.3em;color:#a855f7;flex-shrink:0;">${custom && custom.length ? '▶' : '＋'}</div>
-                </button>`;
+            const customCard = ligneR("startMorningRoutine('morning_custom')", 'Ma routine',
+                custom && custom.length ? `Ta routine sur mesure · ${custom.length} exercices` : 'Pas encore créée',
+                '', '');
 
             overlay.innerHTML = `
-                <div style="background:#0D0D0D;border:1px solid rgba(255,255,255,0.08);border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
-                    <!-- v1837 : bandeau illustré (même image que l'accueil) -->
-                    <div aria-hidden="true" style="position:relative;height:150px;margin:-20px -16px 6px;border-radius:20px 20px 0 0;overflow:hidden;background:#1a1410;">
+                <div style="background:#0f1115;border:1px solid rgba(255,255,255,0.06);border-radius:20px 20px 0 0;padding:20px 16px calc(16px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;box-sizing:border-box;">
+                    <div aria-hidden="true" style="position:relative;height:170px;margin:-20px -16px 0;border-radius:20px 20px 0 0;overflow:hidden;background:#1a1410;">
                         <img src="images/accueil/reveil.webp" alt="" style="width:100%;height:100%;object-fit:cover;object-position:78% 30%;display:block;" onerror="this.remove()">
-                        <span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,13,13,0) 45%,#0D0D0D 100%);"></span>
+                        <span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,17,21,0) 40%,#0f1115 100%);"></span>
                         <span style="position:absolute;top:8px;left:50%;margin-left:-20px;width:40px;height:4px;background:rgba(255,255,255,0.45);border-radius:99px;"></span>
                     </div>
-                    <div style="text-align:center;margin-bottom:8px;">
-                        <h3 style="margin:2px 0 4px;color:#ffffff;">Routine matinale</h3>
-                        <p style="margin:0 0 16px;font-size:0.78em;color:#94a3b8;line-height:1.5;">Réveille ton corps en douceur. Choisis ton niveau — aucun matériel requis.</p>
+                    <div style="margin:-34px 2px 14px;position:relative;">
+                        <h3 style="margin:0 0 4px;color:#fff;font-size:1.3em;">Routine matinale</h3>
+                        <p style="margin:0;font-size:0.8em;color:#a3a3a3;line-height:1.5;">Réveille ton corps en douceur, sans matériel. Choisis ton rythme.</p>
                     </div>
                     ${cards}
                     ${customCard}
-                    <button onclick="showCustomMorningEditor()" style="width:100%;margin-top:2px;margin-bottom:6px;padding:12px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.4);border-radius:14px;color:#c084fc;font-weight:800;font-size:0.85em;cursor:pointer;">✏️ Personnaliser ma routine</button>
-                    <button onclick="document.getElementById('morningRoutineModal').remove()" style="width:100%;padding:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:#94a3b8;font-weight:700;cursor:pointer;">Fermer</button>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding:0 4px;">
+                        <button onclick="showCustomMorningEditor()" style="background:none;border:none;color:${OR};font-weight:700;font-size:0.82em;cursor:pointer;padding:8px 0;">Personnaliser ma routine</button>
+                        <button onclick="document.getElementById('morningRoutineModal').remove()" style="background:none;border:none;color:#8b8b8b;font-weight:600;font-size:0.82em;cursor:pointer;padding:8px 0;">Fermer</button>
+                    </div>
                 </div>
             `;
             document.body.appendChild(overlay);
@@ -24996,7 +24986,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1838);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v5.webp?v=1839);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -25049,7 +25039,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1838" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1839" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25860,7 +25850,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const cle = Math.round(r.width) + 'x' + H;
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1838)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.55) 0px,rgba(7,8,11,0.4) ' + Math.round(H * 0.25) + 'px,rgba(7,8,11,0.4) ' + Math.round(H * 0.78) + 'px,#07080b ' + H + 'px,#07080b 100%), url(images/salle_bg_v5.webp?v=1839)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center top';
                 } catch (e) { _awkE(e); }
@@ -31362,7 +31352,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1838");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1839");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -45387,7 +45377,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1838';
+                    let ver = 'v0.95.1839';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -45555,7 +45545,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1838" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1839" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
               +   pts
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45637,7 +45627,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1838);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1839);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45704,7 +45694,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1838);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1839);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -48178,7 +48168,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1838");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1839");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
