@@ -372,6 +372,7 @@
     isYoungProfile: isYoungProfile,
     isChildProfile: isChildProfile,
     isDiscouraged: isDiscouraged,
+    kidOk: kidOk,   // v1852
     isGoalDiscouraged: isGoalDiscouraged,
     isProgramDiscouraged: isProgramDiscouraged,
     warningText: warningText,

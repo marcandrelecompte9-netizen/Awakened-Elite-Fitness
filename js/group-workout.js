@@ -53,7 +53,8 @@
     if (!all[participantId]) all[participantId] = {};
     if (!all[participantId][exerciseName]) all[participantId][exerciseName] = [];
     all[participantId][exerciseName].push({
-      set: setNum, reps: reps || 0, weight: weight || 0, warmup: !!isWarmup, ts: Date.now()
+      set: setNum, reps: reps || 0, weight: weight || 0, warmup: !!isWarmup, ts: Date.now(),
+      sub: arguments[6] || undefined   // v1852 : exercice de remplacement (enfant)
     });
     saveSets(all);
   }
@@ -214,6 +215,24 @@
   // saisit toutes ses séries d'un coup, indépendamment du nombre de séries du
   // meneur). Réinitialisé à chaque nouvelle séance (reset).
   var _promptedExercises = {};
+  // v1852 : enfant (moins de 13 ans) en « Même séance » → exercice au poids du corps,
+  // sur le même muscle, à la place d'un exercice avec matériel. null = pas de changement.
+  function _estEnfant(pid) { try { return !!(window.AwakYouth && AwakYouth.ageCategoryOf && AwakYouth.ageCategoryOf(pid) === 'child'); } catch (e) { return false; } }
+  function exPourEnfant(nom) {
+    try {
+      if (!window.AwakYouth || !AwakYouth.kidOk) return null;
+      var db = window.exerciseDatabase || [], ex = null, i;
+      for (i = 0; i < db.length; i++) if (db[i].name === nom) { ex = db[i]; break; }
+      if (AwakYouth.kidOk(ex || { name: nom })) return null;
+      var m = ex && ex.muscle, cands = db.filter(function (d) { return d.muscle === m && AwakYouth.kidOk(d); });
+      if (!cands.length) cands = db.filter(function (d) { return AwakYouth.kidOk(d) && /^(Planche|Squats?|Pompes genoux)$/i.test(d.name); });
+      if (!cands.length) return 'Planche';
+      var h = 0; for (i = 0; i < nom.length; i++) h = (h * 31 + nom.charCodeAt(i)) >>> 0;   // même choix à chaque fois
+      return cands[h % cands.length].name;
+    } catch (e) { _awkE(e); return null; }
+  }
+  window.AwakGroupExEnfant = exPourEnfant;
+
   function promptOthersForSet(exerciseName, setNum, isWarmup) {
     // v1312 : seuls les PROFILS saisissent leurs séries (celles des invités
     // n'étaient enregistrées nulle part : on leur faisait remplir des cases pour rien)
@@ -233,6 +252,7 @@
         +   _av(p.avatar, 24)
         +   '<span style="flex:1;min-width:0;font-size:0.84em;font-weight:800;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(p.name) + '</span>'
         + '</div>'
+        + (function () { var sub = _estEnfant(p.id) ? exPourEnfant(exerciseName) : null; return sub ? '<div style="font-size:0.72em;color:#fde68a;margin:-2px 0 8px;line-height:1.35;">Pour ' + esc(p.name) + ' : <b>' + esc(sub) + '</b> (au poids du corps)</div>' : ''; })()
         + '<div id="grpRows_' + p.id + '">'
         +   _setRowHtml(p.id, 1)
         + '</div>'
@@ -267,10 +287,11 @@
 
   // Une ligne de saisie (reps + poids en lb) pour un participant, index de ligne.
   function _setRowHtml(pid, rowIdx) {
+    var _enf = _estEnfant(pid);
     return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;" data-grprow="' + pid + '">'
       + '<span style="font-size:0.7em;color:#8391a7;width:38px;flex-shrink:0;">Série ' + rowIdx + '</span>'
       + '<input id="grpReps_' + pid + '_' + rowIdx + '" type="number" inputmode="numeric" placeholder="reps" style="flex:1;min-width:0;padding:8px 6px;border-radius:9px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.05);color:#fff;font-size:0.82em;text-align:center;">'
-      + '<input id="grpWeight_' + pid + '_' + rowIdx + '" type="number" inputmode="decimal" placeholder="' + ((typeof useKg !== 'undefined' && useKg) ? 'kg' : 'lb') + '" style="flex:1;min-width:0;padding:8px 6px;border-radius:9px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.05);color:#fff;font-size:0.82em;text-align:center;">'
+      + '<input id="grpWeight_' + pid + '_' + rowIdx + '"' + (_enf ? ' hidden' : '') + ' type="number" inputmode="decimal" placeholder="' + ((typeof useKg !== 'undefined' && useKg) ? 'kg' : 'lb') + '" style="flex:1;min-width:0;padding:8px 6px;border-radius:9px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.05);color:#fff;font-size:0.82em;text-align:center;">'
       + '</div>';
   }
 
@@ -309,7 +330,8 @@
         if (reps && reps > 0) {
           localSet++;
           var wKg = wDisp ? Math.round(toKg(wDisp) * 100) / 100 : 0;
-          logSet(p.id, exerciseName, localSet, reps, wKg, isWarmup);
+          var _sub = _estEnfant(p.id) ? exPourEnfant(exerciseName) : null;   // v1852
+          logSet(p.id, exerciseName, localSet, reps, _sub ? 0 : wKg, isWarmup, _sub);
         }
       });
     });
@@ -334,11 +356,12 @@
     (templateWorkout && templateWorkout.exercises ? templateWorkout.exercises : []).forEach(function (ex) {
       var base = ex._baseName || ex.name;
       if (sets[base] && sets[base].length) {
+        var _sub = sets[base][0] && sets[base][0].sub;   // v1852 : remplacement enfant
         exercises.push({
-          name: ex.name,
-          _baseName: base,
+          name: _sub || ex.name,
+          _baseName: _sub || base,
           muscle: ex.muscle,
-          equipment: ex.equipment,
+          equipment: _sub ? ['Poids du corps'] : ex.equipment,
           completedSets: sets[base].map(function (s) {
             return { reps: s.reps, weight: s.weight, warmup: s.warmup, set: s.set };
           })
