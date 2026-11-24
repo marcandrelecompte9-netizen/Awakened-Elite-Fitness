@@ -700,14 +700,18 @@
     ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);backdrop-filter:blur(9px);'
       + 'z-index:10200;display:flex;align-items:center;justify-content:center;padding:16px;';
     ov.addEventListener('click', function (e) { if (e.target === ov) ov.remove(); });
-    ov.innerHTML = '<div style="background:#0F1014;border:1px solid rgba(34,211,238,0.3);border-top:2px solid #22d3ee;'
+    ov.innerHTML = '<div style="background:#0F1014;border:1px solid rgba(167,139,250,0.32);'
       + 'border-radius:18px;max-width:480px;width:100%;max-height:90vh;display:flex;flex-direction:column;'
       + 'box-shadow:0 24px 60px rgba(0,0,0,0.7);overflow:hidden;">'
-      + '<div style="padding:15px 18px 12px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:10px;">'
-      +   '<div style="min-width:0;flex:1;"><div style="font-size:0.56em;letter-spacing:2px;color:#22d3ee;font-weight:900;">ANALYSE</div>'
-      +   '<div style="font-size:1em;font-weight:900;color:#fff;">Équilibre de force</div></div>'
+      // v1861 : bandeau illustré (image de la tuile Équilibre)
+      + '<div style="position:relative;height:124px;flex-shrink:0;overflow:hidden;background:radial-gradient(120% 140% at 75% 30%,#2a1d4d 0%,#120e22 60%,#0b0a12 100%);border-bottom:1px solid rgba(167,139,250,0.25);">'
+      +   '<img src="images/progres/equilibre.webp" alt="" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:65% 40%;display:block;" onerror="this.remove()">'
+      +   '<span style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,10,18,0.95) 0%,rgba(11,10,18,0.55) 50%,rgba(11,10,18,0.05) 100%);"></span>'
+      +   '<div style="position:absolute;left:18px;right:40%;bottom:14px;"><div style="font-size:10px;letter-spacing:2.5px;color:#c4b5fd;font-weight:900;">ANALYSE</div>'
+      +   '<div style="font-family:var(--font-display),sans-serif;font-size:21px;font-weight:900;color:#fff;line-height:1.1;margin-top:3px;text-shadow:0 2px 10px rgba(0,0,0,0.9);">Équilibre de force</div>'
+      +   '<div style="font-size:11.5px;color:#d4cdee;margin-top:3px;text-shadow:0 2px 8px rgba(0,0,0,0.9);">Quel muscle est en retard</div></div>'
       +   '<button onclick="document.getElementById(\'awakBalanceModal\').remove()" aria-label="Fermer" '
-      +     'style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#94a3b8;'
+      +     'style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.2);color:#e2e8f0;'
       +     'border-radius:10px;width:34px;height:34px;min-height:auto;padding:0;font-size:1.05em;font-weight:800;cursor:pointer;flex-shrink:0;line-height:1;">×</button>'
       + '</div>'
       + '<div class="awak-bal-corps" style="flex:1;overflow-y:auto;padding:15px 16px 20px;-webkit-overflow-scrolling:touch;">' + corps + '</div>'

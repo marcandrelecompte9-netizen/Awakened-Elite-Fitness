@@ -496,10 +496,16 @@
 
       var legend = Q.map(function (p, i) {
         var st = t.stages[i], pct = Math.round(st / 5 * 100);
-        return '<div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);border-radius:11px;padding:7px 9px;">'
+        // v1861 : jauge en 5 crans (un par palier) sous chaque qualité
+        var crans = '';
+        for (var k = 1; k <= 5; k++) crans += '<span style="flex:1;height:4px;border-radius:2px;background:' + (k <= st ? p.col : 'rgba(255,255,255,0.08)') + ';' + (k <= st ? 'box-shadow:0 0 6px ' + p.col + '66;' : '') + '"></span>';
+        return '<div style="background:linear-gradient(160deg,' + p.col + '14,rgba(255,255,255,0.02));border:1px solid ' + p.col + '33;border-radius:11px;padding:8px 10px 9px;">'
+          + '<div style="display:flex;align-items:center;gap:7px;">'
           + '<span style="font-size:0.95em;">' + p.ic + '</span>'
-          + '<span style="font-size:0.7em;font-weight:700;flex:1;color:#e2e8f0;">' + p.nm + '</span>'
-          + '<span style="font-size:0.56em;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:' + p.col + ';">' + STAGE_NAMES[st] + '</span>'
+          + '<span style="font-size:0.72em;font-weight:800;flex:1;color:#e2e8f0;">' + p.nm + '</span>'
+          + '<span style="font-size:0.56em;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;color:' + p.col + ';">' + STAGE_NAMES[st] + '</span>'
+          + '</div>'
+          + '<div style="display:flex;gap:3px;margin-top:7px;">' + crans + '</div>'
           + '</div>';
       }).join('');
 
@@ -539,7 +545,7 @@
         + '</div>'
         + '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 2px;">'
         + '<div style="width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:1em;font-weight:900;border:1px solid ' + RANK_COL[ri] + '66;background:rgba(255,255,255,0.03);color:' + RANK_COL[ri] + ';box-shadow:0 0 14px ' + RANK_COL[ri] + '33;">' + RANKS[ri] + '</div>'
-        + '<div style="width:150px;height:7px;border-radius:6px;background:rgba(255,255,255,0.07);overflow:hidden;"><div style="height:100%;width:' + Math.round(t.gl / 30 * 100) + '%;background:linear-gradient(90deg,#22c55e,#22d3ee,#fbbf24);"></div></div>'
+        + '<div style="width:150px;height:7px;border-radius:6px;background:rgba(255,255,255,0.07);overflow:hidden;"><div style="height:100%;width:' + Math.round(t.gl / 30 * 100) + '%;background:linear-gradient(90deg,#60a8f0,#22d3ee,#fbbf24);"></div></div>'
         + '<small style="font-size:0.58em;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;font-weight:700;">Rang ' + RANKS[ri] + '</small>'
         + '</div>'
         + '<div class="awk-two">'
@@ -556,7 +562,7 @@
         +   '<div style="font-size:0.62em;color:#8391a7;text-align:center;line-height:1.5;margin-bottom:12px;">Ton arbre grandit avec tes séances réelles — chaque entraînement nourrit les qualités qu\'il travaille. Aucune branche ne rétrécit jamais.</div>'
         + '</div>'
         + '</div>'
-        + '<button id="awkShareBtn" style="width:100%;padding:13px;margin-bottom:8px;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;border-radius:14px;color:#04121f;font-weight:800;font-size:15px;cursor:pointer;">Partager mon arbre</button>'
+        + '<button id="awkShareBtn" style="width:100%;padding:13px;margin-bottom:8px;background:linear-gradient(135deg,#1d5fa8 0%,#60a8f0 100%);border:none;border-radius:14px;color:#fff;font-weight:800;font-size:15px;cursor:pointer;">Partager mon arbre</button>'
         + '<button id="awkCloseBtn" style="width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;">Fermer</button>';
       overlay.appendChild(sheet);
       document.body.appendChild(overlay);

@@ -136,7 +136,7 @@
     h += '<div style="background:linear-gradient(135deg,' + col + '1f,' + col + '08);border:1px solid ' + col + '55;border-left:3px solid ' + col + ';border-radius:14px;padding:14px 16px;margin-bottom:12px;">'
       + '<div style="display:flex;align-items:center;gap:6px;font-size:0.56em;color:' + col + ';font-weight:900;letter-spacing:2px;margin-bottom:6px;">' + ic('cible', 12, col) + 'CONSEIL DU JOUR</div>'
       + '<div style="font-size:0.88em;color:#e2e8f0;line-height:1.5;">' + c.texte + '</div>'
-      + '<button id="awakAnaLancer" onclick="AwakAnalyse.lancer()" style="' + BTN + 'margin-top:11px;width:100%;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;display:flex;align-items:center;justify-content:center;gap:7px;">' + ic('eclair', 15, '#fff') + esc(c.bouton) + '</button>'
+      + '<button id="awakAnaLancer" onclick="AwakAnalyse.lancer()" style="' + BTN + 'margin-top:11px;width:100%;background:linear-gradient(135deg,#1d5fa8 0%,#60a8f0 100%);color:#fff;display:flex;align-items:center;justify-content:center;gap:7px;">' + ic('eclair', 15, '#fff') + esc(c.bouton) + '</button>'
       + '</div>';
 
     // 2. Fréquence : une seule ligne (le détail est dans Progrès)
@@ -355,8 +355,16 @@
     sh.style.cssText = 'background:#0D0D0D;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;height:88vh;box-sizing:border-box;overflow-y:auto;-webkit-overflow-scrolling:touch;';
     var bt = 'flex:1;border:none;border-radius:9px;padding:9px 6px;font-weight:800;font-size:0.78em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;';
     sh.innerHTML = '<div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:99px;margin:0 auto 16px;"></div>'
-      + '<h2 style="margin:0 0 4px;text-align:center;color:#fff;font-size:1.12em;font-weight:900;">Analyse &amp; coach</h2>'
-      + '<p style="margin:0 0 14px;text-align:center;color:rgba(255,255,255,0.4);font-size:0.74em;">Quoi faire aujourd\'hui, et comment tu évolues.</p>'
+      // v1861 : bandeau illustré (image de la tuile Analyse)
+      + '<div style="position:relative;height:130px;border-radius:16px;overflow:hidden;margin:0 0 14px;background:radial-gradient(120% 140% at 80% 30%,#18335a 0%,#0c1424 60%,#080b12 100%);border:1px solid rgba(96,168,240,0.3);">'
+      +   '<img src="images/progres/analyse.webp" alt="" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:70% 35%;display:block;" onerror="this.remove()">'
+      +   '<span style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,11,18,0.95) 0%,rgba(8,11,18,0.6) 50%,rgba(8,11,18,0.1) 100%);"></span>'
+      +   '<div style="position:absolute;left:16px;right:40%;bottom:14px;">'
+      +     '<div style="font-size:10px;letter-spacing:2.5px;color:#93c5fd;font-weight:900;">LE SYSTÈME</div>'
+      +     '<div style="font-family:var(--font-display),sans-serif;font-size:22px;font-weight:900;color:#fff;line-height:1.1;margin-top:3px;text-shadow:0 2px 10px rgba(0,0,0,0.9);">Analyse &amp; coach</div>'
+      +     '<div style="font-size:11.5px;color:#cbd5e1;margin-top:4px;line-height:1.35;text-shadow:0 2px 8px rgba(0,0,0,0.9);">Quoi faire aujourd\'hui, et comment tu évolues.</div>'
+      +   '</div>'
+      + '</div>'
       + '<div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:4px;margin-bottom:16px;">'
       + '<button id="awakTabSysteme" style="' + bt + '">' + ic('cible', 14) + 'Aujourd\'hui</button>'
       + '<button id="awakTabCoach" style="' + bt + '">' + ic('stats', 14) + 'Tendances</button></div>'
@@ -370,8 +378,8 @@
     function bascule(t) {
       var s = t !== 'coach';
       pS.style.display = s ? '' : 'none'; pC.style.display = s ? 'none' : '';
-      bS.style.background = s ? 'linear-gradient(135deg,#22d3ee,#0891b2)' : 'transparent'; bS.style.color = s ? '#fff' : C.gris;
-      bC.style.background = !s ? 'linear-gradient(135deg,#22d3ee,#0891b2)' : 'transparent'; bC.style.color = !s ? '#fff' : C.gris;
+      bS.style.background = s ? 'linear-gradient(135deg,#1d5fa8 0%,#60a8f0 100%)' : 'transparent'; bS.style.color = s ? '#fff' : C.gris;
+      bC.style.background = !s ? 'linear-gradient(135deg,#1d5fa8 0%,#60a8f0 100%)' : 'transparent'; bC.style.color = !s ? '#fff' : C.gris;
       try { sh.scrollTop = 0; } catch (e) { _awkE(e); }
     }
     bS.addEventListener('click', function () { bascule('systeme'); });
