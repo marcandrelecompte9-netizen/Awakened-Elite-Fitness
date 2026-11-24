@@ -106,11 +106,13 @@
     r.actifs = jours.filter(function (j) { return j.n > 0; }).length;
     return r;
   }
-  function pointsSemaine(sm, taille) {
+  function pointsSemaine(sm, taille, dore) {
+    var cOn = dore ? 'background:linear-gradient(160deg,#fde68a,' + OR + ');color:#3a2a06;box-shadow:0 0 8px rgba(251,191,36,0.45);' : 'background:#22d3ee;color:#04121f;';
+    var cAuj = dore ? 'rgba(251,191,36,0.6)' : 'rgba(34,211,238,0.6)';
     return '<div style="display:flex;gap:' + (taille > 24 ? 6 : 4) + 'px;">' + sm.jours.map(function (j, i) {
       var on = j.n > 0, auj = i === 6;
       return '<div style="width:' + taille + 'px;text-align:center;"><div style="width:' + taille + 'px;height:' + taille + 'px;border-radius:50%;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:' + Math.round(taille * 0.42) + 'px;font-weight:900;'
-        + (on ? 'background:#22d3ee;color:#04121f;' : 'background:transparent;color:#64748b;border:1px solid ' + (auj ? 'rgba(34,211,238,0.6)' : 'rgba(255,255,255,0.14)') + ';') + '">' + j.l + '</div></div>';
+        + (on ? cOn : 'background:transparent;color:#64748b;border:1px solid ' + (auj ? cAuj : 'rgba(255,255,255,0.14)') + ';') + '">' + j.l + '</div></div>';
     }).join('') + '</div>';
   }
   function etatJour(f) {
@@ -151,7 +153,8 @@
   function fermer(id) { var v = document.getElementById(id); if (v) v.remove(); }
   var BTN = 'min-height:auto;border-radius:12px;cursor:pointer;font-family:inherit;font-weight:800;';
   // v1710 : bouton principal en cyan comme le reste de l'app (le jaune plein faisait mal aux yeux)
-  var PLEIN = BTN + 'background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;border:none;padding:13px;width:100%;font-size:0.92em;';
+  // v1862 : bleu, comme les autres boutons principaux de l'app
+  var PLEIN = BTN + 'background:linear-gradient(135deg,#1d5fa8 0%,#60a8f0 100%);color:#fff;border:none;padding:13px;width:100%;font-size:0.92em;';
   var VIDE = BTN + 'background:transparent;color:#cbd5e1;border:1px solid rgba(255,255,255,0.14);padding:12px;width:100%;font-size:0.86em;';
   function pastille(on, t, f) {
     return '<button onclick="' + f + '" style="' + BTN + 'padding:8px 13px;font-size:0.8em;'
@@ -324,27 +327,55 @@
     var d = lire();
     var ong = function (id, t) { return pastille(_onglet === id, t, 'AwakEtoiles.ouvrirParent(\'' + id + '\')'); };
     var nbAtt = d.demandes.length;
-    var h = '<div style="font-size:1.2em;font-weight:900;color:#fff;margin-bottom:12px;">Étoiles des enfants</div>'
-      + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">' + ong('demandes', 'Demandes' + (nbAtt ? ' (' + nbAtt + ')' : '')) + ong('semaine', 'Semaine') + ong('historique', 'Historique') + ong('recompenses', 'Récompenses') + ong('regles', 'Règles') + '</div>';
+    // v1862 : en-tête doré (solde de chaque enfant) + onglets à icônes sur une rangée
+    var soldes = ens.map(function (e) {
+      var f0 = fiche(d, e.id);
+      return '<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 11px 5px 6px;border-radius:99px;background:rgba(0,0,0,0.35);border:1px solid rgba(251,191,36,0.35);">'
+        + (typeof window.renderAvatar === 'function' ? window.renderAvatar(e.avatar || '', 22) : '')
+        + '<span style="font-size:0.78em;font-weight:800;color:#f1f5f9;">' + esc(e.name || 'Enfant') + '</span>'
+        + '<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.82em;font-weight:900;color:#fde68a;">' + f0.solde + etoile(13) + '</span></span>';
+    }).join('');
+    var h = '<div style="position:relative;overflow:hidden;border-radius:16px;padding:15px 15px 13px;margin-bottom:12px;'
+      +   'background:radial-gradient(130% 120% at 100% 0%,rgba(251,191,36,0.28) 0%,rgba(251,191,36,0.06) 45%,rgba(20,24,33,1) 80%);border:1px solid rgba(251,191,36,0.3);">'
+      +   '<span aria-hidden="true" style="position:absolute;right:-14px;top:-16px;opacity:0.22;transform:rotate(14deg);">' + etoile(96) + '</span>'
+      +   '<span aria-hidden="true" style="position:absolute;right:70px;top:10px;opacity:0.35;">' + etoile(14) + '</span>'
+      +   '<span aria-hidden="true" style="position:absolute;right:52px;top:46px;opacity:0.25;">' + etoile(10) + '</span>'
+      +   '<div style="position:relative;font-size:10px;letter-spacing:2.5px;color:#fcd34d;font-weight:900;">ESPACE PARENT</div>'
+      +   '<div style="position:relative;font-family:var(--font-display),sans-serif;font-size:1.3em;font-weight:900;color:#fff;margin:2px 0 10px;">Étoiles des enfants</div>'
+      +   '<div style="position:relative;display:flex;gap:6px;flex-wrap:wrap;">' + soldes + '</div>'
+      + '</div>';
+    var ONG = [['demandes', 'Demandes', 'message'], ['semaine', 'Semaine', 'calendrier'], ['historique', 'Historique', 'liste'], ['recompenses', 'Récompenses', 'trophee'], ['regles', 'Règles', 'reglages']];
+    h += '<div style="display:grid;grid-template-columns:1.05fr 0.95fr 1fr 1.3fr 0.8fr;gap:3px;padding:4px;border-radius:14px;background:#141821;margin-bottom:14px;">'
+      + ONG.map(function (o) {
+        var on = _onglet === o[0], badge = (o[0] === 'demandes' && nbAtt) ? '<span style="position:absolute;top:3px;right:6px;min-width:16px;height:16px;padding:0 4px;box-sizing:border-box;border-radius:99px;background:#f87171;color:#fff;font-size:10px;font-weight:900;line-height:16px;">' + nbAtt + '</span>' : '';
+        return '<button onclick="AwakEtoiles.ouvrirParent(\'' + o[0] + '\')" style="' + BTN + 'position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0 7px;font-size:0.6em;letter-spacing:-0.2px;white-space:nowrap;min-width:0;'
+          + (on ? 'background:linear-gradient(160deg,rgba(251,191,36,0.22),rgba(251,191,36,0.08));color:#fde68a;border:1px solid rgba(251,191,36,0.45);' : 'background:transparent;color:#94a3b8;border:1px solid transparent;') + '">'
+          + ic(o[2], 18, on ? '#fbbf24' : '#94a3b8') + '<span>' + o[1] + '</span>' + badge + '</button>';
+      }).join('') + '</div>';
     if (_onglet === 'demandes') {
       var ds = d.demandes.filter(function (q) { return ens.some(function (e) { return e.id === q.pid; }); });
       h += ds.length ? ds.map(function (q) {
         var assez = fiche(d, q.pid).solde >= q.cout;
-        return '<div style="padding:12px;border-radius:12px;background:#141821;margin-bottom:8px;">'
-          + '<div style="color:#fff;font-weight:800;font-size:0.9em;">' + esc(nomDe(q.pid)) + ' veut : ' + esc(q.nom) + '</div>'
-          + '<div style="font-size:0.74em;color:#94a3b8;margin:3px 0 10px;">' + q.cout + ' étoiles · demandé le ' + quand(q.t) + (assez ? '' : ' · <span style="color:#fca5a5;">solde insuffisant</span>') + '</div>'
+        return '<div style="padding:13px;border-radius:14px;background:linear-gradient(160deg,rgba(251,191,36,0.10),#141821 60%);border:1px solid rgba(251,191,36,0.28);margin-bottom:8px;">'
+          + '<div style="display:flex;align-items:center;gap:11px;margin-bottom:11px;">'
+          +   '<span style="flex-shrink:0;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(251,191,36,0.14);border:1px solid rgba(251,191,36,0.35);">' + ic(icoRecomp(q.nom), 22, '#fbbf24') + '</span>'
+          +   '<div style="flex:1;min-width:0;"><div style="font-size:0.72em;color:#94a3b8;font-weight:700;">' + esc(nomDe(q.pid)) + ' aimerait</div>'
+          +   '<div style="color:#fff;font-weight:900;font-size:0.95em;line-height:1.25;">' + esc(q.nom) + '</div>'
+          +   '<div style="font-size:0.7em;color:#8391a7;margin-top:2px;">Demandé le ' + quand(q.t) + (assez ? '' : ' · <span style="color:#fca5a5;">solde insuffisant</span>') + '</div></div>'
+          +   '<span style="flex-shrink:0;display:inline-flex;align-items:center;gap:3px;padding:4px 9px;border-radius:99px;background:rgba(251,191,36,0.14);color:#fde68a;font-weight:900;font-size:0.86em;">' + q.cout + etoile(13) + '</span>'
+          + '</div>'
           + '<div style="display:flex;gap:8px;">'
-          +   '<button onclick="AwakEtoiles.repondre(\'' + q.id + '\',true)" style="' + BTN + 'flex:1;padding:10px;font-size:0.84em;background:linear-gradient(135deg,#22d3ee,#0891b2);color:#04121f;border:none;' + (assez ? '' : 'opacity:0.45;') + '">Accepter</button>'
+          +   '<button onclick="AwakEtoiles.repondre(\'' + q.id + '\',true)" style="' + BTN + 'flex:1;padding:10px;font-size:0.84em;background:linear-gradient(135deg,#1d5fa8 0%,#60a8f0 100%);color:#fff;border:none;' + (assez ? '' : 'opacity:0.45;') + '">Accepter</button>'
           +   '<button onclick="AwakEtoiles.repondre(\'' + q.id + '\',false)" style="' + BTN + 'flex:1;padding:10px;font-size:0.84em;background:transparent;color:#cbd5e1;border:1px solid rgba(255,255,255,0.14);">Pas maintenant</button>'
           + '</div></div>';
-      }).join('') : '<div style="padding:16px;border-radius:12px;background:#141821;color:#94a3b8;font-size:0.84em;text-align:center;">Aucune demande. Quand un enfant choisit une récompense, elle apparaît ici : tu décides si tu l\'appliques.</div>';
+      }).join('') : '<div style="padding:18px 16px;border-radius:14px;background:#141821;color:#94a3b8;font-size:0.84em;text-align:center;line-height:1.45;"><div style="display:flex;justify-content:center;margin-bottom:8px;opacity:0.7;">' + ic('message', 28, '#fbbf24') + '</div>Aucune demande. Quand un enfant choisit une récompense, elle apparaît ici : tu décides si tu l\'appliques.</div>';
     } else if (_onglet === 'semaine') {
       h += '<div style="font-size:0.78em;color:#94a3b8;margin-bottom:10px;line-height:1.45;">Les 7 derniers jours de chaque enfant : séances et jeux qui ont rapporté des étoiles.</div>'
         + ens.map(function (e) {
           var f = fiche(d, e.id), sm = semaine(f);
-          var caseS = function (v, t) { return '<div style="flex:1;padding:9px 4px;border-radius:10px;background:#0d0f13;text-align:center;"><div style="font-size:1.1em;font-weight:900;color:#fff;">' + v + '</div><div style="font-size:0.66em;color:#94a3b8;margin-top:1px;">' + t + '</div></div>'; };
-          return '<div style="padding:12px;border-radius:12px;background:#141821;margin-bottom:8px;' + (e.id === _pidVue ? 'border:1px solid rgba(34,211,238,0.4);' : '') + '">'
-            + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><div style="flex:1;min-width:0;color:#fff;font-weight:800;font-size:0.95em;">' + esc(e.name || 'Enfant') + '</div>' + pointsSemaine(sm, 26) + '</div>'
+          var caseS = function (v, t) { return '<div style="flex:1;padding:9px 4px;border-radius:10px;background:#0d0f13;border:1px solid rgba(255,255,255,0.05);text-align:center;"><div style="font-size:1.1em;font-weight:900;color:' + (t === 'étoiles' ? '#fde68a' : '#fff') + ';">' + v + '</div><div style="font-size:0.66em;color:#94a3b8;margin-top:1px;">' + t + '</div></div>'; };
+          return '<div style="padding:12px;border-radius:14px;background:#141821;margin-bottom:8px;border:1px solid ' + (e.id === _pidVue ? 'rgba(251,191,36,0.45)' : 'rgba(255,255,255,0.05)') + ';">'
+            + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><div style="flex:1;min-width:0;color:#fff;font-weight:800;font-size:0.95em;">' + esc(e.name || 'Enfant') + '</div>' + pointsSemaine(sm, 26, true) + '</div>'
             + '<div style="display:flex;gap:6px;">' + caseS(sm.actifs + ' / 7', 'jours actifs') + caseS(sm.activites, 'activités') + caseS(sm.minutes, 'minutes') + caseS('+' + sm.etoiles, 'étoiles') + '</div>'
             + '<div style="font-size:0.74em;color:#94a3b8;margin-top:8px;line-height:1.4;">' + (sm.activites ? (sm.actifs >= 4 ? 'Belle semaine : ' + esc(e.name || 'il') + ' a bougé ' + sm.actifs + ' jours sur 7.' : 'A bougé ' + sm.actifs + ' jour' + (sm.actifs > 1 ? 's' : '') + ' sur 7.') : 'Aucune activité récompensée ces 7 derniers jours.')
             + (sm.depense ? ' ' + sm.depense + ' étoile' + (sm.depense > 1 ? 's' : '') + ' dépensée' + (sm.depense > 1 ? 's' : '') + '.' : '') + '</div></div>';
@@ -352,10 +383,10 @@
     } else if (_onglet === 'regles') {
       var ligneR = function (k, titre, detail) {
         var b = 'width:40px;height:40px;padding:0;font-size:1.2em;background:#1a1e26;color:#fff;border:1px solid rgba(255,255,255,0.12);';
-        return '<div style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:#141821;margin-bottom:6px;">'
+        return '<div style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;background:#141821;border:1px solid rgba(255,255,255,0.05);margin-bottom:6px;">'
           + '<div style="flex:1;min-width:0;"><div style="color:#f1f5f9;font-size:0.88em;font-weight:800;">' + titre + '</div><div style="font-size:0.72em;color:#94a3b8;margin-top:2px;line-height:1.35;">' + detail + '</div></div>'
           + '<button onclick="AwakEtoiles._regle(\'' + k + '\',-1)" aria-label="Diminuer : ' + titre + '" style="' + BTN + b + (ANTI[k] <= BORNES[k][0] ? 'opacity:0.35;' : '') + '">−</button>'
-          + '<b style="width:30px;text-align:center;color:#fff;font-size:1.1em;">' + ANTI[k] + '</b>'
+          + '<b style="width:30px;text-align:center;color:#fde68a;font-size:1.15em;">' + ANTI[k] + '</b>'
           + '<button onclick="AwakEtoiles._regle(\'' + k + '\',1)" aria-label="Augmenter : ' + titre + '" style="' + BTN + b + (ANTI[k] >= BORNES[k][1] ? 'opacity:0.35;' : '') + '">+</button></div>';
       };
       var modifie = Object.keys(ANTI_DEF).some(function (k) { return ANTI[k] !== ANTI_DEF[k]; });
@@ -369,24 +400,26 @@
       var f = fiche(d, _pidVue);
       h += (ens.length > 1 ? '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">' + ens.map(function (e) { return pastille(e.id === _pidVue, esc(e.name || 'Enfant'), 'AwakEtoiles.ouvrirParent(\'historique\',\'' + e.id + '\')'); }).join('') + '</div>' : '')
         + '<div style="display:flex;gap:8px;margin-bottom:12px;">'
-        +   '<div style="flex:1;padding:10px;border-radius:12px;background:#141821;text-align:center;"><div style="font-size:1.2em;font-weight:900;color:#fff;">' + f.solde + '</div><div style="font-size:0.7em;color:#94a3b8;">à dépenser</div></div>'
-        +   '<div style="flex:1;padding:10px;border-radius:12px;background:#141821;text-align:center;"><div style="font-size:1.2em;font-weight:900;color:#fff;">' + f.gagne + '</div><div style="font-size:0.7em;color:#94a3b8;">gagnées au total</div></div>'
+        +   '<div style="flex:1;padding:11px;border-radius:14px;background:linear-gradient(160deg,rgba(251,191,36,0.16),#141821 70%);border:1px solid rgba(251,191,36,0.3);text-align:center;"><div style="display:inline-flex;align-items:center;gap:5px;font-size:1.4em;font-weight:900;color:#fde68a;">' + f.solde + etoile(18) + '</div><div style="font-size:0.7em;color:#cbb88a;font-weight:700;">à dépenser</div></div>'
+        +   '<div style="flex:1;padding:11px;border-radius:14px;background:#141821;border:1px solid rgba(255,255,255,0.06);text-align:center;"><div style="font-size:1.4em;font-weight:900;color:#fff;">' + f.gagne + '</div><div style="font-size:0.7em;color:#94a3b8;font-weight:700;">gagnées au total</div></div>'
         + '</div>'
         + (f.journal.length ? f.journal.slice(0, 40).map(function (j) {
             var c = j.k === 'recompense' ? '#fca5a5' : (j.k === 'refus' ? '#94a3b8' : '#fde68a');
-            return '<div style="display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.8em;">'
-              + '<span style="color:#64748b;width:48px;flex-shrink:0;">' + quand(j.t) + '</span>'
-              + '<span style="flex:1;color:#cbd5e1;min-width:0;">' + esc(j.r) + '</span>'
+            var ico = j.k === 'recompense' ? 'trophee' : (j.k === 'refus' ? 'repos' : (j.k === 'parent' ? 'coeur' : 'course'));
+            return '<div style="display:flex;align-items:center;gap:9px;padding:8px 2px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.8em;">'
+              + '<span style="flex-shrink:0;width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:' + c + '1f;">' + ic(ico, 15, c) + '</span>'
+              + '<span style="flex:1;min-width:0;"><span style="display:block;color:#e2e8f0;font-weight:700;">' + esc(j.r) + '</span><span style="display:block;color:#64748b;font-size:0.86em;">' + quand(j.t) + '</span></span>'
               + '<b style="color:' + c + ';flex-shrink:0;">' + (j.n > 0 ? '+' + j.n : (j.n < 0 ? j.n : '')) + '</b></div>';
           }).join('') : '<div style="color:#94a3b8;font-size:0.84em;">Rien encore.</div>')
         + '<button onclick="AwakEtoiles.ajouter(\'' + _pidVue + '\')" style="' + PLEIN + 'margin-top:12px;">+ Ajouter des étoiles</button>';
     } else {
       h += '<div style="font-size:0.78em;color:#94a3b8;margin-bottom:10px;line-height:1.45;">Ce que les enfants peuvent obtenir avec leurs étoiles. Une séance rapporte 1 étoile, puis 1 toutes les 15 minutes.</div>'
         + triees(d).map(function (r) {
-          return '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:#141821;margin-bottom:6px;">'
-            + '<div style="flex:1;min-width:0;color:#f1f5f9;font-size:0.86em;font-weight:700;">' + esc(r.nom) + '</div>'
-            + '<span style="display:inline-flex;align-items:center;gap:3px;color:#fde68a;font-weight:900;font-size:0.84em;">' + r.cout + etoile(12) + '</span>'
-            + '<button onclick="AwakEtoiles.editerRecompense(\'' + r.id + '\')" style="' + BTN + 'padding:6px 9px;font-size:0.72em;background:transparent;color:#cbd5e1;border:1px solid rgba(255,255,255,0.12);">Modifier</button></div>';
+          return '<div style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:14px;background:#141821;border:1px solid rgba(255,255,255,0.05);margin-bottom:6px;">'
+            + '<span style="flex-shrink:0;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(251,191,36,0.10);border:1px solid rgba(251,191,36,0.25);">' + ic(icoRecomp(r.nom), 20, '#fbbf24') + '</span>'
+            + '<div style="flex:1;min-width:0;color:#f1f5f9;font-size:0.86em;font-weight:800;line-height:1.3;">' + esc(r.nom) + '</div>'
+            + '<span style="flex-shrink:0;display:inline-flex;align-items:center;gap:3px;padding:4px 9px;border-radius:99px;background:rgba(251,191,36,0.12);color:#fde68a;font-weight:900;font-size:0.82em;">' + r.cout + etoile(12) + '</span>'
+            + '<button onclick="AwakEtoiles.editerRecompense(\'' + r.id + '\')" aria-label="Modifier : ' + esc(r.nom) + '" style="' + BTN + 'flex-shrink:0;width:34px;height:34px;padding:0;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid rgba(255,255,255,0.12);">' + ic('crayon', 15, '#94a3b8') + '</button></div>';
         }).join('')
         + '<button onclick="AwakEtoiles.editerRecompense()" style="' + PLEIN + 'margin-top:8px;">+ Nouvelle récompense</button>';
     }
