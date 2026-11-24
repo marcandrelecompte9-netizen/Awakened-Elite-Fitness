@@ -23078,9 +23078,19 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             }
         }
         
-        function showAddMeasurementForm() {
-            document.getElementById('measurementForm').style.display = 'block';
-            document.getElementById('measurementForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // v1858 : le formulaire est REPLIÉ par défaut ; « + Nouvelles mesures »,
+        // une tuile ou un point de la silhouette l'ouvrent (champ ciblé en option).
+        function showAddMeasurementForm(champ) {
+            const f = document.getElementById('measurementForm');
+            if (!f) return;
+            f.style.display = 'block';
+            const b = document.getElementById('awakMesureAjout');
+            if (b) b.style.display = 'none';
+            try { awakRenderSilhouetteMesures(); } catch (e) { _awkE(e); }
+            f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (champ && typeof champ === 'string') {
+                setTimeout(function () { const el = document.getElementById(champ); if (el) el.click(); }, 350);
+            }
         }
         
         function cancelMeasurement() {
@@ -23090,6 +23100,11 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             ['measureWeight', 'measureHeight', 'measureWaist', 'measureHips', 'measureBiceps', 'measureThighs'].forEach(id => {
                 document.getElementById(id).value = '';
             });
+            // v1858 : Annuler (ou Sauvegarder) replie le formulaire
+            const f = document.getElementById('measurementForm');
+            if (f) f.style.display = 'none';
+            const b = document.getElementById('awakMesureAjout');
+            if (b) b.style.display = '';
         }
         
         // v1311 : poids d'une mesure dans l'unité ACTUELLE (anciennes mesures : unité d'alors inconnue → telle quelle)
@@ -23173,85 +23188,89 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             if (!container) return;
             const measurements = getBodyMeasurements();
             
+            // v1858 : aucune mesure → invitation EN HAUT (le bouton suit juste dessous)
             if (measurements.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align:center;padding:22px 16px;color:#8391a7;">
-                        
-                        <div style="font-size:0.95em; margin-bottom: 10px;">Aucune mesure enregistrée</div>
-                        <div style="font-size:0.72em;">Ajoute tes premières mesures pour suivre ton évolution</div>
-                    </div>
-                `;
+                container.innerHTML =
+                    '<div style="position:relative;overflow:hidden;border-radius:14px;padding:16px 16px 16px 92px;margin-bottom:10px;'
+                  +   'background:linear-gradient(135deg,rgba(96,168,240,0.14),rgba(13,20,34,0.4));border:1px solid rgba(96,168,240,0.28);">'
+                  +   '<img src="images/body/body_face.webp?v=1858" alt="" aria-hidden="true" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);height:88%;width:auto;opacity:0.7;'
+                  +     'filter:grayscale(1) brightness(1.3) drop-shadow(0 0 10px rgba(96,168,240,0.6));">'
+                  +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.02em;font-weight:900;color:#fff;">Prends tes premières mesures</div>'
+                  +   '<div style="font-size:0.76em;color:#a9b6c8;line-height:1.45;margin-top:4px;">Deux minutes avec un ruban. Dans un mois, tu verras ce que la balance ne montre pas.</div>'
+                  + '</div>';
                 return;
             }
-            
-            // Latest measurement summary
+
+            // ── Tuiles : dernière valeur, écart, petite courbe ──
+            const _goal = ((typeof getUserProfile === 'function' ? getUserProfile() : null) || {}).goal || '';
+            const _sensPoids = _goal === 'weight_loss' ? -1
+                : (['muscle_gain', 'hypertrophy', 'strength'].indexOf(_goal) >= 0 ? 1 : 0);
+            const METRIQUES = [
+                { k: 'weight', champ: 'measureWeight', nom: 'Poids', unite: weightUnit(), sens: _sensPoids, val: m => awakMesurePoids(m) },
+                { k: 'waist',  champ: 'measureWaist',  nom: 'Tour de taille', unite: 'po', sens: -1 },
+                { k: 'hips',   champ: 'measureHips',   nom: 'Hanches', unite: 'po', sens: -1 },
+                { k: 'biceps', champ: 'measureBiceps', nom: 'Bras', unite: 'po', sens: 1 },
+                { k: 'thighs', champ: 'measureThighs', nom: 'Cuisses', unite: 'po', sens: 1 }
+            ];
+            const _court = d => new Date(d).toLocaleDateString('fr-CA', { day: 'numeric', month: 'short' });
+            const _courbe = (vals, col) => {
+                if (vals.length < 2) return '';
+                const mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals), et = (mx - mn) || 1;
+                const pts = vals.map((v, i) => [(i / (vals.length - 1)) * 96 + 2, 24 - ((v - mn) / et) * 20]);
+                const der = pts[pts.length - 1];
+                return '<svg viewBox="0 0 100 28" preserveAspectRatio="none" style="display:block;width:100%;height:26px;margin-top:6px;" aria-hidden="true">'
+                     + '<polyline points="' + pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ') + '" fill="none" stroke="' + col + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>'
+                     + '<circle cx="' + der[0].toFixed(1) + '" cy="' + der[1].toFixed(1) + '" r="2.6" fill="' + col + '"/></svg>';
+            };
+            let tuiles = '';
+            METRIQUES.forEach(M => {
+                const hist = measurements.map(m => ({ v: M.val ? M.val(m) : parseFloat(m[M.k]), d: m.date })).filter(x => x.v > 0);
+                if (!hist.length) return;
+                const der = hist[0], prec = hist[1];
+                let ecart = '<span style="color:#64748b;">Première mesure</span>', col = '#60a8f0';
+                if (prec) {
+                    const d = Math.round((der.v - prec.v) * 10) / 10;
+                    if (Math.abs(d) < 0.1) { ecart = '<span style="color:#94a3b8;">Stable</span>'; }
+                    else {
+                        const bon = M.sens === 0 ? null : (d * M.sens > 0);
+                        col = bon === null ? '#94a3b8' : (bon ? '#60a8f0' : '#f5b84a');
+                        ecart = '<span style="color:' + col + ';font-weight:900;">' + (d > 0 ? '+' : '−') + Math.abs(d) + '</span>'
+                              + '<span style="color:#64748b;"> depuis le ' + _court(prec.d) + '</span>';
+                    }
+                }
+                const courbe = _courbe(hist.slice(0, 8).reverse().map(x => x.v), col === '#94a3b8' ? '#60a8f0' : col);
+                tuiles += '<button type="button" onclick="showAddMeasurementForm(\'' + M.champ + '\')" '
+                    + 'style="text-align:left;min-height:auto;cursor:pointer;padding:11px 12px 9px;border-radius:13px;'
+                    + 'background:linear-gradient(160deg,rgba(96,168,240,0.10),rgba(255,255,255,0.02));border:1px solid rgba(96,168,240,0.20);color:inherit;">'
+                    + '<span style="display:block;font-size:10px;letter-spacing:1.5px;color:#93c5fd;font-weight:900;">' + M.nom.toUpperCase() + '</span>'
+                    + '<span style="display:block;margin-top:4px;"><span style="font-family:var(--font-display),sans-serif;font-size:1.35em;font-weight:900;color:#fff;">' + der.v + '</span>'
+                    + '<span style="font-size:0.72em;color:#94a3b8;font-weight:700;"> ' + M.unite + '</span></span>'
+                    + '<span style="display:block;font-size:0.68em;margin-top:2px;">' + ecart + '</span>'
+                    + courbe
+                    + '</button>';
+            });
             const latest = measurements[0];
-            const date = new Date(latest.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            
-            let summaryHTML = `
-                <div style="background:linear-gradient(135deg,rgba(34,211,238,0.08),rgba(8,145,178,0.02));padding:13px;border-radius:14px;margin-bottom:16px;">
-                    <div style="font-weight: 700; font-size:0.95em; color: #22d3ee; margin-bottom: 15px;">Dernières mesures (${date})</div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap:8px;">
-            `;
-            
-            if (latest.weight) summaryHTML += `
-                <div style="background: rgba(255,255,255,0.04); padding:10px 8px;border-radius:10px;text-align:center;">
-                    <div style="font-size:1.15em;font-weight:800; color: #22d3ee;">${awakMesurePoids(latest)}</div>
-                    <div style="font-size:0.7em; color: #94a3b8;">${weightUnit()}</div>
-                </div>
-            `;
-            
+            let imc = '';
             if (latest.bmi) {
-                let bmiColor = '#10b981';
-                let bmiLabel = 'Normal';
-                if (latest.bmi < 18.5) { bmiColor = '#f59e0b'; bmiLabel = 'Sous-poids'; }
-                else if (latest.bmi >= 25 && latest.bmi < 30) { bmiColor = '#f59e0b'; bmiLabel = 'Surpoids'; }
-                else if (latest.bmi >= 30) { bmiColor = '#ef4444'; bmiLabel = 'Obésité'; }
-                
-                summaryHTML += `
-                    <div style="background: rgba(255,255,255,0.04); padding:10px 8px;border-radius:10px;text-align:center;">
-                        <div style="font-size:1.15em;font-weight:800; color: ${bmiColor};">${latest.bmi}</div>
-                        <div style="font-size:0.7em; color: #94a3b8;">IMC - ${bmiLabel}</div>
-                    </div>
-                `;
+                let c = '#60a8f0', l = 'Normal';
+                if (latest.bmi < 18.5) { c = '#f5b84a'; l = 'Sous-poids'; }
+                else if (latest.bmi >= 25 && latest.bmi < 30) { c = '#f5b84a'; l = 'Surpoids'; }
+                else if (latest.bmi >= 30) { c = '#f87171'; l = 'Obésité'; }
+                imc = '<span style="color:#64748b;"> · IMC </span><span style="color:' + c + ';font-weight:800;">' + latest.bmi + ' ' + l + '</span>';
             }
-            
-            if (latest.waist) summaryHTML += `
-                <div style="background: rgba(255,255,255,0.04); padding:10px 8px;border-radius:10px;text-align:center;">
-                    <div style="font-size:1.15em;font-weight:800; color: #22d3ee;">${latest.waist}"</div>
-                    <div style="font-size:0.7em; color: #94a3b8;">Tour de taille</div>
-                </div>
-            `;
-            
-            if (latest.hips) summaryHTML += `
-                <div style="background: rgba(255,255,255,0.04); padding:10px 8px;border-radius:10px;text-align:center;">
-                    <div style="font-size:1.15em;font-weight:800; color: #22d3ee;">${latest.hips}"</div>
-                    <div style="font-size:0.7em; color: #94a3b8;">Hanches</div>
-                </div>
-            `;
-            
-            if (latest.biceps) summaryHTML += `
-                <div style="background: rgba(255,255,255,0.04); padding:10px 8px;border-radius:10px;text-align:center;">
-                    <div style="font-size:1.15em;font-weight:800; color: #22d3ee;">${latest.biceps}"</div>
-                    <div style="font-size:0.7em; color: #94a3b8;">Biceps</div>
-                </div>
-            `;
-            
-            if (latest.thighs) summaryHTML += `
-                <div style="background: rgba(255,255,255,0.04); padding:10px 8px;border-radius:10px;text-align:center;">
-                    <div style="font-size:1.15em;font-weight:800; color: #22d3ee;">${latest.thighs}"</div>
-                    <div style="font-size:0.7em; color: #94a3b8;">Cuisses</div>
-                </div>
-            `;
-            
-            summaryHTML += `
-                    </div>
-                </div>
-            `;
-            
+            const summaryHTML =
+                '<div style="font-size:0.7em;color:#8391a7;font-weight:700;margin-bottom:8px;">Dernière prise : '
+              +   new Date(latest.date).toLocaleDateString('fr-CA', { day: 'numeric', month: 'long', year: 'numeric' }) + imc + '</div>'
+              + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px;">' + tuiles + '</div>';
+
             // History table
             const tableHTML = `
-                <div style="overflow-x: auto;">
+                <button type="button" onclick="var h=document.getElementById('awakMesureHisto');var o=h.style.display==='none';h.style.display=o?'':'none';this.querySelector('[data-fl]').style.transform=o?'rotate(180deg)':'';"
+                    style="width:100%;min-height:auto;display:flex;align-items:center;justify-content:space-between;padding:10px 12px;margin-bottom:10px;border-radius:11px;cursor:pointer;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);color:#cbd5e1;font-size:0.76em;font-weight:800;">
+                    <span>Historique (${measurements.length})</span>
+                    <svg data-fl viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" style="transition:transform .2s;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+                </button>
+                <div id="awakMesureHisto" style="overflow-x: auto; display:none; margin-bottom:12px;">
                     <table style="width: 100%; border-collapse: collapse;">
                         <thead>
                             <tr style="background:rgba(96,168,240,0.10);border-bottom:1px solid rgba(96,168,240,0.20);">
@@ -23275,8 +23294,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                                     const diff = curr - prev;
                                     if (Math.abs(diff) < 0.1) return '';
                                     const sign = diff > 0 ? '+' : '';
-                                    const color = diff < 0 ? '#10b981' : '#ef4444';
-                                    return `<div style="font-size: 0.75em; color: ${color};">(${sign}${diff.toFixed(1)})</div>`;
+                                    return `<div style="font-size: 0.75em; color: #8391a7;">(${sign}${diff.toFixed(1)})</div>`;
                                 };
                                 
                                 return `
@@ -23300,8 +23318,8 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                                         </td>
                                         <td style="padding:8px 6px; text-align: center;">
                                             <button onclick="deleteMeasurement(${m.id})" 
-                                                    style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size:0.7em;">
-                                                🗑️
+                                                    aria-label="Supprimer" style="background: rgba(248,113,113,0.10); color: #f87171; border: 1px solid rgba(248,113,113,0.3); padding: 5px 8px; min-height:auto; border-radius: 8px; cursor: pointer; line-height:0;">
+                                                <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                             </button>
                                         </td>
                                     </tr>
@@ -24980,7 +24998,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v6.webp?v=1857);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v6.webp?v=1858);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -25033,7 +25051,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1857" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1858" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25849,7 +25867,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
                     const G = H + _haut;   // bas visible de l'image
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.62) 0px,rgba(7,8,11,0.5) ' + Math.round(G * 0.25) + 'px,rgba(7,8,11,0.55) ' + Math.round(G * 0.78) + 'px,#07080b ' + G + 'px,#07080b 100%), url(images/salle_bg_v6.webp?v=1857)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.62) 0px,rgba(7,8,11,0.5) ' + Math.round(G * 0.25) + 'px,rgba(7,8,11,0.55) ' + Math.round(G * 0.78) + 'px,#07080b ' + G + 'px,#07080b 100%), url(images/salle_bg_v6.webp?v=1858)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center ' + _haut + 'px';
                 } catch (e) { _awkE(e); }
@@ -31351,7 +31369,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1857");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1858");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -45377,7 +45395,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1857';
+                    let ver = 'v0.95.1858';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -45525,7 +45543,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     const el = document.getElementById(id);
                     rempli = !!(el && el.value && parseFloat(el.value) > 0);
                 } catch (e) { _awkE(e); }
-                const col = rempli ? '#4ade80' : '#475569';
+                const col = rempli ? '#60a8f0' : '#64748b';
                 if (p.type === 'ligne') {
                     // 📏 La taille debout : une ligne du haut vers le bas.
                     pts += '<div data-mes="' + id + '" style="position:absolute;left:8%;top:6%;'
@@ -45540,20 +45558,39 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 }
             });
 
+            // v1858 : zones touchables (plus grandes que les points) → ouvre le champ
+            let zones = '';
+            Object.keys(AWAK_MESURE_POINTS).forEach(function (id) {
+                const p = AWAK_MESURE_POINTS[id];
+                const pos = p.type === 'ligne'
+                    ? 'left:8%;top:6%;width:26px;height:88%;margin-left:-13px;'
+                    : 'left:' + p.x + '%;top:' + p.y + '%;width:34px;height:34px;margin:-17px 0 0 -17px;';
+                zones += '<span role="button" tabindex="0" aria-label="' + p.label + '" onclick="awakMesureAller(\'' + id + '\')" '
+                    + 'style="position:absolute;' + pos + 'cursor:pointer;border-radius:50%;z-index:2;"></span>';
+            });
             host.innerHTML =
-                '<div style="position:relative;width:110px;margin:0 auto 12px;">'
+                '<div style="position:relative;width:130px;margin:0 auto 12px;">'
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1857" alt="" width="784" height="1168" '
-              +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.30;">'
-              +   pts
+              +   '<img src="images/body/body_face.webp?v=1858" alt="" width="784" height="1168" '
+              +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.6;filter:grayscale(1) brightness(1.3) drop-shadow(0 0 12px rgba(96,168,240,0.55));">'
+              +   pts + zones
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
               +     'text-align:center;font-size:0.6em;color:#8391a7;font-weight:700;'
               +     'letter-spacing:0.5px;min-height:14px;"></div>'
               + '</div>';
         }
         window.awakRenderSilhouetteMesures = awakRenderSilhouetteMesures;
+
+        // v1858 : toucher un point de la silhouette ouvre le champ (règle glissante)
+        function awakMesureAller(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            try { awakMesureFocus(id, true); } catch (e) { _awkE(e); }
+            el.click();
+        }
+        window.awakMesureAller = awakMesureAller;
 
         // Met en évidence le point du champ touché.
         function awakMesureFocus(id, actif) {
@@ -45627,7 +45664,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1857);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1858);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45694,14 +45731,14 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1857);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1858);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
                   +       '<div style="font-size:0.7em;color:#94a3b8;line-height:1.4;margin-top:2px;">Ajoute ta 1re photo · Poids ' + poids + '<br>Elles restent sur ton téléphone.</div>'
                   +     '</div>'
                   +     '<button onclick="takeProgressPhoto()" style="flex-shrink:0;min-height:auto;padding:10px 13px;border-radius:11px;border:none;cursor:pointer;font-weight:900;font-size:0.76em;'
-                  +       'background:linear-gradient(160deg,#a5f3fc,#22d3ee 45%,#0e7490);color:#04121f;">Photo</button>'
+                  +       'background:linear-gradient(135deg,#1d5fa8 0%,#60a8f0 100%);color:#fff;">Photo</button>'
                   +   '</div>'
                   + '</div>';
                 return;
@@ -45733,8 +45770,8 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
         function _corpsBtn(fn, txt, principal) {
             if (principal) {
                 return '<button onclick="' + fn + '" style="padding:13px 10px;border-radius:13px;'
-                     + 'border:none;cursor:pointer;background:linear-gradient(160deg,#a5f3fc,#22d3ee 45%,#0e7490);'
-                     + 'color:#04162b;font-size:0.76em;font-weight:900;letter-spacing:0.5px;">'
+                     + 'border:none;cursor:pointer;background:linear-gradient(135deg,#1d5fa8 0%,#60a8f0 100%);'
+                     + 'color:#fff;font-size:0.76em;font-weight:900;letter-spacing:0.5px;">'
                      + txt + '</button>';
             }
             return '<button onclick="' + fn + '" style="padding:13px 10px;border-radius:13px;'
@@ -48168,7 +48205,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1857");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1858");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.

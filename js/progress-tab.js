@@ -503,6 +503,7 @@
     cache('awakTuileAnalyse', kid);
     cache('awakTuileEquilibre', kid);
     cache('awakCorpsTitre', kid);
+    cache('awakCorpsBandeau', kid);
     cache('awakCorpsCard', kid);
     cache('awakMesuresCard', kid);
     var hof = document.getElementById('awakTuileHofTitre'), hofSub = document.getElementById('awakTuileHofSous');
