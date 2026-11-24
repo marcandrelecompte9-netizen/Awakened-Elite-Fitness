@@ -22018,11 +22018,22 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const ov = document.createElement('div');
             ov.id = 'awakHallModal';
             ov.style.cssText = 'position:fixed;inset:0;background:rgba(4,6,12,0.92);backdrop-filter:blur(6px);z-index:10040;overflow-y:auto;padding:18px 12px 40px;';
+            // v1860 : bandeau illustré (salle des trophées) + chiffres clés
+            const _hofBtn = 'border-radius:10px;padding:8px 12px;min-height:auto;font-weight:800;cursor:pointer;backdrop-filter:blur(4px);';
             ov.innerHTML = '<div style="max-width:640px;margin:0 auto;">'
-                + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
-                + '<span style="display:inline-flex;">' + (window.AwakIcon ? window.AwakIcon.get('trophee', 24, '#fbbf24') : '') + '</span><h2 style="flex:1;margin:0;color:#fbbf24;font-size:1.12em;">Hall of Fame</h2>'
-                + '<button onclick="awakHallToggleAdd()" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#c4b5fd;border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer;font-size:0.8em;">➕ Ajouter</button>'
-                + '<button onclick="document.getElementById(\'awakHallModal\').remove()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#cbd5e1;border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button></div>'
+                + '<div style="position:relative;height:150px;border-radius:16px;overflow:hidden;margin-bottom:12px;background:radial-gradient(120% 140% at 80% 30%,#3a2a0c 0%,#141008 60%,#0a0806 100%);border:1px solid rgba(251,191,36,0.30);box-shadow:0 10px 30px rgba(0,0,0,0.45);">'
+                +   '<img src="images/progres/records.webp" alt="" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 40%;display:block;" onerror="this.remove()">'
+                +   '<span style="position:absolute;inset:0;background:linear-gradient(0deg,rgba(8,7,5,0.95) 0%,rgba(8,7,5,0.35) 55%,rgba(8,7,5,0.15) 100%);"></span>'
+                +   '<div style="position:absolute;top:10px;right:10px;display:flex;gap:7px;">'
+                +     '<button onclick="awakHallToggleAdd()" style="' + _hofBtn + 'background:rgba(20,14,4,0.6);border:1px solid rgba(251,191,36,0.5);color:#fcd34d;font-size:0.78em;">+ Ajouter</button>'
+                +     '<button onclick="document.getElementById(\'awakHallModal\').remove()" aria-label="Fermer" style="' + _hofBtn + 'background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.2);color:#e2e8f0;"><svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:-0.15em;" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" fill="none"/></svg></button>'
+                +   '</div>'
+                +   '<div style="position:absolute;left:16px;right:16px;bottom:13px;">'
+                +     '<div style="display:flex;align-items:center;gap:7px;font-size:10px;letter-spacing:2.5px;color:#fcd34d;font-weight:900;">' + (window.AwakIcon ? window.AwakIcon.get('trophee', 14, '#fbbf24') : '') + 'TES RECORDS</div>'
+                +     '<div style="font-family:var(--font-display),sans-serif;font-size:24px;font-weight:900;color:#fff;line-height:1.1;margin-top:3px;text-shadow:0 2px 12px rgba(0,0,0,0.9);">Hall of Fame</div>'
+                +     '<div id="hofStats" style="font-size:12px;color:#e7d3a3;margin-top:4px;font-weight:700;text-shadow:0 2px 8px rgba(0,0,0,0.9);"></div>'
+                +   '</div>'
+                + '</div>'
                 // Filtres
                 + '<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">'
                 + '<select id="hofFilterMuscle" onchange="awakHallRenderGrid()" style="flex:1;min-width:130px;padding:8px 10px;border-radius:9px;border:1px solid rgba(255,255,255,0.14);background:rgba(0,0,0,0.35);color:#e2e8f0;font-size:0.82em;">'
@@ -22093,6 +22104,21 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             liste = liste.filter(g => columns.some(c => g.cells[c.key]));
 
             const wrap = document.getElementById('hofGridWrap');
+            // v1860 : chiffres clés dans le bandeau (exercices, records, champion)
+            try {
+                const st = document.getElementById('hofStats');
+                if (st) {
+                    const couronnes = {}; let nbRec = 0;
+                    liste.forEach(g => {
+                        let best = null;
+                        columns.forEach(c => { const v = g.cells[c.key]; if (!v || v.isGoal) return; nbRec++; if (v.weight && (!best || v.weight > best.v.weight)) best = { c: c, v: v }; });
+                        if (best && columns.filter(c => g.cells[c.key] && !g.cells[c.key].isGoal).length > 1) couronnes[best.c.label] = (couronnes[best.c.label] || 0) + 1;
+                    });
+                    const champ = Object.keys(couronnes).sort((x, y) => couronnes[y] - couronnes[x])[0];
+                    st.innerHTML = liste.length ? (liste.length + ' exercice' + (liste.length > 1 ? 's' : '') + ' · ' + nbRec + ' record' + (nbRec > 1 ? 's' : '')
+                        + (champ ? ' · Champion : <span style="color:#fcd34d;">' + esc(champ) + '</span> (' + couronnes[champ] + ')' : '')) : 'Tes meilleurs résultats, exercice par exercice';
+                }
+            } catch (e) { _awkE(e); }
             if (liste.length === 0 || columns.length === 0) {
                 wrap.innerHTML = (fMuscle || fEquip || fTxt) ? awakVide('trophee', 'Aucun record pour ce filtre', 'Essaie un autre muscle ou matériel.') : awakVide('trophee', 'Pas encore de record', 'Note tes charges pendant tes séances : tes meilleurs résultats apparaîtront ici.');
                 return;
@@ -22107,16 +22133,25 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const crayon = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
             const couronne = window.AwakIcon ? window.AwakIcon.get('trophee', 14, '#fbbf24') : '';
 
+            // v1860 : rang en médaille (or, argent, bronze)
+            const MED = [['#fbbf24', '#3a2a06'], ['#cbd5e1', '#1f242c'], ['#d6955b', '#2c1a0d']];
+            const medaille = i => i < 3
+                ? '<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:' + MED[i][1] + ';background:radial-gradient(circle at 35% 30%,#fff8 0%,' + MED[i][0] + ' 45%);box-shadow:0 0 8px ' + MED[i][0] + '55;">' + (i + 1) + '</span>'
+                : '<span style="flex-shrink:0;width:22px;text-align:center;font-size:11px;font-weight:900;color:#64748b;">' + (i + 1) + '</span>';
             wrap.innerHTML = liste.map(g => {
                 const m = meta(g.cles[0]).muscle;
                 const lignes = columns.filter(c => g.cells[c.key]).map(c => ({ c: c, v: g.cells[c.key] }))
                     .sort((a, b) => (a.v.isGoal ? 1 : 0) - (b.v.isGoal ? 1 : 0) || vaut(b.v) - vaut(a.v));
                 let bestW = -1; lignes.forEach(l => { if (!l.v.isGoal && l.v.weight > bestW) bestW = l.v.weight; });
+                let _rang = 0;
                 const rows = lignes.map(l => {
                     const v = l.v, c = l.c;
                     const top = !v.isGoal && v.weight && v.weight === bestW && bestW > 0 && lignes.length > 1;
+                    const rang = (!v.isGoal && lignes.length > 1) ? medaille(_rang++) : '';
                     const click = v.pid ? "awakHallEditPR('" + v.pid + "','" + _hofEsc(v.exo) + "')" : (v.cid ? "awakHallEditCustom('" + v.cid + "')" : '');
-                    return '<div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-top:1px solid rgba(255,255,255,0.05);">'
+                    return '<div style="display:flex;align-items:center;gap:9px;padding:7px 8px;margin:0 -8px;border-top:1px solid rgba(255,255,255,0.05);'
+                        + (top ? 'background:linear-gradient(90deg,rgba(251,191,36,0.12),rgba(251,191,36,0));border-radius:9px;border-top-color:transparent;' : '') + '">'
+                        + rang
                         + (typeof renderAvatar === 'function' ? renderAvatar(c.avatar, 26) : '')
                         + '<div style="flex:1;min-width:0;font-size:0.8em;font-weight:700;color:' + (top ? '#fbbf24' : '#cbd5e1') + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(c.label)
                         + (v.isGoal && c.label !== 'Objectif' ? ' <span style="font-size:0.78em;color:#c4b5fd;background:rgba(168,85,247,0.15);border-radius:6px;padding:1px 6px;margin-left:3px;">Objectif</span>' : '') + '</div>'
@@ -22125,11 +22160,12 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                         + (click ? '<button onclick="' + click + '" aria-label="Corriger" style="background:transparent;border:1px solid rgba(255,255,255,0.08);color:#8391a7;border-radius:8px;width:32px;height:32px;min-height:auto;padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">' + crayon + '</button>' : '')
                         + '</div>';
                 }).join('');
-                return '<div style="background:#0d1017;border:1px solid rgba(255,255,255,0.07);border-left:3px solid rgba(251,191,36,0.55);border-radius:12px;padding:10px 12px 5px;margin-bottom:9px;">'
-                    + '<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:5px;">'
-                    + '<div style="flex:1;min-width:0;font-size:0.88em;font-weight:800;color:#fbbf24;line-height:1.3;">' + esc(g.nom) + '</div>'
-                    + (m ? '<div style="font-size:0.66em;color:#8391a7;font-weight:700;white-space:nowrap;">' + esc(m) + '</div>' : '')
-                    + '</div>' + rows + '</div>';
+                return '<div style="background:linear-gradient(160deg,#15120b 0%,#0d1017 55%);border:1px solid rgba(251,191,36,0.16);border-radius:14px;padding:10px 12px 6px;margin-bottom:10px;box-shadow:0 6px 18px rgba(0,0,0,0.35);">'
+                    + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">'
+                    + '<div style="flex:1;min-width:0;">'
+                    + '<div style="font-size:0.9em;font-weight:900;color:#fcd34d;line-height:1.25;">' + esc(g.nom) + '</div>'
+                    + (m ? '<div style="display:inline-block;margin-top:3px;font-size:0.62em;color:#cbb88a;font-weight:800;letter-spacing:0.5px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.18);border-radius:99px;padding:1px 8px;">' + esc(m) + '</div>' : '')
+                    + '</div></div>' + rows + '</div>';
             }).join('');
         }
 
@@ -22139,8 +22175,8 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             if (panel.style.display === 'block') { panel.style.display = 'none'; return; }
             const unit = (typeof useKg !== 'undefined' && useKg) ? 'kg' : 'lbs';
             const dl = '<datalist id="hofExoList">' + (typeof exerciseDatabase !== 'undefined' ? exerciseDatabase.map(e => '<option value="' + e.name.replace(/"/g, '&quot;') + '">').join('') : '') + '</datalist>';
-            panel.innerHTML = '<div style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.3);border-radius:13px;padding:13px;margin-bottom:14px;">'
-                + '<div style="font-size:0.78em;font-weight:800;color:#c4b5fd;margin-bottom:9px;">➕ Record invité ou 🎯 objectif</div>'
+            panel.innerHTML = '<div style="background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.28);border-radius:13px;padding:13px;margin-bottom:14px;">'
+                + '<div style="font-size:0.78em;font-weight:800;color:#fcd34d;margin-bottom:9px;">➕ Record invité ou 🎯 objectif</div>'
                 + '<input id="hofExo" list="hofExoList" placeholder="Exercice" style="width:100%;padding:9px 11px;border-radius:9px;border:1px solid rgba(255,255,255,0.14);background:rgba(0,0,0,0.3);color:#e2e8f0;font-size:0.85em;margin-bottom:7px;">' + dl
                 + '<input id="hofPerson" placeholder="Nom (vide = « Objectif »)" style="width:100%;padding:9px 11px;border-radius:9px;border:1px solid rgba(255,255,255,0.14);background:rgba(0,0,0,0.3);color:#e2e8f0;font-size:0.85em;margin-bottom:7px;">'
                 + '<div style="display:flex;gap:7px;margin-bottom:8px;">'
@@ -22149,7 +22185,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 + '<input id="hofTime" type="number" placeholder="Temps (s)" style="flex:1;min-width:0;padding:9px 10px;border-radius:9px;border:1px solid rgba(255,255,255,0.14);background:rgba(0,0,0,0.3);color:#e2e8f0;font-size:0.85em;">'
                 + '</div>'
                 + '<label style="display:flex;align-items:center;gap:8px;font-size:0.78em;color:#cbd5e1;cursor:pointer;margin-bottom:9px;"><input type="checkbox" id="hofIsGoal" style="width:17px;height:17px;"> 🎯 Objectif (affiché pendant la séance)</label>'
-                + '<button onclick="awakHallAddCustom()" style="width:100%;background:linear-gradient(135deg,#22d3ee,#0891b2);border:none;color:#04121f;border-radius:10px;padding:10px;font-weight:800;font-size:0.85em;cursor:pointer;">Ajouter</button>'
+                + '<button onclick="awakHallAddCustom()" style="width:100%;background:linear-gradient(135deg,#b7791f,#fbbf24);border:none;color:#1a1204;border-radius:10px;padding:10px;font-weight:800;font-size:0.85em;cursor:pointer;">Ajouter</button>'
                 + '</div>';
             panel.style.display = 'block';
         }
@@ -23193,7 +23229,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 container.innerHTML =
                     '<div style="position:relative;overflow:hidden;border-radius:14px;padding:16px 16px 16px 92px;margin-bottom:10px;'
                   +   'background:linear-gradient(135deg,rgba(96,168,240,0.14),rgba(13,20,34,0.4));border:1px solid rgba(96,168,240,0.28);">'
-                  +   '<img src="images/body/body_face.webp?v=1859" alt="" aria-hidden="true" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);height:88%;width:auto;opacity:0.7;'
+                  +   '<img src="images/body/body_face.webp?v=1860" alt="" aria-hidden="true" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);height:88%;width:auto;opacity:0.7;'
                   +     'filter:grayscale(1) brightness(1.3) drop-shadow(0 0 10px rgba(96,168,240,0.6));">'
                   +   '<div style="font-family:var(--font-display),sans-serif;font-size:1.02em;font-weight:900;color:#fff;">Prends tes premières mesures</div>'
                   +   '<div style="font-size:0.76em;color:#a9b6c8;line-height:1.45;margin-top:4px;">Deux minutes avec un ruban. Dans un mois, tu verras ce que la balance ne montre pas.</div>'
@@ -24998,7 +25034,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // erreur qu'en v859/v861 : il faut que l'image reste plus
                 // CLAIRE que le fond sur lequel on la pose.
                 +   'background-color:#07080b;'
-                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v6.webp?v=1859);'
+                +   'background-image:linear-gradient(180deg,rgba(7,8,11,0.55) 0%,rgba(7,8,11,0.42) 25%,rgba(7,8,11,0.42) 75%,rgba(7,8,11,0.62) 100%), url(images/salle_bg_v6.webp?v=1860);'
                 // ⚠️ Format 4:3 (1000×750) — COMPROMIS volontaire.
                 // La carte change de forme selon l'écran : portrait sur mobile
                 // (~360×620), paysage sur desktop (~763×430). Une image taillée
@@ -25051,7 +25087,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 +       '<rect width="2.2" height="5" fill="' + COUL_DOULEUR + '" fill-opacity="0.85"/></pattern>'
                 +     window._awakMasqueCorps(img).defs
                 +     '</defs>'
-                +     '<image href="' + img + '?v=1859" x="0" y="0" width="200" height="298" '
+                +     '<image href="' + img + '?v=1860" x="0" y="0" width="200" height="298" '
                 +       'preserveAspectRatio="none" opacity="0.8"/>'
                 +     '<g mask="url(#' + window._awakMasqueCorps(img).id + ')">' + svgZones + '</g>'
                 +   '</svg>'
@@ -25867,7 +25903,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     if (host.dataset.fondCale === cle) return;
                     host.dataset.fondCale = cle;
                     const G = H + _haut;   // bas visible de l'image
-                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.62) 0px,rgba(7,8,11,0.5) ' + Math.round(G * 0.25) + 'px,rgba(7,8,11,0.55) ' + Math.round(G * 0.78) + 'px,#07080b ' + G + 'px,#07080b 100%), url(images/salle_bg_v6.webp?v=1859)';
+                    host.style.backgroundImage = 'linear-gradient(180deg,rgba(7,8,11,0.62) 0px,rgba(7,8,11,0.5) ' + Math.round(G * 0.25) + 'px,rgba(7,8,11,0.55) ' + Math.round(G * 0.78) + 'px,#07080b ' + G + 'px,#07080b 100%), url(images/salle_bg_v6.webp?v=1860)';
                     host.style.backgroundSize = '100% 100%, auto ' + H + 'px';
                     host.style.backgroundPosition = '0 0, center ' + _haut + 'px';
                 } catch (e) { _awkE(e); }
@@ -31369,7 +31405,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 // GitHub Pages, qui peut resservir l'ancien fichier sous le même
                 // chemin. Changer le NOM force une ressource réellement nouvelle.
                 ? 'images/card_bg_femme_v2.webp' : 'images/card_bg_homme_v2.webp';
-            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1859");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
+            cardProfile.style.cssText = 'background-color:#000;background-image:linear-gradient(100deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.70) 38%,rgba(0,0,0,0.15) 66%,rgba(0,0,0,0) 100%), url("' + _cardBg + '?v=1860");background-size:cover,auto 138%;background-position:center,right top;background-repeat:no-repeat,no-repeat;color:white;overflow:hidden;border:1px solid '+rankColor+'45;box-shadow:0 0 24px '+rankColor+'14;padding:20px;margin-bottom:14px;position:relative;';
 
             const _cornB = (pos) => `<div style="position:absolute;${pos};width:13px;height:13px;border:2px solid ${rankColor}cc;${pos.includes('top')?'border-bottom:none;':'border-top:none;'}${pos.includes('left')?'border-right:none;':'border-left:none;'}pointer-events:none;z-index:2;"></div>`;
 
@@ -45395,7 +45431,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 const v = document.getElementById('termVersion');
                 const c = document.getElementById('termCount');
                 if (v) {
-                    let ver = 'v0.95.1859';
+                    let ver = 'v0.95.1860';
                     try {
                         const el = document.querySelector('[data-app-version]');
                         if (el && el.textContent) ver = el.textContent.trim();
@@ -45573,7 +45609,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
               // v1393 : hauteur réservée (aspect-ratio) — sinon l'image recréée
               // n'a aucune hauteur le temps d'un décodage, le formulaire saute
               // de ~160 px et le toucher sur le champ suivant tombe à côté.
-              +   '<img src="images/body/body_face.webp?v=1859" alt="" width="784" height="1168" '
+              +   '<img src="images/body/body_face.webp?v=1860" alt="" width="784" height="1168" '
               +     'style="width:100%;height:auto;aspect-ratio:784/1168;display:block;opacity:0.6;filter:grayscale(1) brightness(1.3) drop-shadow(0 0 12px rgba(96,168,240,0.55));">'
               +   pts + zones
               +   '<div id="awakMesureLabel" style="position:absolute;left:0;right:0;bottom:-16px;'
@@ -45664,7 +45700,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                 centre = '<div onclick="takeProgressPhoto()" style="cursor:pointer;position:relative;'
                        +   'border-radius:14px;overflow:hidden;min-height:280px;'
                        +   'background-color:#05070c;'
-                       +   'background-image:url(images/miroir_vide.webp?v=1859);'
+                       +   'background-image:url(images/miroir_vide.webp?v=1860);'
                        +   'background-size:contain;background-position:center;'
                        +   'background-repeat:no-repeat;display:flex;align-items:center;'
                        +   'justify-content:center;text-align:center;padding:30px 20px;">'
@@ -45731,7 +45767,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
                     '<div class="card" style="padding:12px 14px;">'
                   +   '<div style="display:flex;align-items:center;gap:12px;">'
                   +     '<div onclick="takeProgressPhoto()" style="flex-shrink:0;width:52px;height:64px;border-radius:11px;cursor:pointer;'
-                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1859);background-size:cover;background-position:center;'
+                  +       'background-color:#05070c;background-image:url(images/miroir_vide.webp?v=1860);background-size:cover;background-position:center;'
                   +       'border:1px solid rgba(96,168,240,0.3);"></div>'
                   +     '<div style="flex:1;min-width:0;">'
                   +       '<div style="font-size:0.92em;font-weight:900;color:#fff;">Suivi corporel</div>'
@@ -48205,7 +48241,7 @@ ${(routine.muscles && routine.muscles.length) ? `                        <button
             const sheet = document.createElement('div');
             // 📖 Texture d'interface en fond, maintenue très discrète par le
             // voile pour que le texte du récit reste parfaitement lisible.
-            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1859");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
+            sheet.style.cssText = 'background-color:#0D0D0D;background-image:linear-gradient(180deg,rgba(13,13,13,0.55),rgba(13,13,13,0.80)), url("images/journal_bg.webp?v=1860");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,repeat-y;border-radius:20px 20px 0 0;padding:22px 16px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:85vh;overflow-y:auto;';
             // 🚪 PORTE NARRATIVE : si l'histoire est bloquée parce qu'une Faille
             // narrative n'a pas été fermée, il faut le DIRE. Sans ça, le joueur
             // voit simplement l'histoire s'arrêter et croit à un bug.
