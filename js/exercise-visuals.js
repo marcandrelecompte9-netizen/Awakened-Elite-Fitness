@@ -1684,7 +1684,17 @@ var EXERCISE_IMAGES_V3 = {
   "Triceps au mur": "Triceps_au_mur.webp",
   "Sphinx": "Sphinx.webp",
   "Quadriceps couché sur le côté": "Quadriceps_couche_sur_le_cote.webp",
-  "Ischios allongé jambe tendue": "Ischios_allonge_jambe_tendue.webp"
+  "Ischios allongé jambe tendue": "Ischios_allonge_jambe_tendue.webp",
+  "Inclinaison de la tête": "Inclinaison_de_la_tete.webp",
+  "Fléchisseurs du poignet": "Flechisseurs_du_poignet.webp",
+  "Grenouille": "Grenouille.webp",
+  "Pectoraux au sol en rotation": "Pectoraux_au_sol_en_rotation.webp",
+  "Rouleau quadriceps": "Rouleau_quadriceps.webp",
+  "Rouleau ischio-jambiers": "Rouleau_ischio_jambiers.webp",
+  "Rouleau mollets": "Rouleau_mollets.webp",
+  "Rouleau fessiers": "Rouleau_fessiers.webp",
+  "Rouleau haut du dos": "Rouleau_haut_du_dos.webp",
+  "Rouleau grand dorsal": "Rouleau_grand_dorsal.webp"
 };
 window.EXERCISE_IMAGES_V3 = EXERCISE_IMAGES_V3;
 Object.keys(EXERCISE_IMAGES_V3).forEach(function (n) {
