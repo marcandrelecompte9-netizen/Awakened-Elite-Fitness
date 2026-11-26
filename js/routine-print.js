@@ -119,7 +119,7 @@
     function image(ex) {
       if (!avecImages) return '';
       var src = window.EXERCISE_IMAGES && window.EXERCISE_IMAGES[ex.name];
-      return '<td style="width:52px;">' + (src ? '<img class="awp-img" src="' + esc(src) + '" alt="">' : '') + '</td>';
+      return '<td style="width:52px;">' + (src ? '<img class="awp-img" src="' + esc(src) + '" alt=""' + (window.awakImg21 && awakImg21(src) ? ' style="object-position:0 50%;"' : '') + '>' : '') + '</td>';
     }
 
     var lignes = '', num = 0, i = 0;

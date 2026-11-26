@@ -1671,6 +1671,34 @@ var EXERCISE_IMAGES_V2_34 = ['Heel_To_Toe_Walk.webp', 'Bird_Dog.webp', 'Airplane
 // v1651 : images 2:1 (deux cases carrées côte à côte) — cadre animé carré, chaque case entière
 var EXERCISE_IMAGES_V2_11 = ['Heel_Glute_Bridge.webp'];
 window.EXERCISE_IMAGES_V2_11 = EXERCISE_IMAGES_V2_11;
+// v1865 : NOUVELLES images assemblées (décor fixe de l'appartement + personnage détouré),
+// format 2:1 = deux cases carrées côte à côte (début | fin). Nom de l'exercice → fichier.
+// ▸ Ajouter ici chaque nouvelle image du lot ChatGPT : elle est alors branchée,
+//   animée début/fin en séance, et ses vignettes montrent la case de début.
+var EXERCISE_IMAGES_V3 = {
+  "Aiguille (thread the needle)": "Aiguille_thread_the_needle.webp",
+  "Mains jointes dans le dos": "Mains_jointes_dans_le_dos.webp",
+  "Étirement latéral assis": "Etirement_lateral_assis.webp",
+  "Barrière à genoux (gate pose)": "Barriere_a_genoux_gate_pose.webp",
+  "Biceps mains au sol": "Biceps_mains_au_sol.webp",
+  "Sphinx": "Sphinx.webp",
+  "Quadriceps couché sur le côté": "Quadriceps_couche_sur_le_cote.webp",
+  "Ischios allongé jambe tendue": "Ischios_allonge_jambe_tendue.webp",
+  "Chien tête en bas pédalé": "Chien_tete_en_bas_pedale.webp"
+};
+window.EXERCISE_IMAGES_V3 = EXERCISE_IMAGES_V3;
+Object.keys(EXERCISE_IMAGES_V3).forEach(function (n) {
+  var f = EXERCISE_IMAGES_V3[n];
+  EXERCISE_IMAGES[n] = 'images/exercises/' + f;
+  if (EXERCISE_IMAGES_V2.indexOf(f) < 0) EXERCISE_IMAGES_V2.push(f);
+  if (EXERCISE_IMAGES_V2_11.indexOf(f) < 0) EXERCISE_IMAGES_V2_11.push(f);
+});
+// Vignette carrée d'une image 2:1 : montrer la case de DÉBUT (sinon le centre tombe sur la jonction)
+window.awakImg21 = function (src) {
+  var f = String(src || '').split('/').pop().split('?')[0];
+  try { f = decodeURIComponent(f); } catch (e) { _awkE(e); }
+  return EXERCISE_IMAGES_V2_11.indexOf(f) >= 0;
+};
 // v1651 : images carrées où le personnage DEBOUT occupe toute la hauteur — cadre 2:3 (sinon tête ou pieds coupés)
 var EXERCISE_IMAGES_V2_23 = ['Towel_Door_Row.webp', 'Standing_Side_Crunch.webp'];
 window.EXERCISE_IMAGES_V2_23 = EXERCISE_IMAGES_V2_23;
