@@ -1675,17 +1675,7 @@ window.EXERCISE_IMAGES_V2_11 = EXERCISE_IMAGES_V2_11;
 // format 2:1 = deux cases carrées côte à côte (début | fin). Nom de l'exercice → fichier.
 // ▸ Ajouter ici chaque nouvelle image du lot ChatGPT : elle est alors branchée,
 //   animée début/fin en séance, et ses vignettes montrent la case de début.
-var EXERCISE_IMAGES_V3 = {
-  "Aiguille (thread the needle)": "Aiguille_thread_the_needle.webp",
-  "Mains jointes dans le dos": "Mains_jointes_dans_le_dos.webp",
-  "Étirement latéral assis": "Etirement_lateral_assis.webp",
-  "Barrière à genoux (gate pose)": "Barriere_a_genoux_gate_pose.webp",
-  "Biceps mains au sol": "Biceps_mains_au_sol.webp",
-  "Sphinx": "Sphinx.webp",
-  "Quadriceps couché sur le côté": "Quadriceps_couche_sur_le_cote.webp",
-  "Ischios allongé jambe tendue": "Ischios_allonge_jambe_tendue.webp",
-  "Chien tête en bas pédalé": "Chien_tete_en_bas_pedale.webp"
-};
+var EXERCISE_IMAGES_V3 = {};   // v1866 : lot pilote retiré (concept du personnage détouré abandonné)
 window.EXERCISE_IMAGES_V3 = EXERCISE_IMAGES_V3;
 Object.keys(EXERCISE_IMAGES_V3).forEach(function (n) {
   var f = EXERCISE_IMAGES_V3[n];
