@@ -1694,7 +1694,17 @@ var EXERCISE_IMAGES_V3 = {
   "Rouleau mollets": "Rouleau_mollets.webp",
   "Rouleau fessiers": "Rouleau_fessiers.webp",
   "Rouleau haut du dos": "Rouleau_haut_du_dos.webp",
-  "Rouleau grand dorsal": "Rouleau_grand_dorsal.webp"
+  "Rouleau grand dorsal": "Rouleau_grand_dorsal.webp",
+  "Rouleau adducteurs": "Rouleau_adducteurs.webp",
+  "Rouleau extérieur de cuisse": "Rouleau_exterieur_de_cuisse.webp",
+  "Ouverture thoracique sur rouleau": "Ouverture_thoracique_sur_rouleau.webp",
+  "Balle sous le pied": "Balle_sous_le_pied.webp",
+  "Balle fessier (piriforme)": "Balle_fessier_piriforme.webp",
+  "Balle arrière d'épaule au mur": "Balle_arriere_d_epaule_au_mur.webp",
+  "Balle pectoraux au mur": "Balle_pectoraux_au_mur.webp",
+  "Balle haut du dos au mur": "Balle_haut_du_dos_au_mur.webp",
+  "Balle avant-bras": "Balle_avant_bras.webp",
+  "Balle mollet": "Balle_mollet.webp"
 };
 window.EXERCISE_IMAGES_V3 = EXERCISE_IMAGES_V3;
 Object.keys(EXERCISE_IMAGES_V3).forEach(function (n) {
