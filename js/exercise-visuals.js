@@ -1704,7 +1704,17 @@ var EXERCISE_IMAGES_V3 = {
   "Balle pectoraux au mur": "Balle_pectoraux_au_mur.webp",
   "Balle haut du dos au mur": "Balle_haut_du_dos_au_mur.webp",
   "Balle avant-bras": "Balle_avant_bras.webp",
-  "Balle mollet": "Balle_mollet.webp"
+  "Balle mollet": "Balle_mollet.webp",
+  "Ischio-jambiers à la sangle": "Ischio_jambiers_a_la_sangle.webp",
+  "Quadriceps couché à la sangle": "Quadriceps_couche_a_la_sangle.webp",
+  "Mollet assis à la sangle": "Mollet_assis_a_la_sangle.webp",
+  "Adducteurs à la sangle": "Adducteurs_a_la_sangle.webp",
+  "Passage d'épaules à la sangle": "Passage_d_epaules_a_la_sangle.webp",
+  "Triceps à la sangle": "Triceps_a_la_sangle.webp",
+  "Pigeon sur bloc": "Pigeon_sur_bloc.webp",
+  "Fente basse avec blocs": "Fente_basse_avec_blocs.webp",
+  "Pince avant sur blocs": "Pince_avant_sur_blocs.webp",
+  "Pont soutenu sur bloc": "Pont_soutenu_sur_bloc.webp"
 };
 window.EXERCISE_IMAGES_V3 = EXERCISE_IMAGES_V3;
 Object.keys(EXERCISE_IMAGES_V3).forEach(function (n) {
