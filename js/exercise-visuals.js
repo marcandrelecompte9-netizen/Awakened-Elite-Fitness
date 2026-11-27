@@ -1714,7 +1714,16 @@ var EXERCISE_IMAGES_V3 = {
   "Pigeon sur bloc": "Pigeon_sur_bloc.webp",
   "Fente basse avec blocs": "Fente_basse_avec_blocs.webp",
   "Pince avant sur blocs": "Pince_avant_sur_blocs.webp",
-  "Pont soutenu sur bloc": "Pont_soutenu_sur_bloc.webp"
+  "Pont soutenu sur bloc": "Pont_soutenu_sur_bloc.webp",
+  "Ouverture de poitrine sur bloc": "Ouverture_de_poitrine_sur_bloc.webp",
+  "Papillon sur blocs": "Papillon_sur_blocs.webp",
+  "Passage d'épaules au bâton": "Passage_d_epaules_au_baton.webp",
+  "Rotation du tronc au bâton": "Rotation_du_tronc_au_baton.webp",
+  "Inclinaison latérale au bâton": "Inclinaison_laterale_au_baton.webp",
+  "Écartés à l'élastique": "Ecartes_a_l_elastique.webp",
+  "Rotations externes à l'élastique": "Rotations_externes_a_l_elastique.webp",
+  "Marche latérale avec élastique": "Marche_laterale_avec_elastique.webp",
+  "Pont fessier élastique aux genoux": "Pont_fessier_elastique_aux_genoux.webp"
 };
 window.EXERCISE_IMAGES_V3 = EXERCISE_IMAGES_V3;
 Object.keys(EXERCISE_IMAGES_V3).forEach(function (n) {
