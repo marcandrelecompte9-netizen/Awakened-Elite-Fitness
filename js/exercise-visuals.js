@@ -1723,7 +1723,8 @@ var EXERCISE_IMAGES_V3 = {
   "Écartés à l'élastique": "Ecartes_a_l_elastique.webp",
   "Rotations externes à l'élastique": "Rotations_externes_a_l_elastique.webp",
   "Marche latérale avec élastique": "Marche_laterale_avec_elastique.webp",
-  "Pont fessier élastique aux genoux": "Pont_fessier_elastique_aux_genoux.webp"
+  "Pont fessier élastique aux genoux": "Pont_fessier_elastique_aux_genoux.webp",
+  "Passages d'épaules à l'élastique": "Passages_d_epaules_a_l_elastique.webp"
 };
 window.EXERCISE_IMAGES_V3 = EXERCISE_IMAGES_V3;
 Object.keys(EXERCISE_IMAGES_V3).forEach(function (n) {
